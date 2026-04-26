@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LPD K-9 TACTICAL COMMAND</title>
+    <style>
+        :root { --lpd-blue: #002d62; --neon: #00ff66; --gold: #d4af37; --glass: rgba(0, 10, 20, 0.85); }
+        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; }
+
+        /* THE TACTICAL HUB CONTAINER */
+        .app-container {
+            position: relative;
+            height: 100vh;
+            width: 100vw;
+            background: radial-gradient(circle at 50% 30%, #001a33 0%, #000 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid #111;
+        }
+
+        /* TOP STATUS BAR */
+        .status-bar {
+            width: 100%; padding: 40px 0 10px 0; text-align: center;
+            background: linear-gradient(to bottom, rgba(0,45,98,0.4), transparent);
+        }
+        .status-bar h1 { color: white; letter-spacing: 5px; font-size: 20px; margin: 0; text-shadow: 0 0 10px var(--lpd-blue); }
+        .status-bar span { color: var(--neon); font-size: 9px; font-weight: bold; letter-spacing: 2px; }
+
+        /* THE "REAL-TIME" LIVE VIEW BOX */
+        .live-map-box {
+            width: 90%; height: 40%;
+            background: rgba(0, 255, 102, 0.03);
+            border: 1px solid rgba(0, 255, 102, 0.3);
+            border-radius: 15px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(0, 255, 102, 0.1);
+        }
+        .map-grid {
+            position: absolute; width: 200%; height: 200%;
+            background-image: linear-gradient(rgba(0,255,102,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,102,0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            animation: drift 20s linear infinite;
+        }
+        @keyframes drift { from { transform: translate(-10%, -10%); } to { transform: translate(0, 0); } }
+
+        /* THE FLOATING ICONS GRID */
+        .icon-grid {
+            width: 92%; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 50px;
+        }
+        .floating-btn {
+            background: var(--glass);
+            border: 1px solid var(--lpd-blue);
+            border-top: 3px solid var(--neon);
+            padding: 20px 10px;
+            border-radius: 12px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            cursor: pointer;
+        }
+        .floating-btn:active { transform: scale(0.95); }
+        .floating-btn .icon { font-size: 28px; display: block; margin-bottom: 8px; }
+        .floating-btn label { color: var(--gold); font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+
+        .footer { font-size: 9px; color: #444; margin-bottom: 15px; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="status-bar">
+        <h1>K-9 GUARDIAN</h1>
+        <span>LYNCHBURG POLICE // ACTIVE TACTICAL UNIT</span>
+    </div>
+
+    <div class="live-map-box">
+        <div class="map-grid"></div>
+        <div style="z-index: 5; text-align: center;">
+            <div style="color:var(--neon); font-size: 12px; font-weight: bold; margin-bottom: 5px;">LIVE TRACKING ACTIVE</div>
+            <div style="width: 10px; height: 10px; background: red; border-radius: 50%; display: inline-block; animation: blink 1s infinite;"></div>
+            <span style="font-size: 10px; opacity: 0.8;"> BROADCASTING SCENT TRAIL...</span>
+        </div>
+    </div>
+
+    <div class="icon-grid">
+        <div class="floating-btn" onclick="alert('UPLOADING REAL-TIME SEARCH TO COMMAND...')">
+            <span class="icon">🛰️</span>
+            <label>Live Overwatch</label>
+        </div>
+        <div class="floating-btn" onclick="alert('SYNCING PERIMETER POSITIONS...')">
+            <span class="icon">🛡️</span>
+            <label>Troop Sync</label>
+        </div>
+        <div class="floating-btn" onclick="alert('LOADING LYNCHBURG K9 CASE LAW...')">
+            <span class="icon">⚖️</span>
+            <label>Legal / Case Law</label>
+        </div>
+        <div class="floating-btn" onclick="alert('K9 EMERGENCY FIRST AID LOADED')">
+            <span class="icon">🐕‍🦺</span>
+            <label>K9 Vitals</label>
+        </div>
+    </div>
+
+    <div class="footer">ENGINEERED BY EARL WOOD // ACSD SOLUTIONS</div>
+</div>
+
+<script>
+    console.log("LPD K-9 GUARDIAN V1.0 INITIALIZED");
+</script>
+
+</body>
+</html>
