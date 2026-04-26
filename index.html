@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,86 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>LPD K-9 TACTICAL COMMAND</title>
     <style>
-        :root { 
-            --lpd-blue: #002d62; 
-            --neon: #00ff66; 
-            --gold: #d4af37; 
-            --glass: rgba(0, 10, 20, 0.95); 
-        }
-        
-        body, html { 
-            margin: 0; padding: 0; height: 100%; 
-            background: #000; font-family: 'Segoe UI', Arial, sans-serif; 
-            color: white; overflow: hidden; 
-        }
+        :root { --lpd-blue: #002d62; --neon: #00ff66; --gold: #d4af37; --glass: rgba(0, 5, 15, 0.95); }
+        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Segoe UI', Helvetica, sans-serif; color: white; overflow: hidden; }
 
-        /* BACKGROUND & GLOW */
         .app-container {
-            position: relative;
-            height: 100vh;
-            width: 100vw;
+            position: relative; height: 100vh; width: 100vw;
             background: radial-gradient(circle at 50% 20%, #001a33 0%, #000 100%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            display: flex; flex-direction: column; align-items: center;
         }
 
-        /* HEADER SECTION */
         .header {
             width: 100%; padding: 45px 0 15px 0; text-align: center;
-            border-bottom: 2px solid var(--lpd-blue);
-            background: rgba(0, 45, 98, 0.2);
+            border-bottom: 2px solid var(--lpd-blue); background: rgba(0, 45, 98, 0.2);
         }
         .header h1 { color: white; letter-spacing: 5px; font-size: 24px; margin: 0; }
-        .header p { color: var(--neon); font-size: 10px; font-weight: bold; letter-spacing: 2px; margin-top: 5px; }
+        .header p { color: var(--neon); font-size: 10px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; }
 
-        /* THE LIVE SCANNER GRID (THE "WOW" FACTOR) */
-        .overwatch-view {
-            width: 90%; height: 35%;
-            margin: 20px 0;
-            background: rgba(0, 255, 102, 0.05);
-            border: 1px solid var(--neon);
-            border-radius: 12px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        /* REAL-TIME RADAR MAP AREA */
+        .radar-container {
+            width: 90%; height: 38%; margin: 20px 0;
+            background: rgba(0, 255, 102, 0.05); border: 1px solid var(--neon);
+            border-radius: 12px; position: relative; overflow: hidden;
         }
-        .moving-grid {
-            position: absolute; width: 200%; height: 200%;
-            background-image: linear-gradient(rgba(0,255,102,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,102,0.15) 1px, transparent 1px);
-            background-size: 40px 40px;
-            animation: move 20s linear infinite;
+        .radar-sweep {
+            position: absolute; width: 200%; height: 200%; top: -50%; left: -50%;
+            background: conic-gradient(from 0deg, transparent 0deg, rgba(0, 255, 102, 0.2) 360deg);
+            animation: rotate 4s linear infinite;
         }
-        @keyframes move { from { transform: translate(-40px, -40px); } to { transform: translate(0, 0); } }
+        .map-grid {
+            position: absolute; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(0,255,102,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,102,0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+        .scent-point {
+            position: absolute; top: 40%; left: 60%; width: 8px; height: 8px;
+            background: red; border-radius: 50%; box-shadow: 0 0 15px red; animation: pulse 1s infinite;
+        }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2.5); opacity: 0; } }
 
-        /* FLOATING ACTION BUTTONS */
-        .button-grid {
-            width: 92%; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 30px;
-        }
+        /* BUTTONS */
+        .button-grid { width: 92%; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 30px; }
         .tactical-btn {
-            background: var(--glass);
-            border: 1px solid var(--lpd-blue);
-            border-top: 3px solid var(--neon);
-            padding: 22px 5px;
-            border-radius: 12px;
-            text-align: center;
-            backdrop-filter: blur(10px);
-            cursor: pointer;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            background: var(--glass); border: 1px solid var(--lpd-blue); border-top: 3px solid var(--neon);
+            padding: 22px 5px; border-radius: 12px; text-align: center; backdrop-filter: blur(10px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5); cursor: pointer;
         }
-        .tactical-btn:active { background: #111; transform: translateY(2px); }
-        .tactical-btn span { display: block; font-size: 32px; margin-bottom: 8px; }
-        .tactical-btn label { color: var(--gold); font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        .tactical-btn span { display: block; font-size: 30px; margin-bottom: 8px; }
+        .tactical-btn label { color: var(--gold); font-size: 10px; font-weight: bold; text-transform: uppercase; }
 
-        /* OVERLAY PANEL (FOR DATA) */
-        #data-panel {
+        /* DATA OVERLAY SYSTEM */
+        #overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.98); z-index: 100; padding: 50px 20px; box-sizing: border-box;
+            background: rgba(0,0,0,0.98); z-index: 100; padding: 40px 20px; box-sizing: border-box;
+            overflow-y: auto;
         }
-        .panel-content { border: 1px solid var(--gold); padding: 20px; border-radius: 10px; background: #0a0a0a; }
-        .close-btn { color: #ff3b30; font-weight: bold; margin-top: 30px; text-align: center; font-size: 14px; letter-spacing: 2px; }
+        .overlay-card { border: 2px solid var(--gold); padding: 25px; border-radius: 15px; background: #050505; }
+        .close-btn { color: #ff3b30; font-weight: bold; margin-top: 30px; text-align: center; border: 1px solid #ff3b30; padding: 10px; border-radius: 5px; }
 
         .footer { font-size: 9px; color: #555; margin-bottom: 10px; letter-spacing: 1px; }
     </style>
@@ -95,59 +71,67 @@
 <div class="app-container">
     <div class="header">
         <h1>K-9 GUARDIAN</h1>
-        <p>LYNCHBURG PD // TACTICAL COMMAND</p>
+        <p>Lynchburg Tactical Operations</p>
     </div>
 
-    <div class="overwatch-view">
-        <div class="moving-grid"></div>
-        <div style="z-index: 5; text-align: center; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px;">
-            <div style="color:var(--neon); font-size: 12px; font-weight: bold;">[ TRACKING ACTIVE ]</div>
-            <div style="font-size: 9px; opacity: 0.7; margin-top: 4px;">SYNCING WITH PERIMETER UNITS</div>
+    <div class="radar-container">
+        <div class="map-grid"></div>
+        <div class="radar-sweep"></div>
+        <div class="scent-point"></div>
+        <div style="position:absolute; bottom:10px; width:100%; text-align:center; color:var(--neon); font-size:10px; font-weight:bold; letter-spacing:1px;">
+            LIVE RADAR: TRACKING SCENT TRAIL
         </div>
     </div>
 
     <div class="button-grid">
-        <div class="tactical-btn" onclick="showData('Legal')">
-            <span>⚖️</span>
-            <label>Case Law</label>
-        </div>
-        <div class="tactical-btn" onclick="showData('Troops')">
-            <span>🛡️</span>
-            <label>Troop Sync</label>
-        </div>
-        <div class="tactical-btn" onclick="showData('Medical')">
-            <span>🐕‍🦺</span>
-            <label>K9 Med</label>
-        </div>
-        <div class="tactical-btn" onclick="showData('Log')">
-            <span>📝</span>
-            <label>Deployment Log</label>
-        </div>
+        <div class="tactical-btn" onclick="openFile('Legal')"><span>⚖️</span><label>Case Law</label></div>
+        <div class="tactical-btn" onclick="openFile('Troops')"><span>🛡️</span><label>Troop Sync</label></div>
+        <div class="tactical-btn" onclick="openFile('Medical')"><span>🐕‍🦺</span><label>K9 Medical</label></div>
+        <div class="tactical-btn" onclick="openFile('Logs')"><span>📝</span><label>Duty Logs</label></div>
     </div>
 
-    <div class="footer">SYSTEM BY EARL WOOD // ACSD SOLUTIONS</div>
+    <div class="footer">ENGINEERED BY EARL WOOD // ACSD SOLUTIONS</div>
 </div>
 
-<div id="data-panel">
-    <div class="panel-content" id="panel-body"></div>
-    <div class="close-btn" onclick="hideData()">[ CLOSE DATA PORTAL ]</div>
+<div id="overlay">
+    <div class="overlay-card" id="content"></div>
+    <div class="close-btn" onclick="closeFile()">RETURN TO COMMAND</div>
 </div>
 
 <script>
-    const tacticalData = {
-        'Legal': '<h2 style="color:var(--gold)">VA K9 CASE LAW</h2><ul style="line-height:1.6"><li><b>FL v. Harris:</b> Training records are key to reliability.</li><li><b>Rodriguez v. US:</b> Stop cannot be extended for dog.</li><li><b>US v. Place:</b> Sniff is not a Fourth Amendment search.</li></ul>',
-        'Troops': '<h2 style="color:var(--gold)">LIVE PERIMETER</h2><p><b>Unit 402:</b> Point Position (Active)</p><p><b>Unit 109:</b> Perimeter South</p><p><b>Command:</b> Monitoring Live Feed</p>',
-        'Medical': '<h2 style="color:var(--gold)">K9 FIELD MEDIC</h2><p><b>BLOAT:</b> Critical emergency. Immediate transport.</p><p><b>HEAT:</b> Apply water to belly/paws. Do not use ice.</p><p><b>NARC EXPOSURE:</b> Administer Naloxone if K9 lethargic.</p>',
-        'Log': '<h2 style="color:var(--gold)">DEPLOYMENT LOG</h2><p>GPS Location: Lynchburg, VA</p><p>Track Duration: 14m 22s</p><p>Surface: Wooded/Rural</p><p>Status: Record Finalized</p>'
+    const tacticalFiles = {
+        'Legal': `<h2 style="color:var(--gold)">VIRGINIA K-9 LEGAL BRIEF</h2>
+                  <p><b>Florida v. Harris:</b> Establishes that a dog's reliability is based on training records, not just field performance.</p>
+                  <p><b>Rodriguez v. United States:</b> A police stop cannot be extended beyond the time needed to handle the initial matter to wait for a K-9.</p>
+                  <p><b>Virginia Code § 18.2-144.1:</b> Protection of police animals; outlines felony charges for harming a K-9.</p>`,
+        
+        'Troops': `<h2 style="color:var(--gold)">TACTICAL PERIMETER SYNC</h2>
+                   <p style="color:var(--neon)">[ ACTIVE SEARCH GRP: 402-DELTA ]</p>
+                   <p><b>Primary Handler:</b> Officer J. Miller (150m NW of Start)</p>
+                   <p><b>Perimeter 1:</b> Unit 109 - Sitting Static at Ward's Ferry Rd.</p>
+                   <p><b>Perimeter 2:</b> Unit 215 - Covering Wooded Egress (East).</p>
+                   <p><b>Command:</b> Real-time viewing active via Guardian Hub.</p>`,
+
+        'Medical': `<h2 style="color:var(--gold)">K-9 FIELD EMERGENCY MEDIC</h2>
+                    <p><b>HEAT STROKE:</b> Signs: Excessive panting, dark gums. <i>Action:</i> Cool paws and belly with water. Do not submerge in ice.</p>
+                    <p><b>BLOAT (GDV):</b> Signs: Swollen abdomen, dry heaving. <i>Action:</i> Immediate emergency transport to 24hr Vet. Life-threatening.</p>
+                    <p><b>NARCOTIC EXPOSURE:</b> <i>Action:</i> Use K-9 Narcan (Naloxone) if dog becomes lethargic after search.</p>`,
+
+        'Logs': `<h2 style="color:var(--gold)">OFFICIAL DEPLOYMENT RECORD</h2>
+                 <p><b>Location:</b> Lynchburg City Jurisdiction</p>
+                 <p><b>Terrain:</b> Wooded / Rolling Hills</p>
+                 <p><b>Weather:</b> Humidity 64% / Temp 68F</p>
+                 <p><b>GPS Path:</b> Recorded and Exported to LPD Records.</p>
+                 <p><b>Status:</b> Ready for Supervisor Signature.</p>`
     };
 
-    function showData(key) {
-        document.getElementById('panel-body').innerHTML = tacticalData[key];
-        document.getElementById('data-panel').style.display = 'block';
+    function openFile(key) {
+        document.getElementById('content').innerHTML = tacticalFiles[key];
+        document.getElementById('overlay').style.display = 'block';
     }
 
-    function hideData() {
-        document.getElementById('data-panel').style.display = 'none';
+    function closeFile() {
+        document.getElementById('overlay').style.display = 'none';
     }
 </script>
 
