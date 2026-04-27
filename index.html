@@ -3,58 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD SAR - COMMAND V24</title>
+    <title>ACSD SAR - NIGHT OPS V25</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --orange: #ff6600; --gold: #ffd700; --blue: #007bff; --live: #00ff00; --clue: #ff0000; }
+        :root { --orange: #ff6600; --gold: #ffd700; --blue: #007bff; --live: #00ff00; --clue: #ff0000; --nvg: #00ff41; }
         body, html { margin: 0; padding: 0; height: 100%; background: #000; color: white; font-family: sans-serif; overflow: hidden; }
 
+        /* HEADER */
         .header { background: #001a00; padding: 45px 15px 10px; border-bottom: 3px solid var(--orange); z-index: 3000; }
         .search-row { display: flex; gap: 5px; }
         .search-row input { flex-grow: 1; padding: 12px; border-radius: 4px; border: none; font-size: 16px; font-weight: bold; }
         
-        #map { width: 100%; height: calc(100vh - 420px); background: #111; z-index: 1; }
+        #map { width: 100%; height: calc(100vh - 420px); background: #050505; z-index: 1; transition: filter 0.5s; }
+
+        /* NIGHT VISION FILTER */
+        .nvg-mode { filter: sepia(100%) hue-rotate(80deg) brightness(0.8) contrast(1.2) invert(1); }
 
         /* TACTICAL LEGEND */
         .legend { 
             position: absolute; left: 10px; top: 210px; width: 230px; 
-            background: rgba(0,0,0,0.95); border: 2px solid var(--gold); 
+            background: rgba(0,0,0,0.9); border: 2px solid var(--gold); 
             padding: 12px; z-index: 2000; border-radius: 8px; font-size: 11px; 
         }
-        .status-pill { padding: 4px; text-align: center; font-weight: bold; border-radius: 4px; margin-bottom: 8px; font-size: 14px; }
+        .status-pill { padding: 6px; text-align: center; font-weight: bold; border-radius: 4px; margin-bottom: 8px; font-size: 14px; border: 2px solid transparent; }
+        .breach-alarm { animation: alarm-flash 0.5s infinite; background: red !important; border-color: white !important; }
+        @keyframes alarm-flash { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
         .stat-line { display: flex; justify-content: space-between; margin-bottom: 3px; font-family: monospace; font-size: 12px; }
 
-        /* COMMAND BUTTONS (RETRACT/END) */
-        .cmd-row { display: flex; gap: 5px; padding: 5px 10px; background: #111; }
+        .cmd-row { display: flex; gap: 5px; padding: 5px 10px; background: #000; }
         .cmd-btn { flex: 1; padding: 10px; border-radius: 4px; border: 1px solid #444; color: white; font-size: 10px; font-weight: bold; cursor: pointer; }
 
-        .toolbar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 10px; background: #000; z-index: 3000; }
+        /* TOOLBAR */
+        .toolbar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 10px; background: #000; z-index: 3000; }
         .tool { background: #222; border: 1px solid #444; padding: 15px 0; border-radius: 6px; text-align: center; color: #fff; cursor: pointer; }
         .tool label { display: block; font-size: 8px; color: var(--gold); text-transform: uppercase; margin-top: 5px; font-weight: bold; }
         .active-tool { background: var(--orange) !important; border: 2px solid white !important; }
+        .nvg-btn-active { background: var(--nvg) !important; color: black !important; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <div class="search-row">
-        <input type="text" id="pls-in" placeholder="Address, City, VA">
+        <input type="text" id="pls-in" placeholder="Mission Address, VA">
         <button onclick="deployPLS()" style="background:var(--orange); color:white; border:none; padding:10px; border-radius:4px; font-weight:bold;">DEPLOY</button>
     </div>
-    <button onclick="lockCMD()" style="width:100%; background:#003300; color:white; border:1px solid lime; padding:8px; font-size:11px; border-radius:4px; margin-top:5px; font-weight:bold;">ACTIVATE COMMAND CENTER</button>
+    <button onclick="lockCMD()" style="width:100%; background:#003300; color:white; border:1px solid lime; padding:8px; font-size:11px; border-radius:4px; margin-top:5px; font-weight:bold;">ACTIVATE CP PULSE</button>
 </div>
 
 <div id="map"></div>
 
 <div class="cmd-row">
-    <button class="cmd-btn" style="background:#440000;" onclick="clearUnits()">RECALL ALL UNITS</button>
-    <button class="cmd-btn" style="background:#660000;" onclick="location.reload()">END MISSION (RESET)</button>
+    <button class="cmd-btn" style="background:#440000;" onclick="clearUnits()">RECALL ASSETS</button>
+    <button class="cmd-btn" style="background:#222;" id="nvg-toggle" onclick="toggleNVG()">NIGHT VISION: OFF</button>
 </div>
 
 <div class="legend">
-    <div id="p-status-box" class="status-pill" style="background:red; color:white;">ZONE: OPEN</div>
+    <div id="p-status-box" class="status-pill" style="background:#333; color:white;">ZONE: NO DATA</div>
     
-    <b>Unit Count</b>
+    <b>Tactical Status</b>
     <div class="stat-line"><span>K9:</span><span id="k-val" style="color:yellow;">0</span></div>
     <div class="stat-line"><span>GROUND:</span><span id="g-val" style="color:var(--live);">0</span></div>
     <div class="stat-line"><span>CLUES:</span><span id="c-val" style="color:red;">0</span></div>
@@ -66,10 +74,11 @@
 </div>
 
 <div class="toolbar">
-    <div id="t-perim" class="tool" onclick="setMode('perim')"><span>📐</span><label>Perimeter</label></div>
-    <div id="t-k9" class="tool" onclick="setMode('k9')"><span>🐕</span><label>Add K9</label></div>
-    <div id="t-ground" class="tool" onclick="setMode('ground')"><span>🚶</span><label>Add Ground</label></div>
-    <div id="t-clue" class="tool" onclick="setMode('clue')"><span>🚩</span><label>Mark Clue</label></div>
+    <div id="t-perim" class="tool" onclick="setMode('perim')"><span>📐</span><label>Perim</label></div>
+    <div id="t-k9" class="tool" onclick="setMode('k9')"><span>🐕</span><label>K9</label></div>
+    <div id="t-ground" class="tool" onclick="setMode('ground')"><span>🚶</span><label>Ground</label></div>
+    <div id="t-clue" class="tool" onclick="setMode('clue')"><span>🚩</span><label>Clue</label></div>
+    <div class="tool" onclick="location.reload()"><span>🔄</span><label>Reset</label></div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -84,21 +93,27 @@
     function setMode(m) {
         mode = m; document.querySelectorAll('.tool').forEach(t => t.classList.remove('active-tool'));
         document.getElementById('t-' + m).classList.add('active-tool');
+        if(m === 'perim') { document.getElementById('p-status-box').innerText = "ZONE: OPEN"; document.getElementById('p-status-box').style.background = "red"; }
     }
 
-    function clearUnits() {
-        assetLayer.clearLayers();
-        kC = 0; gC = 0; cC = 0;
-        document.getElementById('k-val').innerText = 0;
-        document.getElementById('g-val').innerText = 0;
-        document.getElementById('c-val').innerText = 0;
+    function toggleNVG() {
+        var m = document.getElementById('map');
+        var b = document.getElementById('nvg-toggle');
+        m.classList.toggle('nvg-mode');
+        if(m.classList.contains('nvg-mode')) {
+            b.innerText = "NIGHT VISION: ON"; b.classList.add('nvg-btn-active');
+        } else {
+            b.innerText = "NIGHT VISION: OFF"; b.classList.remove('nvg-btn-active');
+        }
     }
+
+    function clearUnits() { assetLayer.clearLayers(); kC=0; gC=0; cC=0; document.querySelectorAll('.stat-line span:last-child').forEach(s => s.innerText = 0); }
 
     function deployPLS() {
         var a = document.getElementById('pls-in').value;
         fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${a}`)
             .then(r => r.json()).then(d => {
-                if(d[0]) { map.setView([d[0].lat, d[0].lon], 17); L.marker([d[0].lat, d[0].lon]).addTo(map).bindPopup("PLS").openPopup(); }
+                if(d[0]) { map.setView([d[0].lat, d[0].lon], 17); L.marker([d[0].lat, d[0].lon]).addTo(map).bindPopup("PLS"); }
             });
     }
 
@@ -114,18 +129,37 @@
             if(pPts.length >= 3) { 
                 document.getElementById('p-status-box').innerText = "ZONE: SECURED"; 
                 document.getElementById('p-status-box').style.background = "green"; 
+                document.getElementById('p-status-box').classList.remove('breach-alarm');
             }
-        } else if (mode === 'k9') {
-            kC++; L.circleMarker(e.latlng, {radius: 10, color: 'white', fillColor: 'yellow', fillOpacity: 1, weight: 3}).addTo(assetLayer);
-            document.getElementById('k-val').innerText = kC;
-        } else if (mode === 'ground') {
-            gC++; L.circleMarker(e.latlng, {radius: 10, color: 'white', fillColor: 'lime', fillOpacity: 1, weight: 3}).addTo(assetLayer);
-            document.getElementById('g-val').innerText = gC;
-        } else if (mode === 'clue') {
-            cC++; L.circleMarker(e.latlng, {radius: 8, color: 'white', fillColor: 'red', fillOpacity: 1, weight: 3}).addTo(assetLayer);
-            document.getElementById('c-val').innerText = cC;
+        } else {
+            // Drop Unit
+            var color = mode === 'k9' ? 'yellow' : (mode === 'ground' ? 'lime' : 'red');
+            L.circleMarker(e.latlng, {radius: 10, color: 'white', fillColor: color, fillOpacity: 1, weight: 3}).addTo(assetLayer);
+            
+            // Breach Logic: If dot is outside the perimeter polygon
+            if(pPts.length >= 3 && !isMarkerInsidePolygon(e.latlng, pPts)) {
+                document.getElementById('p-status-box').innerText = "BREACH DETECTED";
+                document.getElementById('p-status-box').classList.add('breach-alarm');
+            }
+
+            if(mode === 'k9') document.getElementById('k-val').innerText = ++kC;
+            if(mode === 'ground') document.getElementById('g-val').innerText = ++gC;
+            if(mode === 'clue') document.getElementById('c-val').innerText = ++cC;
         }
     });
+
+    // Mathematical check for breach
+    function isMarkerInsidePolygon(marker, polyPoints) {
+        var x = marker.lat, y = marker.lng;
+        var inside = false;
+        for (var i = 0, j = polyPoints.length - 1; i < polyPoints.length; j = i++) {
+            var xi = polyPoints[i].lat, yi = polyPoints[i].lng;
+            var xj = polyPoints[j].lat, yj = polyPoints[j].lng;
+            var intersect = ((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+            if (intersect) inside = !inside;
+        }
+        return inside;
+    }
 </script>
 </body>
 </html>
