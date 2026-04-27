@@ -1,157 +1,142 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD SAR - ZERO FAIL V4</title>
+    <title>ACSD SAR - COMMAND SYNC V6</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --sar-orange: #ff6600; --gold: #ffd700; --live-blue: #007bff; }
+        :root { --sar-orange: #ff6600; --live-blue: #007bff; --gold: #ffd700; }
         body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Arial', sans-serif; overflow: hidden; color: white; }
 
-        /* COMMAND HEADER */
+        /* TACTICAL HEADER */
         .header { background: #001a00; padding: 45px 15px 10px; border-bottom: 3px solid var(--sar-orange); z-index: 3000; }
-        .hud-top { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 10px; font-weight: bold; }
+        .hud-data { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 8px; font-family: monospace; }
+        .search-area { background: #111; padding: 10px; border-radius: 6px; border: 1px solid #333; }
         .search-row { display: flex; gap: 5px; }
-        .search-row input { flex-grow: 1; padding: 12px; border-radius: 4px; border: none; font-size: 16px; font-weight: bold; }
+        .search-row input { flex-grow: 1; padding: 12px; border-radius: 4px; border: none; font-size: 16px; background: #222; color: #fff; }
 
-        /* LIVE PULSE MARKER */
+        /* THE PULSE (STRICT HARDWARE) */
         .pulse {
-            width: 18px; height: 18px; background: var(--live-blue); border: 3px solid #fff; border-radius: 50%;
-            box-shadow: 0 0 15px rgba(0,0,0,0.8); position: relative;
+            width: 20px; height: 20px; background: var(--live-blue); border: 3px solid #fff; border-radius: 50%;
+            position: relative; box-shadow: 0 0 20px rgba(0,123,255,0.8);
         }
         .pulse::after {
-            content: ""; position: absolute; top: -6px; left: -6px; width: 30px; height: 30px;
-            border: 3px solid #fff; border-radius: 50%; animation: pulsate 1.5s ease-out infinite;
+            content: ""; position: absolute; top: -8px; left: -8px; width: 36px; height: 36px;
+            border: 3px solid #fff; border-radius: 50%; animation: pulsate 1.8s ease-out infinite;
         }
-        @keyframes pulsate { 0% { transform: scale(0.1); opacity: 0; } 50% { opacity: 1; } 100% { transform: scale(1.6); opacity: 0; } }
+        @keyframes pulsate { 0% { transform: scale(0.1); opacity: 0; } 50% { opacity: 1; } 100% { transform: scale(1.8); opacity: 0; } }
 
-        #map { flex-grow: 1; width: 100%; height: calc(100vh - 260px); z-index: 1; }
+        #map { flex-grow: 1; width: 100%; height: calc(100vh - 290px); z-index: 1; }
 
-        /* SUBJECT LEGEND */
-        .legend { position: absolute; left: 10px; top: 195px; width: 150px; background: rgba(0,0,0,0.9); border: 2px solid var(--gold); padding: 10px; z-index: 2000; border-radius: 8px; font-size: 11px; }
-        .legend b { color: var(--sar-orange); border-bottom: 1px solid #444; display: block; margin-bottom: 5px; }
+        /* TOOLBAR */
+        .toolbar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 10px; background: #000; z-index: 3000; }
+        .tool { background: #222; border: 1px solid #444; padding: 15px 0; border-radius: 6px; text-align: center; cursor: pointer; color: #fff; }
+        .tool label { display: block; font-size: 8px; color: var(--gold); text-transform: uppercase; margin-top: 5px; font-weight: bold; }
+        .active-tool { background: var(--sar-orange) !important; border-color: #fff; }
 
-        /* TOOLS */
-        .tools { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 10px; background: #000; z-index: 3000; }
-        .t-btn { background: #222; border: 1px solid #444; padding: 15px 0; border-radius: 6px; text-align: center; cursor: pointer; }
-        .t-btn.active { background: var(--sar-orange); border-color: #fff; }
-        .t-btn label { display: block; font-size: 8px; color: var(--gold); text-transform: uppercase; margin-top: 5px; font-weight: bold; }
-        
-        .found-btn { background: var(--sar-orange); grid-column: span 4; padding: 20px; text-align: center; font-size: 20px; font-weight: 900; margin-top: 5px; border-radius: 6px; cursor: pointer; }
+        /* COORD READOUT */
+        .coords { position: absolute; bottom: 150px; left: 10px; background: rgba(0,0,0,0.85); padding: 8px; border: 1px solid var(--sar-orange); border-radius: 4px; font-size: 10px; z-index: 2000; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div class="hud-top">
-        <span id="d-val">04/27/2026</span>
-        <span id="gps-stat" style="color:red;">● GPS: STANDBY</span>
-        <span id="t-val">00:00:00</span>
+    <div class="hud-data">
+        <span id="gps-stat" style="color:red;">SATELLITE: OFF</span>
+        <span id="acc-stat">ACCURACY: --</span>
+        <span id="time-stat">00:00:00</span>
     </div>
-    <div class="search-row">
-        <input type="text" id="pls-search" placeholder="Enter PLS Address">
-        <button style="background: var(--sar-orange); color:white; border:none; padding:10px 15px; border-radius:4px; font-weight:bold;" onclick="goPLS()">DEPLOY</button>
+    <div class="search-area">
+        <div class="search-row">
+            <input type="text" id="addr-field" placeholder="Enter PLS Address">
+            <button onclick="searchAddress()" style="background:var(--sar-orange); color:white; border:none; padding:10px 15px; border-radius:4px; font-weight:bold;">DEPLOY</button>
+        </div>
+        <button onclick="forceSyncHome()" style="width:100%; background:#004400; color:#fff; border:1px solid #00ff00; margin-top:8px; padding:5px; font-size:10px; border-radius:4px;">SYNC PLS TO MY CURRENT LOCATION</button>
     </div>
 </div>
 
 <div id="map"></div>
 
-<div class="legend">
-    <b>SUBJECT PROFILE</b>
-    NAME: <span id="n-tag">SEARCHING...</span><br>
-    TYPE: <span id="t-tag" style="color:yellow;">DEMENTIA</span><br>
-    STATUS: <span id="s-tag" style="color:lime;">ACTIVE SEARCH</span>
+<div class="coords">
+    <b>LAT/LON:</b> <span id="ll-readout">0.0000 / 0.0000</span>
 </div>
 
-<div class="tools">
-    <div class="t-btn" onclick="startGPS()"><span>📍</span><label>Start GPS</label></div>
-    <div id="perim-btn" class="t-btn" onclick="togglePerim()"><span>📐</span><label>Perim Mode</label></div>
-    <div class="t-btn" onclick="dropLZ()"><span>🚁</span><label>Set LZ</label></div>
-    <div class="t-btn" onclick="location.reload()"><span>🔄</span><label>Reset App</label></div>
-    <div class="found-btn" onclick="alert('ALL UNITS: CONVERGE ON PLS - PATIENT FOUND')">PATIENT LOCATED</div>
+<div class="toolbar">
+    <div id="gps-btn" class="tool" onclick="toggleGPS()"><span>🎯</span><label>Lock On Me</label></div>
+    <div class="tool" onclick="dropLZ()"><span>🚁</span><label>Set LZ</label></div>
+    <div class="tool" onclick="startDraw()"><span>📐</span><label>Perimeter</label></div>
+    <div class="tool" onclick="location.reload()"><span>🔄</span><label>Reset</label></div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // 1. MAP ENGINE (TOPO)
-    var map = L.map('map', { zoomControl: false }).setView([37.4137, -79.1422], 15);
+    var map = L.map('map', { zoomControl: false }).setView([37.4137, -79.1422], 16);
     L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png').addTo(map);
 
-    // 2. CLOCK ENGINE
-    setInterval(() => {
-        let n = new Date();
-        document.getElementById('t-val').innerText = n.toLocaleTimeString();
-    }, 1000);
-
-    // 3. HARD GPS ENGINE
     var myMarker = null;
-    var pulseIcon = L.divIcon({ className: 'p-icon', html: '<div class="pulse"></div>', iconSize: [30, 30], iconAnchor: [15, 15] });
+    var liveTrack = false;
+    var pulseIcon = L.divIcon({ className: 'p-icon', html: '<div class="pulse"></div>', iconSize: [36, 36], iconAnchor: [18, 18] });
 
-    function startGPS() {
+    // 1. GPS LOGIC - FORCE SYNC
+    function toggleGPS() {
+        liveTrack = !liveTrack;
+        document.getElementById('gps-btn').classList.toggle('active-tool');
+        
         if (navigator.geolocation) {
-            document.getElementById('gps-stat').innerText = "● GPS: LOOKING...";
             navigator.geolocation.watchPosition(function(p) {
-                var pos = [p.coords.latitude, p.coords.longitude];
-                if (!myMarker) {
-                    myMarker = L.marker(pos, { icon: pulseIcon }).addTo(map);
-                    map.setView(pos, 17);
-                } else {
-                    myMarker.setLatLng(pos);
-                }
-                document.getElementById('gps-stat').innerText = "● GPS: LIVE";
+                var lat = p.coords.latitude;
+                var lng = p.coords.longitude;
+                var acc = p.coords.accuracy.toFixed(0);
+                
+                document.getElementById('gps-stat').innerText = "SATELLITE: LIVE";
                 document.getElementById('gps-stat').style.color = "#00ff00";
-            }, function(err) {
-                alert("GPS Error: Please enable Location Services in your phone settings.");
-            }, { enableHighAccuracy: true });
+                document.getElementById('acc-stat').innerText = "ACCURACY: " + acc + "m";
+                document.getElementById('ll-readout').innerText = lat.toFixed(5) + " / " + lng.toFixed(5);
+
+                if (!myMarker) {
+                    myMarker = L.marker([lat, lng], { icon: pulseIcon }).addTo(map);
+                } else {
+                    myMarker.setLatLng([lat, lng]);
+                }
+
+                if (liveTrack) {
+                    map.setView([lat, lng], 18);
+                }
+            }, null, { enableHighAccuracy: true, maximumAge: 0 });
         }
     }
 
-    // 4. THE SIMPLE PERIMETER TOOL (FIXED)
-    var isDrawing = false;
-    var perimCoords = [];
-    var perimLine = L.polyline([], {color: '#ff6600', weight: 5}).addTo(map);
-    var perimArea = L.polygon([], {color: '#ff6600', fillOpacity: 0.3}).addTo(map);
-
-    function togglePerim() {
-        isDrawing = !isDrawing;
-        var btn = document.getElementById('perim-btn');
-        if(isDrawing) {
-            btn.classList.add('active');
-            alert("Perimeter Mode ON: Tap the map to set points. Tap the button again to finish.");
+    function forceSyncHome() {
+        if(myMarker) {
+            var pos = myMarker.getLatLng();
+            map.setView(pos, 18);
+            L.circleMarker(pos, {color: 'red', radius: 12}).addTo(map).bindPopup("<b>PLS SET TO YOUR LOCATION</b>").openPopup();
         } else {
-            btn.classList.remove('active');
-            if(perimCoords.length > 2) {
-                perimArea.setLatLngs(perimCoords);
-            }
+            alert("Tap 'Lock On Me' first so I know where you are!");
         }
     }
 
-    map.on('click', function(e) {
-        if(isDrawing) {
-            perimCoords.push(e.latlng);
-            perimLine.setLatLngs(perimCoords);
-            L.circleMarker(e.latlng, { radius: 5, color: 'white', fillColor: 'orange', fillOpacity: 1 }).addTo(map);
-        }
-    });
-
-    // 5. LZ & SEARCH
-    function dropLZ() {
-        L.circle(map.getCenter(), { radius: 40, color: '#00ff00', fillOpacity: 0.4 }).addTo(map)
-         .bindPopup("<b>HELICOPTER LZ</b>").openPopup();
-    }
-
-    function goPLS() {
-        var addr = document.getElementById('pls-search').value;
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${addr}`)
+    // 2. SEARCH LOGIC
+    function searchAddress() {
+        var query = document.getElementById('addr-field').value;
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`)
             .then(r => r.json()).then(d => {
                 if(d[0]) {
                     map.setView([d[0].lat, d[0].lon], 18);
-                    L.marker([d[0].lat, d[0].lon]).addTo(map).bindPopup("POINT LAST SEEN").openPopup();
+                    L.marker([d[0].lat, d[0].lon]).addTo(map).bindPopup("<b>SEARCH TARGET</b>").openPopup();
+                } else {
+                    alert("Address not found. Check spelling.");
                 }
             });
     }
+
+    // 3. UTILS
+    function dropLZ() {
+        L.circle(map.getCenter(), { radius: 30, color: '#00ff00', weight: 4, fillOpacity: 0.3 }).addTo(map).bindPopup("HELI LZ").openPopup();
+    }
+
+    setInterval(() => { document.getElementById('time-stat').innerText = new Date().toLocaleTimeString(); }, 1000);
 </script>
 </body>
 </html>
