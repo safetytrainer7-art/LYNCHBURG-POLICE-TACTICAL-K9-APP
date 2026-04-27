@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND V39</title>
+    <title>ACSD COMMAND - FINAL ANCHOR</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --orange: #ff6600; --gold: #ffd700; --blue: #002b5c; --live: #00ff00; }
@@ -12,38 +13,37 @@
         .page { position: absolute; top: 85px; bottom: 0; width: 100%; display: none; background: #000; overflow-y: auto; flex-direction: column; }
         .active-page { display: flex; }
         #map { flex-grow: 1; background: #111; }
-        .map-info { position: absolute; top: 100px; right: 10px; z-index: 1000; background: rgba(0,0,0,0.8); padding: 5px; border: 1px solid var(--gold); font-size: 10px; }
         .footer-tools { background: #000; padding: 10px; border-top: 1px solid var(--orange); z-index: 5000; }
         .tool-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 8px; }
         .t-btn { background: #1a1a1a; border: 1px solid #444; color: white; padding: 10px 0; border-radius: 4px; text-align: center; font-size: 10px; }
         .active-t { background: var(--orange) !important; border-color: white; }
-        .data-card { background: #111; border: 1px solid #333; padding: 12px; margin: 8px; border-radius: 6px; font-size: 12px; }
+        .data-card { background: #111; border: 1px solid #333; padding: 12px; margin: 8px; border-radius: 6px; font-size: 13px; }
         .data-card b { color: var(--gold); display: block; border-bottom: 1px solid #222; margin-bottom: 4px; }
+        .k9-special { border-left: 4px solid var(--live); }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div style="text-align:center; color:var(--gold); font-weight:bold; font-size:14px;">ACSD COMMAND TERMINAL</div>
+    <div style="text-align:center; color:var(--gold); font-weight:bold; font-size:14px;">ACSD COMMAND TERMINAL V41</div>
     <div style="display:flex; justify-content:space-between; font-size:10px; margin-top:5px;">
         <span id="clock">00:00:00</span>
-        <span id="gps-status" style="color:red;">GPS: NO LOCK</span>
+        <span id="gps-status" style="color:var(--gold);">GPS: STANDBY</span>
     </div>
 </div>
 
 <div id="page-hub" class="page active-page">
-    <div style="padding:15px; display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        <button onclick="showPage('page-map')" style="grid-column: span 2; background:var(--orange); color:white; padding:25px; border-radius:10px; font-weight:bold; border:none;">🗺️ TACTICAL MAP</button>
-        <button onclick="showPage('page-law')" style="background:var(--blue); color:white; padding:20px; border-radius:10px; border:none;">⚖️ LAW LIBRARY</button>
-        <button onclick="showPage('page-med')" style="background:#600; color:white; padding:20px; border-radius:10px; border:none;">🩹 FIRST AID</button>
+    <div style="padding:15px; display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <button onclick="showPage('page-map')" style="grid-column: span 2; background:var(--orange); color:white; padding:30px; border-radius:10px; font-weight:bold; border:none; font-size:20px;">🗺️ TACTICAL MAP</button>
+        <button onclick="showPage('page-law')" style="background:var(--blue); color:white; padding:25px; border-radius:10px; border:none; font-weight:bold;">⚖️ LAW LIBRARY</button>
+        <button onclick="showPage('page-med')" style="background:#600; color:white; padding:25px; border-radius:10px; border:none; font-weight:bold;">🩹 FIRST AID</button>
     </div>
 </div>
 
 <div id="page-map" class="page">
-    <div class="map-info">WIND: 5-8 MPH NW<br>COMPASS: 320° NW</div>
     <div style="background:#111; padding:8px; display:flex; gap:5px;">
-        <input type="text" id="pls-in" placeholder="Address..." style="flex-grow:1; padding:8px; background:#000; color:white; border:1px solid #444;">
-        <button onclick="deployPLS()" style="background:var(--orange); color:white; border:none; padding:8px; font-weight:bold;">SEARCH</button>
+        <input type="text" id="pls-in" placeholder="Enter PLS / Address..." style="flex-grow:1; padding:10px; background:#000; color:white; border:1px solid #444;">
+        <button onclick="deployPLS()" style="background:var(--orange); color:white; border:none; padding:10px; font-weight:bold;">SEARCH</button>
     </div>
     <div id="map"></div>
     <div class="footer-tools">
@@ -55,41 +55,58 @@
             <div id="t-clue" class="t-btn" onclick="setMode('clue')">🚩<br>Clue</div>
         </div>
         <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px;">
-            <button onclick="locateUser()" style="background:var(--live); color:black; padding:10px; border:none; border-radius:4px; font-weight:bold;">FORCE GPS LOCK</button>
-            <button onclick="clearMap()" style="background:#440000; color:white; padding:10px; border:none; border-radius:4px;">RECALL</button>
-            <button onclick="showPage('page-hub')" style="background:var(--blue); color:white; padding:10px; border:none; border-radius:4px;">HUB</button>
+            <button onclick="locateUser()" style="background:var(--live); color:black; padding:12px; border:none; border-radius:4px; font-weight:bold;">LOCK MY GPS</button>
+            <button onclick="clearMap()" style="background:#440000; color:white; padding:12px; border:none; border-radius:4px;">RECALL</button>
+            <button onclick="showPage('page-hub')" style="background:var(--blue); color:white; padding:12px; border:none; border-radius:4px;">HUB</button>
         </div>
     </div>
 </div>
 
 <div id="page-med" class="page">
     <div style="padding:15px;">
-        <button onclick="showPage('page-hub')" style="width:100%; padding:10px; background:#333; color:white; border:none; margin-bottom:10px;">BACK</button>
-        <h3 style="color:var(--live);">#1 PRIORITY: K9 CPR</h3>
-                <div class="data-card"><b>K9 CPR INSTRUCTIONS</b><p>1. Check for pulse inside the hind leg.<br>2. Position dog on right side.<br>3. Compressions: Behind the elbow on the rib cage.<br>4. 100-120 per minute. 30 pumps to 2 snout-breaths.</p></div>
-        <div class="data-card"><b>K9 HEAT STROKE</b><p>Gums turning dark red/purple. Cool paws immediately. Do NOT submerge in ice.</p></div>
-        <div class="data-card"><b>K9 BLOAT</b><p>Hard, distended belly. Heavy drooling. Emergency vet only.</p></div>
-        <h3 style="color:red;">HUMAN TRAUMA</h3>
-        <div class="data-card"><b>TOURNIQUET</b><p>High and tight. Windlass until bleed stops. Note time.</p></div>
-        <div class="data-card"><b>NARCAN</b><p>Suspected OD: Intranasal spray. Rescue breaths.</p></div>
+        <button onclick="showPage('page-hub')" style="width:100%; padding:12px; background:#333; color:white; border:none; margin-bottom:15px;">RETURN TO HUB</button>
+        
+        <h3 style="color:var(--live); border-bottom: 2px solid var(--live);">K9 EMERGENCY - PRIORITY 1</h3>
+        
+        <div class="data-card k9-special"><b>K9 CPR</b><p>1. Right side down. 2. Hands behind elbow. 3. 100-120 bpm. 4. 30:2 pump-to-breath ratio (breath into snout).</p></div>
+        <div class="data-card k9-special"><b>HEAT STROKE</b><p>Cool paws/ears. No ice. Watch for purple gums. Temp > 106° is fatal.</p></div>
+        <div class="data-card k9-special"><b>BLOAT (GDV)</b><p>Retching, hard belly. Immediate transport. Fatal within 60 mins.</p></div>
+        <div class="data-card k9-special"><b>PAW LACERATIONS</b><p>Apply pressure. Clean with saline. Wrap tight but check circulation.</p></div>
+        <div class="data-card k9-special"><b>GUNSHOT/PENETRATING</b><p>Apply direct pressure. Do not remove object. Use chest seal for torso.</p></div>
+
+        <h3 style="color:red; border-bottom: 2px solid red;">HUMAN TACTICAL MEDICAL</h3>
+        <div class="data-card"><b>TOURNIQUET</b><p>High and tight. Twist until bleeding stops. Record time.</p></div>
+        <div class="data-card"><b>NARCAN (OVERDOSE)</b><p>Tilt head. Spray full dose into nostril. If no response in 2 min, repeat.</p></div>
+        <div class="data-card"><b>CHEST WOUND</b><p>Occlusive dressing taped on 3 sides to prevent tension pneumothorax.</p></div>
+        <div class="data-card"><b>SNAKE BITE (TIMBER RATTLESNAKE)</b><p>Keep below heart. Immobilize limb. Do not cut or suck. Transport ASAP.</p></div>
+        <div class="data-card"><b>HYPOTHERMIA/COLD STRESS</b><p>Wrap in space blanket. Warm the core. No caffeine/alcohol.</p></div>
     </div>
 </div>
 
 <div id="page-law" class="page">
     <div style="padding:15px;">
-        <button onclick="showPage('page-hub')" style="width:100%; padding:10px; background:#333; color:white; border:none; margin-bottom:10px;">BACK</button>
-        <h3 style="color:var(--gold);">VA CODE & CASE LAW</h3>
-        <div class="data-card"><b>Terry v. Ohio</b><p>Stop & Frisk / RAS.</p></div>
-        <div class="data-card"><b>Graham v. Connor</b><p>Objective Reasonableness in Force.</p></div>
-        <div class="data-card"><b>Carroll v. US</b><p>Automobile exception for searches.</p></div>
-        <div class="data-card"><b>§ 18.2-460</b><p>Obstruction of Justice.</p></div>
-        <div class="data-card"><b>§ 18.2-388</b><p>Public Intoxication.</p></div>
+        <button onclick="showPage('page-hub')" style="width:100%; padding:12px; background:#333; color:white; border:none; margin-bottom:15px;">RETURN TO HUB</button>
+        
+        <h3 style="color:var(--gold); border-bottom: 2px solid var(--gold);">CONSTITUTIONAL CASE LAW</h3>
+        <div class="data-card"><b>Terry v. Ohio</b><p>Stop & Frisk: Requires Reasonable Articulable Suspicion of crime and weapons.</p></div>
+        <div class="data-card"><b>Graham v. Connor</b><p>Use of Force: Must be 'Objectively Reasonable' under the circumstances.</p></div>
+        <div class="data-card"><b>Carroll v. US</b><p>Vehicle Exception: Probable cause allows search of vehicle without warrant.</p></div>
+        <div class="data-card"><b>Chimel v. California</b><p>Search incident to arrest: Limited to the 'lunge area' or immediate control.</p></div>
+        <div class="data-card"><b>Tennessee v. Garner</b><p>Deadly Force: Prohibited against fleeing non-dangerous felons.</p></div>
+        <div class="data-card"><b>Mapp v. Ohio</b><p>Exclusionary Rule: Illegal evidence is thrown out.</p></div>
+
+        <h3 style="color:var(--orange); border-bottom: 2px solid var(--orange);">VA STATE CODE REFERENCES</h3>
+        <div class="data-card"><b>§ 18.2-460</b><p>Obstruction of Justice: Resisting or hindering an officer.</p></div>
+        <div class="data-card"><b>§ 18.2-388</b><p>Public Intoxication: Drunk in public / Profane swearing.</p></div>
+        <div class="data-card"><b>§ 18.2-266</b><p>DUI: Operating vehicle while impaired by alcohol/drugs.</p></div>
+        <div class="data-card"><b>§ 18.2-415</b><p>Disorderly Conduct: In public places.</p></div>
+        <div class="data-card"><b>§ 18.2-57</b><p>Assault and Battery: Against Law Enforcement (Class 6 Felony).</p></div>
     </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    var map = L.map('map', { zoomControl: false }).setView([37.483, -78.971], 16);
+    var map = L.map('map', { zoomControl: false }).setView([37.483, -78.971], 15);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     var mode = null, pPts = [], userMarker = null;
     var area = L.polygon([], {color: '#ff6600', weight: 4, fillOpacity: 0.3}).addTo(map);
@@ -98,10 +115,11 @@
     function showPage(id) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
         document.getElementById(id).classList.add('active-page');
-        if(id === 'page-map') { setTimeout(() => map.invalidateSize(), 200); }
+        if(id === 'page-map') { setTimeout(() => map.invalidateSize(), 250); }
     }
 
     function locateUser() {
+        document.getElementById('gps-status').innerText = "GPS: LOCKING...";
         map.locate({setView: true, maxZoom: 18, enableHighAccuracy: true});
     }
 
@@ -121,6 +139,7 @@
 
     function deployPLS() {
         var val = document.getElementById('pls-in').value;
+        if(!val) return;
         fetch('https://nominatim.openstreetmap.org/search?format=json&q='+val)
             .then(r => r.json()).then(d => { if(d[0]) map.setView([d[0].lat, d[0].lon], 17); });
     }
@@ -131,11 +150,4 @@
             L.circleMarker(e.latlng, {radius:3, color:'white'}).addTo(assetLayer);
         } else if(mode) {
             var color = mode==='k9'?'yellow':(mode==='ground'?'lime':(mode==='hlz'?'magenta':'red'));
-            L.circleMarker(e.latlng, {radius:10, color:'white', fillColor:color, fillOpacity:1}).addTo(assetLayer);
-        }
-    });
-
-    setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
-</script>
-</body>
-</html>
+            L.circleMarker(e.latlng, {radius:10, color:'white', fillColor:color, fillOpacity:1}).addTo(
