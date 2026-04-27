@@ -3,20 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD SAR - COMMAND V14</title>
+    <title>ACSD SAR - COMMAND V15</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --sar-orange: #ff6600; --gold: #ffd700; --live: #00ff00; --blue: #007bff; }
         body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Arial', sans-serif; overflow: hidden; color: white; }
 
-        /* HEADER */
         .header { background: #001a00; padding: 45px 15px 10px; border-bottom: 3px solid var(--sar-orange); z-index: 3000; }
         .search-row { display: flex; gap: 5px; }
         .search-row input { flex-grow: 1; padding: 12px; border-radius: 4px; border: none; font-size: 16px; background: #fff; color: #000; font-weight: bold; }
         
-        #map { flex-grow: 1; width: 100%; height: calc(100vh - 290px); z-index: 1; background: #111; }
+        #map { flex-grow: 1; width: 100%; height: calc(100vh - 310px); z-index: 1; background: #111; }
 
-        /* TACTICAL LEGEND (LEFT) */
+        /* LEGEND (LEFT) */
         .legend { 
             position: absolute; left: 10px; top: 195px; width: 180px; 
             background: rgba(0,0,0,0.95); border: 2px solid var(--gold); 
@@ -25,13 +24,12 @@
         .legend b { color: var(--sar-orange); border-bottom: 1px solid #444; display: block; margin-bottom: 8px; margin-top: 10px; }
         .unit { display: flex; justify-content: space-between; margin-bottom: 4px; }
 
-        /* HARD MARKER STYLE */
+        /* BLUE DOT WITH WHITE BORDER */
         .marker-dot {
             width: 20px; height: 20px; background: var(--blue); border: 3px solid #fff; border-radius: 50%;
             box-shadow: 0 0 10px #000;
         }
 
-        /* TOOLBAR */
         .toolbar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 10px; background: #000; z-index: 3000; }
         .tool { background: #222; border: 1px solid #444; padding: 15px 0; border-radius: 6px; text-align: center; cursor: pointer; color: #fff; }
         .tool label { display: block; font-size: 8px; color: var(--gold); text-transform: uppercase; margin-top: 5px; font-weight: bold; }
@@ -46,9 +44,10 @@
         <span id="clock">08:00:00</span>
     </div>
     <div class="search-row">
-        <input type="text" id="pls-input" placeholder="Enter Home Address, VA">
+        <input type="text" id="pls-input" placeholder="Type Your Address, VA">
         <button onclick="searchAddr()" style="background:var(--sar-orange); color:white; border:none; padding:10px 15px; border-radius:4px; font-weight:bold;">DEPLOY</button>
     </div>
+    <button onclick="forceDotHere()" style="width:100%; margin-top:5px; background:#003300; border:1px solid lime; color:white; font-size:10px; border-radius:4px; padding:5px;">DRAG BLUE DOT TO SEARCHED AREA</button>
 </div>
 
 <div id="map"></div>
@@ -66,8 +65,8 @@
 
 <div class="toolbar">
     <div class="tool" onclick="startGPS()"><span>📍</span><label>Start GPS</label></div>
-    <div class="tool" onclick="snapToGPS()"><span>🎯</span><label>Snap to Me</label></div>
     <div id="p-btn" class="tool" onclick="togglePerim()"><span>📐</span><label>Perimeter</label></div>
+    <div class="tool" onclick="alert('LZ SET AT CENTER')"><span>🚁</span><label>Set LZ</label></div>
     <div class="tool" onclick="location.reload()"><span>🔄</span><label>Reset</label></div>
 </div>
 
@@ -77,55 +76,60 @@
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
     var myMarker = null;
-    var lastPos = null;
+    var searchPos = null;
     var blueIcon = L.divIcon({ className: 'm-icon', html: '<div class="marker-dot"></div>', iconSize: [20,20], iconAnchor: [10,10] });
 
-    // 1. SEARCH - STAYS PUT
     function searchAddr() {
         var addr = document.getElementById('pls-input').value;
         fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${addr}`)
             .then(r => r.json()).then(d => {
                 if(d[0]) {
-                    var pos = [d[0].lat, d[0].lon];
-                    map.setView(pos, 17);
-                    L.marker(pos).addTo(map).bindPopup("<b>SEARCH START</b>").openPopup();
+                    searchPos = [d[0].lat, d[0].lon];
+                    map.setView(searchPos, 17);
+                    L.marker(searchPos).addTo(map).bindPopup("<b>SEARCH START</b>").openPopup();
                 }
             });
     }
 
-    // 2. GPS - NO AUTO-JUMP
     function startGPS() {
         if (navigator.geolocation) {
             document.getElementById('gps-stat').innerText = "● GPS: SEARCHING...";
             navigator.geolocation.watchPosition(function(p) {
-                lastPos = [p.coords.latitude, p.coords.longitude];
+                var realPos = [p.coords.latitude, p.coords.longitude];
                 document.getElementById('gps-stat').innerText = "● GPS: LIVE";
                 document.getElementById('gps-stat').style.color = "#00ff00";
                 document.getElementById('u1').innerText = "LIVE";
                 document.getElementById('u1').style.color = "#00ff00";
                 
+                // ONLY place marker, DO NOT move map
                 if (!myMarker) {
-                    myMarker = L.marker(lastPos, { icon: blueIcon }).addTo(map);
+                    myMarker = L.marker(realPos, { icon: blueIcon }).addTo(map);
                 } else {
-                    myMarker.setLatLng(lastPos);
+                    myMarker.setLatLng(realPos);
                 }
-            }, null, { enableHighAccuracy: true });
+            });
         }
     }
 
-    function snapToGPS() {
-        if(lastPos) map.setView(lastPos, 17);
-        else alert("GPS not locked yet.");
+    function forceDotHere() {
+        if(searchPos) {
+            if(!myMarker) {
+                myMarker = L.marker(searchPos, { icon: blueIcon }).addTo(map);
+            } else {
+                myMarker.setLatLng(searchPos);
+            }
+            map.setView(searchPos, 17);
+            document.getElementById('u1').innerText = "LIVE (MANUAL)";
+            document.getElementById('u1').style.color = "#00ff00";
+        }
     }
 
-    // 3. PERIMETER - MANUAL DRAW
     var drawing = false;
     var pts = [];
-    var poly = L.polygon([], {color: 'orange', fillOpacity: 0.3}).addTo(map);
+    var poly = L.polygon([], {color: 'orange'}).addTo(map);
     function togglePerim() { 
         drawing = !drawing; 
         document.getElementById('p-btn').classList.toggle('active');
-        if(drawing) alert("TAP MODE: Tap the map corners to draw.");
     }
     map.on('click', function(e) { 
         if(drawing) { 
