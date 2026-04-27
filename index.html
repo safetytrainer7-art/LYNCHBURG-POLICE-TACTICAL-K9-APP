@@ -3,187 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD SAR - COMMAND MASTER V28</title>
+    <title>ACSD COMMAND - MASTER V34</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --orange: #ff6600; --gold: #ffd700; --blue: #007bff; --live: #00ff00; --clue: #ff0000; --nvg: #00ff41; --hlz: #ff00ff; }
-        body, html { margin: 0; padding: 0; height: 100%; background: #000; color: white; font-family: sans-serif; overflow: hidden; }
+        :root { --blue: #002b5c; --gold: #ffd700; --orange: #ff6600; --bg: #000; --live: #00ff00; --clue: #ff0000; --hlz: #ff00ff; }
+        body, html { margin: 0; padding: 0; height: 100%; background: var(--bg); color: white; font-family: sans-serif; overflow: hidden; }
 
-        /* HEADER */
-        .header { background: #001a00; padding: 45px 15px 10px; border-bottom: 3px solid var(--orange); z-index: 3000; }
-        .search-row { display: flex; gap: 5px; }
-        .search-row input { flex-grow: 1; padding: 12px; border-radius: 4px; border: none; font-size: 16px; font-weight: bold; }
+        .top-status { background: #001a00; padding: 35px 15px 10px; border-bottom: 3px solid var(--orange); display: flex; justify-content: space-between; align-items: center; z-index: 5000; position: relative; }
+        .dept-name { font-weight: bold; color: var(--gold); font-size: 14px; }
         
-        #map { width: 100%; height: calc(100vh - 500px); background: #050505; z-index: 1; transition: filter 0.5s; }
-        .nvg-mode { filter: sepia(100%) hue-rotate(80deg) brightness(0.8) contrast(1.2) invert(1); }
+        /* PAGE ENGINE */
+        .page { position: absolute; top: 85px; bottom: 0; width: 100%; display: none; flex-direction: column; background: #000; overflow-y: auto; }
+        .active-page { display: flex; }
 
-        /* TACTICAL LEGEND */
-        .legend { 
-            position: absolute; left: 10px; top: 180px; width: 220px; 
-            background: rgba(0,0,0,0.9); border: 2px solid var(--gold); 
-            padding: 10px; z-index: 2000; border-radius: 8px; font-size: 10px; 
-        }
-        .status-pill { padding: 6px; text-align: center; font-weight: bold; border-radius: 4px; margin-bottom: 5px; font-size: 12px; cursor: pointer; }
-        .breach-alarm { animation: alarm-flash 0.5s infinite; background: red !important; border-color: white !important; }
-        @keyframes alarm-flash { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        /* CONTENT STYLING */
+        .section-box { padding: 15px; }
+        .law-card, .med-card { background: #111; border: 1px solid #333; padding: 12px; margin-bottom: 10px; border-radius: 6px; }
+        .law-card b, .med-card b { color: var(--gold); display: block; margin-bottom: 5px; font-size: 14px; }
+        .law-card p, .med-card p { font-size: 12px; margin: 0; color: #ccc; line-height: 1.4; }
+        .emergency-btn { background: #600; color: white; padding: 10px; text-align: center; font-weight: bold; margin-bottom: 15px; border-radius: 4px; border: 1px solid red; }
 
-        /* MISSION LOG */
-        #mission-log { height: 80px; background: #111; overflow-y: auto; padding: 10px; font-family: monospace; font-size: 10px; color: var(--live); border-top: 1px solid #333; }
-        .log-entry { border-bottom: 1px solid #222; padding: 2px 0; }
+        /* HUB STYLING */
+        .hub-grid { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .hub-btn { background: #111; border: 2px solid #333; border-radius: 12px; padding: 20px 10px; text-align: center; cursor: pointer; }
+        .hub-btn:active { background: #222; border-color: var(--gold); }
 
-        .cmd-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; padding: 5px 10px; background: #000; }
-        .cmd-btn { padding: 8px; border-radius: 4px; border: 1px solid #444; color: white; font-size: 9px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-
-        /* TOOLBAR */
-        .toolbar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 10px; background: #000; z-index: 3000; }
-        .tool { background: #222; border: 1px solid #444; padding: 12px 0; border-radius: 6px; text-align: center; color: #fff; cursor: pointer; }
-        .tool label { display: block; font-size: 7px; color: var(--gold); text-transform: uppercase; margin-top: 4px; font-weight: bold; }
-        .active-tool { background: var(--orange) !important; border: 2px solid white !important; }
+        /* MAP ELEMENTS (RETAINED) */
+        #map { flex-grow: 1; min-height: 300px; }
+        .map-controls { background: #000; padding: 10px; border-top: 1px solid var(--orange); }
+        .toolbar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-bottom: 10px; }
+        .tool { background: #1a1a1a; border: 1px solid #444; padding: 10px 0; border-radius: 4px; text-align: center; font-size: 12px; }
+        .active-tool { background: var(--orange) !important; border: 1px solid white; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <div class="search-row">
-        <input type="text" id="pls-in" placeholder="Enter Address, VA">
-        <button onclick="deployPLS()" style="background:var(--orange); color:white; border:none; padding:10px; border-radius:4px; font-weight:bold;">DEPLOY</button>
+<div class="top-status">
+    <div class="dept-name">AMHERST CO. SHERIFF</div>
+    <div id="live-clock" style="font-family:monospace; color:var(--gold);">00:00:00</div>
+</div>
+
+<div id="page-hub" class="page active-page">
+    <div class="hub-grid">
+        <div class="hub-btn" style="grid-column: span 2; border-color: var(--orange);" onclick="showPage('page-map')">
+            <span style="font-size:30px;">🗺️</span><br><b>TACTICAL MAP</b>
+        </div>
+        <div class="hub-btn" style="border-color: var(--blue);" onclick="showPage('page-law')">
+            <span style="font-size:30px;">⚖️</span><br><b>LAW LIBRARY</b>
+        </div>
+        <div class="hub-btn" style="border-color: #aa0000;" onclick="showPage('page-med')">
+            <span style="font-size:30px;">🩹</span><br><b>FIRST AID</b>
+        </div>
+        <div class="hub-btn" onclick="alert('Training Data Locked.')">
+            <span style="font-size:30px;">🐕</span><br><b>K9 LOGS</b>
+        </div>
+        <div class="hub-btn" onclick="alert('Reports Saved to Device.')">
+            <span style="font-size:30px;">📁</span><br><b>ARCHIVE</b>
+        </div>
     </div>
 </div>
 
-<div id="map"></div>
-
-<div id="mission-log"><div class="log-entry">[SYSTEM] Awaiting Mission Deployment...</div></div>
-
-<div class="cmd-row">
-    <button class="cmd-btn" style="background:#440000;" onclick="clearUnits()">RECALL</button>
-    <button class="cmd-btn" style="background:#222;" id="nvg-toggle" onclick="toggleNVG()">NVG</button>
-    <button class="cmd-btn" style="background:#660000;" onclick="location.reload()">TERMINATE</button>
+<div id="page-law" class="page">
+    <div class="section-box">
+        <button onclick="showPage('page-hub')" style="width:100%; padding:10px; background:#222; color:white; border:none; margin-bottom:15px;">BACK TO HUB</button>
+        <h3 style="color:var(--gold);">FEDERAL CASE LAW</h3>
+        <div class="law-card"><b>Terry v. Ohio (1968)</b><p>Authorized "Stop and Frisk" based on Reasonable Articulable Suspicion of a crime and weapon.</p></div>
+        <div class="law-card"><b>Carroll v. United States (1925)</b><p>The "Automobile Exception." Probable cause allows vehicle search without a warrant due to mobility.</p></div>
+        <div class="law-card"><b>Mapp v. Ohio (1961)</b><p>Exclusionary Rule: Evidence obtained in violation of the 4th Amendment is inadmissible.</p></div>
+        
+        <h3 style="color:var(--orange);">VA STATE CODE (SELECTED)</h3>
+        <div class="law-card"><b>§ 18.2-460</b><p>Obstruction of Justice: Knowingly obstructing a Law Enforcement Officer in the performance of their duties.</p></div>
+        <div class="law-card"><b>§ 18.2-388</b><p>Public Intoxication: Appearing intoxicated in public (Alcohol or Drugs).</p></div>
+        <div class="law-card"><b>§ 18.2-415</b><p>Disorderly Conduct in Public Places.</p></div>
+    </div>
 </div>
 
-<div class="legend">
-    <div id="p-status-box" class="status-pill" style="background:#333; color:white;" onclick="resetAlarm()">ZONE: STANDBY</div>
-    <div style="font-size:10px; margin-bottom:5px;"><b>K9:</b> <span id="k-val">0</span> | <b>GND:</b> <span id="g-val">0</span> | <b>CLUE:</b> <span id="c-val">0</span></div>
-    <div id="wind-readout" style="color:var(--blue); font-weight:bold;">WIND: 8MPH NW</div>
+<div id="page-med" class="page">
+    <div class="section-box">
+        <button onclick="showPage('page-hub')" style="width:100%; padding:10px; background:#222; color:white; border:none; margin-bottom:15px;">BACK TO HUB</button>
+        <div class="emergency-btn">TACTICAL EMERGENCY CARE</div>
+        
+        <div class="med-card"><b>MASSIVE HEMORRHAGE (TOURNIQUET)</b><p>1. Apply high and tight on the limb.<br>2. Tighten until bleeding stops.<br>3. Note time (T) on forehead or strap.</p></div>
+        <div class="med-card"><b>AIRWAY / CHEST WOUND</b><p>If sucking chest wound: Apply occlusive dressing (vented if possible) taped on three sides.</p></div>
+        <div class="med-card"><b>OVERDOSE RESPONSE (NARCAN)</b><p>1. Check for responsiveness.<br>2. Insert nozzle into nostril and spray.<br>3. Administer second dose after 2-3 mins if no change.</p></div>
+        <div class="med-card"><b>CPR (ADULT)</b><p>100-120 compressions per minute at 2" depth. Allow full chest recoil.</p></div>
+    </div>
 </div>
 
-<div class="toolbar">
-    <div id="t-perim" class="tool" onclick="setMode('perim')"><span>📐</span><label>Perim</label></div>
-    <div id="t-k9" class="tool" onclick="setMode('k9')"><span>🐕</span><label>K9</label></div>
-    <div id="t-ground" class="tool" onclick="setMode('ground')"><span>🚶</span><label>Ground</label></div>
-    <div id="t-hlz" class="tool" onclick="setMode('hlz')"><span>🚁</span><label>HLZ</label></div>
-    <div id="t-clue" class="tool" onclick="setMode('clue')"><span>🚩</span><label>Clue</label></div>
+<div id="page-map" class="page">
+    <div style="background:#000; padding:5px; display:flex; gap:5px;">
+        <input type="text" id="case-id" placeholder="CASE #" style="width:70px; background:#111; color:var(--gold); border:1px solid #444;">
+        <input type="text" id="pls-in" placeholder="Address..." style="flex-grow:1;">
+        <button onclick="deployPLS()" style="background:var(--orange); color:white; border:none; padding:5px;">DEPLOY</button>
+        <button onclick="showPage('page-hub')" style="background:#333; color:white; border:none; padding:5px;">HOME</button>
+    </div>
+    <div id="map"></div>
+    <div class="map-controls">
+        <div class="toolbar">
+            <div id="t-perim" class="tool" onclick="setMode('perim')">📐<br>Perim</div>
+            <div id="t-k9" class="tool" onclick="setMode('k9')">🐕<br>K9</div>
+            <div id="t-ground" class="tool" onclick="setMode('ground')">🚶<br>Gnd</div>
+            <div id="t-hlz" class="tool" onclick="setMode('hlz')">🚁<br>HLZ</div>
+            <div id="t-clue" class="tool" onclick="setMode('clue')">🚩<br>Clue</div>
+        </div>
+        <button onclick="activateGPS()" style="width:100%; background:#002b5c; color:white; padding:12px; border:none; border-radius:4px; font-weight:bold;">ACTIVATE CP PULSE</button>
+    </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+    function showPage(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+        document.getElementById(id).classList.add('active-page');
+        if(id === 'page-map') { setTimeout(() => { map.invalidateSize(); }, 200); }
+    }
+
     var map = L.map('map', { zoomControl: false }).setView([37.5, -79.0], 10);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-    var mode = null; var kC = 0, gC = 0, cC = 0;
-    var pPts = []; var area = L.polygon([], {color: '#ff6600', weight: 4, fillOpacity: 0.2}).addTo(map);
+    var mode = null, area = L.polygon([], {color: '#ff6600', weight: 4}).addTo(map);
     var assetLayer = L.layerGroup().addTo(map);
-    var scentLayer = L.layerGroup().addTo(map);
 
-    function log(msg) {
-        const time = new Date().toLocaleTimeString([], {hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit'});
-        const entry = document.createElement('div');
-        entry.className = 'log-entry';
-        entry.innerHTML = `[${time}] ${msg}`;
-        const container = document.getElementById('mission-log');
-        container.prepend(entry);
+    function activateGPS() {
+        var cp = L.divIcon({ html: '<div style="width:16px; height:16px; background:#007bff; border:2px solid white; border-radius:50%; box-shadow:0 0 10px #007bff;"></div>' });
+        L.marker(map.getCenter(), {icon: cp}).addTo(map);
     }
 
     function setMode(m) {
         mode = m; document.querySelectorAll('.tool').forEach(t => t.classList.remove('active-tool'));
         document.getElementById('t-' + m).classList.add('active-tool');
-        log(`MODE SWITCHED: ${m.toUpperCase()}`);
     }
 
     function deployPLS() {
-        var a = document.getElementById('pls-in').value;
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${a}`)
-            .then(r => r.json()).then(d => {
-                if(d[0]) {
-                    const lat = d[0].lat, lon = d[0].lon;
-                    map.setView([lat, lon], 17);
-                    L.marker([lat, lon]).addTo(map).bindPopup("<b>PLS</b>").openPopup();
-                    log(`PLS ESTABLISHED: ${lat}, ${lon}`);
-                    drawScentCone(lat, lon);
-                }
-            });
-    }
-
-    function drawScentCone(lat, lon) {
-        scentLayer.clearLayers();
-        // NW Wind = Scent blows SE (approx 135 degrees)
-        L.polygon([
-            [lat, lon],
-            [parseFloat(lat) - 0.005, parseFloat(lon) + 0.003],
-            [parseFloat(lat) - 0.003, parseFloat(lon) + 0.005]
-        ], {color: '#007bff', fillOpacity: 0.1, weight: 1, dashArray: '5,5'}).addTo(scentLayer);
-        log("SCENT CONE PROJECTED (WIND NW)");
-    }
-
-    function resetAlarm() {
-        if(pPts.length >= 3) {
-            document.getElementById('p-status-box').innerText = "ZONE: SECURED"; 
-            document.getElementById('p-status-box').style.background = "green"; 
-            document.getElementById('p-status-box').classList.remove('breach-alarm');
-            log("BREACH ALARM RESET BY COMMAND");
-        }
-    }
-
-    function toggleNVG() {
-        document.getElementById('map').classList.toggle('nvg-mode');
-        log("NVG TOGGLED");
-    }
-
-    function clearUnits() {
-        assetLayer.clearLayers();
-        kC=0; gC=0; cC=0;
-        document.getElementById('k-val').innerText=0; document.getElementById('g-val').innerText=0; document.getElementById('c-val').innerText=0;
-        log("ALL UNITS RECALLED TO CP");
+        var addr = document.getElementById('pls-in').value;
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${addr}`)
+            .then(r => r.json()).then(d => { if(d[0]) map.setView([d[0].lat, d[0].lon], 17); });
     }
 
     map.on('click', function(e) {
-        if (mode === 'perim') {
-            pPts.push(e.latlng); area.setLatLngs(pPts);
-            L.circleMarker(e.latlng, {radius: 5, color: 'white'}).addTo(map);
-            if(pPts.length === 1) log("PERIMETER INITIALIZED");
-            if(pPts.length >= 3) { 
-                document.getElementById('p-status-box').innerText = "ZONE: SECURED"; 
-                document.getElementById('p-status-box').style.background = "green"; 
-            }
-        } else if (mode === 'hlz') {
-            L.marker(e.latlng, {icon: L.divIcon({html:'<div style="background:var(--hlz); color:black; font-weight:bold; padding:5px; border:2px solid white; border-radius:50%; width:20px; height:20px; text-align:center;">H</div>'})}).addTo(assetLayer);
-            log(`HLZ MARKED: ${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}`);
-        } else if (mode) {
+        if(mode === 'perim') { area.setLatLngs(area.getLatLngs().concat([e.latlng])); }
+        else if(mode) {
             var color = mode === 'k9' ? 'yellow' : (mode === 'ground' ? 'lime' : 'red');
-            L.circleMarker(e.latlng, {radius: 10, color: 'white', fillColor: color, fillOpacity: 1, weight: 3}).addTo(assetLayer);
-            
-            if(pPts.length >= 3 && !isMarkerInsidePolygon(e.latlng, pPts)) {
-                document.getElementById('p-status-box').innerText = "BREACH DETECTED";
-                document.getElementById('p-status-box').classList.add('breach-alarm');
-                log(`ALARM: BREACH BY ${mode.toUpperCase()} UNIT!`);
-            } else {
-                log(`${mode.toUpperCase()} DEPLOYED AT SECTOR POINT`);
-            }
-            
-            if(mode === 'k9') document.getElementById('k-val').innerText = ++kC;
-            if(mode === 'ground') document.getElementById('g-val').innerText = ++gC;
-            if(mode === 'clue') document.getElementById('c-val').innerText = ++cC;
+            L.circleMarker(e.latlng, {radius: 10, color: 'white', fillColor: color, fillOpacity: 1}).addTo(assetLayer);
         }
     });
 
-    function isMarkerInsidePolygon(marker, polyPoints) {
-        var x = marker.lat, y = marker.lng, inside = false;
-        for (var i = 0, j = polyPoints.length - 1; i < polyPoints.length; j = i++) {
-            var xi = polyPoints[i].lat, yi = polyPoints[i].lng, xj = polyPoints[j].lat, yj = polyPoints[j].lng;
-            var intersect = ((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-            if (intersect) inside = !inside;
-        }
-        return inside;
-    }
+    setInterval(() => { document.getElementById('live-clock').innerText = new Date().toLocaleTimeString(); }, 1000);
 </script>
 </body>
 </html>
