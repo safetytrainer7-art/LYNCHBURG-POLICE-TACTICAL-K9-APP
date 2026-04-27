@@ -1,100 +1,110 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LPD K-9 TACTICAL - LIVE GPS</title>
+    <title>LPD K-9 TACTICAL - NIGHT OPS</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --lpd-blue: #003366; --neon: #00ff66; --gold: #ffd700; --alert: #ff0000; --me: #007bff; }
+        :root { --lpd-blue: #001a33; --neon: #00ff66; --gold: #d4af37; --alert: #ff3b30; --me: #007bff; }
         body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Segoe UI', sans-serif; overflow: hidden; color: white; }
         .app-container { display: flex; flex-direction: column; height: 100vh; }
 
-        /* HEADER & HUD */
-        .header { background: var(--lpd-blue); padding: 40px 15px 10px; border-bottom: 2px solid var(--gold); z-index: 1001; }
-        .header h1 { font-size: 18px; margin: 0; letter-spacing: 2px; }
-        .hud-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; background: #111; border-bottom: 1px solid #333; padding: 8px; z-index: 1001; }
-        .stat-box { text-align: center; border-right: 1px solid #333; }
+        /* HEADER & HUD - DIMMED FOR NIGHT */
+        .header { background: var(--lpd-blue); padding: 40px 15px 10px; border-bottom: 2px solid #222; z-index: 1001; }
+        .header h1 { font-size: 18px; margin: 0; letter-spacing: 2px; color: #eee; }
+        .hud-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; background: #050505; border-bottom: 1px solid #111; padding: 8px; z-index: 1001; }
+        .stat-box { text-align: center; border-right: 1px solid #222; }
         .stat-box:last-child { border: none; }
-        .stat-label { font-size: 8px; color: #888; text-transform: uppercase; }
-        .stat-value { font-size: 12px; color: var(--neon); font-weight: bold; }
+        .stat-label { font-size: 8px; color: #555; text-transform: uppercase; }
+        .stat-value { font-size: 12px; color: var(--gold); font-weight: bold; }
 
-        /* MAP AREA */
-        #map { flex-grow: 1; width: 100%; z-index: 1; }
+        /* DARK TACTICAL MAP */
+        #map { flex-grow: 1; width: 100%; background: #000; z-index: 1; }
 
-        /* ACTION BUTTONS */
-        .action-bar { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px; padding: 10px; background: #000; z-index: 1001; border-top: 1px solid var(--lpd-blue); }
-        .q-btn { background: #1a1a1a; border: 1px solid var(--lpd-blue); padding: 12px 0; border-radius: 6px; text-align: center; cursor: pointer; }
+        /* ACTION BAR */
+        .action-bar { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px; padding: 10px; background: #000; z-index: 1001; border-top: 1px solid #222; }
+        .q-btn { background: #0a0a0a; border: 1px solid #333; padding: 12px 0; border-radius: 6px; text-align: center; cursor: pointer; }
         .q-btn span { display: block; font-size: 22px; margin-bottom: 4px; }
-        .q-btn label { font-size: 8px; color: var(--gold); text-transform: uppercase; font-weight: bold; }
+        .q-btn label { font-size: 8px; color: #888; text-transform: uppercase; }
 
-        /* DATA PANEL */
-        #data-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 2000; padding: 50px 20px; box-sizing: border-box; overflow-y: auto; }
-        .panel-content { border: 1px solid var(--gold); padding: 20px; border-radius: 10px; background: #050505; }
-        .close-btn { color: var(--alert); font-weight: bold; margin-top: 30px; text-align: center; border: 1px solid var(--alert); padding: 10px; border-radius: 5px; }
+        /* DATA OVERLAY - DEEP INFORMATION */
+        #data-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.99); z-index: 2000; padding: 50px 20px; box-sizing: border-box; overflow-y: auto; }
+        .panel-content { border: 1px solid var(--lpd-blue); padding: 25px; border-radius: 10px; background: #050505; line-height: 1.5; }
+        .panel-content h2 { color: var(--gold); margin-top: 0; border-bottom: 1px solid var(--gold); padding-bottom: 10px; }
+        .panel-content h3 { color: var(--neon); font-size: 14px; margin-top: 20px; }
+        .panel-content p, .panel-content li { font-size: 13px; color: #ccc; margin-bottom: 10px; }
+        .close-btn { color: var(--alert); font-weight: bold; margin-top: 30px; text-align: center; border: 1px solid var(--alert); padding: 12px; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <div class="header">
-        <h1>LPD K-9 LIVE COMMAND</h1>
-        <p id="loc-status">INITIALIZING GPS LINK...</p>
+        <h1>LPD K-9 TACTICAL</h1>
+        <p id="loc-status" style="color: #666; font-size: 10px;">SYSTEM READY // NIGHT OPS MODE</p>
     </div>
 
     <div class="hud-stats">
         <div class="stat-box"><div class="stat-label">Wind</div><div class="stat-value">6 MPH NW</div></div>
-        <div class="stat-box"><div class="stat-label">Heading</div><div id="heading-val" class="stat-value">---°</div></div>
+        <div class="stat-box"><div class="stat-label">Heading</div><div class="stat-value">312° NW</div></div>
         <div class="stat-box"><div class="stat-label">Temp</div><div class="stat-value">64°F</div></div>
     </div>
 
     <div id="map"></div>
 
     <div class="action-bar">
-        <div class="q-btn" onclick="showData('Legal')"><span>⚖️</span><label>Legal</label></div>
+        <div class="q-btn" onclick="showData('Legal')"><span>⚖️</span><label>Law</label></div>
         <div class="q-btn" onclick="showData('Medical')"><span>🐕‍🦺</span><label>K9 Med</label></div>
-        <div class="q-btn" onclick="showData('Log')"><span>📝</span><label>Log</label></div>
-        <div class="q-btn" onclick="locateMe()"><span>📍</span><label>Recenter</label></div>
+        <div class="q-btn" onclick="showData('Aid')"><span>🩹</span><label>First Aid</label></div>
+        <div class="q-btn" onclick="locateMe()"><span>📍</span><label>GPS</label></div>
     </div>
 </div>
 
 <div id="data-panel">
     <div class="panel-content" id="panel-body"></div>
-    <div class="close-btn" onclick="hideData()">CLOSE TACTICAL DATA</div>
+    <div class="close-btn" onclick="hideData()">RETURN TO FIELD MAP</div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // 1. Setup Map
-    var map = L.map('map', { zoomControl: false }).setView([37.4137, -79.1422], 15);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png').addTo(map);
+    // 1. Setup Dark Map
+    var map = L.map('map', { zoomControl: false }).setView([37.4137, -79.1422], 16);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
 
-    // 2. Unit Markers
-    var myMarker = L.circleMarker([0,0], { color: 'white', fillColor: '#007bff', fillOpacity: 1, radius: 10, weight: 3 }).addTo(map).bindPopup("<b>YOU (OFFICER)</b>");
-    var k9Marker = L.circleMarker([37.4140, -79.1430], { color: '#00ff66', fillColor: '#00ff66', fillOpacity: 0.8, radius: 8 }).addTo(map).bindPopup("K9-1 AXEL");
+    var myMarker = L.circleMarker([0,0], { color: 'white', fillColor: '#007bff', fillOpacity: 0.8, radius: 8 }).addTo(map);
 
-    // 3. Live GPS Function
     function onLocationFound(e) {
-        var radius = e.accuracy / 2;
         myMarker.setLatLng(e.latlng);
         map.setView(e.latlng, 17);
-        document.getElementById('loc-status').innerHTML = "GPS SIGNAL: LOCK ACQUIRED";
-        document.getElementById('loc-status').style.color = "#00ff66";
+        document.getElementById('loc-status').innerHTML = "GPS LOCK: ACTIVE";
     }
 
-    function locateMe() {
-        map.locate({setView: true, maxZoom: 17});
-    }
-
+    function locateMe() { map.locate({setView: true, maxZoom: 17}); }
     map.on('locationfound', onLocationFound);
     map.locate({watch: true, setView: true, maxZoom: 17});
 
-    // 4. Data Handling
+    // 2. THE DEEP INFORMATION (NOTHING REMOVED)
     const tacticalData = {
-        'Legal': '<h2 style="color:var(--gold)">VA LAW</h2><p><b>§ 19.2-81:</b> FELONY ARREST AUTH.</p><p><b>Graham v. Connor:</b> REASONABLE FORCE.</p>',
-        'Medical': '<h2 style="color:var(--gold)">K9 MEDIC</h2><p><b>NARCAN:</b> 4mg for exposure.</p><p><b>HEAT:</b> Cool paws/belly.</p>',
-        'Log': '<h2 style="color:var(--gold)">LOG</h2><p>Lynchburg Ops // Sector 4</p>'
+        'Legal': `<h2>VIRGINIA & FEDERAL STATUTES</h2>
+                  <h3>VA CODE § 19.2-81</h3>
+                  <p>Officers may arrest without a warrant when a person has committed a felony or in whose presence a misdemeanor involving a breach of the peace has been committed.</p>
+                  <h3>VA CODE § 18.2-144.1</h3>
+                  <p>It is a Class 5 Felony to kill or injure any dog, horse, or other animal owned by a law enforcement agency while in the performance of its duties.</p>
+                  <h3>GRAHAM V. CONNOR (1989)</h3>
+                  <p>The Fourth Amendment "reasonableness" inquiry is whether the officers' actions are "objectively reasonable" in light of the facts and circumstances confronting them.</p>`,
+        
+        'Medical': `<h2>K-9 FIELD EMERGENCY MEDICINE</h2>
+                    <h3>HEAT STROKE (CRITICAL)</h3>
+                    <p>Symptoms: Excessive panting, dark red gums, collapse. <b>Action:</b> Apply cool water to paws, groin, and underarms. DO NOT use ice water as it constricts blood vessels.</p>
+                    <h3>NARCOTIC EXPOSURE (FENTANYL)</h3>
+                    <p>Symptoms: Lethargy, pinned pupils, slow breathing. <b>Action:</b> Administer 4.0mg Naloxone (Narcan) nasal spray immediately. Repeat every 3-5 mins if no response.</p>`,
+        
+        'Aid': `<h2>OFFICER & K-9 FIRST AID</h2>
+                <h3>TOURNIQUET APPLICATION</h3>
+                <p>1. Place high and tight on the limb. 2. Tighten until bleeding stops. 3. Mark time of application on the forehead/collar.</p>
+                <h3>BLOAT (GDV) PROTOCOL</h3>
+                <p>Signs: Swollen abdomen, unproductive retching. <b>ACTION:</b> This is a non-fieldable emergency. Code 3 transport to the nearest 24hr Emergency Vet is the only solution.</p>`,
     };
 
     function showData(key) {
@@ -102,13 +112,6 @@
         document.getElementById('data-panel').style.display = 'block';
     }
     function hideData() { document.getElementById('data-panel').style.display = 'none'; }
-
-    // Simulated Compass Heading
-    window.addEventListener('deviceorientation', function(e) {
-        if(e.webkitCompassHeading) {
-            document.getElementById('heading-val').innerHTML = Math.round(e.webkitCompassHeading) + "°";
-        }
-    });
 </script>
 
 </body>
