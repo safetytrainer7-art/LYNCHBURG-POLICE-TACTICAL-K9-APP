@@ -1,48 +1,51 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LPD K-9 TACTICAL - NIGHT OPS</title>
+    <title>LPD TACTICAL COMMAND - PERMANENT BUILD</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --lpd-blue: #001a33; --neon: #00ff66; --gold: #d4af37; --alert: #ff3b30; --me: #007bff; }
-        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Segoe UI', sans-serif; overflow: hidden; color: white; }
+        :root { --lpd-blue: #003366; --neon: #00ff66; --gold: #ffd700; --alert: #ff0000; }
+        body, html { margin: 0; padding: 0; height: 100%; background: #f0f0f0; font-family: 'Segoe UI', Arial, sans-serif; overflow: hidden; color: #333; }
         .app-container { display: flex; flex-direction: column; height: 100vh; }
 
-        /* HEADER & HUD - DIMMED FOR NIGHT */
-        .header { background: var(--lpd-blue); padding: 40px 15px 10px; border-bottom: 2px solid #222; z-index: 1001; }
-        .header h1 { font-size: 18px; margin: 0; letter-spacing: 2px; color: #eee; }
-        .hud-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; background: #050505; border-bottom: 1px solid #111; padding: 8px; z-index: 1001; }
-        .stat-box { text-align: center; border-right: 1px solid #222; }
-        .stat-box:last-child { border: none; }
-        .stat-label { font-size: 8px; color: #555; text-transform: uppercase; }
-        .stat-value { font-size: 12px; color: var(--gold); font-weight: bold; }
+        /* HEADER & HUD */
+        .header { background: var(--lpd-blue); padding: 40px 15px 10px; border-bottom: 2px solid var(--gold); color: white; z-index: 1001; }
+        .hud-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; background: #fff; border-bottom: 1px solid #ccc; padding: 8px; z-index: 1001; }
+        .stat-box { text-align: center; border-right: 1px solid #eee; }
+        .stat-label { font-size: 9px; color: #666; text-transform: uppercase; font-weight: bold; }
+        .stat-value { font-size: 13px; color: var(--lpd-blue); font-weight: bold; }
 
-        /* DARK TACTICAL MAP */
-        #map { flex-grow: 1; width: 100%; background: #000; z-index: 1; }
+        /* PERIMETER & INJURY MONITOR (BAKED IN) */
+        .asset-monitor { background: #fff; padding: 10px; border-bottom: 1px solid #ccc; z-index: 1001; font-size: 11px; }
+        .monitor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+        .status-on { color: var(--neon); font-weight: bold; text-shadow: 0 0 1px #000; }
+
+        /* THE HIGH-CONTRAST MAP */
+        #map { flex-grow: 1; width: 100%; background: #ddd; z-index: 1; }
 
         /* ACTION BAR */
-        .action-bar { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px; padding: 10px; background: #000; z-index: 1001; border-top: 1px solid #222; }
-        .q-btn { background: #0a0a0a; border: 1px solid #333; padding: 12px 0; border-radius: 6px; text-align: center; cursor: pointer; }
+        .action-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 10px; background: #eee; z-index: 1001; border-top: 1px solid #ccc; }
+        .q-btn { background: #fff; border: 1px solid var(--lpd-blue); padding: 12px 0; border-radius: 6px; text-align: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .q-btn span { display: block; font-size: 22px; margin-bottom: 4px; }
-        .q-btn label { font-size: 8px; color: #888; text-transform: uppercase; }
+        .q-btn label { font-size: 9px; color: var(--lpd-blue); text-transform: uppercase; font-weight: bold; }
 
-        /* DATA OVERLAY - DEEP INFORMATION */
-        #data-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.99); z-index: 2000; padding: 50px 20px; box-sizing: border-box; overflow-y: auto; }
-        .panel-content { border: 1px solid var(--lpd-blue); padding: 25px; border-radius: 10px; background: #050505; line-height: 1.5; }
-        .panel-content h2 { color: var(--gold); margin-top: 0; border-bottom: 1px solid var(--gold); padding-bottom: 10px; }
-        .panel-content h3 { color: var(--neon); font-size: 14px; margin-top: 20px; }
-        .panel-content p, .panel-content li { font-size: 13px; color: #ccc; margin-bottom: 10px; }
-        .close-btn { color: var(--alert); font-weight: bold; margin-top: 30px; text-align: center; border: 1px solid var(--alert); padding: 12px; border-radius: 5px; cursor: pointer; }
+        /* DATA OVERLAY */
+        #data-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 2000; padding: 50px 20px; box-sizing: border-box; overflow-y: auto; }
+        .panel-content { border: 2px solid var(--lpd-blue); padding: 20px; border-radius: 10px; background: #fdfdfd; color: #000; line-height: 1.6; }
+        .panel-content h2 { color: var(--lpd-blue); border-bottom: 2px solid var(--gold); padding-bottom: 5px; margin-top: 0; }
+        .panel-content h3 { color: var(--alert); font-size: 16px; margin-top: 15px; }
+        .close-btn { color: #fff; background: var(--alert); font-weight: bold; margin-top: 30px; text-align: center; padding: 15px; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <div class="header">
-        <h1>LPD K-9 TACTICAL</h1>
-        <p id="loc-status" style="color: #666; font-size: 10px;">SYSTEM READY // NIGHT OPS MODE</p>
+        <h1>LPD K-9 TACTICAL COMMAND</h1>
+        <p style="font-size: 12px; margin: 5px 0;">1200 CHURCH ST // B&E IN PROGRESS</p>
     </div>
 
     <div class="hud-stats">
@@ -51,60 +54,88 @@
         <div class="stat-box"><div class="stat-label">Temp</div><div class="stat-value">64°F</div></div>
     </div>
 
+    <div class="asset-monitor">
+        <div style="font-weight:bold; color:var(--lpd-blue); margin-bottom:5px;">LIVE ASSET MONITOR:</div>
+        <div class="monitor-grid">
+            <div>K9 AXEL: <span class="status-on">ACTIVE / 101.2°F</span></div>
+            <div>UNIT 109: <span class="status-on">PERIMETER SET</span></div>
+            <div>UNIT 215: <span class="status-on">PERIMETER SET</span></div>
+            <div>GPS LINK: <span class="status-on">LOCKED</span></div>
+        </div>
+    </div>
+
     <div id="map"></div>
 
     <div class="action-bar">
-        <div class="q-btn" onclick="showData('Legal')"><span>⚖️</span><label>Law</label></div>
-        <div class="q-btn" onclick="showData('Medical')"><span>🐕‍🦺</span><label>K9 Med</label></div>
-        <div class="q-btn" onclick="showData('Aid')"><span>🩹</span><label>First Aid</label></div>
+        <div class="q-btn" onclick="showData('Legal')"><span>⚖️</span><label>10 LAWS</label></div>
+        <div class="q-btn" onclick="showData('Aid')"><span>🩹</span><label>10 FIRST AID</label></div>
+        <div class="q-btn" onclick="showData('Dos')"><span>✅</span><label>DO/DONT</label></div>
         <div class="q-btn" onclick="locateMe()"><span>📍</span><label>GPS</label></div>
     </div>
 </div>
 
 <div id="data-panel">
     <div class="panel-content" id="panel-body"></div>
-    <div class="close-btn" onclick="hideData()">RETURN TO FIELD MAP</div>
+    <div class="close-btn" onclick="hideData()">RETURN TO COMMAND</div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // 1. Setup Dark Map
-    var map = L.map('map', { zoomControl: false }).setView([37.4137, -79.1422], 16);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+    var map = L.map('map', { zoomControl: false }).setView([37.4137, -79.1422], 17);
+    // HIGH CONTRAST MAP - BRIGHT AND CLEAR
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    var myMarker = L.circleMarker([0,0], { color: 'white', fillColor: '#007bff', fillOpacity: 0.8, radius: 8 }).addTo(map);
+    var myMarker = L.circleMarker([0,0], { color: 'white', fillColor: 'blue', fillOpacity: 0.9, radius: 10, weight: 3 }).addTo(map);
 
-    function onLocationFound(e) {
-        myMarker.setLatLng(e.latlng);
-        map.setView(e.latlng, 17);
-        document.getElementById('loc-status').innerHTML = "GPS LOCK: ACTIVE";
-    }
-
-    function locateMe() { map.locate({setView: true, maxZoom: 17}); }
+    function onLocationFound(e) { myMarker.setLatLng(e.latlng); map.setView(e.latlng, 17); }
     map.on('locationfound', onLocationFound);
     map.locate({watch: true, setView: true, maxZoom: 17});
+    function locateMe() { map.locate({setView: true}); }
 
-    // 2. THE DEEP INFORMATION (NOTHING REMOVED)
     const tacticalData = {
-        'Legal': `<h2>VIRGINIA & FEDERAL STATUTES</h2>
-                  <h3>VA CODE § 19.2-81</h3>
-                  <p>Officers may arrest without a warrant when a person has committed a felony or in whose presence a misdemeanor involving a breach of the peace has been committed.</p>
-                  <h3>VA CODE § 18.2-144.1</h3>
-                  <p>It is a Class 5 Felony to kill or injure any dog, horse, or other animal owned by a law enforcement agency while in the performance of its duties.</p>
-                  <h3>GRAHAM V. CONNOR (1989)</h3>
-                  <p>The Fourth Amendment "reasonableness" inquiry is whether the officers' actions are "objectively reasonable" in light of the facts and circumstances confronting them.</p>`,
+        'Legal': `<h2>10 CRITICAL VIRGINIA & FEDERAL LAWS</h2>
+                  <ol>
+                    <li><b>VA § 19.2-81:</b> Warrantless arrest for felonies/misdemeanors in presence.</li>
+                    <li><b>VA § 18.2-144.1:</b> Killing/Injuring K-9 is Class 5 Felony.</li>
+                    <li><b>Graham v. Connor:</b> "Objective Reasonableness" for force.</li>
+                    <li><b>VA § 19.2-59:</b> Search warrant requirements and exceptions.</li>
+                    <li><b>Tennessee v. Garner:</b> Use of deadly force on fleeing felons.</li>
+                    <li><b>Florida v. Harris:</b> K-9 reliability and certification records.</li>
+                    <li><b>Rodriguez v. US:</b> Traffic stop duration vs K-9 arrival.</li>
+                    <li><b>Illinois v. Caballes:</b> K-9 sniffs not a 4th Am. search in traffic stops.</li>
+                    <li><b>VA § 3.2-6570:</b> Cruelty to animals (Officer exemption for duty).</li>
+                    <li><b>Terry v. Ohio:</b> Stop and Frisk - Reasonable Suspicion.</li>
+                  </ol>`,
         
-        'Medical': `<h2>K-9 FIELD EMERGENCY MEDICINE</h2>
-                    <h3>HEAT STROKE (CRITICAL)</h3>
-                    <p>Symptoms: Excessive panting, dark red gums, collapse. <b>Action:</b> Apply cool water to paws, groin, and underarms. DO NOT use ice water as it constricts blood vessels.</p>
-                    <h3>NARCOTIC EXPOSURE (FENTANYL)</h3>
-                    <p>Symptoms: Lethargy, pinned pupils, slow breathing. <b>Action:</b> Administer 4.0mg Naloxone (Narcan) nasal spray immediately. Repeat every 3-5 mins if no response.</p>`,
-        
-        'Aid': `<h2>OFFICER & K-9 FIRST AID</h2>
-                <h3>TOURNIQUET APPLICATION</h3>
-                <p>1. Place high and tight on the limb. 2. Tighten until bleeding stops. 3. Mark time of application on the forehead/collar.</p>
-                <h3>BLOAT (GDV) PROTOCOL</h3>
-                <p>Signs: Swollen abdomen, unproductive retching. <b>ACTION:</b> This is a non-fieldable emergency. Code 3 transport to the nearest 24hr Emergency Vet is the only solution.</p>`,
+        'Aid': `<h2>10 K-9 & OFFICER FIRST AID STEPS</h2>
+                <ol>
+                    <li><b>NARCAN:</b> 4mg nasal for K-9 opioid exposure.</li>
+                    <li><b>BLOAT (GDV):</b> Unproductive retching - EMERGENCY VET ONLY.</li>
+                    <li><b>TOURNIQUET:</b> High and tight on limb; note time.</li>
+                    <li><b>HEAT STROKE:</b> Cool paws/belly. NEVER use ice.</li>
+                    <li><b>GSW (Chest):</b> Seal with occlusive dressing.</li>
+                    <li><b>DEHYDRATION:</b> Small sips only for K-9; check gum color.</li>
+                    <li><b>FRACTURE:</b> Immobilize joint above and below break.</li>
+                    <li><b>PAW INJURY:</b> Check for glass/debris; wrap securely.</li>
+                    <li><b>BITES/STINGS:</b> Monitor for anaphylaxis (difficulty breathing).</li>
+                    <li><b>SHOCK:</b> Keep patient warm, head slightly lower than body.</li>
+                </ol>`,
+
+        'Dos': `<h2>OFFICER DO'S & DON'TS</h2>
+                <h3>DO:</h3>
+                <ul>
+                    <li>DO maintain perimeter at assigned corners.</li>
+                    <li>DO keep radio traffic clear for the Handler.</li>
+                    <li>DO trust the dog's nose over your eyes.</li>
+                    <li>DO record start and end times for court logs.</li>
+                </ul>
+                <h3>DON'T:</h3>
+                <ul>
+                    <li>DON'T cross the K-9's scent path (contaminates track).</li>
+                    <li>DON'T approach the dog while it is working or on a bite.</li>
+                    <li>DON'T extend a stop solely to wait for a dog.</li>
+                    <li>DON'T fail to document the "Alert" behavior specifically.</li>
+                </ul>`
     };
 
     function showData(key) {
