@@ -4,30 +4,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SAR COMMAND - MANUAL V11</title>
+    <title>ACSD SAR - NETWORK V12</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --sar-orange: #ff6600; --gold: #ffd700; }
+        :root { --sar-orange: #ff6600; --gold: #ffd700; --live: #00ff00; }
         body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Arial', sans-serif; overflow: hidden; color: white; }
 
+        /* HEADER */
         .header { background: #001a00; padding: 45px 15px 10px; border-bottom: 3px solid var(--sar-orange); z-index: 3000; }
         .search-row { display: flex; gap: 5px; }
-        .search-row input { flex-grow: 1; padding: 12px; border-radius: 4px; border: none; font-size: 16px; font-weight: bold; }
+        .search-row input { flex-grow: 1; padding: 12px; border-radius: 4px; border: none; font-size: 16px; background: #fff; color: #000; font-weight: bold; }
         
-        #map { flex-grow: 1; width: 100%; height: calc(100vh - 250px); z-index: 1; background: #111; }
+        #map { flex-grow: 1; width: 100%; height: calc(100vh - 280px); z-index: 1; background: #111; }
 
-        /* THE LEGEND (LEFT SIDE) */
+        /* MULTI-SECTION LEGEND (LEFT) */
         .legend { 
-            position: absolute; left: 10px; top: 190px; width: 160px; 
-            background: rgba(0,0,0,0.9); border: 2px solid var(--gold); 
-            padding: 10px; z-index: 2000; border-radius: 8px; font-size: 12px; 
+            position: absolute; left: 10px; top: 190px; width: 170px; 
+            background: rgba(0,0,0,0.95); border: 2px solid var(--gold); 
+            padding: 10px; z-index: 2000; border-radius: 8px; font-size: 11px; 
         }
-        .legend b { color: var(--sar-orange); border-bottom: 1px solid #444; display: block; margin-bottom: 5px; }
+        .legend b { color: var(--sar-orange); border-bottom: 1px solid #444; display: block; margin-bottom: 5px; margin-top: 10px; }
+        .legend b:first-child { margin-top: 0; }
+        .unit-row { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px solid #222; }
+        .status-dot { color: var(--live); font-weight: bold; }
 
-        /* BOTTOM TOOLBAR */
+        /* TOOLS */
         .toolbar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 10px; background: #000; z-index: 3000; }
         .tool { background: #222; border: 1px solid #444; padding: 15px 0; border-radius: 6px; text-align: center; cursor: pointer; color: #fff; }
-        .tool label { display: block; font-size: 9px; color: var(--gold); text-transform: uppercase; margin-top: 5px; font-weight: bold; }
+        .tool label { display: block; font-size: 8px; color: var(--gold); text-transform: uppercase; margin-top: 5px; font-weight: bold; }
         .tool.active { background: var(--sar-orange); }
     </style>
 </head>
@@ -35,12 +39,12 @@
 
 <div class="header">
     <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 8px;">
-        <span id="stat-text" style="color:var(--gold);">MANUAL COMMAND MODE</span>
+        <span id="gps-stat" style="color:red;">● NO SATELLITE LOCK</span>
         <span id="clock-text">00:00:00</span>
     </div>
     <div class="search-row">
-        <input type="text" id="pls-input" placeholder="Enter Address (Include City, VA)">
-        <button onclick="manualSearch()" style="background:var(--sar-orange); color:white; border:none; padding:10px 15px; border-radius:4px; font-weight:bold;">DEPLOY</button>
+        <input type="text" id="pls-input" placeholder="Enter Address (City, State)">
+        <button onclick="deploySearch()" style="background:var(--sar-orange); color:white; border:none; padding:10px 15px; border-radius:4px; font-weight:bold;">DEPLOY</button>
     </div>
 </div>
 
@@ -48,62 +52,82 @@
 
 <div class="legend">
     <b>SUBJECT PROFILE</b>
-    NAME: <span id="n-tag">SEARCHING...</span><br>
+    NAME: <span id="p-name">JOHN DOE</span><br>
     TYPE: <span style="color:yellow;">DEMENTIA</span><br>
-    STATUS: <span style="color:lime;">ACTIVE</span><br>
-    <hr style="border:0; border-top:1px solid #444; margin:10px 0;">
-    <span style="font-size:9px; color:#aaa;">Double-click map to set PLS manually.</span>
+    
+    <b>SEARCH TEAM LIST</b>
+    <div class="unit-row"><span>SAR-01 (YOU)</span><span class="status-dot" id="my-stat">OFF</span></div>
+    <div class="unit-row"><span>SAR-02 (K9)</span><span style="color:grey;">STBY</span></div>
+    <div class="unit-row"><span>SAR-03 (AIR)</span><span style="color:grey;">STBY</span></div>
+    <div class="unit-row"><span>SAR-04 (VOL)</span><span style="color:grey;">STBY</span></div>
 </div>
 
 <div class="toolbar">
-    <div id="perim-btn" class="tool" onclick="togglePerim()"><span>📐</span><label>Perimeter</label></div>
+    <div id="gps-btn" class="tool" onclick="forceGPS()"><span>📍</span><label>Start GPS</label></div>
+    <div id="draw-btn" class="tool" onclick="startPerim()"><span>📐</span><label>Perimeter</label></div>
     <div class="tool" onclick="dropLZ()"><span>🚁</span><label>Set LZ</label></div>
-    <div class="tool" onclick="alert('Searching for satellite...')"><span>📍</span><label>My Loc</label></div>
     <div class="tool" onclick="location.reload()"><span>🔄</span><label>Reset</label></div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // Initialize map on Amherst, VA area
     var map = L.map('map', { zoomControl: false }).setView([37.5857, -79.0517], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    // 1. MANUAL SEARCH
-    function manualSearch() {
+    // 1. FORCE GPS ENGINE
+    var myMarker = null;
+    function forceGPS() {
+        if (navigator.geolocation) {
+            document.getElementById('gps-stat').innerText = "● ATTEMPTING LOCK...";
+            document.getElementById('gps-stat').style.color = "yellow";
+            
+            navigator.geolocation.watchPosition(function(p) {
+                var pos = [p.coords.latitude, p.coords.longitude];
+                document.getElementById('gps-stat').innerText = "● SATELLITE LIVE";
+                document.getElementById('gps-stat').style.color = "#00ff00";
+                document.getElementById('my-stat').innerText = "LIVE";
+                document.getElementById('my-stat').style.color = "#00ff00";
+                
+                if (!myMarker) {
+                    myMarker = L.circleMarker(pos, {color: 'blue', radius: 10, fillOpacity: 0.8}).addTo(map);
+                    map.setView(pos, 17);
+                } else {
+                    myMarker.setLatLng(pos);
+                }
+            }, function(err) {
+                alert("GPS Error: Check Browser Privacy Settings.");
+            }, { enableHighAccuracy: true });
+        }
+    }
+
+    // 2. SEARCH BOX
+    function deploySearch() {
         var addr = document.getElementById('pls-input').value;
-        if(!addr) return;
         fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${addr}`)
             .then(r => r.json()).then(d => {
                 if(d[0]) {
                     var pos = [d[0].lat, d[0].lon];
-                    map.setView(pos, 17);
-                    L.marker(pos).addTo(map).bindPopup("<b>POINT LAST SEEN</b>").openPopup();
-                } else {
-                    alert("Location not found. Try adding ', VA' to the end.");
+                    map.setView(pos, 18);
+                    L.marker(pos).addTo(map).bindPopup("<b>SEARCH POINT</b>").openPopup();
                 }
             });
     }
 
-    // 2. DOUBLE-CLICK TO SET PLS (NO SEARCH NEEDED)
-    map.on('dblclick', function(e) {
-        L.marker(e.latlng).addTo(map).bindPopup("<b>MANUAL PLS SET</b>").openPopup();
-    });
-
-    // 3. PERIMETER TOOL
+    // 3. PERIMETER (TAP TO DRAW)
     var drawing = false;
-    var perimPoints = [];
+    var points = [];
     var poly = L.polygon([], {color: 'orange', fillOpacity: 0.3}).addTo(map);
 
-    function togglePerim() {
+    function startPerim() {
         drawing = !drawing;
-        document.getElementById('perim-btn').classList.toggle('active');
-        if(drawing) alert("TAP MODE: Tap the map to draw the search perimeter.");
+        document.getElementById('draw-btn').classList.toggle('active');
+        if(drawing) alert("TAP MODE: Click the map to define the search zone.");
     }
 
     map.on('click', function(e) {
         if(drawing) {
-            perimPoints.push(e.latlng);
-            poly.setLatLngs(perimPoints);
+            points.push(e.latlng);
+            poly.setLatLngs(points);
             L.circleMarker(e.latlng, {radius: 4, color: 'white', fillColor: 'orange', fillOpacity: 1}).addTo(map);
         }
     });
