@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD SAR - COMMAND V17</title>
+    <title>ACSD SAR - COMMAND V18</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --orange: #ff6600; --gold: #ffd700; --blue: #007bff; --live: #00ff00; }
@@ -14,29 +13,31 @@
         .search-row { display: flex; gap: 5px; }
         .search-row input { flex-grow: 1; padding: 15px; border-radius: 4px; border: none; font-size: 16px; font-weight: bold; }
         
-        #map { width: 100%; height: calc(100vh - 320px); background: #111; cursor: crosshair; }
+        #map { width: 100%; height: calc(100vh - 320px); background: #111; }
 
-        /* THE UPGRADED LEGEND */
+        /* THE LEGEND */
         .legend { 
             position: absolute; left: 10px; top: 200px; width: 190px; 
             background: rgba(0,0,0,0.95); border: 2px solid var(--gold); 
             padding: 12px; z-index: 2000; border-radius: 8px; font-size: 13px; 
         }
         .legend b { color: var(--orange); display: block; margin: 10px 0 5px 0; border-bottom: 1px solid #444; }
-        .unit { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid #222; }
+        .status-box { font-size: 16px; font-weight: bold; margin-top: 5px; }
 
-        /* COMMAND DOT (YOU) */
+        /* PULSING BLUE COMMAND DOT */
         .cmd-dot {
-            width: 24px; height: 24px; background: var(--blue); border: 4px solid #fff; border-radius: 50%;
-            box-shadow: 0 0 15px var(--blue); animation: blink 2s infinite;
+            width: 26px; height: 26px; background: var(--blue); border: 4px solid #fff; border-radius: 50%;
+            box-shadow: 0 0 20px var(--blue); animation: pulse-blue 1.5s infinite;
         }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        @keyframes pulse-blue {
+            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(0, 123, 255, 0); }
+            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+        }
 
-        /* TOOLBAR */
         .toolbar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 10px; background: #000; }
         .tool { background: #222; border: 1px solid #444; padding: 18px 0; border-radius: 6px; text-align: center; color: #fff; cursor: pointer; }
         .tool label { display: block; font-size: 9px; color: var(--gold); text-transform: uppercase; margin-top: 5px; font-weight: bold; }
-        .active-tool { background: var(--orange) !important; border-color: white !important; }
     </style>
 </head>
 <body>
@@ -46,26 +47,26 @@
         <input type="text" id="target-addr" placeholder="Enter Address, City, VA">
         <button onclick="deployNow()" style="background:var(--orange); color:white; border:none; padding:10px 15px; border-radius:4px; font-weight:bold;">DEPLOY</button>
     </div>
-    <button onclick="lockCommandCenter()" style="width:100%; background:#004400; color:white; border:1px solid lime; padding:8px; font-size:12px; border-radius:4px; margin-top:5px; font-weight:bold;">ACTIVATE COMMAND DOT AT THIS HOUSE</button>
+    <button onclick="lockCommandDot()" style="width:100%; background:#004400; color:white; border:1px solid lime; padding:10px; font-size:12px; border-radius:4px; margin-top:5px; font-weight:bold;">FIX COMMAND DOT ON THIS ROOF</button>
 </div>
 
 <div id="map"></div>
 
 <div class="legend">
-    <b>SUBJECT PROFILE</b>
-    NAME: <span id="p-name">JOHN DOE</span><br>
-    STATUS: <span style="color:yellow;">MISSING</span>
+    <b>SYSTEM STATUS</b>
+    <div id="gps-text" class="status-box" style="color:red;">● GPS: STANDBY</div>
     
-    <b>SEARCH TEAM LIST</b>
-    <div class="unit"><span>SAR-01 (CMD)</span><span id="s1" style="color:red;">OFF</span></div>
-    <div class="unit"><span>SAR-02 (K9)</span><span style="color:var(--live);">READY</span></div>
-    <div class="unit"><span>SAR-03 (GROUND)</span><span style="color:var(--live);">READY</span></div>
+    <b>SUBJECT PROFILE</b>
+    NAME: JOHN DOE<br>
+    
+    <b>SEARCH TEAM</b>
+    <div style="display:flex; justify-content:space-between;"><span>SAR-01</span><span style="color:var(--live);">READY</span></div>
 </div>
 
 <div class="toolbar">
-    <div id="perim-btn" class="tool" onclick="togglePerim()"><span>📐</span><label>Perimeter</label></div>
+    <div class="tool" onclick="startTracking()"><span>📡</span><label>Start GPS</label></div>
+    <div class="tool" onclick="togglePerim()" id="p-btn"><span>📐</span><label>Perimeter</label></div>
     <div class="tool" onclick="dropLZ()"><span>🚁</span><label>Set LZ</label></div>
-    <div class="tool" onclick="addSimSearcher()"><span>👤</span><label>Add Unit</label></div>
     <div class="tool" onclick="location.reload()"><span>🔄</span><label>Reset</label></div>
 </div>
 
@@ -75,55 +76,47 @@
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
     var cmdMarker = null;
-    var cmdIcon = L.divIcon({ className: 'c-icon', html: '<div class="cmd-dot"></div>', iconSize: [24,24], iconAnchor: [12,12] });
+    var cmdIcon = L.divIcon({ className: 'c-icon', html: '<div class="cmd-dot"></div>', iconSize: [26,26], iconAnchor: [13,13] });
 
-    // 1. DEPLOY TO ADDRESS
     function deployNow() {
         var addr = document.getElementById('target-addr').value;
         fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${addr}`)
             .then(r => r.json()).then(d => {
                 if(d[0]) {
-                    var pos = [d[0].lat, d[0].lon];
-                    map.setView(pos, 17);
-                    L.marker(pos).addTo(map).bindPopup("<b>POINT LAST SEEN</b>").openPopup();
+                    map.setView([d[0].lat, d[0].lon], 18);
+                    L.marker([d[0].lat, d[0].lon]).addTo(map).bindPopup("<b>PLS</b>").openPopup();
                 }
             });
     }
 
-    // 2. LOCK COMMAND DOT (THE BLUE BLINKING DOT)
-    function lockCommandCenter() {
+    function lockCommandDot() {
         var center = map.getCenter();
         if(cmdMarker) { cmdMarker.setLatLng(center); }
         else { cmdMarker = L.marker(center, {icon: cmdIcon}).addTo(map); }
-        document.getElementById('s1').innerText = "LIVE";
-        document.getElementById('s1').style.color = "lime";
     }
 
-    // 3. HEAVY DUTY PERIMETER
+    function startTracking() {
+        document.getElementById('gps-text').innerText = "● GPS: LIVE";
+        document.getElementById('gps-text').style.color = "var(--live)";
+    }
+
+    // Heavy Perimeter
     var drawing = false;
-    var points = [];
-    var area = L.polygon([], {color: '#ff6600', weight: 5, fillOpacity: 0.4}).addTo(map);
+    var pts = [];
+    var area = L.polygon([], {color: '#ff6600', weight: 6, fillOpacity: 0.4}).addTo(map);
 
     function togglePerim() {
         drawing = !drawing;
-        document.getElementById('perim-btn').classList.toggle('active-tool');
-        if(drawing) alert("TAP MODE ON: Click the map corners to build your search box.");
+        document.getElementById('p-btn').style.background = drawing ? 'var(--orange)' : '#222';
     }
 
     map.on('click', function(e) {
         if(drawing) {
-            points.push(e.latlng);
-            area.setLatLngs(points);
-            // Big white circles at the corners
-            L.circleMarker(e.latlng, {radius: 6, color: 'white', fillColor: 'white', fillOpacity: 1}).addTo(map);
+            pts.push(e.latlng);
+            area.setLatLngs(pts);
+            L.circleMarker(e.latlng, {radius: 8, color: 'white', fillColor: 'white', fillOpacity: 1}).addTo(map);
         }
     });
-
-    // 4. PRACTICE: ADD A SEARCHER
-    function addSimSearcher() {
-        var center = map.getCenter();
-        L.marker(center).addTo(map).bindPopup("<b>GROUND UNIT PLACED</b>").openPopup();
-    }
 
     function dropLZ() {
         L.circle(map.getCenter(), {radius: 40, color: '#00ff00', weight: 4}).addTo(map).bindPopup("HELO LZ").openPopup();
