@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD SAR - NETWORK V12</title>
+    <title>ACSD SAR - COMMAND V13</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --sar-orange: #ff6600; --gold: #ffd700; --live: #00ff00; }
+        :root { --sar-orange: #ff6600; --gold: #ffd700; --live: #00ff00; --blue: #007bff; }
         body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Arial', sans-serif; overflow: hidden; color: white; }
 
         /* HEADER */
@@ -15,124 +15,126 @@
         .search-row { display: flex; gap: 5px; }
         .search-row input { flex-grow: 1; padding: 12px; border-radius: 4px; border: none; font-size: 16px; background: #fff; color: #000; font-weight: bold; }
         
-        #map { flex-grow: 1; width: 100%; height: calc(100vh - 280px); z-index: 1; background: #111; }
+        #map { flex-grow: 1; width: 100%; height: calc(100vh - 300px); z-index: 1; background: #111; }
 
-        /* MULTI-SECTION LEGEND (LEFT) */
+        /* TACTICAL LEGEND */
         .legend { 
-            position: absolute; left: 10px; top: 190px; width: 170px; 
+            position: absolute; left: 10px; top: 195px; width: 180px; 
             background: rgba(0,0,0,0.95); border: 2px solid var(--gold); 
-            padding: 10px; z-index: 2000; border-radius: 8px; font-size: 11px; 
+            padding: 12px; z-index: 2000; border-radius: 8px; font-size: 12px; 
         }
-        .legend b { color: var(--sar-orange); border-bottom: 1px solid #444; display: block; margin-bottom: 5px; margin-top: 10px; }
+        .legend b { color: var(--sar-orange); border-bottom: 1px solid #444; display: block; margin-bottom: 8px; margin-top: 12px; }
         .legend b:first-child { margin-top: 0; }
-        .unit-row { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px solid #222; }
-        .status-dot { color: var(--live); font-weight: bold; }
+        .unit { display: flex; justify-content: space-between; margin-bottom: 4px; padding: 2px 0; }
 
-        /* TOOLS */
+        /* PULSE */
+        .pulse {
+            width: 20px; height: 20px; background: var(--blue); border: 3px solid #fff; border-radius: 50%;
+            position: relative; box-shadow: 0 0 15px var(--blue);
+        }
+        .pulse::after {
+            content: ""; position: absolute; top: -8px; left: -8px; width: 36px; height: 36px;
+            border: 2px solid #fff; border-radius: 50%; animation: pulsate 1.5s ease-out infinite;
+        }
+        @keyframes pulsate { 0% { transform: scale(0.1); opacity: 0; } 50% { opacity: 1; } 100% { transform: scale(1.6); opacity: 0; } }
+
+        /* TOOLBAR */
         .toolbar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 10px; background: #000; z-index: 3000; }
         .tool { background: #222; border: 1px solid #444; padding: 15px 0; border-radius: 6px; text-align: center; cursor: pointer; color: #fff; }
         .tool label { display: block; font-size: 8px; color: var(--gold); text-transform: uppercase; margin-top: 5px; font-weight: bold; }
-        .tool.active { background: var(--sar-orange); }
     </style>
 </head>
 <body>
 
 <div class="header">
     <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 8px;">
-        <span id="gps-stat" style="color:red;">● NO SATELLITE LOCK</span>
+        <span id="gps-stat" style="color:red;">● GPS: STANDBY</span>
         <span id="clock-text">00:00:00</span>
     </div>
     <div class="search-row">
-        <input type="text" id="pls-input" placeholder="Enter Address (City, State)">
-        <button onclick="deploySearch()" style="background:var(--sar-orange); color:white; border:none; padding:10px 15px; border-radius:4px; font-weight:bold;">DEPLOY</button>
+        <input type="text" id="pls-box" placeholder="Enter Address, City, VA">
+        <button onclick="deploy()" style="background:var(--sar-orange); color:white; border:none; padding:10px 15px; border-radius:4px; font-weight:bold;">DEPLOY</button>
     </div>
+    <button onclick="overrideGPS()" style="width:100%; background:#440000; border:1px solid red; color:white; margin-top:5px; font-size:10px; border-radius:4px; padding:4px;">FORCE GPS TO SEARCHED ADDRESS</button>
 </div>
 
 <div id="map"></div>
 
 <div class="legend">
     <b>SUBJECT PROFILE</b>
-    NAME: <span id="p-name">JOHN DOE</span><br>
-    TYPE: <span style="color:yellow;">DEMENTIA</span><br>
+    NAME: <span id="n-val">JOHN DOE</span><br>
+    STATUS: <span style="color:yellow;">MISSING (DEMENTIA)</span>
     
     <b>SEARCH TEAM LIST</b>
-    <div class="unit-row"><span>SAR-01 (YOU)</span><span class="status-dot" id="my-stat">OFF</span></div>
-    <div class="unit-row"><span>SAR-02 (K9)</span><span style="color:grey;">STBY</span></div>
-    <div class="unit-row"><span>SAR-03 (AIR)</span><span style="color:grey;">STBY</span></div>
-    <div class="unit-row"><span>SAR-04 (VOL)</span><span style="color:grey;">STBY</span></div>
+    <div class="unit"><span>SAR-01 (CMD)</span><span id="u1" style="color:red;">OFF</span></div>
+    <div class="unit"><span>SAR-02 (K9)</span><span style="color:var(--live);">LIVE</span></div>
+    <div class="unit"><span>SAR-03 (VOL)</span><span style="color:var(--live);">LIVE</span></div>
 </div>
 
 <div class="toolbar">
-    <div id="gps-btn" class="tool" onclick="forceGPS()"><span>📍</span><label>Start GPS</label></div>
-    <div id="draw-btn" class="tool" onclick="startPerim()"><span>📐</span><label>Perimeter</label></div>
+    <div class="tool" onclick="startGPS()"><span>📍</span><label>Start GPS</label></div>
+    <div id="d-btn" class="tool" onclick="toggleDraw()"><span>📐</span><label>Perimeter</label></div>
     <div class="tool" onclick="dropLZ()"><span>🚁</span><label>Set LZ</label></div>
     <div class="tool" onclick="location.reload()"><span>🔄</span><label>Reset</label></div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    var map = L.map('map', { zoomControl: false }).setView([37.5857, -79.0517], 12);
+    var map = L.map('map', { zoomControl: false, doubleClickZoom: false }).setView([37.5, -79.0], 10);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    // 1. FORCE GPS ENGINE
     var myMarker = null;
-    function forceGPS() {
-        if (navigator.geolocation) {
-            document.getElementById('gps-stat').innerText = "● ATTEMPTING LOCK...";
-            document.getElementById('gps-stat').style.color = "yellow";
-            
-            navigator.geolocation.watchPosition(function(p) {
-                var pos = [p.coords.latitude, p.coords.longitude];
-                document.getElementById('gps-stat').innerText = "● SATELLITE LIVE";
-                document.getElementById('gps-stat').style.color = "#00ff00";
-                document.getElementById('my-stat').innerText = "LIVE";
-                document.getElementById('my-stat').style.color = "#00ff00";
-                
-                if (!myMarker) {
-                    myMarker = L.circleMarker(pos, {color: 'blue', radius: 10, fillOpacity: 0.8}).addTo(map);
-                    map.setView(pos, 17);
-                } else {
-                    myMarker.setLatLng(pos);
-                }
-            }, function(err) {
-                alert("GPS Error: Check Browser Privacy Settings.");
-            }, { enableHighAccuracy: true });
-        }
-    }
+    var pulseIcon = L.divIcon({ className: 'p-icon', html: '<div class="pulse"></div>', iconSize: [40,40], iconAnchor: [20,20] });
 
-    // 2. SEARCH BOX
-    function deploySearch() {
-        var addr = document.getElementById('pls-input').value;
+    function deploy() {
+        var addr = document.getElementById('pls-box').value;
         fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${addr}`)
             .then(r => r.json()).then(d => {
                 if(d[0]) {
                     var pos = [d[0].lat, d[0].lon];
-                    map.setView(pos, 18);
-                    L.marker(pos).addTo(map).bindPopup("<b>SEARCH POINT</b>").openPopup();
+                    map.setView(pos, 17);
+                    L.marker(pos).addTo(map).bindPopup("<b>PLS</b>").openPopup();
                 }
             });
     }
 
-    // 3. PERIMETER (TAP TO DRAW)
-    var drawing = false;
-    var points = [];
-    var poly = L.polygon([], {color: 'orange', fillOpacity: 0.3}).addTo(map);
-
-    function startPerim() {
-        drawing = !drawing;
-        document.getElementById('draw-btn').classList.toggle('active');
-        if(drawing) alert("TAP MODE: Click the map to define the search zone.");
+    function startGPS() {
+        document.getElementById('gps-stat').innerText = "● GPS: SEARCHING...";
+        document.getElementById('gps-stat').style.color = "yellow";
+        
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition(function(p) {
+                var pos = [p.coords.latitude, p.coords.longitude];
+                updateLocation(pos);
+            }, function() {
+                alert("GPS Blocked. Use the 'FORCE GPS' button to bypass.");
+            }, { enableHighAccuracy: true });
+        }
     }
 
-    map.on('click', function(e) {
-        if(drawing) {
-            points.push(e.latlng);
-            poly.setLatLngs(points);
-            L.circleMarker(e.latlng, {radius: 4, color: 'white', fillColor: 'orange', fillOpacity: 1}).addTo(map);
-        }
-    });
+    function overrideGPS() {
+        updateLocation(map.getCenter());
+        alert("GPS OVERRIDE: Using current map center as your position.");
+    }
 
-    function dropLZ() { L.circle(map.getCenter(), {radius: 40, color: 'lime'}).addTo(map).bindPopup("HELO LZ").openPopup(); }
+    function updateLocation(pos) {
+        document.getElementById('gps-stat').innerText = "● GPS: LIVE";
+        document.getElementById('gps-stat').style.color = "#00ff00";
+        document.getElementById('u1').innerText = "LIVE";
+        document.getElementById('u1').style.color = "#00ff00";
+        if (!myMarker) {
+            myMarker = L.marker(pos, { icon: pulseIcon }).addTo(map);
+        } else {
+            myMarker.setLatLng(pos);
+        }
+    }
+
+    var drawing = false;
+    var pts = [];
+    var poly = L.polygon([], {color: 'orange'}).addTo(map);
+    function toggleDraw() { drawing = !drawing; document.getElementById('d-btn').style.background = drawing ? 'orange' : '#222'; }
+    map.on('click', function(e) { if(drawing) { pts.push(e.latlng); poly.setLatLngs(pts); L.circleMarker(e.latlng, {radius:3, color:'white'}).addTo(map); } });
+    function dropLZ() { L.circle(map.getCenter(), {radius: 40, color: 'lime'}).addTo(map).bindPopup("LZ").openPopup(); }
     setInterval(() => { document.getElementById('clock-text').innerText = new Date().toLocaleTimeString(); }, 1000);
 </script>
 </body>
