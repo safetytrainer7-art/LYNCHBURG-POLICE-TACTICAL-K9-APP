@@ -1,66 +1,59 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LPD TACTICAL COMMAND - PERMANENT BUILD</title>
+    <title>LPD K-9 TACTICAL - PERMANENT LEGACY BUILD</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --lpd-blue: #003366; --neon: #00ff66; --gold: #ffd700; --alert: #ff0000; }
-        body, html { margin: 0; padding: 0; height: 100%; background: #f0f0f0; font-family: 'Segoe UI', Arial, sans-serif; overflow: hidden; color: #333; }
+        :root { --lpd-blue: #003366; --gold: #ffd700; --alert: #d9534f; --neon: #28a745; }
+        body, html { margin: 0; padding: 0; height: 100%; background: #fff; font-family: 'Segoe UI', Arial, sans-serif; overflow: hidden; }
         .app-container { display: flex; flex-direction: column; height: 100vh; }
 
-        /* HEADER & HUD */
-        .header { background: var(--lpd-blue); padding: 40px 15px 10px; border-bottom: 2px solid var(--gold); color: white; z-index: 1001; }
-        .hud-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; background: #fff; border-bottom: 1px solid #ccc; padding: 8px; z-index: 1001; }
-        .stat-box { text-align: center; border-right: 1px solid #eee; }
-        .stat-label { font-size: 9px; color: #666; text-transform: uppercase; font-weight: bold; }
-        .stat-value { font-size: 13px; color: var(--lpd-blue); font-weight: bold; }
+        /* HEADER & SEARCH */
+        .header { background: var(--lpd-blue); padding: 45px 15px 10px; border-bottom: 3px solid var(--gold); color: white; z-index: 1001; }
+        .search-box { width: 100%; padding: 8px; border-radius: 4px; border: none; margin-top: 10px; box-sizing: border-box; }
 
-        /* PERIMETER & INJURY MONITOR (BAKED IN) */
-        .asset-monitor { background: #fff; padding: 10px; border-bottom: 1px solid #ccc; z-index: 1001; font-size: 11px; }
-        .monitor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
-        .status-on { color: var(--neon); font-weight: bold; text-shadow: 0 0 1px #000; }
+        /* PERMANENT MONITORS */
+        .monitor-panel { display: grid; grid-template-columns: 1fr 1fr; background: #eee; padding: 10px; border-bottom: 1px solid #ccc; z-index: 1001; }
+        .monitor-box { background: white; border: 1px solid #ccc; padding: 8px; border-radius: 4px; margin: 2px; }
+        .monitor-title { font-size: 9px; font-weight: bold; color: var(--lpd-blue); text-transform: uppercase; margin-bottom: 4px; }
+        .monitor-data { font-size: 11px; color: #333; line-height: 1.3; }
 
-        /* THE HIGH-CONTRAST MAP */
+        /* THE MAP */
         #map { flex-grow: 1; width: 100%; background: #ddd; z-index: 1; }
 
         /* ACTION BAR */
-        .action-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 10px; background: #eee; z-index: 1001; border-top: 1px solid #ccc; }
-        .q-btn { background: #fff; border: 1px solid var(--lpd-blue); padding: 12px 0; border-radius: 6px; text-align: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .q-btn span { display: block; font-size: 22px; margin-bottom: 4px; }
-        .q-btn label { font-size: 9px; color: var(--lpd-blue); text-transform: uppercase; font-weight: bold; }
+        .action-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 10px; background: #fff; z-index: 1001; border-top: 1px solid #ccc; }
+        .q-btn { background: #f8f9fa; border: 1px solid var(--lpd-blue); padding: 12px 0; border-radius: 6px; text-align: center; cursor: pointer; }
+        .q-btn span { display: block; font-size: 20px; }
+        .q-btn label { font-size: 8px; font-weight: bold; color: var(--lpd-blue); text-transform: uppercase; }
 
         /* DATA OVERLAY */
         #data-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 2000; padding: 50px 20px; box-sizing: border-box; overflow-y: auto; }
-        .panel-content { border: 2px solid var(--lpd-blue); padding: 20px; border-radius: 10px; background: #fdfdfd; color: #000; line-height: 1.6; }
-        .panel-content h2 { color: var(--lpd-blue); border-bottom: 2px solid var(--gold); padding-bottom: 5px; margin-top: 0; }
-        .panel-content h3 { color: var(--alert); font-size: 16px; margin-top: 15px; }
-        .close-btn { color: #fff; background: var(--alert); font-weight: bold; margin-top: 30px; text-align: center; padding: 15px; border-radius: 5px; cursor: pointer; }
+        .panel-content { border: 2px solid var(--lpd-blue); padding: 25px; border-radius: 10px; background: #fff; color: #333; }
+        .panel-content h2 { color: var(--lpd-blue); border-bottom: 2px solid var(--gold); padding-bottom: 8px; margin-bottom: 20px; }
+        .panel-content h3 { color: var(--alert); font-size: 16px; margin-top: 20px; text-transform: uppercase; }
+        .panel-content p { font-size: 14px; line-height: 1.6; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .close-btn { color: #fff; background: var(--lpd-blue); font-weight: bold; margin-top: 30px; text-align: center; padding: 15px; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <div class="header">
-        <h1>LPD K-9 TACTICAL COMMAND</h1>
-        <p style="font-size: 12px; margin: 5px 0;">1200 CHURCH ST // B&E IN PROGRESS</p>
+        <h1>LPD K-9 TACTICAL</h1>
+        <input type="text" class="search-box" id="addr-search" placeholder="Enter Search Address (e.g. 1200 Church St)" onchange="searchAddress(this.value)">
     </div>
 
-    <div class="hud-stats">
-        <div class="stat-box"><div class="stat-label">Wind</div><div class="stat-value">6 MPH NW</div></div>
-        <div class="stat-box"><div class="stat-label">Heading</div><div class="stat-value">312° NW</div></div>
-        <div class="stat-box"><div class="stat-label">Temp</div><div class="stat-value">64°F</div></div>
-    </div>
-
-    <div class="asset-monitor">
-        <div style="font-weight:bold; color:var(--lpd-blue); margin-bottom:5px;">LIVE ASSET MONITOR:</div>
-        <div class="monitor-grid">
-            <div>K9 AXEL: <span class="status-on">ACTIVE / 101.2°F</span></div>
-            <div>UNIT 109: <span class="status-on">PERIMETER SET</span></div>
-            <div>UNIT 215: <span class="status-on">PERIMETER SET</span></div>
-            <div>GPS LINK: <span class="status-on">LOCKED</span></div>
+    <div class="monitor-panel">
+        <div class="monitor-box">
+            <div class="monitor-title">🛡️ Perimeter Status</div>
+            <div class="monitor-data">Unit 109: SECURE (West)<br>Unit 215: SECURE (North)</div>
+        </div>
+        <div class="monitor-box">
+            <div class="monitor-title">🐕‍🦺 Injury Monitor</div>
+            <div class="monitor-data">Vitals: Stable<br>Temp: 101.2° | HR: 88bpm</div>
         </div>
     </div>
 
@@ -68,74 +61,85 @@
 
     <div class="action-bar">
         <div class="q-btn" onclick="showData('Legal')"><span>⚖️</span><label>10 LAWS</label></div>
-        <div class="q-btn" onclick="showData('Aid')"><span>🩹</span><label>10 FIRST AID</label></div>
+        <div class="q-btn" onclick="showData('Aid')"><span>🩹</span><label>10 AID</label></div>
         <div class="q-btn" onclick="showData('Dos')"><span>✅</span><label>DO/DONT</label></div>
-        <div class="q-btn" onclick="locateMe()"><span>📍</span><label>GPS</label></div>
+        <div class="q-btn" onclick="locateMe()"><span>📍</span><label>RECENTER</label></div>
     </div>
 </div>
 
 <div id="data-panel">
     <div class="panel-content" id="panel-body"></div>
-    <div class="close-btn" onclick="hideData()">RETURN TO COMMAND</div>
+    <div class="close-btn" onclick="hideData()">CLOSE TACTICAL DATA</div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     var map = L.map('map', { zoomControl: false }).setView([37.4137, -79.1422], 17);
-    // HIGH CONTRAST MAP - BRIGHT AND CLEAR
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    var myMarker = L.circleMarker([0,0], { color: 'white', fillColor: 'blue', fillOpacity: 0.9, radius: 10, weight: 3 }).addTo(map);
+    var myMarker = L.circleMarker([0,0], { color: 'white', fillColor: 'blue', fillOpacity: 1, radius: 10, weight: 3 }).addTo(map);
 
-    function onLocationFound(e) { myMarker.setLatLng(e.latlng); map.setView(e.latlng, 17); }
+    function onLocationFound(e) { myMarker.setLatLng(e.latlng); }
     map.on('locationfound', onLocationFound);
     map.locate({watch: true, setView: true, maxZoom: 17});
     function locateMe() { map.locate({setView: true}); }
 
-    const tacticalData = {
-        'Legal': `<h2>10 CRITICAL VIRGINIA & FEDERAL LAWS</h2>
-                  <ol>
-                    <li><b>VA § 19.2-81:</b> Warrantless arrest for felonies/misdemeanors in presence.</li>
-                    <li><b>VA § 18.2-144.1:</b> Killing/Injuring K-9 is Class 5 Felony.</li>
-                    <li><b>Graham v. Connor:</b> "Objective Reasonableness" for force.</li>
-                    <li><b>VA § 19.2-59:</b> Search warrant requirements and exceptions.</li>
-                    <li><b>Tennessee v. Garner:</b> Use of deadly force on fleeing felons.</li>
-                    <li><b>Florida v. Harris:</b> K-9 reliability and certification records.</li>
-                    <li><b>Rodriguez v. US:</b> Traffic stop duration vs K-9 arrival.</li>
-                    <li><b>Illinois v. Caballes:</b> K-9 sniffs not a 4th Am. search in traffic stops.</li>
-                    <li><b>VA § 3.2-6570:</b> Cruelty to animals (Officer exemption for duty).</li>
-                    <li><b>Terry v. Ohio:</b> Stop and Frisk - Reasonable Suspicion.</li>
-                  </ol>`,
-        
-        'Aid': `<h2>10 K-9 & OFFICER FIRST AID STEPS</h2>
-                <ol>
-                    <li><b>NARCAN:</b> 4mg nasal for K-9 opioid exposure.</li>
-                    <li><b>BLOAT (GDV):</b> Unproductive retching - EMERGENCY VET ONLY.</li>
-                    <li><b>TOURNIQUET:</b> High and tight on limb; note time.</li>
-                    <li><b>HEAT STROKE:</b> Cool paws/belly. NEVER use ice.</li>
-                    <li><b>GSW (Chest):</b> Seal with occlusive dressing.</li>
-                    <li><b>DEHYDRATION:</b> Small sips only for K-9; check gum color.</li>
-                    <li><b>FRACTURE:</b> Immobilize joint above and below break.</li>
-                    <li><b>PAW INJURY:</b> Check for glass/debris; wrap securely.</li>
-                    <li><b>BITES/STINGS:</b> Monitor for anaphylaxis (difficulty breathing).</li>
-                    <li><b>SHOCK:</b> Keep patient warm, head slightly lower than body.</li>
-                </ol>`,
+    function searchAddress(addr) {
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${addr}`)
+            .then(res => res.json())
+            .then(data => { if(data[0]) map.setView([data[0].lat, data[0].lon], 18); });
+    }
 
-        'Dos': `<h2>OFFICER DO'S & DON'TS</h2>
+    const tacticalData = {
+        'Legal': `<h2>THE 10 COMMANDMENTS OF K-9 LAW</h2>
+                  <h3>1. VA CODE § 19.2-81 (Warrantless Arrest)</h3>
+                  <p>This is the officer's shield. It authorizes the arrest without a warrant of any person who has committed a felony, even if not in the officer's presence, provided there is probable cause. For K-9 tracking, this allows for immediate pursuit following a felony sighting.</p>
+                  <h3>2. GRAHAM V. CONNOR (Objective Reasonableness)</h3>
+                  <p>The Supreme Court ruled that a K-9 deployment (use of force) must be judged from the perspective of a reasonable officer on the scene. Factors include the severity of the crime, whether the suspect is an immediate threat, and if they are actively resisting or fleeing.</p>
+                  <h3>3. FLORIDA V. HARRIS (K-9 Reliability)</h3>
+                  <p>The dog's "nose" is legally valid in court as long as the department maintains meticulous training records. A dog's alert provides probable cause if the training logs prove the dog is certified and consistent.</p>
+                  <h3>4. VA CODE § 18.2-144.1 (Protection of Police Animals)</h3>
+                  <p>It is a Class 5 Felony in Virginia to kill or cause serious injury to a law enforcement animal. This includes mandatory restitution for the animal's value, training costs, and lost work time.</p>
+                  <h3>5. RODRIGUEZ V. UNITED STATES (Traffic Stop Limits)</h3>
+                  <p>An officer may not extend a completed traffic stop just to wait for a K-9 to arrive. The K-9 sniff must occur within the time it takes to process the initial violation unless independent reasonable suspicion exists.</p>
+                  <h3>6. TENNESSEE V. GARNER (Fleeing Felons)</h3>
+                  <p>K-9s cannot be used to exert deadly force on a non-dangerous fleeing felon. The deployment must be proportional to the threat posed by the suspect to the community.</p>
+                  <h3>7. ILLINOIS V. CABALLES (Open Sniffs)</h3>
+                  <p>A K-9 sniff of the exterior of a vehicle during a lawful traffic stop is NOT a search under the 4th Amendment. No additional suspicion is needed to let the dog walk around the car.</p>
+                  <h3>8. VA § 19.2-59 (Search and Seizure)</h3>
+                  <p>Virginia strictly follows search warrant requirements. However, "Exigent Circumstances" (like a hot track after a B&E) allow officers to enter curtilage or property to prevent the escape of a felon or destruction of evidence.</p>
+                  <h3>9. FLORIDA V. JARDINES (The Porch Rule)</h3>
+                  <p>Unlike a car, the front porch of a home (curtilage) is protected. Officers cannot bring a K-9 onto a private porch to sniff the front door without a warrant or specific consent.</p>
+                  <h3>10. TERRY V. OHIO (Stop and Frisk)</h3>
+                  <p>The foundation of proactive policing. Allows an officer to briefly detain and pat down a person based on reasonable suspicion that "criminal activity is afoot."</p>`,
+        
+        'Aid': `<h2>10 CRITICAL FIELD FIRST AID PROCEDURES</h2>
+                <h3>1. NARCAN (OPIOID EXPOSURE)</h3>
+                <p>If a K-9 becomes lethargic or stops breathing after sniffing a suspect or vehicle, immediately administer 4mg of Naloxone nasal spray. Support the dog's breathing and repeat dose every 3 minutes until responsive.</p>
+                <h3>2. BLOAT / GDV (STOMACH TORSION)</h3>
+                <p>The #1 K-9 killer. Signs include unproductive retching, distended abdomen, and heavy drooling. This is a surgical emergency. There is NO field fix. Transport Code 3 to a vet immediately.</p>
+                <h3>3. TOURNIQUET (MAJOR BLEEDING)</h3>
+                <p>For arterial bleeding on a limb, place the TQ "High and Tight." Do not place it over a joint. Tighten until the bright red spurting stops. Mark the time on the dog's collar or handler's glove.</p>
+                <h3>4. HEAT STROKE (HYPERTHERMIA)</h3>
+                <p>Rectal temp over 104°F is an emergency. Move to shade, use a fan, and apply cool (not ice) water to the belly, paws, and groin. Ice water will constrict blood vessels and actually trap the heat inside the dog.</p>
+                <h3>5. PENETRATING CHEST WOUND</h3>
+                <p>If the dog is stabbed or shot in the chest, look for bubbling blood. Seal the wound with an "Occlusive Dressing" (plastic wrap or a gloved hand) to prevent the lung from collapsing.</p>
+                <h3>6. PAW TEARS / GLASS CUTS</h3>
+                <p>Check pads for debris. Clean with saline and wrap with a pressure bandage. Ensure the wrap is not so tight that it cuts off circulation to the rest of the foot.</p>
+                <h3>7. EYE INJURIES</h3>
+                <p>If the dog is sprayed or poked, flush with clean water for 15 minutes. Do not let the dog rub the eye, as this will cause a permanent corneal ulcer.</p>
+                <h3>8. DEHYDRATION CHECK</h3>
+                <p>Press the dog's gums; they should turn white and snap back to pink in 2 seconds. If it takes longer, the dog is dehydrated. Provide small, frequent amounts of water—do not let them "Gulp."</p>
+                <h3>9. ANAPHYLAXIS (STINGS)</h3>
+                <p>If the dog's face swells after a search in brush, they may be having an allergic reaction. Monitor for "Stridor" (high-pitched breathing). Immediate vet transport is required if breathing is labored.</p>
+                <h3>10. SHOCK MANAGEMENT</h3>
+                <p>Signs: Pale gums, rapid heart rate, cool skin. Keep the patient calm and warm with a Mylar blanket. Keep the head slightly lower than the heart to maintain blood flow to the brain.</p>`,
+
+        'Dos': `<h2>TACTICAL DO'S & DON'TS FOR PERIMETER UNITS</h2>
                 <h3>DO:</h3>
-                <ul>
-                    <li>DO maintain perimeter at assigned corners.</li>
-                    <li>DO keep radio traffic clear for the Handler.</li>
-                    <li>DO trust the dog's nose over your eyes.</li>
-                    <li>DO record start and end times for court logs.</li>
-                </ul>
+                <p>Maintain your corner even if you hear the Handler 200 yards away. Your job is the "Wall," not the "Track." Keep all radio traffic focused on the suspect's description and direction.</p>
                 <h3>DON'T:</h3>
-                <ul>
-                    <li>DON'T cross the K-9's scent path (contaminates track).</li>
-                    <li>DON'T approach the dog while it is working or on a bite.</li>
-                    <li>DON'T extend a stop solely to wait for a dog.</li>
-                    <li>DON'T fail to document the "Alert" behavior specifically.</li>
-                </ul>`
+                <p>Never cross the scent path. If the suspect ran across a lawn, and you walk across that same lawn to "help," you have just destroyed the K-9's ability to find the track. Stay on the pavement unless told otherwise.</p>`
     };
 
     function showData(key) {
