@@ -1,58 +1,54 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND - FULL SUITE V36</title>
+    <title>ACSD COMMAND V37</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --blue: #002b5c; --gold: #ffd700; --orange: #ff6600; --bg: #000; --live: #00ff00; --clue: #ff0000; }
+        :root { --orange: #ff6600; --gold: #ffd700; --blue: #002b5c; }
         body, html { margin: 0; padding: 0; height: 100%; background: #000; color: white; font-family: sans-serif; overflow: hidden; }
         
         .header { background: #001a00; padding: 35px 10px 5px; border-bottom: 2px solid var(--orange); z-index: 5000; position: relative; }
-        .dept-title { color: var(--gold); font-weight: bold; font-size: 14px; text-align: center; }
-        
-        .page { position: absolute; top: 85px; bottom: 0; width: 100%; display: none; background: #000; overflow-y: auto; flex-direction: column; }
-        .active-page { display: flex; }
+        .page { position: absolute; top: 85px; bottom: 0; width: 100%; display: none; background: #000; overflow-y: auto; }
+        .active-page { display: flex; flex-direction: column; }
 
-        #map { flex-grow: 1; background: #111; }
-        .nvg-mode { filter: sepia(100%) hue-rotate(80deg) brightness(0.7) contrast(1.3) invert(1); }
-        
+        #map { flex-grow: 1; background: #111; width: 100%; }
+        .nvg-mode { filter: sepia(100%) hue-rotate(80deg) brightness(0.8) contrast(1.5) invert(1); }
+
         .footer-tools { background: #000; padding: 10px; border-top: 1px solid var(--orange); z-index: 5000; }
         .tool-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 8px; }
-        .t-btn { background: #1a1a1a; border: 1px solid #444; color: white; padding: 10px 0; border-radius: 4px; text-align: center; font-size: 10px; cursor: pointer; }
+        .t-btn { background: #1a1a1a; border: 1px solid #444; color: white; padding: 10px 0; border-radius: 4px; text-align: center; font-size: 10px; }
         .active-t { background: var(--orange) !important; border-color: white; }
 
-        .data-card { background: #111; border: 1px solid #333; padding: 12px; margin: 10px; border-radius: 6px; }
-        .data-card b { color: var(--gold); display: block; margin-bottom: 4px; border-bottom: 1px solid #222; }
-        .data-card p { font-size: 12px; color: #ddd; margin: 0; line-height: 1.4; }
-        .k9-tag { color: #00ff00 !important; font-weight: bold; }
+        /* BUTTONS */
+        .big-btn { background: #111; border: 2px solid #333; border-radius: 12px; padding: 25px; text-align: center; color: white; font-weight: bold; cursor: pointer; }
+        .data-card { background: #111; border: 1px solid #333; padding: 12px; margin: 10px; border-radius: 6px; font-size: 12px; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div class="dept-title">AMHERST CO. SHERIFF'S DEPT - COMMAND</div>
-    <div style="display:flex; justify-content:space-between; font-size:11px; margin-top:5px;">
-        <span id="live-clock">00:00:00</span>
-        <span>OFFICER: RET. DEPUTY</span>
+    <div style="text-align:center; color:var(--gold); font-weight:bold; font-size:14px;">ACSD COMMAND TERMINAL</div>
+    <div style="display:flex; justify-content:space-between; font-size:10px; margin-top:5px;">
+        <span id="clock">00:00:00</span>
+        <span>STATUS: ACTIVE</span>
     </div>
 </div>
 
 <div id="page-hub" class="page active-page">
-    <div style="padding:15px; display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-        <button onclick="showPage('page-map')" style="grid-column: span 2; background:var(--orange); color:white; padding:25px; border-radius:8px; font-weight:bold; font-size:18px; border:none;">🗺️ TACTICAL MAP</button>
-        <button onclick="showPage('page-law')" style="background:var(--blue); color:white; padding:20px; border-radius:8px; border:none;">⚖️ LAW LIBRARY</button>
-        <button onclick="showPage('page-med')" style="background:#600; color:white; padding:20px; border-radius:8px; border:none;">🩹 FIRST AID</button>
-        <button onclick="alert('Archive: Logs Secure')" style="background:#222; color:white; padding:20px; border-radius:8px; border:none;">📁 ARCHIVE</button>
-        <button onclick="alert('K9 Training: Module Active')" style="background:#222; color:white; padding:20px; border-radius:8px; border:none;">🐕 K9 LOGS</button>
+    <div style="padding:15px; display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div class="big-btn" style="grid-column: span 2; border-color: var(--orange);" onclick="showPage('page-map')">🗺️ TACTICAL MAP</div>
+        <div class="big-btn" style="border-color: var(--blue);" onclick="showPage('page-law')">⚖️ LAW LIBRARY</div>
+        <div class="big-btn" style="border-color: #600;" onclick="showPage('page-med')">🩹 FIRST AID</div>
     </div>
 </div>
 
 <div id="page-map" class="page">
-    <div style="background:#111; padding:8px; display:flex; gap:5px; border-bottom:1px solid #333;">
-        <input type="text" id="pls-in" placeholder="Search Address / PLS..." style="flex-grow:1; padding:8px; border-radius:4px; border:none; background:#000; color:white; border:1px solid #444;">
-        <button onclick="deployPLS()" style="background:var(--orange); color:white; border:none; padding:8px 12px; border-radius:4px; font-weight:bold;">SEARCH</button>
+    <div style="background:#111; padding:8px; display:flex; gap:5px;">
+        <input type="text" id="pls-in" placeholder="Address Search..." style="flex-grow:1; padding:8px; background:#000; color:white; border:1px solid #444;">
+        <button onclick="deployPLS()" style="background:var(--orange); color:white; border:none; padding:8px; font-weight:bold;">SEARCH</button>
     </div>
     <div id="map"></div>
     <div class="footer-tools">
@@ -64,42 +60,27 @@
             <div id="t-clue" class="t-btn" onclick="setMode('clue')">🚩<br>Clue</div>
         </div>
         <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px;">
-            <button onclick="toggleNVG()" style="background:#333; color:white; padding:8px; border:none; border-radius:4px; font-size:10px;">NVG</button>
-            <button onclick="clearMap()" style="background:#440000; color:white; padding:8px; border:none; border-radius:4px; font-size:10px;">RECALL ALL</button>
-            <button onclick="showPage('page-hub')" style="background:var(--blue); color:white; padding:8px; border:none; border-radius:4px; font-size:10px;">HOME HUB</button>
-            <button onclick="location.reload()" style="grid-column: span 3; background:red; color:white; padding:12px; border:none; border-radius:4px; font-weight:bold; margin-top:5px; font-size:12px;">CONCLUDE SEARCH (WIPE)</button>
+            <button onclick="toggleNVG()" style="background:#333; color:white; padding:10px; border:none; border-radius:4px;">NVG</button>
+            <button onclick="clearMap()" style="background:#440000; color:white; padding:10px; border:none; border-radius:4px;">RECALL</button>
+            <button onclick="showPage('page-hub')" style="background:var(--blue); color:white; padding:10px; border:none; border-radius:4px;">HUB</button>
         </div>
     </div>
 </div>
 
 <div id="page-med" class="page">
     <div style="padding:15px;">
-        <button onclick="showPage('page-hub')" style="width:100%; padding:10px; background:#333; color:white; margin-bottom:15px; border:none;">BACK TO HUB</button>
-        <h3 style="color:var(--live); border-bottom: 2px solid var(--live);">#1 PRIORITY: K9 MEDICAL</h3>
-        <div class="data-card"><b class="k9-tag">K9 CPR</b><p>1. Lay dog on right side.<br>2. Compressions: 100-120 per min over heart (just behind elbow).<br>3. 30 compressions to 2 breaths (seal nose, blow into snout).<br>4. Check pulse every 2 mins.</p></div>
-        <div class="data-card"><b class="k9-tag">K9 HEAT STROKE</b><p>Cool paws and ears with cool (not ice) water. Transport immediately.</p></div>
-        <div class="data-card"><b class="k9-tag">K9 BLOAT (GDV)</b><p>Look for unproductive vomiting/swollen stomach. Time is life. Vet immediately.</p></div>
-        
-        <h3 style="color:red; border-bottom: 2px solid red;">FIELD TRAUMA</h3>
-        <div class="data-card"><b>TOURNIQUET</b><p>High and tight until bleeding stops. Note time.</p></div>
-        <div class="data-card"><b>NARCAN</b><p>Intranasal spray for suspected OD. 2mg dose. Monitor breathing.</p></div>
-        <div class="data-card"><b>CHEST SEAL</b><p>Occlusive dressing for sucking wounds. Tape 3 sides.</p></div>
+        <button onclick="showPage('page-hub')" style="width:100%; padding:10px; background:#333; color:white; border:none; margin-bottom:10px;">BACK</button>
+        <h3 style="color:#0f0;">K9 CPR & FIRST AID</h3>
+        <div class="data-card"><b>1. K9 CPR</b><p>Lay on right side. 100-120 compressions/min behind elbow. Breath into snout every 30 pumps.</p></div>
+        <div class="data-card"><b>2. K9 HEAT STROKE</b><p>Cool paws/ears. No ice. Shade immediately.</p></div>
     </div>
 </div>
 
 <div id="page-law" class="page">
     <div style="padding:15px;">
-        <button onclick="showPage('page-hub')" style="width:100%; padding:10px; background:#333; color:white; margin-bottom:15px; border:none;">BACK TO HUB</button>
-        <h3 style="color:var(--gold);">LANDMARK CASE LAW</h3>
-        <div class="data-card"><b>Terry v. Ohio</b><p>Stop and Frisk based on RAS.</p></div>
-        <div class="data-card"><b>Graham v. Connor</b><p>Objective Reasonableness for Use of Force.</p></div>
-        <div class="data-card"><b>Chimel v. California</b><p>Search incident to arrest (Lunge area).</p></div>
-        <div class="data-card"><b>Carroll v. US</b><p>Vehicle exception for warrant requirement.</p></div>
-        <div class="data-card"><b>Tennessee v. Garner</b><p>Deadly force on a fleeing felon restriction.</p></div>
-        <h3 style="color:var(--orange);">VA CODE SECTIONS</h3>
-        <div class="data-card"><b>§ 18.2-460</b><p>Obstruction of Justice.</p></div>
-        <div class="data-card"><b>§ 18.2-388</b><p>Profane Swearing/Intoxication in Public.</p></div>
-        <div class="data-card"><b>§ 18.2-266</b><p>DUI / Operating vehicle while intoxicated.</p></div>
+        <button onclick="showPage('page-hub')" style="width:100%; padding:10px; background:#333; color:white; border:none; margin-bottom:10px;">BACK</button>
+        <div class="data-card"><b>Graham v. Connor</b><p>Use of Force: Objective Reasonableness.</p></div>
+        <div class="data-card"><b>Terry v. Ohio</b><p>Stop & Frisk / RAS.</p></div>
     </div>
 </div>
 
@@ -107,15 +88,15 @@
 <script>
     var map = L.map('map', { zoomControl: false }).setView([37.5, -79.0], 10);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
+    
     var mode = null, pPts = [];
-    var area = L.polygon([], {color: '#ff6600', weight: 4, fillOpacity: 0.2}).addTo(map);
+    var area = L.polygon([], {color: '#ff6600', weight: 4, fillOpacity: 0.3}).addTo(map);
     var assetLayer = L.layerGroup().addTo(map);
 
     function showPage(id) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
         document.getElementById(id).classList.add('active-page');
-        if(id === 'page-map') { setTimeout(() => { map.invalidateSize(); }, 300); }
+        if(id === 'page-map') { setTimeout(() => map.invalidateSize(), 200); }
     }
 
     function setMode(m) {
@@ -123,31 +104,32 @@
         document.getElementById('t-'+m).classList.add('active-t');
     }
 
+    function clearMap() {
+        assetLayer.clearLayers(); // This removes all dots
+        pPts = []; 
+        area.setLatLngs([]); // This removes the perimeter
+    }
+
     function toggleNVG() { document.getElementById('map').classList.toggle('nvg-mode'); }
-    function clearMap() { assetLayer.clearLayers(); area.setLatLngs([]); pPts=[]; }
 
     function deployPLS() {
-        var addr = document.getElementById('pls-in').value;
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${addr}`)
-            .then(r => r.json()).then(d => {
-                if(d[0]) {
-                    map.setView([d[0].lat, d[0].lon], 17);
-                    L.marker([d[0].lat, d[0].lon]).addTo(assetLayer).bindPopup("<b>PLS</b>").openPopup();
-                }
-            });
+        var val = document.getElementById('pls-in').value;
+        fetch('https://nominatim.openstreetmap.org/search?format=json&q='+val)
+            .then(r => r.json()).then(d => { if(d[0]) map.setView([d[0].lat, d[0].lon], 17); });
     }
 
     map.on('click', function(e) {
         if(mode === 'perim') {
-            pPts.push(e.latlng); area.setLatLngs(pPts);
-            L.circleMarker(e.latlng, {radius:4, color:'white'}).addTo(assetLayer);
+            pPts.push(e.latlng);
+            area.setLatLngs(pPts);
+            L.circleMarker(e.latlng, {radius:3, color:'white'}).addTo(assetLayer);
         } else if(mode) {
-            var color = mode==='k9'?'yellow':(mode==='ground'?'lime':(mode==='hlz'?'#ff00ff':'red'));
+            var color = mode==='k9'?'yellow':(mode==='ground'?'lime':(mode==='hlz'?'magenta':'red'));
             L.circleMarker(e.latlng, {radius:10, color:'white', fillColor:color, fillOpacity:1}).addTo(assetLayer);
         }
     });
 
-    setInterval(() => { document.getElementById('live-clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+    setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
 </script>
 </body>
 </html>
