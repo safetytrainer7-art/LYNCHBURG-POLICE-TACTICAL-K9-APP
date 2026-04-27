@@ -4,110 +4,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SAR TACTICAL - ALPHA ONE</title>
+    <title>SAR NETWORK - HISTORY MAKER V1</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
     <style>
-        :root { --sar-orange: #ff4500; --topo-green: #2e8b57; --water-blue: #1e90ff; --gold: #ffd700; }
-        body, html { margin: 0; padding: 0; height: 100%; background: #0b1a0b; font-family: 'Courier New', monospace; overflow: hidden; }
+        :root { --sar-orange: #ff6600; --gold: #ffd700; --danger: #ff0000; --heli: #00ff00; }
+        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Segoe UI', Arial, sans-serif; overflow: hidden; }
 
-        /* SAR HUD */
-        .sar-header { background: #000; padding: 45px 15px 10px; border-bottom: 3px solid var(--sar-orange); z-index: 2000; position: relative; }
-        .grid-info { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-bottom: 10px; }
-        .info-cell { background: #1a1a1a; border: 1px solid var(--sar-orange); color: var(--sar-orange); padding: 5px; text-align: center; font-size: 10px; font-weight: bold; }
+        /* COMMAND INTERFACE */
+        .header { background: #0a0a0a; padding: 45px 15px 10px; border-bottom: 3px solid var(--sar-orange); z-index: 2000; }
+        .top-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .mission-info { color: #fff; font-size: 11px; font-weight: bold; letter-spacing: 1px; }
+        .mission-info span { color: var(--sar-orange); }
+
+        /* SEARCH BOX */
+        .search-bar { display: flex; gap: 5px; background: rgba(255,255,255,0.1); padding: 5px; border-radius: 6px; }
+        .search-bar input { flex-grow: 1; background: transparent; border: none; color: #fff; padding: 10px; font-size: 16px; outline: none; }
+        .search-bar button { background: var(--sar-orange); border: none; color: #fff; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+
+        #map { flex-grow: 1; width: 100%; height: calc(100vh - 220px); z-index: 1; }
+
+        /* TACTICAL HUD (FLOATING) */
+        .tactical-hud { position: absolute; right: 10px; top: 190px; width: 130px; background: rgba(0,0,0,0.9); border: 2px solid var(--sar-orange); padding: 10px; z-index: 2000; border-radius: 8px; color: #fff; }
+        .unit-card { font-size: 10px; padding: 5px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; }
+        .unit-active { color: var(--heli); }
+
+        /* SAR TOOLBOX */
+        .toolbox { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; padding: 12px; background: #0a0a0a; z-index: 2000; border-top: 3px solid #333; }
+        .tool { background: #1a1a1a; border: 1px solid #444; padding: 12px 0; border-radius: 6px; text-align: center; color: #fff; cursor: pointer; transition: 0.2s; }
+        .tool:active { background: var(--sar-orange); }
+        .tool label { display: block; font-size: 7px; color: var(--gold); text-transform: uppercase; margin-top: 5px; font-weight: bold; }
+
+        .big-found-btn { background: var(--sar-orange); color: #fff; text-align: center; padding: 18px; font-weight: 900; font-size: 22px; cursor: pointer; border-top: 2px solid #000; }
         
-        #map { flex-grow: 1; width: 100%; height: calc(100vh - 160px); z-index: 1; }
-
-        /* TEAM LIST (LIVE) */
-        .team-hud { position: absolute; right: 10px; top: 180px; width: 120px; background: rgba(0,0,0,0.85); border-left: 3px solid var(--sar-orange); padding: 10px; z-index: 2000; color: #fff; font-size: 10px; border-radius: 0 5px 5px 0; }
-        .member-stat { margin-bottom: 8px; border-bottom: 1px solid #333; padding-bottom: 4px; }
-        .member-stat span { color: var(--gold); }
-
-        /* SAR ACTION BAR */
-        .sar-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 15px; background: #000; z-index: 2000; border-top: 3px solid var(--sar-orange); }
-        .sar-btn { background: #1a1a1a; border: 1px solid var(--sar-orange); padding: 12px 0; border-radius: 5px; color: #fff; text-align: center; font-weight: bold; font-size: 11px; cursor: pointer; }
-        .found-btn { background: var(--sar-orange); color: #fff; grid-column: span 4; margin-top: 10px; padding: 18px; border-radius: 8px; font-size: 18px; border: none; font-weight: 900; }
+        /* CUSTOM MARKER LABELS */
+        .sar-label { background: rgba(0,0,0,0.8); border: 1px solid var(--sar-orange); color: white; padding: 1px 4px; border-radius: 3px; font-size: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="sar-header">
-    <div class="grid-info">
-        <div class="info-cell">COORD: <span id="lat-lon">---</span></div>
-        <div class="info-cell">ELEV: <span id="elev-val">340ft</span></div>
-        <div class="info-cell">TEAM: <span id="team-count">1 (YOU)</span></div>
+<div class="header">
+    <div class="top-row">
+        <div class="mission-info">MISSION: <span id="m-id">SAR-AMHERST-2026</span></div>
+        <div class="mission-info">UNITS: <span id="unit-count">12</span></div>
+    </div>
+    <div class="search-bar">
+        <input type="text" id="target-addr" placeholder="Search Address / PLS">
+        <button onclick="deployAtAddress()">SET PLS</button>
     </div>
 </div>
 
 <div id="map"></div>
 
-<div class="team-hud">
-    <b>TEAM LIVE</b>
-    <div id="team-list">
-        <div class="member-stat">Unit 1: <span>ACTIVE</span></div>
+<div class="tactical-hud">
+    <div style="font-size: 11px; color: var(--gold); margin-bottom: 5px; border-bottom: 1px solid var(--gold);">LIVE SQUAD</div>
+    <div id="unit-list">
+        <div class="unit-card">SAR-01 <span class="unit-active">LIVE</span></div>
+        <div class="unit-card">SAR-02 <span class="unit-active">LIVE</span></div>
+        <div class="unit-card">SAR-03 <span style="color: grey;">STBY</span></div>
     </div>
 </div>
 
-<div class="sar-bar">
-    <div class="sar-btn" onclick="toggleBreadcrumbs()">TRAIL: ON</div>
-    <div class="sar-btn" onclick="map.locate({setView:true})">RE-CENTER</div>
-    <div class="sar-btn" onclick="addMarker('POI')">+ POI</div>
-    <div class="sar-btn" onclick="addMarker('SIGN')">+ SIGN</div>
-    <button class="found-btn" onclick="triggerFound()">PATIENT LOCATED</button>
+<div class="toolbox">
+    <div class="tool" onclick="drawSector()"><span>📐</span><label>Sector</label></div>
+    <div class="tool" onclick="placeLZ()"><span>🚁</span><label>LZ Set</label></div>
+    <div class="tool" onclick="assignSAR()"><span>👣</span><label>New Unit</label></div>
+    <div class="tool" onclick="toggleTrails()"><span>📈</span><label>Trails</label></div>
+    <div class="tool" onclick="map.locate({setView:true, maxZoom:18})"><span>📍</span><label>GPS</label></div>
+    <div class="tool" onclick="location.reload()"><span>🔄</span><label>Reset</label></div>
 </div>
 
+<div class="big-found-btn" onclick="confirmFind()">PATIENT LOCATED</div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 <script>
-    // 1. TOPOGRAPHIC MAP ENGINE
+    // 1. TOPO CORE & SYNC SETTINGS
     var map = L.map('map', { zoomControl: false }).setView([37.4137, -79.1422], 16);
-    
-    // Using OpenTopoMap for wilderness detail
-    L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-        maxZoom: 17,
-        attribution: 'SAR Tactical Alpha'
-    }).addTo(map);
+    L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png').addTo(map);
 
-    // 2. LIVE BREADCRUMB LOGIC
-    var trail = [];
-    var polyline = L.polyline([], {color: '#ffff00', weight: 3, opacity: 0.7, dashArray: '5, 10'}).addTo(map);
-    
-    // 3. TEAM POSITIONS (MOCKED FOR ALPHA - THIS IS WHERE FIREBASE GOES)
-    var myMarker = L.circleMarker([0,0], { color: '#fff', fillColor: '#ff4500', fillOpacity: 1, radius: 10, weight: 3 }).addTo(map);
-    myMarker.bindTooltip("<b>SAR-1 (YOU)</b>", {permanent: true, direction: 'top'});
-
-    function onLocationUpdate(p) {
-        var lat = p.coords.latitude;
-        var lon = p.coords.longitude;
-        var newPos = [lat, lon];
-        
-        myMarker.setLatLng(newPos);
-        document.getElementById('lat-lon').innerText = lat.toFixed(4) + "," + lon.toFixed(4);
-        
-        // Add to breadcrumb trail
-        trail.push(newPos);
-        polyline.setLatLngs(trail);
+    // 2. SEARCH & DEPLOY
+    function deployAtAddress() {
+        var addr = document.getElementById('target-addr').value;
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${addr}`)
+            .then(r => r.json()).then(d => {
+                if(d[0]) {
+                    var latlng = [d[0].lat, d[0].lon];
+                    map.setView(latlng, 17);
+                    L.circleMarker(latlng, { color: 'red', radius: 15, weight: 5 }).addTo(map)
+                     .bindPopup("<b>POINT LAST SEEN (PLS)</b><br>Start Perimeter from here.").openPopup();
+                }
+            });
     }
+
+    // 3. SECTOR & PERIMETER TOOLS
+    var tacticalItems = new L.FeatureGroup().addTo(map);
+    var sectorTool = new L.Draw.Polygon(map, { shapeOptions: { color: '#ff6600', fillOpacity: 0.1, weight: 3 } });
+    
+    function drawSector() { sectorTool.enable(); }
+    map.on(L.Draw.Event.CREATED, function (e) { tacticalItems.addLayer(e.layer); });
+
+    // 4. LZ & HELO COORDS
+    function placeLZ() {
+        var c = map.getCenter();
+        var lz = L.circle(c, { radius: 35, color: '#00ff00', weight: 4, fillOpacity: 0.3 }).addTo(tacticalItems);
+        var coords = c.lat.toFixed(5) + " / " + c.lng.toFixed(5);
+        lz.bindPopup("<b>HELICOPTER LZ</b><br>GPS: " + coords).openPopup();
+    }
+
+    // 5. SHARED UNIT LOGIC
+    var unitCount = 4;
+    function assignSAR() {
+        var c = map.getCenter();
+        var name = "SAR-" + unitCount;
+        var m = L.circleMarker(c, { color: '#fff', fillColor: '#007bff', fillOpacity: 1, radius: 10 }).addTo(map);
+        m.bindTooltip(name, { permanent: true, direction: 'top', className: 'sar-label' });
+        unitCount++;
+    }
+
+    // 6. THE BREADCRUMB SYSTEM
+    var myPath = [];
+    var myTrail = L.polyline([], {color: 'yellow', weight: 3, opacity: 0.6}).addTo(map);
 
     if (navigator.geolocation) {
-        navigator.geolocation.watchPosition(onLocationUpdate, null, { enableHighAccuracy: true });
+        navigator.geolocation.watchPosition(function(p) {
+            var pos = [p.coords.latitude, p.coords.longitude];
+            myPath.push(pos);
+            myTrail.setLatLngs(myPath);
+        }, null, { enableHighAccuracy: true });
     }
 
-    // 4. SAR SPECIFIC TOOLS
-    function addMarker(type) {
-        var center = map.getCenter();
-        var color = (type == 'POI') ? 'blue' : 'red';
-        var m = L.circleMarker(center, { color: color, radius: 8 }).addTo(map);
-        m.bindPopup("<b>" + type + " FOUND</b><br>Time: " + new Date().toLocaleTimeString()).openPopup();
+    function toggleTrails() {
+        if(map.hasLayer(myTrail)) map.removeLayer(myTrail);
+        else myTrail.addTo(map);
     }
 
-    function triggerFound() {
-        alert("SEARCH SUSPENDED: COORDINATES BROADCAST TO ALL UNITS");
-        document.body.style.background = "red";
-        setTimeout(() => { document.body.style.background = "#0b1a0b"; }, 2000);
-    }
-
-    function toggleBreadcrumbs() {
-        if(map.hasLayer(polyline)) { map.removeLayer(polyline); }
-        else { polyline.addTo(map); }
+    function confirmFind() {
+        if(confirm("Confirm: Has the patient been found? This will notify all units.")) {
+            alert("ALERT BROADCAST: PATIENT LOCATED. All units converge or hold position.");
+        }
     }
 </script>
 </body>
