@@ -3,84 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LPD K-9 TACTICAL - PERMANENT LEGACY BUILD</title>
+    <title>LPD K-9 TACTICAL - THE VAULT</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --lpd-blue: #003366; --gold: #ffd700; --alert: #d9534f; --neon: #28a745; }
-        body, html { margin: 0; padding: 0; height: 100%; background: #fff; font-family: 'Segoe UI', Arial, sans-serif; overflow: hidden; }
+        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Segoe UI', Arial, sans-serif; overflow: hidden; }
         .app-container { display: flex; flex-direction: column; height: 100vh; }
 
         /* HEADER & SEARCH */
         .header { background: var(--lpd-blue); padding: 45px 15px 10px; border-bottom: 3px solid var(--gold); color: white; z-index: 1001; }
-        .search-box { width: 100%; padding: 8px; border-radius: 4px; border: none; margin-top: 10px; box-sizing: border-box; }
+        .search-box { width: 100%; padding: 10px; border-radius: 4px; border: none; margin-top: 10px; font-weight: bold; font-size: 16px; }
 
         /* PERMANENT MONITORS */
-        .monitor-panel { display: grid; grid-template-columns: 1fr 1fr; background: #eee; padding: 10px; border-bottom: 1px solid #ccc; z-index: 1001; }
-        .monitor-box { background: white; border: 1px solid #ccc; padding: 8px; border-radius: 4px; margin: 2px; }
-        .monitor-title { font-size: 9px; font-weight: bold; color: var(--lpd-blue); text-transform: uppercase; margin-bottom: 4px; }
-        .monitor-data { font-size: 11px; color: #333; line-height: 1.3; }
+        .monitor-panel { display: grid; grid-template-columns: 1fr 1fr; background: #222; padding: 8px; z-index: 1001; border-bottom: 1px solid #444; }
+        .monitor-box { background: #000; border: 1px solid #444; padding: 8px; border-radius: 4px; margin: 2px; color: white; }
+        .monitor-title { font-size: 10px; font-weight: bold; color: var(--gold); text-transform: uppercase; margin-bottom: 4px; }
+        .monitor-data { font-size: 11px; line-height: 1.3; }
 
         /* THE MAP */
-        #map { flex-grow: 1; width: 100%; background: #ddd; z-index: 1; }
+        #map { flex-grow: 1; width: 100%; background: #000; z-index: 1; }
 
         /* ACTION BAR */
-        .action-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 10px; background: #fff; z-index: 1001; border-top: 1px solid #ccc; }
-        .q-btn { background: #f8f9fa; border: 1px solid var(--lpd-blue); padding: 12px 0; border-radius: 6px; text-align: center; cursor: pointer; }
+        .action-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 10px; background: #111; z-index: 1001; border-top: 2px solid var(--lpd-blue); }
+        .q-btn { background: #222; border: 1px solid #444; padding: 12px 0; border-radius: 6px; text-align: center; cursor: pointer; color: white; }
         .q-btn span { display: block; font-size: 20px; }
-        .q-btn label { font-size: 8px; font-weight: bold; color: var(--lpd-blue); text-transform: uppercase; }
+        .q-btn label { font-size: 8px; font-weight: bold; text-transform: uppercase; display: block; margin-top: 4px; }
+
+        /* PERIMETER MENU */
+        #perimeter-menu { display: none; position: fixed; bottom: 90px; left: 10px; right: 10px; background: #1a1a1a; border: 2px solid var(--gold); padding: 15px; z-index: 3000; border-radius: 10px; text-align: center; }
+        .dot-btn { padding: 12px; margin: 5px; border: none; border-radius: 5px; font-weight: bold; color: white; width: 90%; font-size: 14px; }
 
         /* DATA OVERLAY */
-        #data-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 2000; padding: 50px 20px; box-sizing: border-box; overflow-y: auto; }
-        .panel-content { border: 2px solid var(--lpd-blue); padding: 25px; border-radius: 10px; background: #fff; color: #333; }
-        .panel-content h2 { color: var(--lpd-blue); border-bottom: 2px solid var(--gold); padding-bottom: 8px; margin-bottom: 20px; }
-        .panel-content h3 { color: var(--alert); font-size: 16px; margin-top: 20px; text-transform: uppercase; }
-        .panel-content p { font-size: 14px; line-height: 1.6; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .close-btn { color: #fff; background: var(--lpd-blue); font-weight: bold; margin-top: 30px; text-align: center; padding: 15px; border-radius: 5px; cursor: pointer; }
+        #data-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 4000; padding: 50px 20px; box-sizing: border-box; overflow-y: auto; color: #000; }
+        .panel-content h2 { color: var(--lpd-blue); border-bottom: 3px solid var(--gold); padding-bottom: 5px; }
+        .panel-content h3 { color: var(--alert); text-transform: uppercase; margin-top: 25px; font-size: 16px; border-left: 4px solid var(--gold); padding-left: 10px; }
+        .panel-content p { margin-bottom: 15px; line-height: 1.6; font-size: 15px; }
+        .close-btn { color: #fff; background: var(--lpd-blue); font-weight: bold; margin-top: 30px; text-align: center; padding: 18px; border-radius: 5px; font-size: 16px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <div class="header">
-        <h1>LPD K-9 TACTICAL</h1>
-        <input type="text" class="search-box" id="addr-search" placeholder="Enter Search Address (e.g. 1200 Church St)" onchange="searchAddress(this.value)">
+        <h1>LPD K-9 TACTICAL COMMAND</h1>
+        <input type="text" class="search-box" id="addr-search" placeholder="Search Address (Lynchburg, VA)" onchange="searchAddress(this.value)">
     </div>
 
     <div class="monitor-panel">
         <div class="monitor-box">
-            <div class="monitor-title">🛡️ Perimeter Status</div>
-            <div class="monitor-data">Unit 109: SECURE (West)<br>Unit 215: SECURE (North)</div>
+            <div class="monitor-title">🛡️ Perimeter Control</div>
+            <div id="p-status" class="monitor-data">Units: Active<br>Perimeter: LOCKED</div>
         </div>
         <div class="monitor-box">
-            <div class="monitor-title">🐕‍🦺 Injury Monitor</div>
-            <div class="monitor-data">Vitals: Stable<br>Temp: 101.2° | HR: 88bpm</div>
+            <div class="monitor-title">🐕‍🦺 K-9 Injury Monitor</div>
+            <div class="monitor-data">Vitals: Normal<br>Temp: 101.2° | HR: 88bpm</div>
         </div>
     </div>
 
     <div id="map"></div>
 
     <div class="action-bar">
-        <div class="q-btn" onclick="showData('Legal')"><span>⚖️</span><label>10 LAWS</label></div>
-        <div class="q-btn" onclick="showData('Aid')"><span>🩹</span><label>10 AID</label></div>
-        <div class="q-btn" onclick="showData('Dos')"><span>✅</span><label>DO/DONT</label></div>
-        <div class="q-btn" onclick="locateMe()"><span>📍</span><label>RECENTER</label></div>
+        <div class="q-btn" onclick="showData('Legal')"><span>⚖️</span><label>10 Laws</label></div>
+        <div class="q-btn" onclick="showData('Aid')"><span>🩹</span><label>10 Aid</label></div>
+        <div class="q-btn" onclick="togglePerimeterMenu()"><span>🔴</span><label>Perimeter</label></div>
+        <div class="q-btn" onclick="toggleNightMode()"><span>🌑</span><label>Night</label></div>
+        <div class="q-btn" onclick="locateMe()"><span>📍</span><label>GPS</label></div>
     </div>
+</div>
+
+<div id="perimeter-menu">
+    <h3 style="color:white; margin-top:0;">ADD SEARCHER AT CENTER</h3>
+    <button class="dot-btn" style="background:blue;" onclick="addMarker('blue')">BLUE (LAW ENFORCEMENT)</button>
+    <button class="dot-btn" style="background:red;" onclick="addMarker('red')">RED (SEARCH & RESCUE)</button>
+    <button class="dot-btn" style="background:green;" onclick="addMarker('green')">GREEN (CIVILIAN)</button>
+    <button class="dot-btn" style="background:#444;" onclick="togglePerimeterMenu()">CLOSE MENU</button>
 </div>
 
 <div id="data-panel">
     <div class="panel-content" id="panel-body"></div>
-    <div class="close-btn" onclick="hideData()">CLOSE TACTICAL DATA</div>
+    <div class="close-btn" onclick="hideData()">RETURN TO FIELD COMMAND</div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     var map = L.map('map', { zoomControl: false }).setView([37.4137, -79.1422], 17);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    
+    var lightMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+    var darkMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
+    lightMap.addTo(map);
 
-    var myMarker = L.circleMarker([0,0], { color: 'white', fillColor: 'blue', fillOpacity: 1, radius: 10, weight: 3 }).addTo(map);
+    var isNight = false;
+    function toggleNightMode() {
+        if(!isNight) { map.removeLayer(lightMap); darkMap.addTo(map); isNight = true; }
+        else { map.removeLayer(darkMap); lightMap.addTo(map); isNight = false; }
+    }
 
-    function onLocationFound(e) { myMarker.setLatLng(e.latlng); }
-    map.on('locationfound', onLocationFound);
+    var myMarker = L.circleMarker([0,0], { color: 'white', fillColor: '#007bff', fillOpacity: 1, radius: 10, weight: 3 }).addTo(map);
+    map.on('locationfound', function(e) { myMarker.setLatLng(e.latlng); });
     map.locate({watch: true, setView: true, maxZoom: 17});
     function locateMe() { map.locate({setView: true}); }
 
@@ -90,56 +109,78 @@
             .then(data => { if(data[0]) map.setView([data[0].lat, data[0].lon], 18); });
     }
 
-    const tacticalData = {
-        'Legal': `<h2>THE 10 COMMANDMENTS OF K-9 LAW</h2>
-                  <h3>1. VA CODE § 19.2-81 (Warrantless Arrest)</h3>
-                  <p>This is the officer's shield. It authorizes the arrest without a warrant of any person who has committed a felony, even if not in the officer's presence, provided there is probable cause. For K-9 tracking, this allows for immediate pursuit following a felony sighting.</p>
-                  <h3>2. GRAHAM V. CONNOR (Objective Reasonableness)</h3>
-                  <p>The Supreme Court ruled that a K-9 deployment (use of force) must be judged from the perspective of a reasonable officer on the scene. Factors include the severity of the crime, whether the suspect is an immediate threat, and if they are actively resisting or fleeing.</p>
-                  <h3>3. FLORIDA V. HARRIS (K-9 Reliability)</h3>
-                  <p>The dog's "nose" is legally valid in court as long as the department maintains meticulous training records. A dog's alert provides probable cause if the training logs prove the dog is certified and consistent.</p>
-                  <h3>4. VA CODE § 18.2-144.1 (Protection of Police Animals)</h3>
-                  <p>It is a Class 5 Felony in Virginia to kill or cause serious injury to a law enforcement animal. This includes mandatory restitution for the animal's value, training costs, and lost work time.</p>
-                  <h3>5. RODRIGUEZ V. UNITED STATES (Traffic Stop Limits)</h3>
-                  <p>An officer may not extend a completed traffic stop just to wait for a K-9 to arrive. The K-9 sniff must occur within the time it takes to process the initial violation unless independent reasonable suspicion exists.</p>
-                  <h3>6. TENNESSEE V. GARNER (Fleeing Felons)</h3>
-                  <p>K-9s cannot be used to exert deadly force on a non-dangerous fleeing felon. The deployment must be proportional to the threat posed by the suspect to the community.</p>
-                  <h3>7. ILLINOIS V. CABALLES (Open Sniffs)</h3>
-                  <p>A K-9 sniff of the exterior of a vehicle during a lawful traffic stop is NOT a search under the 4th Amendment. No additional suspicion is needed to let the dog walk around the car.</p>
-                  <h3>8. VA § 19.2-59 (Search and Seizure)</h3>
-                  <p>Virginia strictly follows search warrant requirements. However, "Exigent Circumstances" (like a hot track after a B&E) allow officers to enter curtilage or property to prevent the escape of a felon or destruction of evidence.</p>
-                  <h3>9. FLORIDA V. JARDINES (The Porch Rule)</h3>
-                  <p>Unlike a car, the front porch of a home (curtilage) is protected. Officers cannot bring a K-9 onto a private porch to sniff the front door without a warrant or specific consent.</p>
-                  <h3>10. TERRY V. OHIO (Stop and Frisk)</h3>
-                  <p>The foundation of proactive policing. Allows an officer to briefly detain and pat down a person based on reasonable suspicion that "criminal activity is afoot."</p>`,
-        
-        'Aid': `<h2>10 CRITICAL FIELD FIRST AID PROCEDURES</h2>
-                <h3>1. NARCAN (OPIOID EXPOSURE)</h3>
-                <p>If a K-9 becomes lethargic or stops breathing after sniffing a suspect or vehicle, immediately administer 4mg of Naloxone nasal spray. Support the dog's breathing and repeat dose every 3 minutes until responsive.</p>
-                <h3>2. BLOAT / GDV (STOMACH TORSION)</h3>
-                <p>The #1 K-9 killer. Signs include unproductive retching, distended abdomen, and heavy drooling. This is a surgical emergency. There is NO field fix. Transport Code 3 to a vet immediately.</p>
-                <h3>3. TOURNIQUET (MAJOR BLEEDING)</h3>
-                <p>For arterial bleeding on a limb, place the TQ "High and Tight." Do not place it over a joint. Tighten until the bright red spurting stops. Mark the time on the dog's collar or handler's glove.</p>
-                <h3>4. HEAT STROKE (HYPERTHERMIA)</h3>
-                <p>Rectal temp over 104°F is an emergency. Move to shade, use a fan, and apply cool (not ice) water to the belly, paws, and groin. Ice water will constrict blood vessels and actually trap the heat inside the dog.</p>
-                <h3>5. PENETRATING CHEST WOUND</h3>
-                <p>If the dog is stabbed or shot in the chest, look for bubbling blood. Seal the wound with an "Occlusive Dressing" (plastic wrap or a gloved hand) to prevent the lung from collapsing.</p>
-                <h3>6. PAW TEARS / GLASS CUTS</h3>
-                <p>Check pads for debris. Clean with saline and wrap with a pressure bandage. Ensure the wrap is not so tight that it cuts off circulation to the rest of the foot.</p>
-                <h3>7. EYE INJURIES</h3>
-                <p>If the dog is sprayed or poked, flush with clean water for 15 minutes. Do not let the dog rub the eye, as this will cause a permanent corneal ulcer.</p>
-                <h3>8. DEHYDRATION CHECK</h3>
-                <p>Press the dog's gums; they should turn white and snap back to pink in 2 seconds. If it takes longer, the dog is dehydrated. Provide small, frequent amounts of water—do not let them "Gulp."</p>
-                <h3>9. ANAPHYLAXIS (STINGS)</h3>
-                <p>If the dog's face swells after a search in brush, they may be having an allergic reaction. Monitor for "Stridor" (high-pitched breathing). Immediate vet transport is required if breathing is labored.</p>
-                <h3>10. SHOCK MANAGEMENT</h3>
-                <p>Signs: Pale gums, rapid heart rate, cool skin. Keep the patient calm and warm with a Mylar blanket. Keep the head slightly lower than the heart to maintain blood flow to the brain.</p>`,
+    var perimeterMarkers = [];
+    function togglePerimeterMenu() {
+        var menu = document.getElementById('perimeter-menu');
+        menu.style.display = (menu.style.display == 'block') ? 'none' : 'block';
+    }
 
-        'Dos': `<h2>TACTICAL DO'S & DON'TS FOR PERIMETER UNITS</h2>
-                <h3>DO:</h3>
-                <p>Maintain your corner even if you hear the Handler 200 yards away. Your job is the "Wall," not the "Track." Keep all radio traffic focused on the suspect's description and direction.</p>
-                <h3>DON'T:</h3>
-                <p>Never cross the scent path. If the suspect ran across a lawn, and you walk across that same lawn to "help," you have just destroyed the K-9's ability to find the track. Stay on the pavement unless told otherwise.</p>`
+    function addMarker(color) {
+        var center = map.getCenter();
+        var marker = L.circleMarker(center, { color: 'white', fillColor: color, fillOpacity: 1, radius: 10, weight: 2 }).addTo(map);
+        marker.bindPopup(`<button style="padding:5px;" onclick="removeMarker(${perimeterMarkers.length})">REMOVE UNIT</button>`);
+        perimeterMarkers.push(marker);
+        togglePerimeterMenu();
+        updateMonitor();
+    }
+
+    function removeMarker(index) {
+        map.removeLayer(perimeterMarkers[index]);
+        updateMonitor();
+    }
+
+    function updateMonitor() {
+        document.getElementById('p-status').innerHTML = `Units: ${perimeterMarkers.length + 1}<br>Perimeter: ACTIVE`;
+    }
+
+    const tacticalData = {
+        'Legal': `<h2>10 COMMANDMENTS OF K-9 LAW (FULL TEXT)</h2>
+                  <h3>1. VA CODE § 19.2-81 (Warrantless Arrest)</h3>
+                  <p>This is the officer's fundamental authority. It allows for the arrest without a warrant of any person who has committed a felony, or any person who has committed a misdemeanor involving a breach of the peace in the officer's presence. In K-9 tracking, this covers the immediate pursuit and detention of suspects fleeing a crime scene.</p>
+                  <h3>2. GRAHAM V. CONNOR (Objective Reasonableness)</h3>
+                  <p>All use of force by law enforcement must be "objectively reasonable." The court judges the officer's actions based on the facts known at the time, not with hindsight. Factors include the severity of the crime, whether the suspect poses an immediate threat to officers or others, and whether the suspect is actively resisting or attempting to evade arrest by flight.</p>
+                  <h3>3. FLORIDA V. HARRIS (K-9 Reliability)</h3>
+                  <p>A K-9's alert provides probable cause for a search as long as the dog is properly certified and training records are maintained. This case emphasizes that the "totality of the circumstances" includes the dog's history of reliability, making your daily training logs a vital piece of legal evidence in court.</p>
+                  <h3>4. VA CODE § 18.2-144.1 (Animal Protection)</h3>
+                  <p>Virginia law makes it a Class 5 Felony to maliciously kill or cause serious bodily injury to any law enforcement animal while it is performing its duties. This statute ensures that suspects who assault a K-9 face severe felony charges and mandatory restitution for the animal's value and training.</p>
+                  <h3>5. RODRIGUEZ V. UNITED STATES (Traffic Stop Limits)</h3>
+                  <p>Officers cannot extend a traffic stop longer than necessary to address the initial violation just to wait for a K-9 to arrive. The K-9 sniff must occur within the "reasonable duration" of the stop unless independent reasonable suspicion of further criminal activity is established.</p>
+                  <h3>6. TENNESSEE V. GARNER (Fleeing Felons)</h3>
+                  <p>This case limits the use of deadly force against fleeing suspects. For K-9 handlers, it means a dog cannot be used to exert force that could be considered deadly unless the suspect poses a significant threat of death or serious physical injury to the officer or others.</p>
+                  <h3>7. ILLINOIS V. CABALLES (4th Amendment Sniffs)</h3>
+                  <p>The Supreme Court ruled that a K-9 sniff of the exterior of a vehicle during a lawful traffic stop does not constitute a "search" under the 4th Amendment. Therefore, no additional reasonable suspicion is required to conduct an exterior sniff while the ticket is being written.</p>
+                  <h3>8. VA § 19.2-59 (Exigent Circumstances)</h3>
+                  <p>While search warrants are the standard, "Exigent Circumstances"—such as the hot pursuit of a fleeing felon or the risk of evidence destruction—allow officers and K-9s to enter private property or curtilage to effect an arrest or prevent escape.</p>
+                  <h3>9. FLORIDA V. JARDINES (The Front Porch Rule)</h3>
+                  <p>Unlike a vehicle, an officer cannot bring a drug-sniffing K-9 onto the front porch of a private home to "sniff" the door without a warrant or specific consent. The porch is considered part of the home's "curtilage" and is protected under the 4th Amendment.</p>
+                  <h3>10. TERRY V. OHIO (Stop and Frisk)</h3>
+                  <p>This allows officers to briefly detain and frisk individuals based on "reasonable suspicion" that the person is armed and dangerous or involved in criminal activity. It is the legal basis for most field contacts prior to a full K-9 deployment.</p>`,
+        
+        'Aid': `<h2>10 CRITICAL FIELD MEDICAL PROCEDURES (FULL TEXT)</h2>
+                <h3>1. NARCAN (OPIOID EXPOSURE)</h3>
+                <p>If a K-9 shows symptoms of lethargy, pinned pupils, or respiratory failure after a search, immediately administer 4mg of Naloxone (Narcan) nasal spray. This is safe for K-9s and can save their life if they have inhaled fentanyl or heroin. Repeat every 3-5 minutes if there is no response.</p>
+                <h3>2. BLOAT / GDV (STOMACH TORSION)</h3>
+                <p>Signs include unproductive retching, a distended (hard) abdomen, and excessive drooling. This is a surgical emergency where the stomach has physically twisted. There is no field fix; the dog requires immediate "Code 3" transport to a 24-hour surgical veterinary facility.</p>
+                <h3>3. ARTERIAL TOURNIQUET (BLEEDING)</h3>
+                <p>For major limb trauma with spurting blood, apply a tourniquet as high on the leg as possible (High and Tight). Tighten the windlass until the bleeding stops completely. Note the application time on the handler’s log or dog's collar for the emergency vet.</p>
+                <h3>4. HEAT STROKE (HYPERTHERMIA)</h3>
+                <p>K-9s cannot sweat. If a dog's temperature exceeds 104°F, move to shade and apply cool (not ice) water to the belly, paws, and groin. Use a fan to circulate air. Do not submerge the dog in ice water, as it can cause shock and trap heat in the core.</p>
+                <h3>5. PENETRATING CHEST WOUNDS</h3>
+                <p>If the chest is punctured (GSW or stab), seal the wound immediately with an occlusive dressing (plastic, foil, or a gloved hand). This prevents air from entering the chest cavity and collapsing the lungs. Tape the dressing on three sides to allow air to vent out.</p>
+                <h3>6. GUM COLOR (SHOCK CHECK)</h3>
+                <p>Check the dog's gums. They should be pink and moist. If they are white, blue, or grey, the dog is in shock. If you press the gum and it stays white for more than 2 seconds (Capillary Refill Time), the dog's circulation is failing.</p>
+                <h3>7. EYE INJURIES (FLUSHING)</h3>
+                <p>If the dog is exposed to pepper spray or chemicals, flush the eyes with clean saline or water for at least 15 minutes. Prevent the dog from pawing at the eye, which can cause permanent corneal scarring.</p>
+                <h3>8. PAW & PAD TRAUMA</h3>
+                <p>Clean cuts with sterile saline. Check for embedded glass or debris. Apply a pressure bandage to stop bleeding, but ensure it is not so tight that it cuts off circulation. Watch for swelling above the bandage.</p>
+                <h3>9. FRACTURE STABILIZATION</h3>
+                <p>If a limb is broken, do not try to "set" the bone. Immobilize the limb using a splint or a bulky wrap to prevent the bone ends from causing further tissue or nerve damage during transport.</p>
+                <h3>10. ANAPHYLACTIC SHOCK</h3>
+                <p>Severe allergic reactions to stings can cause the throat to swell. Monitor for "Stridor" (high-pitched whistling breath). This requires immediate veterinary intervention to administer steroids or epinephrine to open the airway.</p>`,
+
+        'Dos': `<h2>FIELD DO'S & DON'TS FOR LPD PATROL</h2>
+                <p><b>DO:</b> Maintain a hard perimeter. If you are assigned to 12th and Church, do not leave that post unless relieved or ordered by Command. A perimeter is designed to contain the suspect so the K-9 can work without interference.</p>
+                <p><b>DON'T:</b> Do not cross the suspect's known path of flight. Walking through a fresh scent trail creates "scent contamination," making it nearly impossible for the dog to distinguish the suspect's track from an officer's fresh scent.</p>`
     };
 
     function showData(key) {
