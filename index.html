@@ -4,46 +4,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LPD TACTICAL - ZERO FAILURE</title>
+    <title>LPD TACTICAL - COMMAND LIVE</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
     <style>
-        :root { --lpd-blue: #003366; --gold: #ffd700; --alert: #ff3b30; --le: #007bff; --sar: #ff0000; --civ: #28a745; }
+        :root { --lpd-blue: #003366; --gold: #ffd700; --alert: #ff3b30; --le: #007bff; --sar: #ff0000; --civ: #28a745; --suspect: #ff8c00; --missing: #ffff00; }
         body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
         .app-container { display: flex; flex-direction: column; height: 100vh; }
 
-        /* HUD TOP */
+        /* HUD & SEARCH */
         .header { background: var(--lpd-blue); padding: 45px 10px 5px; border-bottom: 2px solid var(--gold); z-index: 1001; }
         .hud-row { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 8px; }
         .hud-item { background: rgba(0,0,0,0.4); padding: 5px; border-radius: 4px; text-align: center; color: #fff; font-size: 11px; border: 1px solid rgba(255,255,255,0.2); }
         .search-row { display: flex; gap: 5px; }
-        .search-row input { flex-grow: 1; padding: 10px; border-radius: 4px; border: none; font-size: 14px; font-weight: bold; }
+        .search-row input { flex-grow: 1; padding: 12px; border-radius: 4px; border: none; font-size: 16px; font-weight: bold; }
         .search-row button { background: var(--gold); border: none; padding: 0 15px; border-radius: 4px; font-weight: bold; cursor: pointer; }
 
         /* MAP AREA */
         #map { flex-grow: 1; width: 100%; z-index: 1; background: #111; }
 
         /* TACTICAL LEGEND (LEFT SIDE) */
-        .legend { position: absolute; left: 10px; top: 160px; width: 110px; background: rgba(0,0,0,0.9); border: 2px solid var(--gold); padding: 10px; border-radius: 8px; z-index: 1001; color: white; text-align: center; }
-        .leg-dot { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; margin: 0 auto 10px; }
-        .status-box { font-size: 9px; margin-bottom: 8px; border-top: 1px solid #444; padding-top: 5px; }
-        .status-btn { display: block; font-weight: bold; margin-top: 2px; cursor: pointer; padding: 2px; border-radius: 3px; background: #222; }
-        .reset-btn { background: var(--alert); border: none; color: white; font-size: 10px; padding: 8px; width: 100%; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 5px; }
-        .clock-box { font-size: 9px; margin-top: 10px; color: var(--gold); border-top: 1px solid #444; padding-top: 5px; }
+        .legend { position: absolute; left: 10px; top: 160px; width: 120px; background: rgba(0,0,0,0.95); border: 2px solid var(--gold); padding: 10px; border-radius: 8px; z-index: 1001; color: white; text-align: center; overflow-y: auto; max-height: 60vh; }
+        .leg-label { font-size: 8px; font-weight: bold; margin-bottom: 2px; text-transform: uppercase; color: #aaa; }
+        .leg-dot { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: bold; margin: 0 auto 8px; color: #fff; text-shadow: 1px 1px #000; }
+        .status-box { font-size: 10px; margin-bottom: 8px; border-top: 1px solid #444; padding-top: 8px; }
+        .status-btn { display: block; font-weight: bold; margin-top: 4px; cursor: pointer; padding: 5px; border-radius: 3px; background: #222; border: 1px solid #444; }
+        .reset-btn { background: #b22222; border: none; color: white; font-size: 11px; padding: 10px; width: 100%; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 8px; }
 
         /* ACTION BAR */
         .action-bar { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; padding: 10px; background: #111; z-index: 1001; border-top: 3px solid var(--lpd-blue); }
         .q-btn { background: #222; border: 1px solid #444; padding: 8px 0; border-radius: 6px; text-align: center; color: #fff; cursor: pointer; }
         .q-btn label { font-size: 7px; font-weight: bold; text-transform: uppercase; display: block; margin-top: 4px; color: var(--gold); }
 
-        /* DATA PANEL */
+        /* DATA OVERLAY */
         #data-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 4000; padding: 40px 20px; box-sizing: border-box; overflow-y: auto; color: #000; }
-        .data-item { border-left: 5px solid var(--lpd-blue); padding: 15px; margin-bottom: 15px; background: #f9f9f9; }
-        .close-btn { background: var(--lpd-blue); color: #fff; text-align: center; padding: 18px; border-radius: 8px; font-weight: bold; margin-top: 10px; }
-        
-        /* ALERT STYLES */
-        .alert-active { background: var(--alert) !important; color: white !important; animation: blink 0.8s infinite; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        .close-btn { background: var(--lpd-blue); color: #fff; text-align: center; padding: 18px; border-radius: 8px; font-weight: bold; margin-top: 15px; cursor: pointer; }
+
+        /* BREACH ANIMATION */
+        .alert-active { background: var(--alert) !important; color: white !important; animation: blinker 0.6s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0.2; } }
     </style>
 </head>
 <body>
@@ -51,8 +50,8 @@
 <div class="app-container">
     <div class="header">
         <div class="hud-row">
-            <div class="hud-item">WIND: <span id="wind-val">4 MPH NE</span></div>
-            <div class="hud-item">HEADING: <span id="comp-val">045° NE</span></div>
+            <div class="hud-item">WIND: <span id="wind-val">5 MPH W</span></div>
+            <div class="hud-item">HEADING: <span id="comp-val">275° W</span></div>
         </div>
         <div class="search-row">
             <input type="text" id="target-addr" placeholder="Search Address...">
@@ -63,21 +62,23 @@
     <div id="map"></div>
 
     <div class="legend">
-        <div class="leg-dot" style="background:var(--le);" onclick="prepDrop('blue')">LE</div>
-        <div class="leg-dot" style="background:var(--sar);" onclick="prepDrop('red')">SAR</div>
-        <div class="leg-dot" style="background:var(--civ);" onclick="prepDrop('green')">CIV</div>
+        <div class="leg-label">Law Enf</div>
+        <div class="leg-dot" style="background:var(--le);" onclick="prepDrop('blue', 'LE')">LE</div>
+        <div class="leg-label">Search/Res</div>
+        <div class="leg-dot" style="background:var(--sar);" onclick="prepDrop('red', 'SAR')">SAR</div>
+        <div class="leg-label">Civilian</div>
+        <div class="leg-dot" style="background:var(--civ);" onclick="prepDrop('green', 'CIV')">CIV</div>
+        <div class="leg-label">Missing</div>
+        <div class="leg-dot" style="background:var(--missing); color: #000;" onclick="prepDrop('yellow', 'MISSING')">MP</div>
+        <div class="leg-label">Suspect</div>
+        <div class="leg-dot" style="background:var(--suspect);" onclick="prepDrop('orange', 'SUSPECT')">SUS</div>
         
         <div class="status-box">
-            PERIMETER: <span id="p-status" class="status-btn" onclick="triggerAlert('p')">SECURE</span>
-            INJURY: <span id="i-status" class="status-btn" onclick="triggerAlert('i')">NONE</span>
+            PERIMETER: <span id="p-status" class="status-btn" onclick="toggleAlert('p')">SECURE</span>
+            INJURY: <span id="i-status" class="status-btn" onclick="toggleAlert('i')">NONE</span>
         </div>
 
-        <button class="reset-btn" onclick="resetAll()">RESET CMD</button>
-
-        <div class="clock-box">
-            <div id="live-date"></div>
-            <div id="live-time" style="font-weight:bold;"></div>
-        </div>
+        <button class="reset-btn" onclick="resetCommand()">RESET CMD</button>
     </div>
 
     <div class="action-bar">
@@ -90,28 +91,36 @@
     </div>
 </div>
 
-<div id="data-panel"><div id="panel-body"></div><div class="close-btn" onclick="hideContent()">RETURN</div></div>
+<div id="data-panel"><div id="panel-body"></div><div class="close-btn" onclick="hideContent()">CLOSE</div></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 <script>
-    // 1. HARD GPS LOCK
-    var map = L.map('map', { zoomControl: false }).setView([37.4137, -79.1422], 17);
+    // 1. HARD GPS TRACKING ENGINE
+    var map = L.map('map', { zoomControl: false, tap: false }).setView([37.4137, -79.1422], 17);
     var light = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     var dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
     
-    var gpsMarker = L.circleMarker([0,0], { color: '#fff', fillColor: '#007bff', fillOpacity: 1, radius: 12, weight: 4 }).addTo(map);
-    gpsMarker.bindTooltip("MY LOCATION", {permanent: true, direction: 'top'});
+    // Pulse dot for self
+    var selfMarker = L.circleMarker([0,0], { color: '#fff', fillColor: '#007bff', fillOpacity: 0.9, radius: 12, weight: 4 }).addTo(map);
+    selfMarker.bindTooltip("<b>OFFICER (YOU)</b>", {permanent: true, direction: 'top', className: 'tactical-label'});
 
-    function onLocationFound(e) {
-        gpsMarker.setLatLng(e.latlng);
-        console.log("GPS Updated: ", e.latlng);
+    function updatePosition(position) {
+        var lat = position.coords.latitude;
+        var lon = position.coords.longitude;
+        selfMarker.setLatLng([lat, lon]);
+        console.log("GPS HEARTBEAT: OK");
     }
-    map.on('locationfound', onLocationFound);
-    
-    // High-accuracy live tracking
-    map.locate({watch: true, setView: true, maxZoom: 18, enableHighAccuracy: true});
-    function getLoc() { map.locate({setView: true}); }
+
+    if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(updatePosition, function(err){console.error(err)}, {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+        });
+    }
+
+    function getLoc() { map.locate({setView: true, maxZoom: 18}); }
 
     // 2. Search Engine
     function execSearch() {
@@ -120,70 +129,68 @@
             .then(r => r.json()).then(d => { if(d[0]) map.setView([d[0].lat, d[0].lon], 18); });
     }
 
-    // 3. Status & Alert System
-    function triggerAlert(type) {
-        if(type == 'p') {
-            document.getElementById('p-status').innerText = "BREACH!";
-            document.getElementById('p-status').classList.add('alert-active');
+    // 3. Asset Placement & Removal
+    var nextType = null;
+    var nextLabel = "";
+    var assetLayer = L.layerGroup().addTo(map);
+
+    function prepDrop(color, label) { 
+        nextType = color; 
+        nextLabel = label;
+        alert("READY: Tap Map to place " + label);
+    }
+
+    map.on('click', function(e) {
+        if(!nextType) return;
+        var m = L.circleMarker(e.latlng, { color: '#fff', fillColor: nextType, fillOpacity: 1, radius: 10, weight: 2 }).addTo(assetLayer);
+        m.bindPopup(`<b>${nextLabel}</b><br><button style="background:red;color:white;border:none;padding:5px;width:100%;cursor:pointer;" onclick="removeAsset(${L.stamp(m)})">REMOVE UNIT</button>`).openPopup();
+        nextType = null;
+    });
+
+    function removeAsset(id) { assetLayer.removeLayer(id); }
+
+    // 4. Perimeter Drawing
+    var drawLayer = new L.FeatureGroup().addTo(map);
+    var drawTools = new L.Draw.Polygon(map, { shapeOptions: { color: 'red', weight: 4, fillOpacity: 0.2 } });
+    function startDraw() { drawTools.enable(); }
+    map.on(L.Draw.Event.CREATED, function (e) { drawLayer.addLayer(e.layer); });
+
+    // 5. Alert & Reset System
+    function toggleAlert(type) {
+        var el = (type == 'p') ? document.getElementById('p-status') : document.getElementById('i-status');
+        if(el.classList.contains('alert-active')) {
+            el.innerText = (type == 'p') ? "SECURE" : "NONE";
+            el.classList.remove('alert-active');
         } else {
-            document.getElementById('i-status').innerText = "INJURY!";
-            document.getElementById('i-status').classList.add('alert-active');
+            el.innerText = (type == 'p') ? "BREACH!" : "INJURY!";
+            el.classList.add('alert-active');
         }
     }
 
-    function resetAll() {
-        // Reset Monitors
+    function resetCommand() {
+        assetLayer.clearLayers();
+        drawLayer.clearLayers();
         document.getElementById('p-status').innerText = "SECURE";
         document.getElementById('p-status').classList.remove('alert-active');
         document.getElementById('i-status').innerText = "NONE";
         document.getElementById('i-status').classList.remove('alert-active');
-        // Reset Map
-        assetLayer.clearLayers();
-        drawLayer.clearLayers();
     }
 
-    // 4. Asset & Perimeter Tools
-    var nextType = null;
-    var assetLayer = L.layerGroup().addTo(map);
-    function prepDrop(t) { nextType = t; }
-    map.on('click', function(e) {
-        if(!nextType) return;
-        var m = L.circleMarker(e.latlng, { color: '#fff', fillColor: nextType, fillOpacity: 1, radius: 10 }).addTo(assetLayer);
-        nextType = null;
-    });
+    // 6. Data Vault
+    const library = {
+        'Legal': `<h2>10 VIRGINIA LAWS</h2><p><b>VA § 19.2-81:</b> Warrantless arrest for felonies. Pursuit of a K-9 track is legally protected pursuit.</p>`,
+        'Aid': `<h2>10 K-9 AID STEPS</h2><p><b>1. Narcan:</b> 4mg nasal for exposure. Support airway.</p>`,
+        'Vet': `<h2>EMERGENCY VET CONTACTS</h2><p><b>AECC Lynchburg:</b> (434) 846-1504<br>3432 Old Forest Rd</p>`
+    };
 
-    var drawLayer = new L.FeatureGroup().addTo(map);
-    var drawTools = new L.Draw.Polygon(map, { shapeOptions: { color: 'red', fillOpacity: 0.3 } });
-    function startDraw() { drawTools.enable(); }
-    map.on(L.Draw.Event.CREATED, function (e) { drawLayer.addLayer(e.layer); });
-
-    // 5. HUD & Clock
-    function updateClock() {
-        var now = new Date();
-        document.getElementById('live-date').innerText = now.toLocaleDateString();
-        document.getElementById('live-time').innerText = now.toLocaleTimeString();
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
+    function showContent(k) { document.getElementById('panel-body').innerHTML = library[k]; document.getElementById('data-panel').style.display = 'block'; }
+    function hideContent() { document.getElementById('data-panel').style.display = 'none'; }
+    
     var nightMode = false;
     function toggleNight() {
         if(!nightMode) { map.removeLayer(light); dark.addTo(map); nightMode = true; }
         else { map.removeLayer(dark); light.addTo(map); nightMode = false; }
     }
-
-    // 6. BAKED TACTICAL DATA
-    const library = {
-        'Legal': `<h2>10 VIRGINIA LAWS</h2><div class="data-item"><b>VA § 19.2-81:</b> Warrantless arrest for felonies.</div><div class="data-item"><b>Graham v. Connor:</b> Force must be objectively reasonable.</div>`,
-        'Aid': `<h2>10 K-9 AID STEPS</h2><div class="data-item"><b>1. Narcan:</b> 4mg nasal for exposure.</div><div class="data-item"><b>2. Bloat:</b> Immediate surgical transport.</div>`,
-        'Vet': `<h2>EMERGENCY VETERINARY CONTACTS</h2>
-                <div class="data-item"><b>Lynchburg Veterinary Hospital:</b> (434) 845-7021<br>1401 McConville Rd, Lynchburg, VA</div>
-                <div class="data-item"><b>Animal Emergency & Critical Care:</b> (434) 846-1504<br>3432 Old Forest Rd, Lynchburg, VA</div>
-                <div class="data-item"><b>Virginia-Maryland Vet Teaching:</b> (540) 231-4621<br>Blacksburg, VA (Trauma Specialist)</div>`
-    };
-
-    function showContent(k) { document.getElementById('panel-body').innerHTML = library[k]; document.getElementById('data-panel').style.display = 'block'; }
-    function hideContent() { document.getElementById('data-panel').style.display = 'none'; }
 </script>
 
 </body>
