@@ -3,124 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LPD K-9 GUARDIAN - FIELD OPS</title>
+    <title>LPD K-9 TACTICAL MAP</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --lpd-blue: #002d62; --neon: #00ff66; --gold: #d4af37; --alert: #ff3b30; --panel: rgba(10, 10, 10, 0.9); }
-        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; }
+        :root { --lpd-blue: #002d62; --neon: #00ff66; --gold: #d4af37; }
+        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: sans-serif; overflow: hidden; }
 
-        .app-container {
-            position: relative; height: 100vh; width: 100vw;
-            background: #050505; display: flex; flex-direction: column;
-        }
+        .app-container { display: flex; flex-direction: column; height: 100vh; }
 
         /* TOP MISSION BAR */
-        .mission-header {
-            background: var(--lpd-blue); padding: 40px 15px 10px;
-            border-bottom: 2px solid var(--gold);
+        .mission-info {
+            background: var(--lpd-blue); color: white; padding: 40px 15px 10px;
+            border-bottom: 2px solid var(--gold); z-index: 1000;
         }
-        .mission-header h1 { font-size: 18px; margin: 0; letter-spacing: 2px; }
-        .mission-header p { font-size: 11px; color: var(--gold); margin: 3px 0; font-weight: bold; }
+        .mission-info h1 { font-size: 18px; margin: 0; }
+        .mission-info p { font-size: 11px; color: var(--gold); margin: 2px 0; font-weight: bold; }
 
-        /* THE LIVE TACTICAL HUD (WIND, COMPASS, TEMP) */
-        .hud-stats {
-            display: grid; grid-template-columns: 1fr 1fr 1fr;
-            background: #111; border-bottom: 1px solid #333; padding: 10px;
-        }
-        .stat-box { text-align: center; border-right: 1px solid #333; }
-        .stat-box:last-child { border: none; }
-        .stat-label { font-size: 8px; color: #888; text-transform: uppercase; }
-        .stat-value { font-size: 14px; color: var(--neon); font-weight: bold; }
+        /* THE ACTUAL MAP COMPONENT */
+        #map { flex-grow: 1; width: 100%; background: #222; }
 
-        /* THE FIELD MAP */
-        .field-map {
-            flex-grow: 1; position: relative; background: #0f1a12;
-            background-image: radial-gradient(circle, #1a2e1d 1px, transparent 1px);
-            background-size: 30px 30px;
-            border: 2px solid #222; margin: 10px; border-radius: 5px;
-            overflow: hidden;
+        /* OVERLAY FOR TRACKING STATUS */
+        .tracking-overlay {
+            position: absolute; bottom: 20px; left: 10px; right: 10px;
+            background: rgba(0, 0, 0, 0.85); border: 1px solid var(--lpd-blue);
+            border-radius: 8px; padding: 12px; z-index: 1000; color: white;
+            pointer-events: none;
         }
-        
-        /* UNIT ASSETS ON MAP */
-        .asset { position: absolute; font-size: 10px; font-weight: bold; white-space: nowrap; }
-        .k9-unit { top: 50%; left: 45%; color: var(--neon); }
-        .backup-unit { top: 30%; left: 70%; color: var(--gold); opacity: 0.8; }
-        .perimeter-unit { top: 70%; left: 20%; color: var(--gold); opacity: 0.8; }
-
-        /* PERIMETER MONITOR PANEL */
-        .perimeter-monitor {
-            height: 120px; background: var(--panel);
-            margin: 0 10px 10px; border: 1px solid #333;
-            border-radius: 5px; padding: 10px; font-size: 10px;
-        }
-        .monitor-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #222; }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--neon); display: inline-block; }
-
-        /* QUICK ACTION BUTTONS */
-        .action-bar {
-            display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 5px; padding: 10px; background: #000;
-        }
-        .q-btn {
-            background: #1a1a1a; border: 1px solid var(--lpd-blue);
-            padding: 10px 0; border-radius: 4px; text-align: center;
-        }
-        .q-btn span { display: block; font-size: 20px; }
-        .q-btn label { font-size: 8px; color: var(--gold); text-transform: uppercase; }
+        .status-header { color: var(--neon); font-weight: bold; font-size: 12px; margin-bottom: 5px; text-transform: uppercase; }
+        .unit-list { font-size: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <div class="mission-header">
-        <h1>LYNCHBURG K-9 COMMAND</h1>
-        <p>LOCATION: 1200 CHURCH ST // CALL: B&E IN PROGRESS</p>
+    <div class="mission-info">
+        <h1>LYNCHBURG TACTICAL COMMAND</h1>
+        <p id="address-display">ACTIVE SEARCH: 1200 CHURCH ST, LYNCHBURG</p>
     </div>
 
-    <div class="hud-stats">
-        <div class="stat-box">
-            <div class="stat-label">Wind (NW)</div>
-            <div class="stat-value">6 MPH</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-label">Heading</div>
-            <div class="stat-value">312° NW</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-label">Temp</div>
-            <div class="stat-value">64°F</div>
-        </div>
-    </div>
+    <div id="map"></div>
 
-    <div class="field-map">
-        <div class="asset k9-unit">🐕‍🦺 [K9-1 AXEL] - ACTIVE</div>
-        <div class="asset backup-unit">🚓 UNIT 109 - 140yd E</div>
-        <div class="asset perimeter-unit">🚓 UNIT 215 - 200yd SW</div>
-        <div style="position:absolute; bottom:5px; right:5px; color:#444; font-size:8px;">TACTICAL GRID V1.5</div>
-    </div>
-
-    <div class="perimeter-monitor">
-        <div style="color:var(--gold); font-weight:bold; margin-bottom:5px;">PERIMETER & ASSET MONITOR</div>
-        <div class="monitor-row">
-            <span>UNIT 109 (PERIMETER)</span>
-            <span><span class="status-dot"></span> SECURE</span>
+    <div class="tracking-overlay">
+        <div class="status-header">Live Pursuit Data</div>
+        <div class="unit-list">
+            <span>K9-1 (Miller): <span style="color:var(--neon)">TRACKING</span></span>
+            <span>Unit 109: <span style="color:var(--gold)">PERIMETER</span></span>
+            <span>WIND: 6mph NW</span>
+            <span>COMPASS: 312°</span>
         </div>
-        <div class="monitor-row">
-            <span>UNIT 215 (PERIMETER)</span>
-            <span><span class="status-dot"></span> SECURE</span>
-        </div>
-        <div class="monitor-row" style="color:var(--neon)">
-            <span>K-9 AXEL (VITALS)</span>
-            <span>HEART: NORMAL // TEMP: 101.2</span>
-        </div>
-    </div>
-
-    <div class="action-bar">
-        <div class="q-btn"><span>🧭</span><label>Compass</label></div>
-        <div class="q-btn"><span>⚖️</span><label>Legal</label></div>
-        <div class="q-btn"><span>🐕‍🦺</span><label>K9 Med</label></div>
-        <div class="q-btn"><span>📝</span><label>Log</label></div>
     </div>
 </div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // Initialize the map and set view to Lynchburg, VA
+    // Coordinates for Church St, Lynchburg: 37.4137, -79.1422
+    var map = L.map('map').setView([37.4137, -79.1422], 16);
+
+    // Add a dark tactical map layer
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+
+    // K9 Handler Icon (Green)
+    var k9Icon = L.circleMarker([37.4137, -79.1422], {
+        color: '#00ff66', fillColor: '#00ff66', fillOpacity: 0.8, radius: 8
+    }).addTo(map).bindPopup('<b>K9-1 (AXEL)</b><br>Active Scent Path').openPopup();
+
+    // Perimeter Units (Blue/Gold)
+    L.circleMarker([37.4150, -79.1400], { color: '#d4af37', radius: 6 }).addTo(map).bindPopup('Unit 109');
+    L.circleMarker([37.4120, -79.1450], { color: '#d4af37', radius: 6 }).addTo(map).bindPopup('Unit 215');
+
+</script>
 
 </body>
 </html>
