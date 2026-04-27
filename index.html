@@ -1,149 +1,151 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND - MASTER V34</title>
+    <title>ACSD TACTICAL - FINAL V35</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --blue: #002b5c; --gold: #ffd700; --orange: #ff6600; --bg: #000; --live: #00ff00; --clue: #ff0000; --hlz: #ff00ff; }
-        body, html { margin: 0; padding: 0; height: 100%; background: var(--bg); color: white; font-family: sans-serif; overflow: hidden; }
-
-        .top-status { background: #001a00; padding: 35px 15px 10px; border-bottom: 3px solid var(--orange); display: flex; justify-content: space-between; align-items: center; z-index: 5000; position: relative; }
-        .dept-name { font-weight: bold; color: var(--gold); font-size: 14px; }
+        :root { --blue: #002b5c; --gold: #ffd700; --orange: #ff6600; --bg: #000; --live: #00ff00; --clue: #ff0000; }
+        body, html { margin: 0; padding: 0; height: 100%; background: #000; color: white; font-family: sans-serif; overflow: hidden; }
+        
+        /* HEADER */
+        .header { background: #001a00; padding: 35px 10px 5px; border-bottom: 2px solid var(--orange); position: relative; z-index: 5000; }
+        .dept-title { color: var(--gold); font-weight: bold; font-size: 14px; text-align: center; margin-bottom: 5px; }
         
         /* PAGE ENGINE */
-        .page { position: absolute; top: 85px; bottom: 0; width: 100%; display: none; flex-direction: column; background: #000; overflow-y: auto; }
+        .page { position: absolute; top: 85px; bottom: 0; width: 100%; display: none; background: #000; overflow-y: auto; flex-direction: column; }
         .active-page { display: flex; }
 
-        /* CONTENT STYLING */
-        .section-box { padding: 15px; }
-        .law-card, .med-card { background: #111; border: 1px solid #333; padding: 12px; margin-bottom: 10px; border-radius: 6px; }
-        .law-card b, .med-card b { color: var(--gold); display: block; margin-bottom: 5px; font-size: 14px; }
-        .law-card p, .med-card p { font-size: 12px; margin: 0; color: #ccc; line-height: 1.4; }
-        .emergency-btn { background: #600; color: white; padding: 10px; text-align: center; font-weight: bold; margin-bottom: 15px; border-radius: 4px; border: 1px solid red; }
+        /* MAP ELEMENTS */
+        #map { flex-grow: 1; background: #111; }
+        .nvg-mode { filter: sepia(100%) hue-rotate(80deg) brightness(0.7) contrast(1.3) invert(1); }
+        
+        .map-overlay { position: absolute; top: 100px; right: 10px; z-index: 1000; background: rgba(0,0,0,0.8); padding: 8px; border: 1px solid var(--gold); border-radius: 5px; font-size: 10px; pointer-events: none; }
 
-        /* HUB STYLING */
-        .hub-grid { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .hub-btn { background: #111; border: 2px solid #333; border-radius: 12px; padding: 20px 10px; text-align: center; cursor: pointer; }
-        .hub-btn:active { background: #222; border-color: var(--gold); }
+        /* TOOLBAR */
+        .footer-tools { background: #000; padding: 10px; border-top: 1px solid var(--orange); z-index: 5000; }
+        .tool-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 10px; }
+        .t-btn { background: #1a1a1a; border: 1px solid #444; color: white; padding: 10px 0; border-radius: 4px; text-align: center; font-size: 10px; }
+        .active-t { background: var(--orange) !important; border-color: white; }
 
-        /* MAP ELEMENTS (RETAINED) */
-        #map { flex-grow: 1; min-height: 300px; }
-        .map-controls { background: #000; padding: 10px; border-top: 1px solid var(--orange); }
-        .toolbar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-bottom: 10px; }
-        .tool { background: #1a1a1a; border: 1px solid #444; padding: 10px 0; border-radius: 4px; text-align: center; font-size: 12px; }
-        .active-tool { background: var(--orange) !important; border: 1px solid white; }
+        /* DATA CARDS */
+        .data-card { background: #111; border: 1px solid #333; padding: 12px; margin: 10px; border-radius: 6px; }
+        .data-card b { color: var(--gold); display: block; margin-bottom: 4px; border-bottom: 1px solid #222; }
+        .data-card p { font-size: 12px; color: #ddd; margin: 0; line-height: 1.4; }
+        .k9-tag { color: #00ff00 !important; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="top-status">
-    <div class="dept-name">AMHERST CO. SHERIFF</div>
-    <div id="live-clock" style="font-family:monospace; color:var(--gold);">00:00:00</div>
+<div class="header">
+    <div class="dept-title">AMHERST CO. SHERIFF'S DEPT - COMMAND</div>
+    <div style="display:flex; justify-content:space-between; font-size:12px;">
+        <span id="live-clock">00:00:00</span>
+        <span id="case-display">CASE: PENDING</span>
+    </div>
 </div>
 
 <div id="page-hub" class="page active-page">
-    <div class="hub-grid">
-        <div class="hub-btn" style="grid-column: span 2; border-color: var(--orange);" onclick="showPage('page-map')">
-            <span style="font-size:30px;">🗺️</span><br><b>TACTICAL MAP</b>
-        </div>
-        <div class="hub-btn" style="border-color: var(--blue);" onclick="showPage('page-law')">
-            <span style="font-size:30px;">⚖️</span><br><b>LAW LIBRARY</b>
-        </div>
-        <div class="hub-btn" style="border-color: #aa0000;" onclick="showPage('page-med')">
-            <span style="font-size:30px;">🩹</span><br><b>FIRST AID</b>
-        </div>
-        <div class="hub-btn" onclick="alert('Training Data Locked.')">
-            <span style="font-size:30px;">🐕</span><br><b>K9 LOGS</b>
-        </div>
-        <div class="hub-btn" onclick="alert('Reports Saved to Device.')">
-            <span style="font-size:30px;">📁</span><br><b>ARCHIVE</b>
-        </div>
-    </div>
-</div>
-
-<div id="page-law" class="page">
-    <div class="section-box">
-        <button onclick="showPage('page-hub')" style="width:100%; padding:10px; background:#222; color:white; border:none; margin-bottom:15px;">BACK TO HUB</button>
-        <h3 style="color:var(--gold);">FEDERAL CASE LAW</h3>
-        <div class="law-card"><b>Terry v. Ohio (1968)</b><p>Authorized "Stop and Frisk" based on Reasonable Articulable Suspicion of a crime and weapon.</p></div>
-        <div class="law-card"><b>Carroll v. United States (1925)</b><p>The "Automobile Exception." Probable cause allows vehicle search without a warrant due to mobility.</p></div>
-        <div class="law-card"><b>Mapp v. Ohio (1961)</b><p>Exclusionary Rule: Evidence obtained in violation of the 4th Amendment is inadmissible.</p></div>
-        
-        <h3 style="color:var(--orange);">VA STATE CODE (SELECTED)</h3>
-        <div class="law-card"><b>§ 18.2-460</b><p>Obstruction of Justice: Knowingly obstructing a Law Enforcement Officer in the performance of their duties.</p></div>
-        <div class="law-card"><b>§ 18.2-388</b><p>Public Intoxication: Appearing intoxicated in public (Alcohol or Drugs).</p></div>
-        <div class="law-card"><b>§ 18.2-415</b><p>Disorderly Conduct in Public Places.</p></div>
-    </div>
-</div>
-
-<div id="page-med" class="page">
-    <div class="section-box">
-        <button onclick="showPage('page-hub')" style="width:100%; padding:10px; background:#222; color:white; border:none; margin-bottom:15px;">BACK TO HUB</button>
-        <div class="emergency-btn">TACTICAL EMERGENCY CARE</div>
-        
-        <div class="med-card"><b>MASSIVE HEMORRHAGE (TOURNIQUET)</b><p>1. Apply high and tight on the limb.<br>2. Tighten until bleeding stops.<br>3. Note time (T) on forehead or strap.</p></div>
-        <div class="med-card"><b>AIRWAY / CHEST WOUND</b><p>If sucking chest wound: Apply occlusive dressing (vented if possible) taped on three sides.</p></div>
-        <div class="med-card"><b>OVERDOSE RESPONSE (NARCAN)</b><p>1. Check for responsiveness.<br>2. Insert nozzle into nostril and spray.<br>3. Administer second dose after 2-3 mins if no change.</p></div>
-        <div class="med-card"><b>CPR (ADULT)</b><p>100-120 compressions per minute at 2" depth. Allow full chest recoil.</p></div>
+    <div style="padding:15px; display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <button onclick="showPage('page-map')" style="grid-column: span 2; background:var(--orange); color:white; padding:25px; border-radius:8px; font-weight:bold; font-size:18px;">LAUNCH TACTICAL MAP</button>
+        <button onclick="showPage('page-law')" style="background:var(--blue); color:white; padding:20px; border-radius:8px;">LAW LIBRARY</button>
+        <button onclick="showPage('page-med')" style="background:#600; color:white; padding:20px; border-radius:8px;">FIRST AID (K9+HUMAN)</button>
+        <button onclick="alert('Archive: Log Exported to Local Storage')" style="background:#222; color:white; padding:20px; border-radius:8px;">ARCHIVE / LOGS</button>
+        <button onclick="alert('K9 Training: Session Logged')" style="background:#222; color:white; padding:20px; border-radius:8px;">K9 TRAINING</button>
     </div>
 </div>
 
 <div id="page-map" class="page">
-    <div style="background:#000; padding:5px; display:flex; gap:5px;">
-        <input type="text" id="case-id" placeholder="CASE #" style="width:70px; background:#111; color:var(--gold); border:1px solid #444;">
-        <input type="text" id="pls-in" placeholder="Address..." style="flex-grow:1;">
-        <button onclick="deployPLS()" style="background:var(--orange); color:white; border:none; padding:5px;">DEPLOY</button>
-        <button onclick="showPage('page-hub')" style="background:#333; color:white; border:none; padding:5px;">HOME</button>
+    <div class="map-overlay">
+        WIND: 8MPH NW | COMPASS: 315°<br>
+        K9: <span id="k-count">0</span> | GND: <span id="g-count">0</span>
     </div>
     <div id="map"></div>
-    <div class="map-controls">
-        <div class="toolbar">
-            <div id="t-perim" class="tool" onclick="setMode('perim')">📐<br>Perim</div>
-            <div id="t-k9" class="tool" onclick="setMode('k9')">🐕<br>K9</div>
-            <div id="t-ground" class="tool" onclick="setMode('ground')">🚶<br>Gnd</div>
-            <div id="t-hlz" class="tool" onclick="setMode('hlz')">🚁<br>HLZ</div>
-            <div id="t-clue" class="tool" onclick="setMode('clue')">🚩<br>Clue</div>
+    <div class="footer-tools">
+        <div class="tool-grid">
+            <div id="t-perim" class="t-btn" onclick="setMode('perim')">📐<br>Perim</div>
+            <div id="t-k9" class="t-btn" onclick="setMode('k9')">🐕<br>K9</div>
+            <div id="t-ground" class="t-btn" onclick="setMode('ground')">🚶<br>Gnd</div>
+            <div id="t-hlz" class="t-btn" onclick="setMode('hlz')">🚁<br>HLZ</div>
+            <div id="t-clue" class="t-btn" onclick="setMode('clue')">🚩<br>Clue</div>
         </div>
-        <button onclick="activateGPS()" style="width:100%; background:#002b5c; color:white; padding:12px; border:none; border-radius:4px; font-weight:bold;">ACTIVATE CP PULSE</button>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px;">
+            <button onclick="toggleNVG()" style="background:#333; color:white; padding:8px; border:none; border-radius:4px; font-size:9px;">NVG</button>
+            <button onclick="clearMap()" style="background:#440000; color:white; padding:8px; border:none; border-radius:4px; font-size:9px;">RECALL ALL</button>
+            <button onclick="showPage('page-hub')" style="background:var(--blue); color:white; padding:8px; border:none; border-radius:4px; font-size:9px;">HUB</button>
+            <button onclick="location.reload()" style="grid-column: span 3; background:red; color:white; padding:12px; border:none; border-radius:4px; font-weight:bold; margin-top:5px;">CONCLUDE SEARCH (END MISSION)</button>
+        </div>
+    </div>
+</div>
+
+<div id="page-med" class="page" style="padding-bottom:50px;">
+    <div style="padding:15px;">
+        <button onclick="showPage('page-hub')" style="width:100%; padding:10px; background:#333; color:white; margin-bottom:10px;">BACK TO HUB</button>
+        
+        <h3 style="color:var(--live); border-bottom: 2px solid var(--live);">K9 TACTICAL MEDICAL</h3>
+        <div class="data-card"><b class="k9-tag">K9 HEAT STROKE</b><p>Symptoms: Heavy panting, dark red gums, collapse. ACTION: Move to shade. Cool with water on paws/ears. Do NOT use ice water.</p></div>
+        <div class="data-card"><b class="k9-tag">K9 PAW LACERATION</b><p>ACTION: Apply pressure. Clean with saline. Wrap with Vetrap. Watch for debris/glass in pads.</p></div>
+        <div class="data-card"><b class="k9-tag">K9 BLOAT (GDV)</b><p>EMERGENCY: Distended abdomen, dry heaving. ACTION: Immediate transport to vet. Fatal if untreated.</p></div>
+        <div class="data-card"><b class="k9-tag">K9 GUNSHOT / PENETRATING WOUND</b><p>ACTION: Apply pressure. Do not remove objects. Use chest seal for torso wounds.</p></div>
+
+        <h3 style="color:red; border-bottom: 2px solid red;">HUMAN EMERGENCY CARE</h3>
+        <div class="data-card"><b>1. TOURNIQUET (MASSIVE BLEED)</b><p>High and tight. Windlass until bleeding stops. Note time.</p></div>
+        <div class="data-card"><b>2. NARCAN DEPLOYMENT</b><p>Tilt head back. Spray full dose into nostril. If no response in 2 mins, repeat.</p></div>
+        <div class="data-card"><b>3. CHEST WOUND (SUCKING)</b><p>Apply occlusive dressing. Tape 3 sides to allow air escape.</p></div>
+        <div class="data-card"><b>4. SEVERE HYPOTHERMIA</b><p>Remove wet clothes. Warm core first. Do not rub limbs.</p></div>
+        <div class="data-card"><b>5. HEAT EXHAUSTION</b><p>Cool environment. Electrolytes. Fan the skin.</p></div>
+        <div class="data-card"><b>6. SNAKE BITE (VA TIMBER RATTLESNAKE)</b><p>Keep bite below heart. Do not cut/suck. Rapid transport.</p></div>
+        <div class="data-card"><b>7. FRACTURE / DISLOCATION</b><p>Splint as they lie. Check for pulse below injury.</p></div>
+        <div class="data-card"><b>8. ANAPHYLAXIS (STING)</b><p>Administer Epi-Pen to outer thigh. Hold for 10 seconds.</p></div>
+        <div class="data-card"><b>9. HEAD TRAUMA (TBI)</b><p>Watch for pupils, orientation, vomit. Keep calm.</p></div>
+        <div class="data-card"><b>10. BURNS (THERMAL/CHEMICAL)</b><p>Cool water for 20 mins. Cover loosely with sterile dressing.</p></div>
+    </div>
+</div>
+
+<div id="page-law" class="page">
+    <div style="padding:15px;">
+        <button onclick="showPage('page-hub')" style="width:100%; padding:10px; background:#333; color:white; margin-bottom:10px;">BACK TO HUB</button>
+        <div class="data-card"><b>VA § 18.2-460</b><p>Obstruction of Justice.</p></div>
+        <div class="data-card"><b>VA § 18.2-388</b><p>Public Intoxication.</p></div>
+        <div class="data-card"><b>Terry v. Ohio</b><p>Stop & Frisk (Reasonable Suspicion).</p></div>
+        <div class="data-card"><b>Carroll v. US</b><p>Mobile Vehicle Exception.</p></div>
     </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+    var map = L.map('map', { zoomControl: false }).setView([37.5, -79.0], 10);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    var mode = null, kC=0, gC=0, pPts = [];
+    var area = L.polygon([], {color: '#ff6600', weight: 4, fillOpacity: 0.2}).addTo(map);
+    var assetLayer = L.layerGroup().addTo(map);
+
     function showPage(id) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
         document.getElementById(id).classList.add('active-page');
-        if(id === 'page-map') { setTimeout(() => { map.invalidateSize(); }, 200); }
-    }
-
-    var map = L.map('map', { zoomControl: false }).setView([37.5, -79.0], 10);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    var mode = null, area = L.polygon([], {color: '#ff6600', weight: 4}).addTo(map);
-    var assetLayer = L.layerGroup().addTo(map);
-
-    function activateGPS() {
-        var cp = L.divIcon({ html: '<div style="width:16px; height:16px; background:#007bff; border:2px solid white; border-radius:50%; box-shadow:0 0 10px #007bff;"></div>' });
-        L.marker(map.getCenter(), {icon: cp}).addTo(map);
+        if(id === 'page-map') { setTimeout(() => { map.invalidateSize(); }, 300); }
     }
 
     function setMode(m) {
-        mode = m; document.querySelectorAll('.tool').forEach(t => t.classList.remove('active-tool'));
-        document.getElementById('t-' + m).classList.add('active-tool');
+        mode = m; document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('active-t'));
+        document.getElementById('t-'+m).classList.add('active-t');
     }
 
-    function deployPLS() {
-        var addr = document.getElementById('pls-in').value;
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${addr}`)
-            .then(r => r.json()).then(d => { if(d[0]) map.setView([d[0].lat, d[0].lon], 17); });
-    }
+    function toggleNVG() { document.getElementById('map').classList.toggle('nvg-mode'); }
+    function clearMap() { assetLayer.clearLayers(); area.setLatLngs([]); pPts=[]; kC=0; gC=0; updateCounts(); }
+    function updateCounts() { document.getElementById('k-count').innerText=kC; document.getElementById('g-count').innerText=gC; }
 
     map.on('click', function(e) {
-        if(mode === 'perim') { area.setLatLngs(area.getLatLngs().concat([e.latlng])); }
-        else if(mode) {
-            var color = mode === 'k9' ? 'yellow' : (mode === 'ground' ? 'lime' : 'red');
-            L.circleMarker(e.latlng, {radius: 10, color: 'white', fillColor: color, fillOpacity: 1}).addTo(assetLayer);
+        if(mode === 'perim') {
+            pPts.push(e.latlng); area.setLatLngs(pPts);
+            L.circleMarker(e.latlng, {radius:4, color:'white'}).addTo(assetLayer);
+        } else if(mode) {
+            var color = mode==='k9'?'yellow':(mode==='ground'?'lime':(mode==='hlz'?'#ff00ff':'red'));
+            L.circleMarker(e.latlng, {radius:10, color:'white', fillColor:color, fillOpacity:1}).addTo(assetLayer);
+            if(mode==='k9') kC++; if(mode==='ground') gC++; updateCounts();
         }
     });
 
