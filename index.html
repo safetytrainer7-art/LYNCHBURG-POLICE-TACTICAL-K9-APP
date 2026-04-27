@@ -4,70 +4,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD SAR - COMMAND V15</title>
+    <title>ACSD SAR - COMMAND V17</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --sar-orange: #ff6600; --gold: #ffd700; --live: #00ff00; --blue: #007bff; }
-        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Arial', sans-serif; overflow: hidden; color: white; }
+        :root { --orange: #ff6600; --gold: #ffd700; --blue: #007bff; --live: #00ff00; }
+        body, html { margin: 0; padding: 0; height: 100%; background: #000; color: white; font-family: sans-serif; overflow: hidden; }
 
-        .header { background: #001a00; padding: 45px 15px 10px; border-bottom: 3px solid var(--sar-orange); z-index: 3000; }
+        .header { background: #001a00; padding: 45px 15px 10px; border-bottom: 3px solid var(--orange); }
         .search-row { display: flex; gap: 5px; }
-        .search-row input { flex-grow: 1; padding: 12px; border-radius: 4px; border: none; font-size: 16px; background: #fff; color: #000; font-weight: bold; }
+        .search-row input { flex-grow: 1; padding: 15px; border-radius: 4px; border: none; font-size: 16px; font-weight: bold; }
         
-        #map { flex-grow: 1; width: 100%; height: calc(100vh - 310px); z-index: 1; background: #111; }
+        #map { width: 100%; height: calc(100vh - 320px); background: #111; cursor: crosshair; }
 
-        /* LEGEND (LEFT) */
+        /* THE UPGRADED LEGEND */
         .legend { 
-            position: absolute; left: 10px; top: 195px; width: 180px; 
+            position: absolute; left: 10px; top: 200px; width: 190px; 
             background: rgba(0,0,0,0.95); border: 2px solid var(--gold); 
-            padding: 12px; z-index: 2000; border-radius: 8px; font-size: 12px; 
+            padding: 12px; z-index: 2000; border-radius: 8px; font-size: 13px; 
         }
-        .legend b { color: var(--sar-orange); border-bottom: 1px solid #444; display: block; margin-bottom: 8px; margin-top: 10px; }
-        .unit { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .legend b { color: var(--orange); display: block; margin: 10px 0 5px 0; border-bottom: 1px solid #444; }
+        .unit { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid #222; }
 
-        /* BLUE DOT WITH WHITE BORDER */
-        .marker-dot {
-            width: 20px; height: 20px; background: var(--blue); border: 3px solid #fff; border-radius: 50%;
-            box-shadow: 0 0 10px #000;
+        /* COMMAND DOT (YOU) */
+        .cmd-dot {
+            width: 24px; height: 24px; background: var(--blue); border: 4px solid #fff; border-radius: 50%;
+            box-shadow: 0 0 15px var(--blue); animation: blink 2s infinite;
         }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
-        .toolbar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 10px; background: #000; z-index: 3000; }
-        .tool { background: #222; border: 1px solid #444; padding: 15px 0; border-radius: 6px; text-align: center; cursor: pointer; color: #fff; }
-        .tool label { display: block; font-size: 8px; color: var(--gold); text-transform: uppercase; margin-top: 5px; font-weight: bold; }
-        .tool.active { background: var(--sar-orange); }
+        /* TOOLBAR */
+        .toolbar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 10px; background: #000; }
+        .tool { background: #222; border: 1px solid #444; padding: 18px 0; border-radius: 6px; text-align: center; color: #fff; cursor: pointer; }
+        .tool label { display: block; font-size: 9px; color: var(--gold); text-transform: uppercase; margin-top: 5px; font-weight: bold; }
+        .active-tool { background: var(--orange) !important; border-color: white !important; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 8px;">
-        <span id="gps-stat" style="color:red;">● GPS: STANDBY</span>
-        <span id="clock">08:00:00</span>
-    </div>
     <div class="search-row">
-        <input type="text" id="pls-input" placeholder="Type Your Address, VA">
-        <button onclick="searchAddr()" style="background:var(--sar-orange); color:white; border:none; padding:10px 15px; border-radius:4px; font-weight:bold;">DEPLOY</button>
+        <input type="text" id="target-addr" placeholder="Enter Address, City, VA">
+        <button onclick="deployNow()" style="background:var(--orange); color:white; border:none; padding:10px 15px; border-radius:4px; font-weight:bold;">DEPLOY</button>
     </div>
-    <button onclick="forceDotHere()" style="width:100%; margin-top:5px; background:#003300; border:1px solid lime; color:white; font-size:10px; border-radius:4px; padding:5px;">DRAG BLUE DOT TO SEARCHED AREA</button>
+    <button onclick="lockCommandCenter()" style="width:100%; background:#004400; color:white; border:1px solid lime; padding:8px; font-size:12px; border-radius:4px; margin-top:5px; font-weight:bold;">ACTIVATE COMMAND DOT AT THIS HOUSE</button>
 </div>
 
 <div id="map"></div>
 
 <div class="legend">
     <b>SUBJECT PROFILE</b>
-    NAME: <span>JOHN DOE</span><br>
+    NAME: <span id="p-name">JOHN DOE</span><br>
     STATUS: <span style="color:yellow;">MISSING</span>
     
     <b>SEARCH TEAM LIST</b>
-    <div class="unit"><span>SAR-01 (YOU)</span><span id="u1" style="color:red;">OFF</span></div>
-    <div class="unit"><span>SAR-02 (K9)</span><span style="color:var(--live);">LIVE</span></div>
-    <div class="unit"><span>SAR-03 (VOL)</span><span style="color:var(--live);">LIVE</span></div>
+    <div class="unit"><span>SAR-01 (CMD)</span><span id="s1" style="color:red;">OFF</span></div>
+    <div class="unit"><span>SAR-02 (K9)</span><span style="color:var(--live);">READY</span></div>
+    <div class="unit"><span>SAR-03 (GROUND)</span><span style="color:var(--live);">READY</span></div>
 </div>
 
 <div class="toolbar">
-    <div class="tool" onclick="startGPS()"><span>📍</span><label>Start GPS</label></div>
-    <div id="p-btn" class="tool" onclick="togglePerim()"><span>📐</span><label>Perimeter</label></div>
-    <div class="tool" onclick="alert('LZ SET AT CENTER')"><span>🚁</span><label>Set LZ</label></div>
+    <div id="perim-btn" class="tool" onclick="togglePerim()"><span>📐</span><label>Perimeter</label></div>
+    <div class="tool" onclick="dropLZ()"><span>🚁</span><label>Set LZ</label></div>
+    <div class="tool" onclick="addSimSearcher()"><span>👤</span><label>Add Unit</label></div>
     <div class="tool" onclick="location.reload()"><span>🔄</span><label>Reset</label></div>
 </div>
 
@@ -76,71 +74,60 @@
     var map = L.map('map', { zoomControl: false }).setView([37.5, -79.0], 10);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    var myMarker = null;
-    var searchPos = null;
-    var blueIcon = L.divIcon({ className: 'm-icon', html: '<div class="marker-dot"></div>', iconSize: [20,20], iconAnchor: [10,10] });
+    var cmdMarker = null;
+    var cmdIcon = L.divIcon({ className: 'c-icon', html: '<div class="cmd-dot"></div>', iconSize: [24,24], iconAnchor: [12,12] });
 
-    function searchAddr() {
-        var addr = document.getElementById('pls-input').value;
+    // 1. DEPLOY TO ADDRESS
+    function deployNow() {
+        var addr = document.getElementById('target-addr').value;
         fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${addr}`)
             .then(r => r.json()).then(d => {
                 if(d[0]) {
-                    searchPos = [d[0].lat, d[0].lon];
-                    map.setView(searchPos, 17);
-                    L.marker(searchPos).addTo(map).bindPopup("<b>SEARCH START</b>").openPopup();
+                    var pos = [d[0].lat, d[0].lon];
+                    map.setView(pos, 17);
+                    L.marker(pos).addTo(map).bindPopup("<b>POINT LAST SEEN</b>").openPopup();
                 }
             });
     }
 
-    function startGPS() {
-        if (navigator.geolocation) {
-            document.getElementById('gps-stat').innerText = "● GPS: SEARCHING...";
-            navigator.geolocation.watchPosition(function(p) {
-                var realPos = [p.coords.latitude, p.coords.longitude];
-                document.getElementById('gps-stat').innerText = "● GPS: LIVE";
-                document.getElementById('gps-stat').style.color = "#00ff00";
-                document.getElementById('u1').innerText = "LIVE";
-                document.getElementById('u1').style.color = "#00ff00";
-                
-                // ONLY place marker, DO NOT move map
-                if (!myMarker) {
-                    myMarker = L.marker(realPos, { icon: blueIcon }).addTo(map);
-                } else {
-                    myMarker.setLatLng(realPos);
-                }
-            });
-        }
+    // 2. LOCK COMMAND DOT (THE BLUE BLINKING DOT)
+    function lockCommandCenter() {
+        var center = map.getCenter();
+        if(cmdMarker) { cmdMarker.setLatLng(center); }
+        else { cmdMarker = L.marker(center, {icon: cmdIcon}).addTo(map); }
+        document.getElementById('s1').innerText = "LIVE";
+        document.getElementById('s1').style.color = "lime";
     }
 
-    function forceDotHere() {
-        if(searchPos) {
-            if(!myMarker) {
-                myMarker = L.marker(searchPos, { icon: blueIcon }).addTo(map);
-            } else {
-                myMarker.setLatLng(searchPos);
-            }
-            map.setView(searchPos, 17);
-            document.getElementById('u1').innerText = "LIVE (MANUAL)";
-            document.getElementById('u1').style.color = "#00ff00";
-        }
-    }
-
+    // 3. HEAVY DUTY PERIMETER
     var drawing = false;
-    var pts = [];
-    var poly = L.polygon([], {color: 'orange'}).addTo(map);
-    function togglePerim() { 
-        drawing = !drawing; 
-        document.getElementById('p-btn').classList.toggle('active');
+    var points = [];
+    var area = L.polygon([], {color: '#ff6600', weight: 5, fillOpacity: 0.4}).addTo(map);
+
+    function togglePerim() {
+        drawing = !drawing;
+        document.getElementById('perim-btn').classList.toggle('active-tool');
+        if(drawing) alert("TAP MODE ON: Click the map corners to build your search box.");
     }
-    map.on('click', function(e) { 
-        if(drawing) { 
-            pts.push(e.latlng); 
-            poly.setLatLngs(pts); 
-            L.circleMarker(e.latlng, {radius: 3, color: 'white'}).addTo(map); 
-        } 
+
+    map.on('click', function(e) {
+        if(drawing) {
+            points.push(e.latlng);
+            area.setLatLngs(points);
+            // Big white circles at the corners
+            L.circleMarker(e.latlng, {radius: 6, color: 'white', fillColor: 'white', fillOpacity: 1}).addTo(map);
+        }
     });
 
-    setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+    // 4. PRACTICE: ADD A SEARCHER
+    function addSimSearcher() {
+        var center = map.getCenter();
+        L.marker(center).addTo(map).bindPopup("<b>GROUND UNIT PLACED</b>").openPopup();
+    }
+
+    function dropLZ() {
+        L.circle(map.getCenter(), {radius: 40, color: '#00ff00', weight: 4}).addTo(map).bindPopup("HELO LZ").openPopup();
+    }
 </script>
 </body>
 </html>
