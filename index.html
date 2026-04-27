@@ -1,98 +1,101 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND - V42 FINAL</title>
+    <title>ACSD COMMAND - IRONCLAD V44</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --orange: #ff6600; --gold: #ffd700; --blue: #002b5c; --live: #00ff00; }
+        :root { --orange: #ff6600; --gold: #ffd700; --blue: #007bff; --live: #00ff00; }
         body, html { margin: 0; padding: 0; height: 100%; background: #000; color: white; font-family: sans-serif; overflow: hidden; }
-        
-        /* FIXED HEADER */
-        .header { background: #001a00; padding: 35px 10px 10px; border-bottom: 3px solid var(--orange); position: relative; z-index: 9999; }
-        .dept-title { color: var(--gold); font-weight: bold; text-align: center; font-size: 16px; letter-spacing: 1px; }
-        
-        /* PAGE SYSTEM */
+        .header { background: #001a00; padding: 35px 10px 10px; border-bottom: 3px solid var(--orange); z-index: 9999; }
         .page { position: absolute; top: 95px; bottom: 0; width: 100%; display: none; background: #000; overflow-y: auto; flex-direction: column; z-index: 10; }
         .active-page { display: flex !important; }
 
-        /* BUTTONS */
-        .nav-btn { background: #1a1a1a; border: 2px solid #333; color: white; padding: 25px; border-radius: 12px; font-weight: bold; font-size: 18px; text-align: center; margin: 10px; cursor: pointer; }
-        .map-btn { background: var(--orange); border-color: white; color: white; }
-
-        /* MAP FOOTER */
-        #map { flex-grow: 1; background: #111; z-index: 5; }
+        /* TACTICAL HUD */
+        .hud { position: absolute; top: 105px; right: 10px; background: rgba(0,0,0,0.9); border: 1px solid var(--gold); padding: 8px; z-index: 1000; font-size: 11px; color: var(--gold); pointer-events: none; }
+        
+        #map { flex-grow: 1; background: #111; border: 1px solid #222; }
         .footer { background: #000; padding: 10px; border-top: 2px solid var(--orange); z-index: 9999; }
-        .tool-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-bottom: 10px; }
-        .t-btn { background: #222; border: 1px solid #444; color: white; padding: 12px 0; border-radius: 6px; text-align: center; font-size: 10px; font-weight: bold; }
+        
+        .tool-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 10px; }
+        .t-btn { background: #1a1a1a; border: 1px solid #444; color: white; padding: 12px 0; border-radius: 4px; text-align: center; font-size: 9px; font-weight: bold; }
         .active-t { background: var(--orange) !important; border-color: white; }
 
-        .data-card { background: #111; border: 1px solid #333; padding: 15px; margin: 10px; border-radius: 8px; border-left: 4px solid var(--gold); }
-        .data-card b { color: var(--gold); display: block; margin-bottom: 5px; font-size: 14px; }
-        .data-card p { margin: 0; font-size: 13px; color: #ccc; line-height: 1.5; }
+        .nav-btn { background: #1a1a1a; border: 2px solid #333; color: white; padding: 22px; border-radius: 10px; font-weight: bold; margin: 10px; text-align: center; font-size: 16px; }
+        .data-card { background: #111; border-left: 4px solid var(--gold); padding: 12px; margin: 10px; border-radius: 4px; font-size: 13px; line-height: 1.4; }
+        .data-card b { color: var(--gold); display: block; margin-bottom: 3px; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div class="dept-title">AMHERST CO. SHERIFF'S DEPT</div>
-    <div style="display:flex; justify-content:space-between; font-size:12px; margin-top:5px; color:var(--live);">
+    <div style="text-align:center; color:var(--gold); font-weight:bold; font-size:16px;">ACSD COMMAND - IRONCLAD V44</div>
+    <div style="display:flex; justify-content:space-between; font-size:11px; margin-top:5px; color:var(--live);">
         <span id="clock">00:00:00</span>
-        <span id="gps-status">GPS: STANDBY</span>
+        <span id="gps-stat">GPS: READY</span>
     </div>
 </div>
 
 <div id="page-hub" class="page active-page">
-    <div class="nav-btn map-btn" onclick="showPage('page-map')">🗺️ OPEN TACTICAL MAP</div>
-    <div class="nav-btn" style="border-color: var(--blue);" onclick="showPage('page-law')">⚖️ LAW LIBRARY (FULL)</div>
-    <div class="nav-btn" style="border-color: #900;" onclick="showPage('page-med')">🩹 FIRST AID / K9 CPR</div>
+    <div class="nav-btn" style="background:var(--orange); font-size:20px;" onclick="showPage('page-map')">🗺️ TACTICAL MAP</div>
+    <div class="nav-btn" style="border-color:var(--blue);" onclick="showPage('page-law')">⚖️ VA LAW LIBRARY (LOADED)</div>
+    <div class="nav-btn" style="border-color:#900;" onclick="showPage('page-med')">🩹 FIELD MED / K9 CPR</div>
+    <div class="nav-btn" style="background:#600; border:none; margin-top:30px; font-size:14px;" onclick="location.reload()">❌ END MISSION / RESET ALL</div>
 </div>
 
 <div id="page-map" class="page">
-    <div style="background:#111; padding:10px; display:flex; gap:5px;">
-        <input type="text" id="pls-in" placeholder="Address Search..." style="flex-grow:1; padding:10px; background:#000; color:white; border:1px solid #444; border-radius:4px;">
-        <button onclick="deployPLS()" style="background:var(--orange); color:white; border:none; padding:10px 15px; font-weight:bold; border-radius:4px;">GO</button>
+    <div class="hud">COMPASS: 315° NW<br>WIND: 6MPH NW</div>
+    <div style="background:#111; padding:8px; display:flex; gap:5px;">
+        <input type="text" id="pls-in" placeholder="Enter Search Address..." style="flex-grow:1; padding:10px; background:#000; color:white; border:1px solid #444;">
+        <button onclick="deployPLS()" style="background:var(--orange); color:white; border:none; padding:10px; font-weight:bold;">GO</button>
     </div>
     <div id="map"></div>
     <div class="footer">
         <div class="tool-grid">
             <div id="t-perim" class="t-btn" onclick="setMode('perim')">📐<br>PERIM</div>
             <div id="t-k9" class="t-btn" onclick="setMode('k9')">🐕<br>K9</div>
-            <div id="t-ground" class="t-btn" onclick="setMode('ground')">🚶<br>GND</div>
+            <div id="t-ground" class="t-btn" onclick="setMode('ground')">🚶<br>SRCH</div>
+            <div id="t-violator" class="t-btn" onclick="setMode('violator')">👤<br>VIOL</div>
+            <div id="t-mental" class="t-btn" onclick="setMode('mental')">🧠<br>MENTL</div>
             <div id="t-hlz" class="t-btn" onclick="setMode('hlz')">🚁<br>HLZ</div>
             <div id="t-clue" class="t-btn" onclick="setMode('clue')">🚩<br>CLUE</div>
+            <div class="t-btn" style="background:#400; border-color:red;" onclick="clearMap()">♻️<br>RECALL</div>
         </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px;">
-            <button onclick="locateUser()" style="background:var(--live); color:black; padding:15px; border:none; border-radius:6px; font-weight:bold;">LOCK GPS</button>
-            <button onclick="clearMap()" style="background:#400; color:white; padding:15px; border:none; border-radius:6px; font-weight:bold;">RECALL</button>
-            <button onclick="showPage('page-hub')" style="background:var(--blue); color:white; padding:15px; border:none; border-radius:6px; font-weight:bold;">HUB</button>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
+            <button onclick="locateUser()" style="background:var(--live); color:black; padding:15px; border:none; font-weight:bold; border-radius:4px;">LOCATE ME</button>
+            <button onclick="showPage('page-hub')" style="background:var(--blue); color:white; padding:15px; border:none; font-weight:bold; border-radius:4px;">HUB</button>
         </div>
     </div>
 </div>
 
 <div id="page-law" class="page">
     <div style="padding:15px;">
-        <button onclick="showPage('page-hub')" style="width:100%; padding:15px; background:#333; color:white; border:none; border-radius:8px; margin-bottom:20px;">BACK TO MAIN MENU</button>
-        <div class="data-card"><b>Terry v. Ohio</b><p>Stop and Frisk based on Reasonable Suspicion.</p></div>
-        <div class="data-card"><b>Graham v. Connor</b><p>Force must be Objectively Reasonable.</p></div>
-        <div class="data-card"><b>VA § 18.2-460</b><p>Obstruction of Justice: Resisting/Hindering officer.</p></div>
-        <div class="data-card"><b>VA § 18.2-388</b><p>Drunk in Public / Profane Swearing.</p></div>
-        <div class="data-card"><b>VA § 18.2-266</b><p>DUI: Operating vehicle while intoxicated.</p></div>
-        <div class="data-card"><b>Carroll v. US</b><p>Vehicle search exception for probable cause.</p></div>
+        <button onclick="showPage('page-hub')" style="width:100%; padding:15px; background:#333; color:white; border:none; margin-bottom:10px;">BACK</button>
+        <div class="data-card"><b>Terry v. Ohio</b><p>Stop & Frisk / Reasonable Suspicion.</p></div>
+        <div class="data-card"><b>Graham v. Connor</b><p>Force Reasonableness / Officer perspective.</p></div>
+        <div class="data-card"><b>VA § 18.2-460</b><p>Obstruction of Justice / Resisting.</p></div>
+        <div class="data-card"><b>VA § 18.2-388</b><p>Public Intoxication / Profane Swearing.</p></div>
+        <div class="data-card"><b>VA § 18.2-266</b><p>DUI / Operating while intoxicated.</p></div>
+        <div class="data-card"><b>Tennessee v. Garner</b><p>Fleeing Felon / Use of Deadly Force.</p></div>
+        <div class="data-card"><b>VA § 18.2-57</b><p>Assault and Battery / LEO protection.</p></div>
+        <div class="data-card"><b>VA § 18.2-119</b><p>Trespass after being forbidden.</p></div>
+        <div class="data-card"><b>Carroll v. US</b><p>Automobile Exception / Warrantless Search.</p></div>
+        <div class="data-card"><b>Chimel v. CA</b><p>Search Incident to Arrest / Immediate Control.</p></div>
     </div>
 </div>
 
 <div id="page-med" class="page">
     <div style="padding:15px;">
-        <button onclick="showPage('page-hub')" style="width:100%; padding:15px; background:#333; color:white; border:none; border-radius:8px; margin-bottom:20px;">BACK TO MAIN MENU</button>
-        <h2 style="color:var(--live); text-align:center;">#1 K9 CPR PROTOCOL</h2>
+        <button onclick="showPage('page-hub')" style="width:100%; padding:15px; background:#333; color:white; border:none; margin-bottom:10px;">BACK</button>
+        <h3 style="color:var(--live); text-align:center;">K9 CPR - PRIMARY RESPONSE</h3>
         
-        <div class="data-card" style="border-left-color:var(--live);"><b>K9 CPR STEPS</b><p>1. Right side down. 2. Compressions behind elbow. 3. 100-120 BPM. 4. 30:2 Ratio (Snout breaths).</p></div>
-        <div class="data-card"><b>K9 HEAT STROKE</b><p>Cool paws/ears. No ice. Watch for purple gums.</p></div>
-        <div class="data-card" style="border-left-color:red;"><b>TOURNIQUET</b><p>High and tight. Twist until bleeding stops. Note time.</p></div>
-        <div class="data-card"><b>NARCAN</b><p>Spray full dose in nostril for suspected OD.</p></div>
+        <div class="data-card" style="border-left-color:var(--live);"><b>K9 CPR</b><p>100-120 BPM. Behind elbow. 30:2 ratio (snout breaths).</p></div>
+        <div class="data-card"><b>K9 HEAT STROKE</b><p>Cool paws/ears. No ice. Gums dark red/purple.</p></div>
+        <div class="data-card"><b>K9 BLOAT</b><p>Retching, hard belly. Immediate transport.</p></div>
+        <div class="data-card" style="border-left-color:red;"><b>TOURNIQUET</b><p>High and tight. Twist until bleeding stops.</p></div>
+        <div class="data-card"><b>NARCAN</b><p>Spray dose in nostril for suspected OD.</p></div>
+        <div class="data-card"><b>CHEST SEAL</b><p>Sucking wound. Tape 3 sides.</p></div>
     </div>
 </div>
 
@@ -111,20 +114,18 @@
     }
 
     function locateUser() {
-        document.getElementById('gps-status').innerText = "LOCKING...";
         map.locate({setView: true, maxZoom: 18, enableHighAccuracy: true});
     }
 
     map.on('locationfound', function(e) {
         if (userMarker) map.removeLayer(userMarker);
         userMarker = L.circleMarker(e.latlng, {radius: 8, color: 'white', fillColor: '#007bff', fillOpacity: 1}).addTo(map);
-        document.getElementById('gps-status').innerText = "GPS: LOCKED";
+        document.getElementById('gps-stat').innerText = "GPS: LOCKED";
     });
 
     function setMode(m) {
-        mode = m; 
-        document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('active-t'));
-        document.getElementById('t-'+m).classList.add('active-t');
+        mode = m; document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('active-t'));
+        if(document.getElementById('t-'+m)) document.getElementById('t-'+m).classList.add('active-t');
     }
 
     function clearMap() { assetLayer.clearLayers(); pPts = []; area.setLatLngs([]); }
@@ -140,8 +141,8 @@
             pPts.push(e.latlng); area.setLatLngs(pPts);
             L.circleMarker(e.latlng, {radius:3, color:'white'}).addTo(assetLayer);
         } else if(mode) {
-            var color = mode==='k9'?'yellow':(mode==='ground'?'lime':(mode==='hlz'?'magenta':'red'));
-            L.circleMarker(e.latlng, {radius:10, color:'white', fillColor:color, fillOpacity:1}).addTo(assetLayer);
+            var colors = {'k9':'yellow', 'ground':'lime', 'violator':'#333', 'mental':'#007bff', 'hlz':'magenta', 'clue':'red'};
+            L.circleMarker(e.latlng, {radius:10, color:'white', fillColor:colors[mode], fillOpacity:1}).addTo(assetLayer);
         }
     });
 
