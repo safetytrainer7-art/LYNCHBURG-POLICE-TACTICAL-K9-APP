@@ -4,54 +4,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LPD K-9 TACTICAL - MASTER BUILD</title>
+    <title>LPD K-9 TACTICAL - LIVE GPS</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --lpd-blue: #003366; --neon: #00ff66; --gold: #ffd700; --alert: #ff0000; --glass: rgba(0, 10, 25, 0.95); }
+        :root { --lpd-blue: #003366; --neon: #00ff66; --gold: #ffd700; --alert: #ff0000; --me: #007bff; }
         body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Segoe UI', sans-serif; overflow: hidden; color: white; }
-
         .app-container { display: flex; flex-direction: column; height: 100vh; }
 
-        /* HEADER - MISSION BRIEF */
-        .header {
-            background: var(--lpd-blue); padding: 40px 15px 10px;
-            border-bottom: 2px solid var(--gold); z-index: 1001;
-        }
+        /* HEADER & HUD */
+        .header { background: var(--lpd-blue); padding: 40px 15px 10px; border-bottom: 2px solid var(--gold); z-index: 1001; }
         .header h1 { font-size: 18px; margin: 0; letter-spacing: 2px; }
-        .header p { font-size: 11px; color: var(--gold); margin: 3px 0; font-weight: bold; }
-
-        /* HUD - WIND / COMPASS / TEMP */
-        .hud-stats {
-            display: grid; grid-template-columns: 1fr 1fr 1fr;
-            background: #111; border-bottom: 1px solid #333; padding: 8px; z-index: 1001;
-        }
+        .hud-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; background: #111; border-bottom: 1px solid #333; padding: 8px; z-index: 1001; }
         .stat-box { text-align: center; border-right: 1px solid #333; }
         .stat-box:last-child { border: none; }
         .stat-label { font-size: 8px; color: #888; text-transform: uppercase; }
         .stat-value { font-size: 12px; color: var(--neon); font-weight: bold; }
 
-        /* THE REAL MAP */
+        /* MAP AREA */
         #map { flex-grow: 1; width: 100%; z-index: 1; }
 
-        /* TACTICAL ACTION BAR (THE BUTTONS ARE BACK!) */
-        .action-bar {
-            display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 5px; padding: 10px; background: #000; z-index: 1001;
-            border-top: 1px solid var(--lpd-blue);
-        }
-        .q-btn {
-            background: #1a1a1a; border: 1px solid var(--lpd-blue);
-            padding: 12px 0; border-radius: 6px; text-align: center; cursor: pointer;
-        }
+        /* ACTION BUTTONS */
+        .action-bar { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px; padding: 10px; background: #000; z-index: 1001; border-top: 1px solid var(--lpd-blue); }
+        .q-btn { background: #1a1a1a; border: 1px solid var(--lpd-blue); padding: 12px 0; border-radius: 6px; text-align: center; cursor: pointer; }
         .q-btn span { display: block; font-size: 22px; margin-bottom: 4px; }
         .q-btn label { font-size: 8px; color: var(--gold); text-transform: uppercase; font-weight: bold; }
 
-        /* DATA OVERLAY PANEL */
-        #data-panel {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.98); z-index: 2000; padding: 50px 20px; box-sizing: border-box;
-            overflow-y: auto;
-        }
+        /* DATA PANEL */
+        #data-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 2000; padding: 50px 20px; box-sizing: border-box; overflow-y: auto; }
         .panel-content { border: 1px solid var(--gold); padding: 20px; border-radius: 10px; background: #050505; }
         .close-btn { color: var(--alert); font-weight: bold; margin-top: 30px; text-align: center; border: 1px solid var(--alert); padding: 10px; border-radius: 5px; }
     </style>
@@ -60,23 +39,23 @@
 
 <div class="app-container">
     <div class="header">
-        <h1>LPD K-9 COMMAND</h1>
-        <p>ADDR: 1200 CHURCH ST // CALL: B&E IN PROGRESS</p>
+        <h1>LPD K-9 LIVE COMMAND</h1>
+        <p id="loc-status">INITIALIZING GPS LINK...</p>
     </div>
 
     <div class="hud-stats">
-        <div class="stat-box"><div class="stat-label">Wind (NW)</div><div class="stat-value">6 MPH</div></div>
-        <div class="stat-box"><div class="stat-label">Heading</div><div class="stat-value">312° NW</div></div>
+        <div class="stat-box"><div class="stat-label">Wind</div><div class="stat-value">6 MPH NW</div></div>
+        <div class="stat-box"><div class="stat-label">Heading</div><div id="heading-val" class="stat-value">---°</div></div>
         <div class="stat-box"><div class="stat-label">Temp</div><div class="stat-value">64°F</div></div>
     </div>
 
     <div id="map"></div>
 
     <div class="action-bar">
-        <div class="q-btn" onclick="showData('Compass')"><span>🧭</span><label>Compass</label></div>
         <div class="q-btn" onclick="showData('Legal')"><span>⚖️</span><label>Legal</label></div>
         <div class="q-btn" onclick="showData('Medical')"><span>🐕‍🦺</span><label>K9 Med</label></div>
         <div class="q-btn" onclick="showData('Log')"><span>📝</span><label>Log</label></div>
+        <div class="q-btn" onclick="locateMe()"><span>📍</span><label>Recenter</label></div>
     </div>
 </div>
 
@@ -87,32 +66,49 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // INITIALIZE MAP
-    var map = L.map('map', { zoomControl: false }).setView([37.4137, -79.1422], 17);
+    // 1. Setup Map
+    var map = L.map('map', { zoomControl: false }).setView([37.4137, -79.1422], 15);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png').addTo(map);
 
-    // LAST SEEN MARKER
-    L.circleMarker([37.4137, -79.1422], { color: 'red', fillColor: 'red', fillOpacity: 0.8, radius: 10 }).addTo(map).bindPopup('<b>LAST SEEN</b>');
+    // 2. Unit Markers
+    var myMarker = L.circleMarker([0,0], { color: 'white', fillColor: '#007bff', fillOpacity: 1, radius: 10, weight: 3 }).addTo(map).bindPopup("<b>YOU (OFFICER)</b>");
+    var k9Marker = L.circleMarker([37.4140, -79.1430], { color: '#00ff66', fillColor: '#00ff66', fillOpacity: 0.8, radius: 8 }).addTo(map).bindPopup("K9-1 AXEL");
 
-    // K9 UNIT
-    L.circleMarker([37.4132, -79.1415], { color: '#00ff66', fillColor: '#00ff66', fillOpacity: 1, radius: 8 }).addTo(map).bindPopup('K9-1 AXEL');
+    // 3. Live GPS Function
+    function onLocationFound(e) {
+        var radius = e.accuracy / 2;
+        myMarker.setLatLng(e.latlng);
+        map.setView(e.latlng, 17);
+        document.getElementById('loc-status').innerHTML = "GPS SIGNAL: LOCK ACQUIRED";
+        document.getElementById('loc-status').style.color = "#00ff66";
+    }
 
-    // DATA FOR BUTTONS
+    function locateMe() {
+        map.locate({setView: true, maxZoom: 17});
+    }
+
+    map.on('locationfound', onLocationFound);
+    map.locate({watch: true, setView: true, maxZoom: 17});
+
+    // 4. Data Handling
     const tacticalData = {
-        'Compass': '<h2 style="color:var(--gold)">TACTICAL COMPASS</h2><p>CURRENT BEARING: 312° North-West</p><p>Target Vector: Suspect fleeing toward James River.</p>',
-        'Legal': '<h2 style="color:var(--gold)">VIRGINIA & FEDERAL LAW</h2><p><b>VA Code § 19.2-81:</b> Warrantless arrest authority for felonies.</p><p><b>Graham v. Connor:</b> Objective reasonableness standard for K-9 deployment.</p><p><b>VA Code § 18.2-144.1:</b> Felony protection for K-9 assets.</p>',
-        'Medical': '<h2 style="color:var(--gold)">K-9 EMERGENCY MEDIC</h2><p><b>HEAT:</b> Cool belly/paws with water. No Ice.</p><p><b>NARCAN:</b> 4mg Nasal for opioid exposure.</p><p><b>BLOAT:</b> Immediate transport to LPD Vet.</p>',
-        'Log': '<h2 style="color:var(--gold)">DEPLOYMENT LOG</h2><p>Handler: Officer Miller // Dog: Axel</p><p>Address: 1200 Church St, Lynchburg</p><p>Terrain: Urban/Alleyway</p>'
+        'Legal': '<h2 style="color:var(--gold)">VA LAW</h2><p><b>§ 19.2-81:</b> FELONY ARREST AUTH.</p><p><b>Graham v. Connor:</b> REASONABLE FORCE.</p>',
+        'Medical': '<h2 style="color:var(--gold)">K9 MEDIC</h2><p><b>NARCAN:</b> 4mg for exposure.</p><p><b>HEAT:</b> Cool paws/belly.</p>',
+        'Log': '<h2 style="color:var(--gold)">LOG</h2><p>Lynchburg Ops // Sector 4</p>'
     };
 
     function showData(key) {
         document.getElementById('panel-body').innerHTML = tacticalData[key];
         document.getElementById('data-panel').style.display = 'block';
     }
+    function hideData() { document.getElementById('data-panel').style.display = 'none'; }
 
-    function hideData() {
-        document.getElementById('data-panel').style.display = 'none';
-    }
+    // Simulated Compass Heading
+    window.addEventListener('deviceorientation', function(e) {
+        if(e.webkitCompassHeading) {
+            document.getElementById('heading-val').innerHTML = Math.round(e.webkitCompassHeading) + "°";
+        }
+    });
 </script>
 
 </body>
