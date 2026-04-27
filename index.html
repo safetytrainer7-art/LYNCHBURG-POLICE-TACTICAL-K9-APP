@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD SAR - COMMAND V23</title>
+    <title>ACSD SAR - COMMAND V24</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --orange: #ff6600; --gold: #ffd700; --blue: #007bff; --live: #00ff00; --clue: #ff0000; }
@@ -14,34 +13,32 @@
         .search-row { display: flex; gap: 5px; }
         .search-row input { flex-grow: 1; padding: 12px; border-radius: 4px; border: none; font-size: 16px; font-weight: bold; }
         
-        #map { width: 100%; height: calc(100vh - 380px); background: #111; z-index: 1; }
+        #map { width: 100%; height: calc(100vh - 420px); background: #111; z-index: 1; }
 
-        /* TACTICAL MONITOR PANEL */
+        /* TACTICAL LEGEND */
         .legend { 
-            position: absolute; left: 10px; top: 200px; width: 235px; 
+            position: absolute; left: 10px; top: 210px; width: 230px; 
             background: rgba(0,0,0,0.95); border: 2px solid var(--gold); 
             padding: 12px; z-index: 2000; border-radius: 8px; font-size: 11px; 
         }
-        .legend b { color: var(--orange); display: block; margin: 6px 0 3px 0; border-bottom: 1px solid #444; text-transform: uppercase; }
+        .status-pill { padding: 4px; text-align: center; font-weight: bold; border-radius: 4px; margin-bottom: 8px; font-size: 14px; }
         .stat-line { display: flex; justify-content: space-between; margin-bottom: 3px; font-family: monospace; font-size: 12px; }
 
-        .monitor-box { background: #111; border: 1px solid #333; padding: 5px; margin-top: 5px; border-radius: 4px; }
-        .coords { font-size: 9px; color: #aaa; text-align: center; display: block; margin-top: 4px; }
+        /* COMMAND BUTTONS (RETRACT/END) */
+        .cmd-row { display: flex; gap: 5px; padding: 5px 10px; background: #111; }
+        .cmd-btn { flex: 1; padding: 10px; border-radius: 4px; border: 1px solid #444; color: white; font-size: 10px; font-weight: bold; cursor: pointer; }
 
         .toolbar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 10px; background: #000; z-index: 3000; }
         .tool { background: #222; border: 1px solid #444; padding: 15px 0; border-radius: 6px; text-align: center; color: #fff; cursor: pointer; }
         .tool label { display: block; font-size: 8px; color: var(--gold); text-transform: uppercase; margin-top: 5px; font-weight: bold; }
         .active-tool { background: var(--orange) !important; border: 2px solid white !important; }
-
-        .pulse-cmd { width: 20px; height: 20px; background: var(--blue); border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 15px var(--blue); animation: p 1.5s infinite; }
-        @keyframes p { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
 
 <div class="header">
     <div class="search-row">
-        <input type="text" id="pls-in" placeholder="Search Address, VA">
+        <input type="text" id="pls-in" placeholder="Address, City, VA">
         <button onclick="deployPLS()" style="background:var(--orange); color:white; border:none; padding:10px; border-radius:4px; font-weight:bold;">DEPLOY</button>
     </div>
     <button onclick="lockCMD()" style="width:100%; background:#003300; color:white; border:1px solid lime; padding:8px; font-size:11px; border-radius:4px; margin-top:5px; font-weight:bold;">ACTIVATE COMMAND CENTER</button>
@@ -49,19 +46,23 @@
 
 <div id="map"></div>
 
-<div class="legend">
-    <b>Breach Monitor</b>
-    <div class="stat-line"><span>ZONE STATUS:</span><span id="p-status" style="color:red;">OPEN</span></div>
-    <div class="monitor-box">
-        <div class="stat-line"><span>HEADING:</span><span>N (000°)</span></div>
-        <div class="stat-line"><span>WIND:</span><span>10 MPH NW</span></div>
-        <span id="coords-display" class="coords">LAT: --.--- | LON: --.---</span>
-    </div>
+<div class="cmd-row">
+    <button class="cmd-btn" style="background:#440000;" onclick="clearUnits()">RECALL ALL UNITS</button>
+    <button class="cmd-btn" style="background:#660000;" onclick="location.reload()">END MISSION (RESET)</button>
+</div>
 
-    <b>Unit Inventory</b>
-    <div class="stat-line"><span>K9 DEPLOYED:</span><span id="k-val" style="color:yellow;">0</span></div>
-    <div class="stat-line"><span>GROUND TEAMS:</span><span id="g-val" style="color:var(--live);">0</span></div>
-    <div class="stat-line" style="border-top:1px solid #444; padding-top:4px;"><span>CLUES FOUND:</span><span id="c-val" style="color:red;">0</span></div>
+<div class="legend">
+    <div id="p-status-box" class="status-pill" style="background:red; color:white;">ZONE: OPEN</div>
+    
+    <b>Unit Count</b>
+    <div class="stat-line"><span>K9:</span><span id="k-val" style="color:yellow;">0</span></div>
+    <div class="stat-line"><span>GROUND:</span><span id="g-val" style="color:var(--live);">0</span></div>
+    <div class="stat-line"><span>CLUES:</span><span id="c-val" style="color:red;">0</span></div>
+    
+    <div style="margin-top:8px; border-top:1px solid #444; padding-top:4px;">
+        <div class="stat-line" style="font-size:10px;"><span>HEADING:</span><span>N 000°</span></div>
+        <div class="stat-line" style="font-size:10px;"><span>WIND:</span><span>5 MPH NW</span></div>
+    </div>
 </div>
 
 <div class="toolbar">
@@ -78,10 +79,19 @@
 
     var mode = null; var kC = 0, gC = 0, cC = 0;
     var pPts = []; var area = L.polygon([], {color: '#ff6600', weight: 6, fillOpacity: 0.3}).addTo(map);
+    var assetLayer = L.layerGroup().addTo(map);
 
     function setMode(m) {
         mode = m; document.querySelectorAll('.tool').forEach(t => t.classList.remove('active-tool'));
         document.getElementById('t-' + m).classList.add('active-tool');
+    }
+
+    function clearUnits() {
+        assetLayer.clearLayers();
+        kC = 0; gC = 0; cC = 0;
+        document.getElementById('k-val').innerText = 0;
+        document.getElementById('g-val').innerText = 0;
+        document.getElementById('c-val').innerText = 0;
     }
 
     function deployPLS() {
@@ -93,25 +103,26 @@
     }
 
     function lockCMD() {
-        var c = map.getCenter();
-        var icon = L.divIcon({ className: 'c', html: '<div class="pulse-cmd"></div>', iconSize:[20,20], iconAnchor:[10,10] });
-        L.marker(c, {icon: icon}).addTo(map);
-        document.getElementById('coords-display').innerText = `LAT: ${c.lat.toFixed(4)} | LON: ${c.lng.toFixed(4)}`;
+        var icon = L.divIcon({ html: '<div style="width:20px; height:20px; background:#007bff; border:3px solid white; border-radius:50%; box-shadow:0 0 15px #007bff;"></div>', iconSize:[20,20] });
+        L.marker(map.getCenter(), {icon: icon}).addTo(map);
     }
 
     map.on('click', function(e) {
         if (mode === 'perim') {
             pPts.push(e.latlng); area.setLatLngs(pPts);
             L.circleMarker(e.latlng, {radius: 8, color: 'white', fillColor: 'white', fillOpacity: 1}).addTo(map);
-            if(pPts.length >= 3) { document.getElementById('p-status').innerText = "SECURED"; document.getElementById('p-status').style.color = "var(--live)"; }
+            if(pPts.length >= 3) { 
+                document.getElementById('p-status-box').innerText = "ZONE: SECURED"; 
+                document.getElementById('p-status-box').style.background = "green"; 
+            }
         } else if (mode === 'k9') {
-            kC++; L.circleMarker(e.latlng, {radius: 10, color: 'white', fillColor: 'yellow', fillOpacity: 1, weight: 3}).addTo(map).bindPopup("K9 UNIT");
+            kC++; L.circleMarker(e.latlng, {radius: 10, color: 'white', fillColor: 'yellow', fillOpacity: 1, weight: 3}).addTo(assetLayer);
             document.getElementById('k-val').innerText = kC;
         } else if (mode === 'ground') {
-            gC++; L.circleMarker(e.latlng, {radius: 10, color: 'white', fillColor: 'lime', fillOpacity: 1, weight: 3}).addTo(map).bindPopup("GROUND TEAM");
+            gC++; L.circleMarker(e.latlng, {radius: 10, color: 'white', fillColor: 'lime', fillOpacity: 1, weight: 3}).addTo(assetLayer);
             document.getElementById('g-val').innerText = gC;
         } else if (mode === 'clue') {
-            cC++; L.circleMarker(e.latlng, {radius: 8, color: 'white', fillColor: 'red', fillOpacity: 1, weight: 3}).addTo(map).bindPopup("CLUE FOUND");
+            cC++; L.circleMarker(e.latlng, {radius: 8, color: 'white', fillColor: 'red', fillOpacity: 1, weight: 3}).addTo(assetLayer);
             document.getElementById('c-val').innerText = cC;
         }
     });
