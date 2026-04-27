@@ -3,27 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND V38</title>
+    <title>ACSD COMMAND V39</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --orange: #ff6600; --gold: #ffd700; --blue: #002b5c; --live: #00ff00; }
         body, html { margin: 0; padding: 0; height: 100%; background: #000; color: white; font-family: sans-serif; overflow: hidden; }
-        
         .header { background: #001a00; padding: 35px 10px 5px; border-bottom: 2px solid var(--orange); position: relative; z-index: 5000; }
-        .page { position: absolute; top: 85px; bottom: 0; width: 100%; display: none; background: #000; overflow-y: auto; }
-        .active-page { display: flex; flex-direction: column; }
-
+        .page { position: absolute; top: 85px; bottom: 0; width: 100%; display: none; background: #000; overflow-y: auto; flex-direction: column; }
+        .active-page { display: flex; }
         #map { flex-grow: 1; background: #111; }
-        .nvg-mode { filter: sepia(100%) hue-rotate(80deg) brightness(0.8) contrast(1.5) invert(1); }
-
-        /* OVERLAYS */
-        .map-info { position: absolute; top: 100px; right: 10px; z-index: 1000; background: rgba(0,0,0,0.8); padding: 5px; border: 1px solid var(--gold); font-size: 10px; pointer-events: none; }
-
+        .map-info { position: absolute; top: 100px; right: 10px; z-index: 1000; background: rgba(0,0,0,0.8); padding: 5px; border: 1px solid var(--gold); font-size: 10px; }
         .footer-tools { background: #000; padding: 10px; border-top: 1px solid var(--orange); z-index: 5000; }
         .tool-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 8px; }
         .t-btn { background: #1a1a1a; border: 1px solid #444; color: white; padding: 10px 0; border-radius: 4px; text-align: center; font-size: 10px; }
         .active-t { background: var(--orange) !important; border-color: white; }
-
         .data-card { background: #111; border: 1px solid #333; padding: 12px; margin: 8px; border-radius: 6px; font-size: 12px; }
         .data-card b { color: var(--gold); display: block; border-bottom: 1px solid #222; margin-bottom: 4px; }
     </style>
@@ -47,9 +40,7 @@
 </div>
 
 <div id="page-map" class="page">
-    <div class="map-info">
-        WIND: 5-8 MPH NW<br>COMPASS: 320° NW
-    </div>
+    <div class="map-info">WIND: 5-8 MPH NW<br>COMPASS: 320° NW</div>
     <div style="background:#111; padding:8px; display:flex; gap:5px;">
         <input type="text" id="pls-in" placeholder="Address..." style="flex-grow:1; padding:8px; background:#000; color:white; border:1px solid #444;">
         <button onclick="deployPLS()" style="background:var(--orange); color:white; border:none; padding:8px; font-weight:bold;">SEARCH</button>
@@ -64,7 +55,7 @@
             <div id="t-clue" class="t-btn" onclick="setMode('clue')">🚩<br>Clue</div>
         </div>
         <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px;">
-            <button onclick="locateUser()" style="background:var(--live); color:black; padding:10px; border:none; border-radius:4px; font-weight:bold;">LOCATE ME</button>
+            <button onclick="locateUser()" style="background:var(--live); color:black; padding:10px; border:none; border-radius:4px; font-weight:bold;">FORCE GPS LOCK</button>
             <button onclick="clearMap()" style="background:#440000; color:white; padding:10px; border:none; border-radius:4px;">RECALL</button>
             <button onclick="showPage('page-hub')" style="background:var(--blue); color:white; padding:10px; border:none; border-radius:4px;">HUB</button>
         </div>
@@ -74,43 +65,32 @@
 <div id="page-med" class="page">
     <div style="padding:15px;">
         <button onclick="showPage('page-hub')" style="width:100%; padding:10px; background:#333; color:white; border:none; margin-bottom:10px;">BACK</button>
-        <button onclick="window.open('https://www.google.com/maps/search/emergency+vet+near+me')" style="width:100%; padding:10px; background:var(--orange); color:white; border:none; margin-bottom:15px; font-weight:bold;">📍 FIND EMERGENCY VET</button>
-        
-        <h3 style="color:var(--live); border-bottom: 2px solid var(--live);">K9 TACTICAL MEDICAL</h3>
-        <div class="data-card"><b>1. K9 CPR</b><p>Lay on right side. Compressions behind elbow (100bpm). 30:2 ratio (Snout breaths).</p></div>
-        <div class="data-card"><b>2. K9 HEAT STROKE</b><p>Move to shade. Cool paws/ears. No ice. Fatal if internal temp exceeds 106°.</p></div>
-        <div class="data-card"><b>3. K9 BLOAT</b><p>Unproductive retching. Stomach distension. Immediate vet transport.</p></div>
-        <div class="data-card"><b>4. K9 PAW CARE</b><p>Clean with saline. Pressure for bleeding. Wrap with Vetrap.</p></div>
-
-        <h3 style="color:red; border-bottom: 2px solid red;">HUMAN TRAUMA</h3>
-        <div class="data-card"><b>TOURNIQUET</b><p>Apply 2-3 inches above wound. Twist until bleeding stops. Note time.</p></div>
-        <div class="data-card"><b>NARCAN</b><p>Spray full dose in nostril. Rescue breaths if not breathing.</p></div>
-        <div class="data-card"><b>CHEST SEAL</b><p>Sucking wound: Occlusive dressing. Tape 3 sides.</p></div>
-        <div class="data-card"><b>HYPOTHERMIA</b><p>Warm core first. Dry clothes. No rubbing limbs.</p></div>
+        <h3 style="color:var(--live);">#1 PRIORITY: K9 CPR</h3>
+                <div class="data-card"><b>K9 CPR INSTRUCTIONS</b><p>1. Check for pulse inside the hind leg.<br>2. Position dog on right side.<br>3. Compressions: Behind the elbow on the rib cage.<br>4. 100-120 per minute. 30 pumps to 2 snout-breaths.</p></div>
+        <div class="data-card"><b>K9 HEAT STROKE</b><p>Gums turning dark red/purple. Cool paws immediately. Do NOT submerge in ice.</p></div>
+        <div class="data-card"><b>K9 BLOAT</b><p>Hard, distended belly. Heavy drooling. Emergency vet only.</p></div>
+        <h3 style="color:red;">HUMAN TRAUMA</h3>
+        <div class="data-card"><b>TOURNIQUET</b><p>High and tight. Windlass until bleed stops. Note time.</p></div>
+        <div class="data-card"><b>NARCAN</b><p>Suspected OD: Intranasal spray. Rescue breaths.</p></div>
     </div>
 </div>
 
 <div id="page-law" class="page">
     <div style="padding:15px;">
         <button onclick="showPage('page-hub')" style="width:100%; padding:10px; background:#333; color:white; border:none; margin-bottom:10px;">BACK</button>
-        <h3 style="color:var(--gold);">LEO CASE LAW</h3>
-        <div class="data-card"><b>Terry v. Ohio</b><p>Stop and Frisk / Reasonable Suspicion.</p></div>
-        <div class="data-card"><b>Graham v. Connor</b><p>Use of Force / Objective Reasonableness.</p></div>
-        <div class="data-card"><b>Tennessee v. Garner</b><p>Deadly force against fleeing felon restricted.</p></div>
-        <div class="data-card"><b>Carroll v. US</b><p>Vehicle exception to warrant requirement.</p></div>
-        <div class="data-card"><b>Mapp v. Ohio</b><p>Exclusionary Rule (4th Amendment).</p></div>
-        <h3 style="color:var(--orange);">VA STATE CODE</h3>
+        <h3 style="color:var(--gold);">VA CODE & CASE LAW</h3>
+        <div class="data-card"><b>Terry v. Ohio</b><p>Stop & Frisk / RAS.</p></div>
+        <div class="data-card"><b>Graham v. Connor</b><p>Objective Reasonableness in Force.</p></div>
+        <div class="data-card"><b>Carroll v. US</b><p>Automobile exception for searches.</p></div>
         <div class="data-card"><b>§ 18.2-460</b><p>Obstruction of Justice.</p></div>
         <div class="data-card"><b>§ 18.2-388</b><p>Public Intoxication.</p></div>
-        <div class="data-card"><b>§ 18.2-266</b><p>DUI / Operating while intoxicated.</p></div>
     </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    var map = L.map('map', { zoomControl: false }).setView([37.5, -79.0], 10);
+    var map = L.map('map', { zoomControl: false }).setView([37.483, -78.971], 16);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    
     var mode = null, pPts = [], userMarker = null;
     var area = L.polygon([], {color: '#ff6600', weight: 4, fillOpacity: 0.3}).addTo(map);
     var assetLayer = L.layerGroup().addTo(map);
@@ -122,13 +102,12 @@
     }
 
     function locateUser() {
-        map.locate({setView: true, maxZoom: 18});
+        map.locate({setView: true, maxZoom: 18, enableHighAccuracy: true});
     }
 
     map.on('locationfound', function(e) {
-        if (userMarker) { map.removeLayer(userMarker); }
-        userMarker = L.circle(e.latlng, {radius: e.accuracy, color: 'white', fillColor: '#007bff', fillOpacity: 0.5}).addTo(map);
-        L.circleMarker(e.latlng, {radius: 6, color: 'white', fillColor: '#007bff', fillOpacity: 1}).addTo(map);
+        if (userMarker) map.removeLayer(userMarker);
+        userMarker = L.circleMarker(e.latlng, {radius: 8, color: 'white', fillColor: '#007bff', fillOpacity: 1}).addTo(map);
         document.getElementById('gps-status').innerText = "GPS: LOCKED";
         document.getElementById('gps-status').style.color = "var(--live)";
     });
