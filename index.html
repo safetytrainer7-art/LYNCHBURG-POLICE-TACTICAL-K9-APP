@@ -1,192 +1,147 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LPD K-9 TACTICAL - THE VAULT</title>
+    <title>LPD TACTICAL - FULL COMMAND</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
     <style>
-        :root { --lpd-blue: #003366; --gold: #ffd700; --alert: #d9534f; --neon: #28a745; }
-        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Segoe UI', Arial, sans-serif; overflow: hidden; }
+        :root { --lpd-blue: #003366; --gold: #ffd700; --alert: #d9534f; --le-blue: #007bff; --sar-red: #ff0000; --civ-green: #28a745; }
+        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
         .app-container { display: flex; flex-direction: column; height: 100vh; }
 
         /* HEADER & SEARCH */
-        .header { background: var(--lpd-blue); padding: 45px 15px 10px; border-bottom: 3px solid var(--gold); color: white; z-index: 1001; }
-        .search-box { width: 100%; padding: 10px; border-radius: 4px; border: none; margin-top: 10px; font-weight: bold; font-size: 16px; }
+        .header { background: var(--lpd-blue); padding: 45px 10px 10px; border-bottom: 3px solid var(--gold); z-index: 1001; }
+        .search-container { display: flex; gap: 5px; margin-top: 10px; }
+        .search-box { flex-grow: 1; padding: 12px; border-radius: 4px; border: none; font-weight: bold; }
+        .go-btn { background: var(--gold); border: none; padding: 0 20px; border-radius: 4px; font-weight: bold; cursor: pointer; }
 
-        /* PERMANENT MONITORS */
-        .monitor-panel { display: grid; grid-template-columns: 1fr 1fr; background: #222; padding: 8px; z-index: 1001; border-bottom: 1px solid #444; }
-        .monitor-box { background: #000; border: 1px solid #444; padding: 8px; border-radius: 4px; margin: 2px; color: white; }
-        .monitor-title { font-size: 10px; font-weight: bold; color: var(--gold); text-transform: uppercase; margin-bottom: 4px; }
-        .monitor-data { font-size: 11px; line-height: 1.3; }
+        /* MONITORS */
+        .monitor-panel { display: grid; grid-template-columns: 1fr 1fr; background: #222; padding: 5px; z-index: 1001; }
+        .monitor-box { background: #000; border: 1px solid #444; padding: 6px; border-radius: 4px; margin: 2px; color: white; font-size: 10px; }
+        .monitor-title { color: var(--gold); font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
 
-        /* THE MAP */
-        #map { flex-grow: 1; width: 100%; background: #000; z-index: 1; }
+        /* MAP AREA */
+        #map { flex-grow: 1; width: 100%; z-index: 1; }
+
+        /* LEGEND SIDEBAR */
+        .legend { position: absolute; left: 10px; top: 220px; background: rgba(0,0,0,0.85); border: 1px solid var(--gold); padding: 10px; border-radius: 8px; z-index: 1001; display: flex; flex-direction: column; gap: 10px; }
+        .leg-item { width: 35px; height: 35px; border-radius: 50%; border: 2px solid white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: white; }
 
         /* ACTION BAR */
         .action-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 10px; background: #111; z-index: 1001; border-top: 2px solid var(--lpd-blue); }
-        .q-btn { background: #222; border: 1px solid #444; padding: 12px 0; border-radius: 6px; text-align: center; cursor: pointer; color: white; }
-        .q-btn span { display: block; font-size: 20px; }
-        .q-btn label { font-size: 8px; font-weight: bold; text-transform: uppercase; display: block; margin-top: 4px; }
-
-        /* PERIMETER MENU */
-        #perimeter-menu { display: none; position: fixed; bottom: 90px; left: 10px; right: 10px; background: #1a1a1a; border: 2px solid var(--gold); padding: 15px; z-index: 3000; border-radius: 10px; text-align: center; }
-        .dot-btn { padding: 12px; margin: 5px; border: none; border-radius: 5px; font-weight: bold; color: white; width: 90%; font-size: 14px; }
+        .q-btn { background: #222; border: 1px solid #444; padding: 12px 0; border-radius: 6px; text-align: center; color: white; cursor: pointer; }
+        .q-btn label { font-size: 7px; font-weight: bold; text-transform: uppercase; display: block; margin-top: 4px; }
 
         /* DATA OVERLAY */
-        #data-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 4000; padding: 50px 20px; box-sizing: border-box; overflow-y: auto; color: #000; }
-        .panel-content h2 { color: var(--lpd-blue); border-bottom: 3px solid var(--gold); padding-bottom: 5px; }
-        .panel-content h3 { color: var(--alert); text-transform: uppercase; margin-top: 25px; font-size: 16px; border-left: 4px solid var(--gold); padding-left: 10px; }
-        .panel-content p { margin-bottom: 15px; line-height: 1.6; font-size: 15px; }
-        .close-btn { color: #fff; background: var(--lpd-blue); font-weight: bold; margin-top: 30px; text-align: center; padding: 18px; border-radius: 5px; font-size: 16px; cursor: pointer; }
+        #data-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 4000; padding: 40px 20px; box-sizing: border-box; overflow-y: auto; color: #000; }
+        .close-btn { color: #fff; background: var(--lpd-blue); font-weight: bold; margin-top: 20px; text-align: center; padding: 15px; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <div class="header">
-        <h1>LPD K-9 TACTICAL COMMAND</h1>
-        <input type="text" class="search-box" id="addr-search" placeholder="Search Address (Lynchburg, VA)" onchange="searchAddress(this.value)">
+        <h1 style="color:white; margin:0; font-size:18px;">LPD TACTICAL COMMAND</h1>
+        <div class="search-container">
+            <input type="text" class="search-box" id="addr-input" placeholder="Enter Address">
+            <button class="go-btn" onclick="searchAddress()">GO</button>
+        </div>
     </div>
 
     <div class="monitor-panel">
         <div class="monitor-box">
-            <div class="monitor-title">🛡️ Perimeter Control</div>
-            <div id="p-status" class="monitor-data">Units: Active<br>Perimeter: LOCKED</div>
+            <div class="monitor-title">🛡️ Perimeter</div>
+            <div id="p-status">UNITS: 1<br>STATUS: STANDBY</div>
         </div>
         <div class="monitor-box">
-            <div class="monitor-title">🐕‍🦺 K-9 Injury Monitor</div>
-            <div class="monitor-data">Vitals: Normal<br>Temp: 101.2° | HR: 88bpm</div>
+            <div class="monitor-title">🐕‍🦺 K-9 Injury</div>
+            <div id="v-status">TEMP: 101.2 | HR: 88<br>STATUS: NORMAL</div>
         </div>
     </div>
 
     <div id="map"></div>
 
+    <div class="legend">
+        <div class="leg-item" style="background:var(--le-blue);" onclick="setDropType('blue')">LE</div>
+        <div class="leg-item" style="background:var(--sar-red);" onclick="setDropType('red')">SAR</div>
+        <div class="leg-item" style="background:var(--civ-green);" onclick="setDropType('green')">CIV</div>
+        <div class="leg-item" style="background:purple;" onclick="setDropType('vet')">VET</div>
+        <div class="leg-item" style="background:#555;" onclick="clearMarkers()">CLR</div>
+    </div>
+
     <div class="action-bar">
-        <div class="q-btn" onclick="showData('Legal')"><span>⚖️</span><label>10 Laws</label></div>
-        <div class="q-btn" onclick="showData('Aid')"><span>🩹</span><label>10 Aid</label></div>
-        <div class="q-btn" onclick="togglePerimeterMenu()"><span>🔴</span><label>Perimeter</label></div>
+        <div class="q-btn" onclick="showData('Legal')"><span>⚖️</span><label>Laws</label></div>
+        <div class="q-btn" onclick="showData('Aid')"><span>🩹</span><label>Aid</label></div>
+        <div class="q-btn" onclick="toggleDraw()"><span>📐</span><label>Perim</label></div>
         <div class="q-btn" onclick="toggleNightMode()"><span>🌑</span><label>Night</label></div>
         <div class="q-btn" onclick="locateMe()"><span>📍</span><label>GPS</label></div>
     </div>
 </div>
 
-<div id="perimeter-menu">
-    <h3 style="color:white; margin-top:0;">ADD SEARCHER AT CENTER</h3>
-    <button class="dot-btn" style="background:blue;" onclick="addMarker('blue')">BLUE (LAW ENFORCEMENT)</button>
-    <button class="dot-btn" style="background:red;" onclick="addMarker('red')">RED (SEARCH & RESCUE)</button>
-    <button class="dot-btn" style="background:green;" onclick="addMarker('green')">GREEN (CIVILIAN)</button>
-    <button class="dot-btn" style="background:#444;" onclick="togglePerimeterMenu()">CLOSE MENU</button>
-</div>
-
-<div id="data-panel">
-    <div class="panel-content" id="panel-body"></div>
-    <div class="close-btn" onclick="hideData()">RETURN TO FIELD COMMAND</div>
-</div>
+<div id="data-panel"><div id="panel-body"></div><div class="close-btn" onclick="hideData()">CLOSE</div></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 <script>
+    // 1. Initialize Map
     var map = L.map('map', { zoomControl: false }).setView([37.4137, -79.1422], 17);
+    var lightLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    var darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
     
-    var lightMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
-    var darkMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
-    lightMap.addTo(map);
-
-    var isNight = false;
-    function toggleNightMode() {
-        if(!isNight) { map.removeLayer(lightMap); darkMap.addTo(map); isNight = true; }
-        else { map.removeLayer(darkMap); lightMap.addTo(map); isNight = false; }
-    }
-
+    // 2. Real-Time GPS Engine
     var myMarker = L.circleMarker([0,0], { color: 'white', fillColor: '#007bff', fillOpacity: 1, radius: 10, weight: 3 }).addTo(map);
-    map.on('locationfound', function(e) { myMarker.setLatLng(e.latlng); });
+    map.on('locationfound', function(e) {
+        myMarker.setLatLng(e.latlng);
+        document.getElementById('p-status').innerHTML = "UNITS: 1<br>GPS: LOCKED";
+    });
     map.locate({watch: true, setView: true, maxZoom: 17});
     function locateMe() { map.locate({setView: true}); }
 
-    function searchAddress(addr) {
+    // 3. Address Search with "GO"
+    function searchAddress() {
+        var addr = document.getElementById('addr-input').value;
         fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${addr}`)
             .then(res => res.json())
             .then(data => { if(data[0]) map.setView([data[0].lat, data[0].lon], 18); });
     }
 
-    var perimeterMarkers = [];
-    function togglePerimeterMenu() {
-        var menu = document.getElementById('perimeter-menu');
-        menu.style.display = (menu.style.display == 'block') ? 'none' : 'block';
+    // 4. Asset Drop System
+    var dropType = null;
+    var assets = L.layerGroup().addTo(map);
+    function setDropType(type) { dropType = type; alert("Click map to drop " + type.toUpperCase()); }
+    
+    map.on('click', function(e) {
+        if(!dropType) return;
+        var color = (dropType == 'vet') ? 'purple' : dropType;
+        var iconText = (dropType == 'vet') ? '🏥 VET' : dropType.toUpperCase();
+        var m = L.circleMarker(e.latlng, { color: 'white', fillColor: color, fillOpacity: 1, radius: 10 }).addTo(assets);
+        m.bindPopup(`<button onclick="assets.removeLayer(${L.stamp(m)})">REMOVE</button>`);
+        dropType = null;
+    });
+    function clearMarkers() { assets.clearLayers(); }
+
+    // 5. Perimeter Draw Tool
+    var drawnItems = new L.FeatureGroup().addTo(map);
+    var drawControl = new L.Control.Draw({ edit: { featureGroup: drawnItems }, draw: { polyline: false, circle: false, marker: false, circlemarker: false, rectangle: true, polygon: true } });
+    function toggleDraw() { map.addControl(drawControl); alert("Outline the search area now."); }
+    map.on(L.Draw.Event.CREATED, function (e) { drawnItems.addLayer(e.layer); map.removeControl(drawControl); });
+
+    // 6. Night Mode
+    var isNight = false;
+    function toggleNightMode() {
+        if(!isNight) { map.removeLayer(lightLayer); darkLayer.addTo(map); isNight = true; }
+        else { map.removeLayer(darkLayer); lightLayer.addTo(map); isNight = false; }
     }
 
-    function addMarker(color) {
-        var center = map.getCenter();
-        var marker = L.circleMarker(center, { color: 'white', fillColor: color, fillOpacity: 1, radius: 10, weight: 2 }).addTo(map);
-        marker.bindPopup(`<button style="padding:5px;" onclick="removeMarker(${perimeterMarkers.length})">REMOVE UNIT</button>`);
-        perimeterMarkers.push(marker);
-        togglePerimeterMenu();
-        updateMonitor();
-    }
-
-    function removeMarker(index) {
-        map.removeLayer(perimeterMarkers[index]);
-        updateMonitor();
-    }
-
-    function updateMonitor() {
-        document.getElementById('p-status').innerHTML = `Units: ${perimeterMarkers.length + 1}<br>Perimeter: ACTIVE`;
-    }
-
+    // 7. Baked Info (10/10)
     const tacticalData = {
-        'Legal': `<h2>10 COMMANDMENTS OF K-9 LAW (FULL TEXT)</h2>
-                  <h3>1. VA CODE § 19.2-81 (Warrantless Arrest)</h3>
-                  <p>This is the officer's fundamental authority. It allows for the arrest without a warrant of any person who has committed a felony, or any person who has committed a misdemeanor involving a breach of the peace in the officer's presence. In K-9 tracking, this covers the immediate pursuit and detention of suspects fleeing a crime scene.</p>
-                  <h3>2. GRAHAM V. CONNOR (Objective Reasonableness)</h3>
-                  <p>All use of force by law enforcement must be "objectively reasonable." The court judges the officer's actions based on the facts known at the time, not with hindsight. Factors include the severity of the crime, whether the suspect poses an immediate threat to officers or others, and whether the suspect is actively resisting or attempting to evade arrest by flight.</p>
-                  <h3>3. FLORIDA V. HARRIS (K-9 Reliability)</h3>
-                  <p>A K-9's alert provides probable cause for a search as long as the dog is properly certified and training records are maintained. This case emphasizes that the "totality of the circumstances" includes the dog's history of reliability, making your daily training logs a vital piece of legal evidence in court.</p>
-                  <h3>4. VA CODE § 18.2-144.1 (Animal Protection)</h3>
-                  <p>Virginia law makes it a Class 5 Felony to maliciously kill or cause serious bodily injury to any law enforcement animal while it is performing its duties. This statute ensures that suspects who assault a K-9 face severe felony charges and mandatory restitution for the animal's value and training.</p>
-                  <h3>5. RODRIGUEZ V. UNITED STATES (Traffic Stop Limits)</h3>
-                  <p>Officers cannot extend a traffic stop longer than necessary to address the initial violation just to wait for a K-9 to arrive. The K-9 sniff must occur within the "reasonable duration" of the stop unless independent reasonable suspicion of further criminal activity is established.</p>
-                  <h3>6. TENNESSEE V. GARNER (Fleeing Felons)</h3>
-                  <p>This case limits the use of deadly force against fleeing suspects. For K-9 handlers, it means a dog cannot be used to exert force that could be considered deadly unless the suspect poses a significant threat of death or serious physical injury to the officer or others.</p>
-                  <h3>7. ILLINOIS V. CABALLES (4th Amendment Sniffs)</h3>
-                  <p>The Supreme Court ruled that a K-9 sniff of the exterior of a vehicle during a lawful traffic stop does not constitute a "search" under the 4th Amendment. Therefore, no additional reasonable suspicion is required to conduct an exterior sniff while the ticket is being written.</p>
-                  <h3>8. VA § 19.2-59 (Exigent Circumstances)</h3>
-                  <p>While search warrants are the standard, "Exigent Circumstances"—such as the hot pursuit of a fleeing felon or the risk of evidence destruction—allow officers and K-9s to enter private property or curtilage to effect an arrest or prevent escape.</p>
-                  <h3>9. FLORIDA V. JARDINES (The Front Porch Rule)</h3>
-                  <p>Unlike a vehicle, an officer cannot bring a drug-sniffing K-9 onto the front porch of a private home to "sniff" the door without a warrant or specific consent. The porch is considered part of the home's "curtilage" and is protected under the 4th Amendment.</p>
-                  <h3>10. TERRY V. OHIO (Stop and Frisk)</h3>
-                  <p>This allows officers to briefly detain and frisk individuals based on "reasonable suspicion" that the person is armed and dangerous or involved in criminal activity. It is the legal basis for most field contacts prior to a full K-9 deployment.</p>`,
-        
-        'Aid': `<h2>10 CRITICAL FIELD MEDICAL PROCEDURES (FULL TEXT)</h2>
-                <h3>1. NARCAN (OPIOID EXPOSURE)</h3>
-                <p>If a K-9 shows symptoms of lethargy, pinned pupils, or respiratory failure after a search, immediately administer 4mg of Naloxone (Narcan) nasal spray. This is safe for K-9s and can save their life if they have inhaled fentanyl or heroin. Repeat every 3-5 minutes if there is no response.</p>
-                <h3>2. BLOAT / GDV (STOMACH TORSION)</h3>
-                <p>Signs include unproductive retching, a distended (hard) abdomen, and excessive drooling. This is a surgical emergency where the stomach has physically twisted. There is no field fix; the dog requires immediate "Code 3" transport to a 24-hour surgical veterinary facility.</p>
-                <h3>3. ARTERIAL TOURNIQUET (BLEEDING)</h3>
-                <p>For major limb trauma with spurting blood, apply a tourniquet as high on the leg as possible (High and Tight). Tighten the windlass until the bleeding stops completely. Note the application time on the handler’s log or dog's collar for the emergency vet.</p>
-                <h3>4. HEAT STROKE (HYPERTHERMIA)</h3>
-                <p>K-9s cannot sweat. If a dog's temperature exceeds 104°F, move to shade and apply cool (not ice) water to the belly, paws, and groin. Use a fan to circulate air. Do not submerge the dog in ice water, as it can cause shock and trap heat in the core.</p>
-                <h3>5. PENETRATING CHEST WOUNDS</h3>
-                <p>If the chest is punctured (GSW or stab), seal the wound immediately with an occlusive dressing (plastic, foil, or a gloved hand). This prevents air from entering the chest cavity and collapsing the lungs. Tape the dressing on three sides to allow air to vent out.</p>
-                <h3>6. GUM COLOR (SHOCK CHECK)</h3>
-                <p>Check the dog's gums. They should be pink and moist. If they are white, blue, or grey, the dog is in shock. If you press the gum and it stays white for more than 2 seconds (Capillary Refill Time), the dog's circulation is failing.</p>
-                <h3>7. EYE INJURIES (FLUSHING)</h3>
-                <p>If the dog is exposed to pepper spray or chemicals, flush the eyes with clean saline or water for at least 15 minutes. Prevent the dog from pawing at the eye, which can cause permanent corneal scarring.</p>
-                <h3>8. PAW & PAD TRAUMA</h3>
-                <p>Clean cuts with sterile saline. Check for embedded glass or debris. Apply a pressure bandage to stop bleeding, but ensure it is not so tight that it cuts off circulation. Watch for swelling above the bandage.</p>
-                <h3>9. FRACTURE STABILIZATION</h3>
-                <p>If a limb is broken, do not try to "set" the bone. Immobilize the limb using a splint or a bulky wrap to prevent the bone ends from causing further tissue or nerve damage during transport.</p>
-                <h3>10. ANAPHYLACTIC SHOCK</h3>
-                <p>Severe allergic reactions to stings can cause the throat to swell. Monitor for "Stridor" (high-pitched whistling breath). This requires immediate veterinary intervention to administer steroids or epinephrine to open the airway.</p>`,
-
-        'Dos': `<h2>FIELD DO'S & DON'TS FOR LPD PATROL</h2>
-                <p><b>DO:</b> Maintain a hard perimeter. If you are assigned to 12th and Church, do not leave that post unless relieved or ordered by Command. A perimeter is designed to contain the suspect so the K-9 can work without interference.</p>
-                <p><b>DON'T:</b> Do not cross the suspect's known path of flight. Walking through a fresh scent trail creates "scent contamination," making it nearly impossible for the dog to distinguish the suspect's track from an officer's fresh scent.</p>`
+        'Legal': `<h2>10 BAKED LAWS</h2><p><b>1. VA § 19.2-81:</b> Warrantless Arrest Authority.</p><p><b>2. Graham v. Connor:</b> Reasonable Force Standard.</p><p><b>3. Florida v. Harris:</b> K-9 Reliability.</p><p><b>4. VA § 18.2-144.1:</b> K-9 Protection (Felony).</p><p><b>5. Rodriguez v. US:</b> Stop Duration.</p><p><b>6. Tennessee v. Garner:</b> Fleeing Felons.</p><p><b>7. Illinois v. Caballes:</b> Open Air Sniffs.</p><p><b>8. VA § 19.2-59:</b> Exigent Entry.</p><p><b>9. Florida v. Jardines:</b> Curtilage/Porch Rule.</p><p><b>10. Terry v. Ohio:</b> Stop and Frisk.</p>`,
+        'Aid': `<h2>10 BAKED AID PROCEDURES</h2><p><b>1. Narcan:</b> 4mg nasal for K-9 exposure.</p><p><b>2. Bloat:</b> Retching/Hard stomach - CODE 3 VET.</p><p><b>3. Tourniquet:</b> High and Tight; mark time.</p><p><b>4. Heat:</b> Cool paws/belly. No ice.</p><p><b>5. Chest Wound:</b> Occlusive seal.</p><p><b>6. Shock:</b> Gums white/slow refill.</p><p><b>7. Eyes:</b> Flush 15 mins.</p><p><b>8. Paws:</b> Clean and wrap; watch swelling.</p><p><b>9. Fractures:</b> Immobilize joint above/below.</p><p><b>10. Anaphylaxis:</b> Stridor/Wheezing - VET immediate.</p>`
     };
-
-    function showData(key) {
-        document.getElementById('panel-body').innerHTML = tacticalData[key];
-        document.getElementById('data-panel').style.display = 'block';
-    }
+    function showData(k) { document.getElementById('panel-body').innerHTML = tacticalData[k]; document.getElementById('data-panel').style.display = 'block'; }
     function hideData() { document.getElementById('data-panel').style.display = 'none'; }
 </script>
 
