@@ -3,151 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LPD K-9 GUARDIAN COMMAND</title>
+    <title>LPD K-9 GUARDIAN - FIELD OPS</title>
     <style>
-        :root { --lpd-blue: #002d62; --neon: #00ff66; --gold: #d4af37; --glass: rgba(0, 5, 15, 0.96); --alert: #ff3b30; }
+        :root { --lpd-blue: #002d62; --neon: #00ff66; --gold: #d4af37; --alert: #ff3b30; --panel: rgba(10, 10, 10, 0.9); }
         body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; }
 
         .app-container {
             position: relative; height: 100vh; width: 100vw;
-            background: radial-gradient(circle at 50% 20%, #001a33 0%, #000 100%);
-            display: flex; flex-direction: column; align-items: center;
+            background: #050505; display: flex; flex-direction: column;
         }
 
-        .header {
-            width: 100%; padding: 40px 0 10px 0; text-align: center;
-            border-bottom: 2px solid var(--lpd-blue); background: rgba(0, 45, 98, 0.3);
+        /* TOP MISSION BAR */
+        .mission-header {
+            background: var(--lpd-blue); padding: 40px 15px 10px;
+            border-bottom: 2px solid var(--gold);
         }
-        .header h1 { letter-spacing: 4px; font-size: 22px; margin: 0; }
-        .header p { color: var(--neon); font-size: 9px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; }
+        .mission-header h1 { font-size: 18px; margin: 0; letter-spacing: 2px; }
+        .mission-header p { font-size: 11px; color: var(--gold); margin: 3px 0; font-weight: bold; }
 
-        /* TACTICAL MISSION HUB (THE CHIEF'S VIEW) */
-        .mission-hub {
-            width: 94%; height: 42%; margin: 15px 0;
-            background: rgba(0, 20, 40, 0.8); border: 1px solid var(--lpd-blue);
-            border-radius: 10px; position: relative; overflow: hidden;
-            display: flex; flex-direction: column;
+        /* THE LIVE TACTICAL HUD (WIND, COMPASS, TEMP) */
+        .hud-stats {
+            display: grid; grid-template-columns: 1fr 1fr 1fr;
+            background: #111; border-bottom: 1px solid #333; padding: 10px;
         }
+        .stat-box { text-align: center; border-right: 1px solid #333; }
+        .stat-box:last-child { border: none; }
+        .stat-label { font-size: 8px; color: #888; text-transform: uppercase; }
+        .stat-value { font-size: 14px; color: var(--neon); font-weight: bold; }
 
-        /* SIMULATED MAP GRID WITH UNIT ASSETS */
-        .map-layer {
-            flex-grow: 1; position: relative; background: #0a0a0a;
-            background-image: linear-gradient(rgba(0,255,102,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,102,0.05) 1px, transparent 1px);
-            background-size: 25px 25px;
+        /* THE FIELD MAP */
+        .field-map {
+            flex-grow: 1; position: relative; background: #0f1a12;
+            background-image: radial-gradient(circle, #1a2e1d 1px, transparent 1px);
+            background-size: 30px 30px;
+            border: 2px solid #222; margin: 10px; border-radius: 5px;
+            overflow: hidden;
         }
+        
+        /* UNIT ASSETS ON MAP */
+        .asset { position: absolute; font-size: 10px; font-weight: bold; white-space: nowrap; }
+        .k9-unit { top: 50%; left: 45%; color: var(--neon); }
+        .backup-unit { top: 30%; left: 70%; color: var(--gold); opacity: 0.8; }
+        .perimeter-unit { top: 70%; left: 20%; color: var(--gold); opacity: 0.8; }
 
-        /* UNIT PINS (FLOATING ASSETS) */
-        .unit-pin { position: absolute; font-weight: bold; font-size: 10px; text-shadow: 1px 1px 2px black; }
-        .k9-handler { top: 40%; left: 45%; color: var(--neon); } /* THE DOG/HANDLER */
-        .perimeter-1 { top: 20%; left: 80%; color: var(--gold); }
-        .perimeter-2 { top: 75%; left: 20%; color: var(--gold); }
-        .suspect-area { top: 35%; left: 55%; color: var(--alert); animation: blink 1s infinite; }
-
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-
-        /* MISSION DATA OVERLAY */
-        .mission-overlay {
-            background: rgba(0, 0, 0, 0.8); border-top: 1px solid var(--lpd-blue);
-            padding: 8px; font-size: 10px; display: grid; grid-template-columns: 1fr 1fr;
+        /* PERIMETER MONITOR PANEL */
+        .perimeter-monitor {
+            height: 120px; background: var(--panel);
+            margin: 0 10px 10px; border: 1px solid #333;
+            border-radius: 5px; padding: 10px; font-size: 10px;
         }
+        .monitor-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #222; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--neon); display: inline-block; }
 
-        /* TACTICAL BUTTONS */
-        .button-grid { width: 94%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .tactical-btn {
-            background: var(--glass); border: 1px solid var(--lpd-blue); border-top: 3px solid var(--neon);
-            padding: 18px 5px; border-radius: 10px; text-align: center; cursor: pointer;
+        /* QUICK ACTION BUTTONS */
+        .action-bar {
+            display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 5px; padding: 10px; background: #000;
         }
-        .tactical-btn span { display: block; font-size: 24px; margin-bottom: 5px; }
-        .tactical-btn label { color: var(--gold); font-size: 9px; font-weight: bold; text-transform: uppercase; }
-
-        /* DATA OVERLAY SYSTEM */
-        #overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.98); z-index: 100; padding: 40px 15px; box-sizing: border-box;
-            overflow-y: auto;
+        .q-btn {
+            background: #1a1a1a; border: 1px solid var(--lpd-blue);
+            padding: 10px 0; border-radius: 4px; text-align: center;
         }
-        .overlay-card { border: 1px solid var(--gold); padding: 20px; border-radius: 10px; background: #050505; line-height: 1.4; }
-        .close-btn { color: var(--alert); font-weight: bold; margin-top: 20px; text-align: center; border: 1px solid var(--alert); padding: 10px; border-radius: 5px; }
-
-        .footer { font-size: 8px; color: #444; margin-bottom: 10px; text-transform: uppercase; }
+        .q-btn span { display: block; font-size: 20px; }
+        .q-btn label { font-size: 8px; color: var(--gold); text-transform: uppercase; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <div class="header">
-        <h1>K-9 GUARDIAN</h1>
-        <p>LPD TACTICAL COMMAND // UNIT 402</p>
+    <div class="mission-header">
+        <h1>LYNCHBURG K-9 COMMAND</h1>
+        <p>LOCATION: 1200 CHURCH ST // CALL: B&E IN PROGRESS</p>
     </div>
 
-    <div class="mission-hub">
-        <div class="map-layer">
-            <div class="unit-pin k9-handler">🐕‍🦺 K9-1 (Miller)</div>
-            <div class="unit-pin perimeter-1">🚓 Unit 109</div>
-            <div class="unit-pin perimeter-2">🚓 Unit 215</div>
-            <div class="unit-pin suspect-area">⚠️ SCENT POINT</div>
+    <div class="hud-stats">
+        <div class="stat-box">
+            <div class="stat-label">Wind (NW)</div>
+            <div class="stat-value">6 MPH</div>
         </div>
-        <div class="mission-overlay">
-            <div><b>ADDR:</b> 1200 Church St, Lynchburg</div>
-            <div><b>TERRAIN:</b> Urban/Residential</div>
-            <div><b>TARGET:</b> Felony B&E Suspect</div>
-            <div><b>STATUS:</b> SEARCH IN PROGRESS</div>
+        <div class="stat-box">
+            <div class="stat-label">Heading</div>
+            <div class="stat-value">312° NW</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Temp</div>
+            <div class="stat-value">64°F</div>
         </div>
     </div>
 
-    <div class="button-grid">
-        <div class="tactical-btn" onclick="openFile('Legal')"><span>⚖️</span><label>VA/FED Laws</label></div>
-        <div class="tactical-btn" onclick="openFile('Troops')"><span>🛡️</span><label>Troop Sync</label></div>
-        <div class="tactical-btn" onclick="openFile('Medical')"><span>🐕‍🦺</span><label>K9 Medical</label></div>
-        <div class="tactical-btn" onclick="openFile('Logs')"><span>📝</span><label>Court Logs</label></div>
+    <div class="field-map">
+        <div class="asset k9-unit">🐕‍🦺 [K9-1 AXEL] - ACTIVE</div>
+        <div class="asset backup-unit">🚓 UNIT 109 - 140yd E</div>
+        <div class="asset perimeter-unit">🚓 UNIT 215 - 200yd SW</div>
+        <div style="position:absolute; bottom:5px; right:5px; color:#444; font-size:8px;">TACTICAL GRID V1.5</div>
     </div>
 
-    <div class="footer">DEVELOPED BY EARL WOOD // ACSD SOLUTIONS</div>
+    <div class="perimeter-monitor">
+        <div style="color:var(--gold); font-weight:bold; margin-bottom:5px;">PERIMETER & ASSET MONITOR</div>
+        <div class="monitor-row">
+            <span>UNIT 109 (PERIMETER)</span>
+            <span><span class="status-dot"></span> SECURE</span>
+        </div>
+        <div class="monitor-row">
+            <span>UNIT 215 (PERIMETER)</span>
+            <span><span class="status-dot"></span> SECURE</span>
+        </div>
+        <div class="monitor-row" style="color:var(--neon)">
+            <span>K-9 AXEL (VITALS)</span>
+            <span>HEART: NORMAL // TEMP: 101.2</span>
+        </div>
+    </div>
+
+    <div class="action-bar">
+        <div class="q-btn"><span>🧭</span><label>Compass</label></div>
+        <div class="q-btn"><span>⚖️</span><label>Legal</label></div>
+        <div class="q-btn"><span>🐕‍🦺</span><label>K9 Med</label></div>
+        <div class="q-btn"><span>📝</span><label>Log</label></div>
+    </div>
 </div>
-
-<div id="overlay">
-    <div class="overlay-card" id="content"></div>
-    <div class="close-btn" onclick="closeFile()">BACK TO COMMAND HUB</div>
-</div>
-
-<script>
-    const tacticalFiles = {
-        'Legal': `<h2 style="color:var(--gold)">K-9 LEGAL & JURISPRUDENCE</h2>
-                  <h3 style="color:var(--neon)">Federal (SCOTUS) Standards:</h3>
-                  <p><b>Illinois v. Caballes:</b> A dog sniff during a lawful traffic stop does not violate the 4th Amendment.</p>
-                  <p><b>Florida v. Jardines:</b> Police cannot bring a drug dog onto a porch without a warrant (Curtilage protection).</p>
-                  <h3 style="color:var(--neon)">Virginia State Code:</h3>
-                  <p><b>§ 18.2-144.1:</b> Killing or injuring a police animal is a Class 5 Felony. Includes mandatory restitution for the K-9's value and training costs.</p>
-                  <p><b>Virginia Case Law (State v. Miller):</b> Handler testimony on dog reliability must include current certification and weekly training logs.</p>`,
-        
-        'Troops': `<h2 style="color:var(--gold)">ACTIVE TROOP SYNC</h2>
-                   <p><b>Handler Miller (K9-1):</b> Moving North. High Drive. 200m from Point of Entry.</p>
-                   <p><b>Sgt. Davis (Command):</b> Monitoring from Mobile MDT. Perimeter established at 12th & Main.</p>
-                   <p><b>Back-up Unit 215:</b> Following 20 paces behind Handler. Tactical cover active.</p>
-                   <p style="color:var(--alert)"><i>Real-time GPS Broadcast is LIVE to LPD Central Dispatch.</i></p>`,
-
-        'Medical': `<h2 style="color:var(--gold)">K-9 FIELD EMERGENCY (ADVANCED)</h2>
-                    <p><b>HEAT STROKE:</b> Gums will be dark red/purple. Action: Apply alcohol wipes to paw pads and cool water to groin. NO ICE (constricts vessels).</p>
-                    <p><b>NARCAN (NALOXONE):</b> If dog collapses or stops breathing during search, administer 4mg Narcan nasal spray. Repeat in 3 mins if no response.</p>
-                    <p><b>BLOAT (GDV):</b> Unproductive retching. This is a surgical emergency. Zero field fix. Drive Code 3 to the Vet.</p>`,
-
-        'Logs': `<h2 style="color:var(--gold)">COURT-CERTIFIED LOGGING</h2>
-                 <p><b>Handler:</b> Officer Miller // <b>Dog:</b> 'Axel'</p>
-                 <p><b>Surface:</b> Concrete, Grass, Dense Brush.</p>
-                 <p><b>Environmental:</b> Wind 5mph NW, Temp 72F.</p>
-                 <p><b>Search Type:</b> Article/Suspect Track.</p>
-                 <p><i>This data is timestamped and encrypted for Virginia Circuit Court evidence submission.</i></p>`
-    };
-
-    function openFile(key) {
-        document.getElementById('content').innerHTML = tacticalFiles[key];
-        document.getElementById('overlay').style.display = 'block';
-    }
-
-    function closeFile() {
-        document.getElementById('overlay').style.display = 'none';
-    }
-</script>
 
 </body>
 </html>
