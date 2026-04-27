@@ -3,76 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LPD TACTICAL - FINAL IRONCLAD</title>
+    <title>LPD TACTICAL - COMMAND LOCK</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
     <style>
-        :root { --lpd-blue: #003366; --gold: #ffd700; --alert: #ff3b30; --le: #007bff; --sar: #ff0000; --civ: #28a745; }
-        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Segoe UI', Helvetica, sans-serif; overflow: hidden; }
+        :root { --lpd-blue: #003366; --gold: #ffd700; --alert: #ff3b30; --le: #007bff; --sar: #ff0000; --civ: #28a745; --night-bg: #0a0a0a; }
+        body, html { margin: 0; padding: 0; height: 100%; background: #000; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
         .app-container { display: flex; flex-direction: column; height: 100vh; }
 
-        /* HEADER & SEARCH */
-        .header { background: var(--lpd-blue); padding: 45px 10px 10px; border-bottom: 3px solid var(--gold); z-index: 1001; }
-        .search-row { display: flex; gap: 5px; margin-top: 10px; }
-        .search-row input { flex-grow: 1; padding: 12px; border-radius: 4px; border: none; font-size: 16px; font-weight: bold; }
-        .search-row button { background: var(--gold); border: none; padding: 0 15px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        /* HUD TOP */
+        .header { background: var(--lpd-blue); padding: 45px 10px 5px; border-bottom: 2px solid var(--gold); z-index: 1001; }
+        .hud-row { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 8px; }
+        .hud-item { background: rgba(0,0,0,0.4); padding: 5px; border-radius: 4px; text-align: center; color: #fff; font-size: 11px; border: 1px solid rgba(255,255,255,0.2); }
+        .search-row { display: flex; gap: 5px; }
+        .search-row input { flex-grow: 1; padding: 10px; border-radius: 4px; border: none; font-size: 14px; font-weight: bold; }
+        .search-row button { background: var(--gold); border: none; padding: 0 15px; border-radius: 4px; font-weight: bold; }
 
-        /* TACTICAL MONITORS */
-        .monitors { display: grid; grid-template-columns: 1fr 1fr; background: #222; padding: 5px; z-index: 1001; gap: 5px; }
-        .m-box { background: #000; border: 2px solid #444; padding: 10px; border-radius: 5px; color: #fff; text-align: center; }
-        .m-title { font-size: 10px; color: var(--gold); font-weight: bold; margin-bottom: 3px; }
-        .status-alert { color: var(--alert); font-weight: bold; animation: blink 1s infinite; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-
-        /* MAP & LEGEND */
+        /* MAP AREA */
         #map { flex-grow: 1; width: 100%; z-index: 1; background: #111; }
-        .legend { position: absolute; left: 10px; top: 230px; background: rgba(0,0,0,0.9); border: 2px solid var(--gold); padding: 12px; border-radius: 10px; z-index: 1001; display: flex; flex-direction: column; gap: 12px; }
-        .leg-dot { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: #fff; }
+
+        /* TACTICAL LEGEND (LEFT SIDE) */
+        .legend { position: absolute; left: 10px; top: 160px; width: 100px; background: rgba(0,0,0,0.9); border: 2px solid var(--gold); padding: 10px; border-radius: 8px; z-index: 1001; color: white; text-align: center; }
+        .leg-title { font-size: 9px; font-weight: bold; color: var(--gold); margin-bottom: 8px; text-transform: uppercase; border-bottom: 1px solid #444; padding-bottom: 3px; }
+        .leg-dot { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; margin: 0 auto 10px; }
+        .status-box { font-size: 9px; margin-bottom: 8px; border-top: 1px solid #444; padding-top: 5px; }
+        .status-text { display: block; font-weight: bold; margin-top: 2px; }
+        .reset-btn { background: #444; border: 1px solid #666; color: white; font-size: 9px; padding: 5px; width: 100%; border-radius: 4px; cursor: pointer; }
+        .clock-box { font-size: 9px; margin-top: 10px; color: var(--gold); border-top: 1px solid #444; padding-top: 5px; }
 
         /* ACTION BAR */
         .action-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 12px; background: #111; z-index: 1001; border-top: 3px solid var(--lpd-blue); }
         .q-btn { background: #222; border: 1px solid #444; padding: 10px 0; border-radius: 6px; text-align: center; color: #fff; cursor: pointer; }
         .q-btn label { font-size: 8px; font-weight: bold; text-transform: uppercase; display: block; margin-top: 4px; color: var(--gold); }
 
-        /* FULL DATA PANELS */
-        #data-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 4000; padding: 40px 20px; box-sizing: border-box; overflow-y: auto; }
-        .law-item { border-left: 5px solid var(--lpd-blue); padding: 15px; margin-bottom: 20px; background: #f9f9f9; }
-        .aid-item { border-left: 5px solid var(--alert); padding: 15px; margin-bottom: 20px; background: #fff0f0; }
-        .data-h { font-weight: bold; color: #000; font-size: 16px; margin-bottom: 8px; display: block; }
-        .data-p { font-size: 14px; line-height: 1.5; color: #333; margin: 0; }
-        .close-btn { background: var(--lpd-blue); color: #fff; text-align: center; padding: 20px; border-radius: 8px; font-weight: bold; margin-top: 20px; cursor: pointer; }
+        /* DATA PANEL */
+        #data-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 4000; padding: 40px 20px; box-sizing: border-box; overflow-y: auto; color: #000; }
+        .law-item { border-left: 5px solid var(--lpd-blue); padding: 15px; margin-bottom: 15px; background: #f9f9f9; }
+        .aid-item { border-left: 5px solid var(--alert); padding: 15px; margin-bottom: 15px; background: #fff0f0; }
+        .close-btn { background: var(--lpd-blue); color: #fff; text-align: center; padding: 18px; border-radius: 8px; font-weight: bold; margin-top: 10px; }
+        .status-alert { color: var(--alert); animation: blink 1s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <div class="header">
-        <h1 style="color:#fff; margin:0; font-size:18px;">LPD TACTICAL COMMAND</h1>
+        <div class="hud-row">
+            <div class="hud-item">WIND: <span id="wind-val">6 MPH NW</span></div>
+            <div class="hud-item">HEADING: <span id="comp-val">312° NW</span></div>
+        </div>
         <div class="search-row">
-            <input type="text" id="target-addr" placeholder="Enter Search Address">
+            <input type="text" id="target-addr" placeholder="Enter Address">
             <button onclick="execSearch()">GO</button>
-        </div>
-    </div>
-
-    <div class="monitors">
-        <div class="m-box">
-            <div class="m-title">PERIMETER BREACH</div>
-            <div id="p-mon" style="color:var(--neon)">SECURE</div>
-        </div>
-        <div class="m-box">
-            <div class="m-title">INJURY ALERT</div>
-            <div id="i-mon" style="color:var(--neon)">NONE</div>
         </div>
     </div>
 
     <div id="map"></div>
 
     <div class="legend">
+        <div class="leg-title">ASSETS</div>
         <div class="leg-dot" style="background:var(--le);" onclick="prepDrop('blue')">LE</div>
         <div class="leg-dot" style="background:var(--sar);" onclick="prepDrop('red')">SAR</div>
         <div class="leg-dot" style="background:var(--civ);" onclick="prepDrop('green')">CIV</div>
-        <div class="leg-dot" style="background:purple;" onclick="prepDrop('purple')">VET</div>
-        <div class="leg-dot" style="background:#444;" onclick="resetAssets()">CLR</div>
+        
+        <div class="status-box">
+            PERIMETER: <span id="p-status" class="status-text" style="color:var(--civ)">SECURE</span>
+            INJURY: <span id="i-status" class="status-text" style="color:var(--civ)">NONE</span>
+        </div>
+
+        <button class="reset-btn" onclick="resetAssets()">RESET ALL</button>
+
+        <div class="clock-box">
+            <div id="live-date"></div>
+            <div id="live-time" style="font-weight:bold; font-size:11px;"></div>
+        </div>
     </div>
 
     <div class="action-bar">
@@ -84,12 +89,12 @@
     </div>
 </div>
 
-<div id="data-panel"><div id="panel-body"></div><div class="close-btn" onclick="hideContent()">CLOSE TACTICAL DATA</div></div>
+<div id="data-panel"><div id="panel-body"></div><div class="close-btn" onclick="hideContent()">CLOSE</div></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 <script>
-    // 1. Map & GPS Setup
+    // 1. Map & Live GPS
     var map = L.map('map', { zoomControl: false }).setView([37.4137, -79.1422], 17);
     var light = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     var dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
@@ -106,65 +111,69 @@
             .then(r => r.json()).then(d => { if(d[0]) map.setView([d[0].lat, d[0].lon], 18); });
     }
 
-    // 3. Asset Drop
+    // 3. Asset Drop (LE, SAR, CIV)
     var nextType = null;
-    var layerGroup = L.layerGroup().addTo(map);
+    var assetLayer = L.layerGroup().addTo(map);
     function prepDrop(t) { nextType = t; }
     map.on('click', function(e) {
         if(!nextType) return;
-        var m = L.circleMarker(e.latlng, { color: '#fff', fillColor: nextType, fillOpacity: 1, radius: 10 }).addTo(layerGroup);
-        m.bindPopup(`<button onclick="layerGroup.removeLayer(${L.stamp(m)})">DELETE UNIT</button>`).openPopup();
+        var m = L.circleMarker(e.latlng, { color: '#fff', fillColor: nextType, fillOpacity: 1, radius: 10 }).addTo(assetLayer);
+        m.bindPopup(`<button onclick="assetLayer.removeLayer(${L.stamp(m)})">DELETE</button>`).openPopup();
         nextType = null;
     });
-    function resetAssets() { layerGroup.clearLayers(); }
 
-    // 4. Perimeter Drawing
+    // 4. Perimeter Draw & Clear
     var drawLayer = new L.FeatureGroup().addTo(map);
     var drawTools = new L.Draw.Polygon(map, { shapeOptions: { color: 'red', fillOpacity: 0.2 } });
     function startDraw() { drawTools.enable(); }
     map.on(L.Draw.Event.CREATED, function (e) { drawLayer.addLayer(e.layer); });
 
-    // 5. Night Toggle
+    function resetAssets() { assetLayer.clearLayers(); drawLayer.clearLayers(); }
+
+    // 5. Clock & Date Engine
+    function updateClock() {
+        var now = new Date();
+        document.getElementById('live-date').innerText = now.toLocaleDateString();
+        document.getElementById('live-time').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // 6. Night Mode Toggle
     var nightMode = false;
     function toggleNight() {
         if(!nightMode) { map.removeLayer(light); dark.addTo(map); nightMode = true; }
         else { map.removeLayer(dark); light.addTo(map); nightMode = false; }
     }
 
-    // 6. FULL BAKED DATA (NO SHORTCUTS)
+    // 7. BAKED DATA VAULT
     const library = {
         'Legal': `<h2>10 CRITICAL VIRGINIA LAWS</h2>
-            <div class="law-item"><span class="data-h">1. VA § 19.2-81 (Warrantless Arrest)</span><p class="data-p">Officers are authorized to arrest without a warrant any person who has committed a felony, or any person who has committed a misdemeanor involving a breach of the peace in the officer's presence. In K-9 tracks, the pursuit of a known felon is legally protected as a continuous movement toward capture.</p></div>
-            <div class="law-item"><span class="data-h">2. Graham v. Connor (Force Standard)</span><p class="data-p">Use of force must be objectively reasonable based on the facts known to the officer at the time. Deployment of a K-9 is considered a use of force and is judged by the severity of the crime, the immediate threat of the suspect, and active resistance or flight.</p></div>
-            <div class="law-item"><span class="data-h">3. Florida v. Harris (K-9 Reliability)</span><p class="data-p">A certified K-9's alert constitutes probable cause for a search. The court emphasizes the dog's training records and certification as the primary evidence of reliability in the field.</p></div>
-            <div class="law-item"><span class="data-h">4. VA § 18.2-144.1 (K-9 Assault)</span><p class="data-p">It is a Class 5 Felony to maliciously kill or seriously injure a law enforcement animal in the performance of its duties. Suspects who attack a working dog face severe felony prosecution.</p></div>
-            <div class="law-item"><span class="data-h">5. Rodriguez v. US (Stop Duration)</span><p class="data-p">Officers may not extend a lawful traffic stop specifically to wait for a K-9 unit to arrive unless independent reasonable suspicion exists. The dog sniff must occur within the normal time frame of the ticket process.</p></div>
-            <div class="law-item"><span class="data-h">6. Tennessee v. Garner (Fleeing Felon)</span><p class="data-p">Deadly force cannot be used to prevent the escape of a fleeing suspect unless the suspect poses a significant threat of death or serious injury to officers or others.</p></div>
-            <div class="law-item"><span class="data-h">7. Illinois v. Caballes (Exterior Sniffs)</span><p class="data-p">A K-9 sniff of a vehicle's exterior during a lawful stop is not a search under the 4th Amendment. No additional suspicion is required to let the dog walk around the car.</p></div>
-            <div class="law-item"><span class="data-h">8. VA § 19.2-59 (Exigent Entry)</span><p class="data-p">Hot pursuit of a fleeing felon allows officers to enter private property or curtilage without a warrant to prevent the escape of the suspect or the destruction of evidence.</p></div>
-            <div class="law-item"><span class="data-h">9. Florida v. Jardines (Porch Sniffs)</span><p class="data-p">The front porch of a home is protected. Officers cannot bring a K-9 onto the porch to sniff a door for drugs without a warrant or specific consent.</p></div>
-            <div class="law-item"><span class="data-h">10. Terry v. Ohio (Stop and Frisk)</span><p class="data-p">Officers may briefly detain and frisk a person based on reasonable suspicion that criminal activity is afoot and the person may be armed and dangerous.</p></div>`,
+            <div class="law-item"><b>1. VA § 19.2-81 (Warrantless Arrest):</b> Authorizes arrest for felonies or misdemeanors in officer presence. Pursuit of a K-9 track after a felony sighting is legally protected pursuit.</div>
+            <div class="law-item"><b>2. Graham v. Connor:</b> Use of force must be objectively reasonable. Deployment is judged by crime severity and immediate threat.</div>
+            <div class="law-item"><b>3. Florida v. Harris:</b> Certified K-9 alerts provide probable cause if records/training are maintained meticulously.</div>
+            <div class="law-item"><b>4. VA § 18.2-144.1:</b> Maliciously injuring a police K-9 is a Class 5 Felony.</div>
+            <div class="law-item"><b>5. Rodriguez v. US:</b> Traffic stops cannot be extended solely to wait for a K-9.</div>
+            <div class="law-item"><b>6. Tennessee v. Garner:</b> Limits force against fleeing suspects unless there is a death threat to officers.</div>
+            <div class="law-item"><b>7. Illinois v. Caballes:</b> Exterior K-9 sniffs are not a search under the 4th Amendment.</div>
+            <div class="law-item"><b>8. VA § 19.2-59:</b> Exigent circumstances (hot pursuit) allow warrantless entry to prevent escape.</div>
+            <div class="law-item"><b>9. Florida v. Jardines:</b> The porch is protected; no K-9 sniffs on private porches without a warrant.</div>
+            <div class="law-item"><b>10. Terry v. Ohio:</b> Legal basis for brief detention and frisk based on reasonable suspicion.</div>`,
         'Aid': `<h2>10 K-9 FIELD MEDICAL PROCEDURES</h2>
-            <div class="aid-item"><span class="data-h">1. Narcan (Opioid Exposure)</span><p class="data-p">Administer 4mg of Naloxone nasal spray if the dog shows lethargy, pinned pupils, or breathing failure. Repeat every 3 mins if no change. Support breathing manually if necessary.</p></div>
-            <div class="aid-item"><span class="data-h">2. Bloat / GDV (Torsion)</span><p class="data-p">Signs: Swelling, unproductive retching. This is a non-fieldable emergency. Immediate Code 3 transport to a 24hr surgical vet is the only chance of survival.</p></div>
-            <div class="aid-item"><span class="data-h">3. Arterial Tourniquet</span><p class="data-p">Apply High and Tight on the limb for spurting blood. Do not place over a joint. Tighten until bleeding stops and mark the time on the dog's collar.</p></div>
-            <div class="aid-item"><span class="data-h">4. Heat Stroke</span><p class="data-p">Temp over 104F. Move to shade, use fans, apply room-temp water to paws and groin. Never use ice water as it causes shock and traps internal heat.</p></div>
-            <div class="aid-item"><span class="data-h">5. Chest Wound Seal</span><p class="data-p">For puncture wounds to the chest, seal immediately with an occlusive dressing (plastic/glove) and tape on three sides to prevent lung collapse.</p></div>
-            <div class="aid-item"><span class="data-h">6. Shock Check (Gums)</span><p class="data-p">Press gums; refill must be under 2 seconds. White or blue gums indicate life-threatening shock. Keep the dog warm and move to vet immediate.</p></div>
-            <div class="aid-item"><span class="data-h">7. Eye Flushing</span><p class="data-p">Flush with saline or water for 15 mins after chemical exposure. Do not let the dog paw at eyes, which can lead to permanent scarring.</p></div>
-            <div class="aid-item"><span class="data-h">8. Paw Trauma</span><p class="data-p">Clean debris from pads, wrap with a pressure bandage, and monitor for swelling above the wrap. Ensure wrap is not cutting off circulation.</p></div>
-            <div class="aid-item"><span class="data-h">9. Bone Fractures</span><p class="data-p">Immobilize the joint above and below the break. Do not attempt to reset the bone. Provide support during transport to prevent further nerve damage.</p></div>
-            <div class="aid-item"><span class="data-h">10. Anaphylaxis</span><p class="data-p">Watch for throat swelling and "Stridor" (whistling breath) after stings. Immediate epinephrine or steroid administration by a vet is required.</p></div>`
+            <div class="aid-item"><b>1. Narcan:</b> 4mg nasal for opioid exposure. Repeat every 3-5 mins if no response. Support airway.</div>
+            <div class="aid-item"><b>2. Bloat:</b> Signs: Retching, hard stomach. Emergency surgical transport immediate. No field fix.</div>
+            <div class="aid-item"><b>3. Tourniquet:</b> High and Tight on limbs. Stop arterial bleeding. Note time on collar.</div>
+            <div class="aid-item"><b>4. Heat Stroke:</b> Temp over 104F. Cool with room-temp water on paws/groin. NEVER use ice.</div>
+            <div class="aid-item"><b>5. Chest Wound:</b> Seal with occlusive dressing taped on 3 sides to prevent lung collapse.</div>
+            <div class="aid-item"><b>6. Shock:</b> Check gum color and refill time (<2 sec). Keep dog warm and transport.</div>
+            <div class="aid-item"><b>7. Eye Flushing:</b> Flush for 15 mins with saline/water. Prevent pawing at eyes.</div>
+            <div class="aid-item"><b>8. Paw Trauma:</b> Clean pad cuts, wrap with pressure bandage, monitor for swelling above.</div>
+            <div class="aid-item"><b>9. Fractures:</b> Immobilize joint above and below break. Support during transport.</div>
+            <div class="aid-item"><b>10. Anaphylaxis:</b> Throat swelling/whistling breath. Immediate vet required for epinephrine.</div>`
     };
 
     function showContent(k) { document.getElementById('panel-body').innerHTML = library[k]; document.getElementById('data-panel').style.display = 'block'; }
     function hideContent() { document.getElementById('data-panel').style.display = 'none'; }
-    
-    // Simulate Breach/Injury for the monitor demonstration
-    function triggerAlert(type) {
-        if(type=='p') { document.getElementById('p-mon').innerHTML = "BREACH DETECTED"; document.getElementById('p-mon').className = "status-alert"; }
-        if(type=='i') { document.getElementById('i-mon').innerHTML = "INJURY REPORTED"; document.getElementById('i-mon').className = "status-alert"; }
-    }
 </script>
 
 </body>
