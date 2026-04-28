@@ -1,86 +1,85 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD K9 COMMAND - V69</title>
+    <title>ACSD K9 COMMAND - V71 AUTO-LOG</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root { --orange: #ff6600; --gold: #ffd700; --blue: #0044ff; --live: #00ff00; --red: #ff0000; }
         body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; }
         
-        /* HEADER */
-        .header { background: #001a00; border-bottom: 4px solid var(--orange); padding: 30px 10px 10px; position: sticky; top: 0; z-index: 1000; }
-        .sig { font-size: 12px; color: var(--gold); text-align: center; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
+        .header { background: #001a00; border-bottom: 4px solid var(--orange); padding: 35px 10px 10px; position: sticky; top: 0; z-index: 1000; }
+        .sig { font-size: 12px; color: var(--gold); text-align: center; font-weight: bold; text-transform: uppercase; }
         
         .search-bar { background: #222; padding: 15px; display: flex; gap: 10px; }
-        #addr-in { flex-grow: 1; padding: 15px; font-size: 18px; border-radius: 5px; border: none; font-weight: bold; }
+        #addr-in { flex-grow: 1; padding: 15px; font-size: 18px; border-radius: 5px; border: none; font-weight: bold; background: #fff; color: #000; }
 
-        #status { background: #111; color: var(--live); padding: 15px; text-align: center; font-weight: bold; font-size: 20px; }
-        .breach-alert { background: var(--red) !important; color: #fff !important; animation: blinker 0.4s infinite; }
-        @keyframes blinker { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
+        #status { background: #111; color: var(--live); padding: 15px; text-align: center; font-weight: bold; font-size: 20px; border-bottom: 2px solid #333; }
+        .breach-alert { background: var(--red) !important; color: #fff !important; animation: flash 0.4s infinite; }
+        @keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
 
-        #map { height: 400px; background: #111; width: 100%; border-bottom: 2px solid #444; }
+        #map { height: 400px; background: #111; width: 100%; }
 
-        /* HORIZONTAL SCROLLING TOOLS */
-        .tool-belt { display: flex; overflow-x: auto; gap: 10px; padding: 15px; background: #111; border-bottom: 2px solid #333; -webkit-overflow-scrolling: touch; }
-        .tool-belt::-webkit-scrollbar { display: none; }
-        .t-item { flex: 0 0 80px; background: #222; border: 2px solid #555; border-radius: 10px; padding: 10px 0; text-align: center; font-size: 11px; font-weight: bold; }
-        .active-tool { border-color: var(--orange); background: #331100; color: var(--orange); }
+        .tool-belt { display: flex; overflow-x: auto; gap: 10px; padding: 15px; background: #1a1a1a; border-bottom: 2px solid #444; }
+        .t-item { flex: 0 0 90px; background: #333; border: 2px solid #555; border-radius: 10px; padding: 12px 0; text-align: center; font-size: 11px; font-weight: bold; }
+        .active-tool { border-color: var(--live); background: #002200; color: var(--live); }
 
         .controls { padding: 15px; }
         .action-btn { width: 100%; padding: 22px; font-size: 18px; font-weight: bold; border-radius: 12px; border: none; margin-bottom: 10px; text-transform: uppercase; }
         
-        .section-header { background: var(--orange); color: #000; padding: 12px; font-weight: bold; text-align: center; margin-top: 20px; }
+        .section-bar { background: var(--orange); color: #000; padding: 12px; font-weight: bold; text-align: center; margin-top: 25px; }
         .card { background: #111; border-left: 8px solid var(--gold); padding: 15px; margin: 15px; border-bottom: 1px solid #333; }
-        textarea { width: 100%; height: 180px; background: #050505; color: #fff; border: 2px solid var(--gold); padding: 10px; box-sizing: border-box; margin-bottom: 10px; }
+        
+        textarea { width: 100%; height: 250px; background: #000; color: #fff; border: 2px solid var(--gold); padding: 12px; box-sizing: border-box; font-size: 16px; line-height: 1.4; }
+        #report-preview { background: #fff; color: #000; padding: 25px; display: none; margin: 15px; border-radius: 5px; font-family: 'Courier New', Courier, monospace; border: 1px solid #000; box-shadow: 0 0 10px rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div class="sig">APP CREATOR: RETIRED DEPUTY SHERIFF EARL WOOD</div>
-    <div style="text-align:center; font-weight:bold; font-size:22px;">ACSD K9 COMMAND</div>
+    <div class="sig">RETIRED DEPUTY SHERIFF EARL WOOD - ACSD COMMAND</div>
+    <div style="text-align:center; font-weight:bold; font-size:22px; color:white;">TACTICAL K9 AUTO-LOGGER</div>
 </div>
 
 <div class="search-bar">
-    <input type="text" id="addr-in" placeholder="CASE ADDRESS">
-    <button onclick="locate()" style="background:var(--orange); padding:10px 20px; font-weight:bold; border:none; border-radius:5px;">LOCATE</button>
+    <input type="text" id="addr-in" placeholder="INCIDENT ADDRESS">
+    <button onclick="locate()" style="background:var(--orange); padding:10px 20px; font-weight:bold; border:none; border-radius:5px;">SET</button>
 </div>
 
-<div id="status">PERIMETER SECURE</div>
+<div id="status">PERIMETER SCANNING</div>
 <div id="map"></div>
 
 <div class="tool-belt">
-    <div id="m-perim" class="t-item" onclick="setMode('perim')">🔴<br>PERIM</div>
+    <div id="m-perim" class="t-item" onclick="setMode('perim')">🔴<br>PERIMETER</div>
     <div id="m-leo" class="t-item" onclick="setMode('leo')">🔵<br>L.E.O.</div>
-    <div id="m-k9" class="t-item" onclick="setMode('k9')">🐕<br>K9</div>
-    <div id="m-clue" class="t-item" onclick="setMode('clue')">🚩<br>CLUE</div>
+    <div id="m-k9" class="t-item" onclick="setMode('k9')">🐕<br>K9 UNIT</div>
+    <div id="m-clue" class="t-item" onclick="setMode('clue')">🚩<br>CLUE/EVID</div>
     <div id="m-suspect" class="t-item" onclick="setMode('suspect')">👤<br>SUSPECT</div>
     <div id="m-mental" class="t-item" onclick="setMode('mental')">🧠<br>MENTAL</div>
+    <div id="m-victim" class="t-item" onclick="setMode('victim')">🆘<br>VICTIM</div>
 </div>
 
 <div class="controls">
-    <button id="gps-btn" class="action-btn" style="background:var(--live); color:#000;" onclick="forceGPS()">START TRACKER</button>
+    <button id="gps-btn" class="action-btn" style="background:var(--live); color:#000;" onclick="startGPS()">START TRACKER</button>
     <button class="action-btn" style="background:#fff; color:red; border:4px solid red;" onclick="resetAlarm()">RESET ALARM</button>
 </div>
 
-<div class="section-header">🩹 K9 MEDICAL (VA REFILL)</div>
-<div class="card" style="border-left-color:red;"><b>K9 CPR</b><p>100-120bpm. Heart at left elbow. 2 breaths/30 pumps. Right side down.</p></div>
-<div class="card"><b>Lynchburg Emergency Vets:</b> (434) 846-1504<br><b>Amherst Laurel Stone:</b> (434) 946-5059</div>
+<div class="section-bar">⚖️ VIRGINIA K9 CASE LAW & FIELD REFS</div>
+<div class="card"><b>VA CODE 18.2-144.1:</b> Felony protection for Police Animals.</div>
+<div class="card"><b>FLORIDA v. HARRIS:</b> K9 reliability via training records.</div>
+<div class="card"><b>RODRIGUEZ v. US:</b> Traffic stop time limits for K9.</div>
 
-<div class="section-header">⚖️ K9 LEGAL VAULT (K9 SPECIFIC)</div>
-<div class="card"><b>VA CODE § 18.2-144.1</b><p>Class 5 Felony to kill police animal; Class 6 to wound.</p></div>
-<div class="card"><b>FLORIDA v. HARRIS</b><p>K9 Alert = Probable Cause based on training records.</p></div>
-<div class="card"><b>RODRIGUEZ v. US</b><p>Cannot extend stops for K9 arrival without suspicion.</p></div>
-
-<div class="section-header">📝 CASE REPORTING</div>
+<div class="section-bar">📋 AUTO-GENERATED NARRATIVE</div>
 <div class="card">
-    <b>INCIDENT / SEARCH REPORT</b>
-    <textarea id="incident-log" placeholder="Enter Case #, Narrative, and Outcomes..."></textarea>
-    <button class="action-btn" style="background:var(--blue); color:#fff;" onclick="generatePDF()">GENERATE FINAL CASE PDF</button>
+    <p style="font-size: 13px; color: var(--gold);"><i>*Every map tap automatically logs the time and location below.</i></p>
+    <textarea id="incident-log" placeholder="Auto-log will populate here. Add manual notes at any time..."></textarea>
+    <button class="action-btn" style="background:var(--gold); color:#000;" onclick="previewReport()">1. REVIEW FINAL REPORT</button>
+    
+    <div id="report-preview"></div>
+    
+    <button id="print-btn" class="action-btn" style="background:var(--blue); color:#fff; display:none;" onclick="generatePDF()">2. PRINT FOR SHERIFF</button>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -88,7 +87,7 @@
     var map = L.map('map', {zoomControl: false}).setView([37.584, -79.052], 14);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     
-    var mode = null, pPts = [], markers = [], watchID = null, userMarker = null, alarmMuted = false;
+    var mode = null, pPts = [], watchID = null, userMarker = null, alarmMuted = false;
     var area = L.polygon([], {color:'red', weight: 4, fillOpacity: 0.2}).addTo(map);
 
     function setMode(m) {
@@ -100,18 +99,37 @@
     function locate() {
         var q = document.getElementById('addr-in').value;
         fetch('https://nominatim.openstreetmap.org/search?format=json&q='+q)
-        .then(r => r.json()).then(d => { if(d[0]) map.setView([d[0].lat, d[0].lon], 17); });
+        .then(r => r.json()).then(d => { 
+            if(d[0]) {
+                map.setView([d[0].lat, d[0].lon], 17); 
+                logEvent("Incident address set to: " + q);
+            }
+        });
     }
 
-    function forceGPS() {
-        if (watchID) { navigator.geolocation.clearWatch(watchID); watchID = null; document.getElementById('gps-btn').innerText = "START TRACKER"; return; }
+    function logEvent(msg) {
+        var log = document.getElementById('incident-log');
+        var time = new Date().toLocaleTimeString();
+        log.value += "[" + time + "] " + msg + "\n";
+    }
+
+    function startGPS() {
+        if (watchID) { 
+            navigator.geolocation.clearWatch(watchID); 
+            watchID = null; 
+            document.getElementById('gps-btn').innerText = "START TRACKER"; 
+            logEvent("Live GPS tracking stopped.");
+            return; 
+        }
         watchID = navigator.geolocation.watchPosition(pos => {
             var latlng = [pos.coords.latitude, pos.coords.longitude];
             if (userMarker) userMarker.setLatLng(latlng);
-            else userMarker = L.circleMarker(latlng, {radius: 12, color: '#fff', fillColor: '#007bff', fillOpacity: 1}).addTo(map);
-            map.setView(latlng, 18);
+            else {
+                userMarker = L.circleMarker(latlng, {radius: 12, color: '#fff', fillColor: '#007bff', fillOpacity: 1}).addTo(map);
+                logEvent("Live tracker started. Initial position locked.");
+            }
             if(!alarmMuted) checkBreach(latlng[0], latlng[1]);
-            document.getElementById('gps-btn').innerText = "STOP TRACKER";
+            document.getElementById('gps-btn').innerText = "TRACKING LIVE";
         }, null, {enableHighAccuracy: true});
     }
 
@@ -125,38 +143,57 @@
             if (intersect) inside = !inside;
         }
         var s = document.getElementById('status');
-        if (!inside) { s.innerText = "⚠️ PERIMETER BREACH ⚠️"; s.classList.add('breach-alert'); }
-        else { s.innerText = "PERIMETER SECURE"; s.classList.remove('breach-alert'); }
+        if (!inside) { 
+            s.innerText = "⚠️ PERIMETER BREACH ⚠️"; 
+            s.classList.add('breach-alert'); 
+            // Only log breach once to prevent flooding
+            if (!s.dataset.logged) { logEvent("BREACH ALERT: Tracker moved outside perimeter."); s.dataset.logged = "true"; }
+        } else { 
+            s.innerText = "PERIMETER SECURE"; 
+            s.classList.remove('breach-alert'); 
+            delete s.dataset.logged;
+        }
     }
 
     function resetAlarm() {
         alarmMuted = true;
-        document.getElementById('status').innerText = "ALARM SILENCED";
+        document.getElementById('status').innerText = "ALARM RESET";
         document.getElementById('status').classList.remove('breach-alert');
-        setTimeout(() => { alarmMuted = false; }, 15000); // 15s absolute silence
+        logEvent("Manual alarm reset performed by operator.");
+        setTimeout(() => { alarmMuted = false; }, 20000);
     }
 
     map.on('click', function(e) {
         if(!mode) return;
-        var colors = {'k9':'yellow', 'leo':'#0044ff', 'clue':'red', 'perim':'red', 'suspect':'white', 'mental':'purple'};
-        if(mode === 'perim') { pPts.push(e.latlng); area.setLatLngs(pPts); }
-        else { L.circleMarker(e.latlng, {radius:12, color:'black', fillColor:colors[mode], fillOpacity:1}).addTo(map); }
+        var colors = {'k9':'yellow', 'leo':'#0044ff', 'clue':'red', 'perim':'red', 'suspect':'#fff', 'mental':'purple', 'victim':'#00ff00'};
+        var labels = {'k9':'K9 UNIT DEPLOYED', 'leo':'L.E.O. POSITIONED', 'clue':'CLUE/EVIDENCE LOCATED', 'perim':'PERIMETER POINT SET', 'suspect':'SUSPECT SPOTTED', 'mental':'MENTAL PERSON LOCATED', 'victim':'VICTIM LOCATED'};
+        
+        if(mode === 'perim') { 
+            pPts.push(e.latlng); 
+            area.setLatLngs(pPts); 
+            logEvent("Perimeter point established at " + e.latlng.lat.toFixed(4) + ", " + e.latlng.lng.toFixed(4));
+        } else { 
+            L.circleMarker(e.latlng, {radius:10, color:'black', fillColor:colors[mode], fillOpacity:1}).addTo(map); 
+            logEvent(labels[mode] + " at " + e.latlng.lat.toFixed(4) + ", " + e.latlng.lng.toFixed(4));
+        }
     });
 
-    function generatePDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.setFontSize(18); doc.text("ACSD K9 COMMAND CASE REPORT", 10, 20);
-        doc.setFontSize(10); doc.text("App Creator: Retired Deputy Sheriff Earl Wood", 10, 28);
-        doc.line(10, 30, 200, 30);
-        doc.text("ADDRESS: " + document.getElementById('addr-in').value, 10, 40);
-        doc.text("STATUS: " + document.getElementById('status').innerText, 10, 50);
-        doc.text("NARRATIVE:", 10, 65);
+    function previewReport() {
         var log = document.getElementById('incident-log').value;
-        var splitText = doc.splitTextToSize(log, 180);
-        doc.text(splitText, 10, 75);
-        doc.save("K9_Case_Report.pdf");
-        alert("Report Prepared for Sheriff. Opening Print Preview...");
+        var addr = document.getElementById('addr-in').value || "NO ADDRESS ENTERED";
+        var date = new Date().toLocaleDateString();
+        var content = "<strong>ACSD K9 COMMAND - OFFICIAL REPORT</strong><br>" +
+                      "<strong>DATE:</strong> " + date + "<br>" +
+                      "<strong>LOCATION:</strong> " + addr + "<br>" +
+                      "<strong>COMMANDER:</strong> RETIRED DEPUTY SHERIFF EARL WOOD<hr>" +
+                      "<pre style='white-space: pre-wrap; font-family: Courier; font-size: 14px;'>" + log + "</pre>";
+        document.getElementById('report-preview').innerHTML = content;
+        document.getElementById('report-preview').style.display = "block";
+        document.getElementById('print-btn').style.display = "block";
+        logEvent("Report review generated.");
+    }
+
+    function generatePDF() {
         window.print();
     }
 </script>
