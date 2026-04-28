@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND - FINAL STAMP V45</title>
+    <title>ACSD COMMAND - V46 DEPLOYMENT</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --orange: #ff6600; --gold: #ffd700; --blue: #007bff; --live: #00ff00; }
@@ -14,7 +13,7 @@
         .active-page { display: flex !important; }
         
         #map { flex-grow: 1; background: #111; }
-        .hud { position: absolute; top: 105px; right: 10px; background: rgba(0,0,0,0.9); border: 1px solid var(--gold); padding: 8px; z-index: 1000; font-size: 11px; pointer-events: none; }
+        .hud { position: absolute; top: 155px; right: 10px; background: rgba(0,0,0,0.9); border: 1px solid var(--gold); padding: 8px; z-index: 1000; font-size: 11px; pointer-events: none; }
         
         .footer { background: #000; padding: 10px; border-top: 2px solid var(--orange); z-index: 9999; }
         .tool-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 10px; }
@@ -23,12 +22,16 @@
 
         .nav-btn { background: #1a1a1a; border: 2px solid #333; color: white; padding: 22px; border-radius: 10px; font-weight: bold; margin: 10px; text-align: center; font-size: 16px; }
         .data-card { background: #111; border-left: 4px solid var(--gold); padding: 12px; margin: 10px; border-radius: 4px; font-size: 13px; line-height: 1.4; }
+        
+        /* SEARCH BOX STICKY */
+        .search-bar { background: #111; padding: 10px; display: flex; gap: 5px; z-index: 1000; }
+        #search-input { flex-grow: 1; padding: 12px; background: #000; color: white; border: 1px solid #444; border-radius: 4px; font-size: 14px; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div style="text-align:center; color:var(--gold); font-weight:bold; font-size:16px;">ACSD TACTICAL - MISSION READY</div>
+    <div style="text-align:center; color:var(--gold); font-weight:bold; font-size:16px;">ACSD TACTICAL COMMAND V46</div>
     <div style="display:flex; justify-content:space-between; font-size:11px; margin-top:5px; color:var(--live);">
         <span id="clock">00:00:00</span>
         <span id="gps-stat">GPS: STANDBY</span>
@@ -43,6 +46,10 @@
 </div>
 
 <div id="page-map" class="page">
+    <div class="search-bar">
+        <input type="text" id="search-input" placeholder="Enter Target Address / PLS...">
+        <button onclick="deploySearch()" style="background:var(--orange); color:white; border:none; padding:10px 15px; font-weight:bold; border-radius: 4px;">DEPLOY</button>
+    </div>
     <div class="hud">COMPASS: 315° NW<br>WIND: 6MPH NW</div>
     <div id="map"></div>
     <div class="footer">
@@ -66,24 +73,23 @@
 <div id="page-law" class="page">
     <div style="padding:15px;">
         <button onclick="showPage('page-hub')" style="width:100%; padding:15px; background:#333; color:white; border:none; margin-bottom:10px;">BACK</button>
-        <div class="data-card"><b>Terry v. Ohio</b><p>Stop & Frisk / Reasonable Suspicion.</p></div>
-        <div class="data-card"><b>Graham v. Connor</b><p>Objectively Reasonable Force.</p></div>
+        <div class="data-card"><b>Terry v. Ohio</b><p>Stop & Frisk / RAS.</p></div>
+        <div class="data-card"><b>Graham v. Connor</b><p>Objective Reasonableness.</p></div>
         <div class="data-card"><b>VA § 18.2-460</b><p>Obstruction of Justice.</p></div>
         <div class="data-card"><b>VA § 18.2-388</b><p>Public Intoxication.</p></div>
-        <div class="data-card"><b>VA § 18.2-266</b><p>DUI / Operating Impaired.</p></div>
-        <div class="data-card"><b>VA § 18.2-57</b><p>Assault & Battery on Law Enforcement.</p></div>
-        <div class="data-card"><b>VA § 18.2-119</b><p>Trespass after being forbidden.</p></div>
+        <div class="data-card"><b>VA § 18.2-266</b><p>DUI Laws.</p></div>
+        <div class="data-card"><b>VA § 18.2-57</b><p>Assault on LEO.</p></div>
     </div>
 </div>
 
 <div id="page-med" class="page">
     <div style="padding:15px;">
         <button onclick="showPage('page-hub')" style="width:100%; padding:15px; background:#333; color:white; border:none; margin-bottom:10px;">BACK</button>
-        <h3 style="color:var(--live); text-align:center;">K9 CPR - PRIMARY</h3>
+        <h3 style="color:var(--live); text-align:center;">K9 EMERGENCY CARE</h3>
         
-        <div class="data-card"><b>K9 CPR</b><p>100-120 BPM. Behind elbow. 30:2 ratio (snout breaths).</p></div>
-        <div class="data-card"><b>K9 HEAT STROKE</b><p>Cool paws/ears. No ice. Gums dark red/purple.</p></div>
-        <div class="data-card"><b>TOURNIQUET</b><p>High and tight. Windlass until bleed stops.</p></div>
+        <div class="data-card" style="border-left-color:var(--live);"><b>K9 CPR</b><p>100-120 BPM. Right side down. 30:2 pump-to-breath ratio.</p></div>
+        <div class="data-card"><b>TOURNIQUET</b><p>High and tight. Note time on strap.</p></div>
+        <div class="data-card"><b>NARCAN</b><p>Administer intranasally for OD suspected subjects.</p></div>
     </div>
 </div>
 
@@ -101,29 +107,38 @@
         if(id === 'page-map') { setTimeout(() => map.invalidateSize(), 300); }
     }
 
+    function deploySearch() {
+        var addr = document.getElementById('search-input').value;
+        if(!addr) return;
+        fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(addr))
+            .then(res => res.json())
+            .then(data => {
+                if(data[0]) {
+                    map.setView([data[0].lat, data[0].lon], 17);
+                    L.marker([data[0].lat, data[0].lon]).addTo(assetLayer).bindPopup("TARGET: " + addr).openPopup();
+                } else { alert("Address Not Found"); }
+            });
+    }
+
     function toggleLiveGPS() {
         if (watchID === null) {
-            watchID = navigator.geolocation.watchPosition(updatePosition, handleError, {enableHighAccuracy: true});
+            watchID = navigator.geolocation.watchPosition(pos => {
+                var latlng = [pos.coords.latitude, pos.coords.longitude];
+                if (userMarker) map.removeLayer(userMarker);
+                userMarker = L.circleMarker(latlng, {radius: 8, color: 'white', fillColor: '#007bff', fillOpacity: 1}).addTo(map);
+                map.setView(latlng);
+                document.getElementById('gps-stat').innerText = "GPS: LIVE TRACKING";
+            }, err => { console.error(err); }, {enableHighAccuracy: true});
             document.getElementById('gps-btn').innerText = "STOP TRACKING";
             document.getElementById('gps-btn').style.background = "red";
-            document.getElementById('gps-stat').innerText = "GPS: LIVE TRACKING";
         } else {
             navigator.geolocation.clearWatch(watchID);
             watchID = null;
             document.getElementById('gps-btn').innerText = "START LIVE TRACK";
             document.getElementById('gps-btn').style.background = "var(--live)";
-            document.getElementById('gps-stat').innerText = "GPS: STOPPED";
+            document.getElementById('gps-stat').innerText = "GPS: STANDBY";
         }
     }
-
-    function updatePosition(position) {
-        var latlng = [position.coords.latitude, position.coords.longitude];
-        if (userMarker) map.removeLayer(userMarker);
-        userMarker = L.circleMarker(latlng, {radius: 8, color: 'white', fillColor: '#007bff', fillOpacity: 1}).addTo(map);
-        map.setView(latlng);
-    }
-
-    function handleError(err) { console.warn('ERROR(' + err.code + '): ' + err.message); }
 
     function setMode(m) {
         mode = m; document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('active-t'));
