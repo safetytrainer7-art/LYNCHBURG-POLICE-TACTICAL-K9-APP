@@ -1,124 +1,176 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD K9 COMMAND - V66</title>
+    <title>ACSD K9 COMMAND - V68</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --orange: #ff6600; --gold: #ffd700; --blue: #0044ff; --live: #00ff00; --red: #ff0000; }
-        body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: Arial, sans-serif; overflow-x: hidden; }
+        body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; }
         
-        .header { background: #001a00; border-bottom: 4px solid var(--orange); padding: 25px 10px 10px; position: sticky; top: 0; z-index: 1000; }
-        .sig { font-size: 11px; color: var(--gold); text-align: center; font-weight: bold; margin-bottom: 5px; }
-        .unit { font-size: 20px; font-weight: bold; text-align: center; color: #fff; }
+        .header { background: #001a00; border-bottom: 4px solid var(--orange); padding: 30px 10px 10px; position: sticky; top: 0; z-index: 1000; }
+        .sig { font-size: 12px; color: var(--gold); text-align: center; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
+        
+        .search-bar { background: #222; padding: 15px; display: flex; gap: 10px; }
+        #addr-in { flex-grow: 1; padding: 15px; font-size: 18px; border: none; border-radius: 5px; font-weight: bold; }
 
-        .search-row { background: #222; padding: 15px; display: flex; gap: 10px; border-bottom: 2px solid #444; }
-        #addr-input { flex-grow: 1; padding: 15px; font-size: 18px; border-radius: 5px; border: 1px solid #fff; background: #fff; color: #000; font-weight: bold; }
-        .go-btn { background: var(--orange); color: #000; padding: 10px 20px; font-weight: bold; font-size: 18px; border: none; border-radius: 5px; }
+        #status { background: #111; color: var(--live); padding: 15px; text-align: center; font-weight: bold; font-size: 20px; }
+        .breach-alert { background: var(--red) !important; color: #fff !important; animation: blinker 0.4s infinite; }
+        @keyframes blinker { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
 
-        .bar { background: var(--orange); color: #000; padding: 15px; font-weight: bold; font-size: 20px; text-align: center; text-transform: uppercase; }
-        #map { height: 450px; background: #111; border: 2px solid #333; width: 100%; }
-        #status { background: #111; color: var(--live); padding: 12px; text-align: center; font-weight: bold; font-size: 18px; }
-        .breach { background: var(--red) !important; animation: flash 0.5s infinite; }
-        @keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        #map { height: 450px; background: #111; width: 100%; border-bottom: 2px solid #444; }
 
-        .container { padding: 15px; }
-        .card { background: #111; border-left: 8px solid var(--gold); padding: 15px; margin: 15px 0; border-bottom: 1px solid #333; }
-        .card b { color: var(--gold); display: block; font-size: 19px; margin-bottom: 5px; }
-        .med { border-left-color: var(--red); }
-
-        .tool-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 15px 0; }
-        .btn-m { background: #222; border: 1px solid #555; color: #fff; padding: 15px 0; text-align: center; font-weight: bold; border-radius: 8px; font-size: 12px; }
+        .controls { padding: 15px; }
+        .tool-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px; }
+        .btn-m { background: #222; border: 1px solid #555; color: #fff; padding: 18px 0; text-align: center; font-weight: bold; border-radius: 8px; font-size: 13px; }
         .active { background: var(--orange) !important; color: #000; }
-        .action { background: var(--blue); color: #fff; padding: 20px; width: 100%; border: none; font-size: 18px; font-weight: bold; border-radius: 10px; margin-top: 10px; }
-        textarea { width: 100%; height: 200px; background: #000; color: #fff; border: 2px solid var(--gold); padding: 10px; font-size: 16px; box-sizing: border-box; }
+        
+        .action-btn { width: 100%; padding: 22px; font-size: 18px; font-weight: bold; border-radius: 12px; border: none; margin-bottom: 10px; text-transform: uppercase; }
+        
+        .section-header { background: var(--orange); color: #000; padding: 12px; font-weight: bold; text-align: center; margin-top: 20px; }
+        .card { background: #111; border-left: 8px solid var(--gold); padding: 15px; margin: 15px; border-bottom: 1px solid #333; }
+        textarea { width: 100%; height: 180px; background: #050505; color: #fff; border: 2px solid var(--gold); padding: 10px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <div class="sig">APP CREATOR: RETIRED DEPUTY SHERIFF EARL WOOD</div>
-    <div class="unit">ACSD K9 COMMAND</div>
+    <div style="text-align:center; font-weight:bold; font-size:22px;">ACSD K9 COMMAND</div>
 </div>
 
-<div class="search-row">
-    <input type="text" id="addr-input" placeholder="ENTER ADDRESS OR LOCATION">
-    <button class="go-btn" onclick="locate()">DEPLOY</button>
+<div class="search-bar">
+    <input type="text" id="addr-in" placeholder="ENTER ADDRESS">
+    <button onclick="locate()" style="background:var(--orange); padding:10px 20px; font-weight:bold; border:none; border-radius:5px;">GO</button>
 </div>
 
-<div id="status">PERIMETER: MONITORING ACTIVE</div>
+<div id="status">PERIMETER SECURE</div>
 <div id="map"></div>
 
-<div class="container">
+<div class="controls">
     <div class="tool-grid">
         <div id="m-perim" class="btn-m" onclick="setMode('perim')">🔴<br>PERIM</div>
         <div id="m-leo" class="btn-m" onclick="setMode('leo')">🔵<br>LEO</div>
         <div id="m-k9" class="btn-m" onclick="setMode('k9')">🐕<br>K9</div>
         <div id="m-clue" class="btn-m" onclick="setMode('clue')">🚩<br>CLUE</div>
     </div>
-    <button class="action" style="background:var(--live); color:#000;" onclick="startGPS()">START LIVE TRACKER</button>
-    <button class="action" style="background:#fff; color:red; border:3px solid red;" onclick="resetAlarm()">RESET ALARM</button>
+    
+    <button id="gps-btn" class="action-btn" style="background:var(--live); color:#000;" onclick="forceGPS()">START LIVE TRACKER</button>
+    <button class="action-btn" style="background:#fff; color:red; border:4px solid red;" onclick="resetAll()">RESET & CLEAR ALARM</button>
 </div>
 
-<div class="bar">🩹 K9 FIRST AID & VETS</div>
-<div class="container">
-    <div class="card med"><b>1. K9 CPR (IMMEDIATE)</b><p>Lay K9 on RIGHT side. Locate heart at left elbow. 100-120 compressions per minute. 2 breaths per 30 compressions.</p></div>
-    <div class="card med"><b>2. EMERGENCY VETS</b><p>Lynchburg Emergency (24/7): (434) 846-1504<br>Amherst Laurel Stone: (434) 946-5059</p></div>
-    <div class="card med"><b>3. TRAUMA / GSW</b><p>Pack wound with gauze. Constant pressure 5 mins. TQ high and tight for limbs.</p></div>
+<div class="section-header">🩹 K9 EMERGENCY MEDICAL</div>
+<div class="card" style="border-left-color:red;"><b>K9 CPR</b><p>Right side down. Heart at left elbow. 100-120bpm. 2 breaths/30 pumps.</p></div>
+<div class="card" style="border-left-color:red;"><b>VET EMERGENCY</b><p>Lynchburg (24hr): (434) 846-1504<br>Amherst Laurel Stone: (434) 946-5059</p></div>
+<div class="card"><b>NARCAN</b><p>4mg Intranasal for opioid exposure. Repeat every 3 mins if needed.</p></div>
+<div class="card"><b>HEAT STROKE</b><p>Cool paws/ears with water. Move to shade. Temp >106 is critical.</p></div>
+
+<div class="section-header">⚖️ K9 LEGAL VAULT</div>
+<div class="card"><b>VA CODE § 18.2-144.1</b><p>Felony to kill/wound police animals.</p></div>
+<div class="card"><b>FLORIDA v. HARRIS</b><p>K9 Alert = Probable Cause.</p></div>
+<div class="card"><b>RODRIGUEZ v. US</b><p>Traffic stops cannot be extended solely for K9 arrival.</p></div>
+<div class="card"><b>FLORIDA v. JARDINES</b><p>Porch sniffs require a search warrant.</p></div>
+
+<div class="section-header">📝 FIELD REPORTS & LOGS</div>
+<div class="card">
+    <b>TRAINING FORM</b>
+    <textarea placeholder="Handler, K9, Exercise Type, Results..."></textarea>
+    <button class="action-btn" style="background:var(--gold); color:#000; margin-top:10px;">SAVE TRAINING LOG</button>
 </div>
 
-<div class="bar">⚖️ K9 LEGAL VAULT (20+ CASES)</div>
-<div class="container">
-    <div class="card"><b>1. VA CODE § 18.2-144.1</b><p>Felony to kill/wound a police animal. Protects K9s on duty.</p></div>
-    <div class="card"><b>2. FLORIDA v. HARRIS</b><p>K9 Alert = Probable Cause. Training/certification is the standard.</p></div>
-    <div class="card"><b>3. RODRIGUEZ v. US</b><p>Cannot prolong traffic stops for K9 arrival without reasonable suspicion.</p></div>
-    <div class="card"><b>4. ILLINOIS v. CABALLES</b><p>Exterior vehicle sniff is not a 4th Amendment search.</p></div>
-    <div class="card"><b>5. FLORIDA v. JARDINES</b><p>Sniffing the front porch (curtilage) requires a warrant.</p></div>
-</div>
-
-<div class="bar">📝 FIELD LOGS</div>
-<div class="container">
-    <textarea placeholder="Type incident notes or training details here..."></textarea>
-    <button class="action">SAVE FIELD RECORD</button>
+<div class="card">
+    <b>INCIDENT REPORT FORM</b>
+    <textarea placeholder="Case #, Suspect Name, Narrative, K9 Actions..."></textarea>
+    <button class="action-btn" style="background:var(--blue); color:#fff; margin-top:10px;">SUBMIT INCIDENT REPORT</button>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     var map = L.map('map', {zoomControl: false}).setView([37.584, -79.052], 14);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    var mode = null, pPts = [], alarmMuted = false;
-    var area = L.polygon([], {color:'red'}).addTo(map);
+    
+    var mode = null, pPts = [], markers = [], watchID = null, userMarker = null, alarmMuted = false;
+    var area = L.polygon([], {color:'red', weight: 4, fillOpacity: 0.2}).addTo(map);
 
-    function setMode(m) { 
-        mode = m; 
+    function setMode(m) {
+        mode = m;
         document.querySelectorAll('.btn-m').forEach(b => b.classList.remove('active'));
         document.getElementById('m-'+m).classList.add('active');
     }
 
     function locate() {
-        var q = document.getElementById('addr-input').value;
+        var q = document.getElementById('addr-in').value;
         fetch('https://nominatim.openstreetmap.org/search?format=json&q='+q)
         .then(r => r.json()).then(d => { if(d[0]) map.setView([d[0].lat, d[0].lon], 17); });
     }
 
-    function resetAlarm() {
+    function forceGPS() {
+        if (watchID !== null) {
+            navigator.geolocation.clearWatch(watchID);
+            watchID = null;
+            document.getElementById('gps-btn').innerText = "START LIVE TRACKER";
+            document.getElementById('gps-btn').style.background = "var(--live)";
+            return;
+        }
+
+        document.getElementById('gps-btn').innerText = "CONNECTING...";
+        
+        navigator.geolocation.watchPosition(pos => {
+            var latlng = [pos.coords.latitude, pos.coords.longitude];
+            if (userMarker) { userMarker.setLatLng(latlng); } 
+            else { userMarker = L.circleMarker(latlng, {radius: 12, color: '#fff', fillColor: '#007bff', fillOpacity: 1}).addTo(map); }
+            map.setView(latlng, 18);
+            checkBreach(latlng[0], latlng[1]);
+            
+            document.getElementById('gps-btn').innerText = "STOP TRACKER";
+            document.getElementById('gps-btn').style.background = "red";
+            document.getElementById('gps-btn').style.color = "#fff";
+            watchID = 1; // Flag active
+        }, err => { alert("GPS ERROR: ENABLE LOCATION IN SETTINGS"); }, {enableHighAccuracy: true});
+    }
+
+    function checkBreach(x, y) {
+        if (pPts.length < 3 || alarmMuted) return;
+        
+        var inside = false;
+        for (var i = 0, j = pPts.length - 1; i < pPts.length; j = i++) {
+            var xi = pPts[i].lat, yi = pPts[i].lng;
+            var xj = pPts[j].lat, yj = pPts[j].lng;
+            var intersect = ((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+            if (intersect) inside = !inside;
+        }
+
+        var s = document.getElementById('status');
+        if (!inside) {
+            s.innerText = "⚠️ PERIMETER BREACH ⚠️";
+            s.classList.add('breach-alert');
+        } else {
+            s.innerText = "PERIMETER SECURE";
+            s.classList.remove('breach-alert');
+        }
+    }
+
+    function resetAll() {
         alarmMuted = true;
-        document.getElementById('status').className = "";
-        document.getElementById('status').innerText = "ALARM RESET";
-        setTimeout(() => { alarmMuted = false; }, 60000);
+        document.getElementById('status').innerText = "SYSTEM RESET";
+        document.getElementById('status').classList.remove('breach-alert');
+        markers.forEach(m => map.removeLayer(m));
+        markers = [];
+        setTimeout(() => { alarmMuted = false; }, 5000);
     }
 
     map.on('click', function(e) {
         if(!mode) return;
         var colors = {'k9':'yellow', 'leo':'#0044ff', 'clue':'red', 'perim':'red'};
-        if(mode === 'perim') { pPts.push(e.latlng); area.setLatLngs(pPts); }
-        else {
-            L.circleMarker(e.latlng, {radius:12, color:'white', fillColor:colors[mode], fillOpacity:1}).addTo(map);
-            if(pPts.length > 2 && !alarmMuted) {
-                document.getElementById('status').className = 'breach';
-                document.getElementById('status').innerText = "⚠️ PERIMETER BREACH ⚠️";
-            }
+        if(mode === 'perim') { 
+            pPts.push(e.latlng); 
+            area.setLatLngs(pPts); 
+        } else {
+            var m = L.circleMarker(e.latlng, {radius:12, color:'white', fillColor:colors[mode], fillOpacity:1}).addTo(map);
+            markers.push(m);
+            checkBreach(e.latlng.lat, e.latlng.lng);
         }
     });
 </script>
