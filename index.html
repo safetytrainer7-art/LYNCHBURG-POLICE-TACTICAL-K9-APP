@@ -1,36 +1,25 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD K9 COMMAND - V50 BOLD</title>
+    <title>ACSD K9 COMMAND - V51 LEGAL/MED LOADOUT</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --orange: #ff6600; --gold: #ffd700; --blue: #0044ff; --live: #00ff00; --red: #ff0000; --nvg: #002200; }
+        :root { --orange: #ff6600; --gold: #ffd700; --blue: #0044ff; --live: #00ff00; --red: #ff0000; }
         body, html { margin: 0; padding: 0; height: 100%; background: #000; color: white; font-family: sans-serif; overflow: hidden; }
-        
         .header { background: #001a00; padding: 40px 10px 15px; border-bottom: 4px solid var(--orange); z-index: 9999; }
-        .nvg-mode { filter: sepia(100%) hue-rotate(80deg) brightness(0.7) contrast(1.3); }
-        
         .page { position: absolute; top: 110px; bottom: 0; width: 100%; display: none; background: #000; overflow-y: auto; flex-direction: column; z-index: 10; }
         .active-page { display: flex !important; }
         #map { flex-grow: 1; background: #111; }
-
-        /* FOOTER & BUTTON OVERHAUL */
         .footer { background: #000; padding: 15px; border-top: 3px solid var(--orange); z-index: 9999; }
         .tool-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px; }
-        
-        /* HUGE TACTICAL BUTTONS */
         .t-btn { background: #1a1a1a; border: 2px solid #555; color: white; padding: 18px 0; border-radius: 8px; text-align: center; font-size: 14px; font-weight: bold; }
-        .active-t { background: var(--orange) !important; border-color: white; box-shadow: 0 0 15px var(--orange); }
-
+        .active-t { background: var(--orange) !important; border-color: white; }
         .nav-btn { background: #1a1a1a; border: 3px solid #444; color: white; padding: 30px; border-radius: 12px; font-weight: bold; margin: 12px; text-align: center; font-size: 20px; text-transform: uppercase; }
-        
-        .data-card { background: #111; border-left: 6px solid var(--gold); padding: 18px; margin: 12px; border-radius: 6px; font-size: 16px; line-height: 1.5; }
-        .data-card b { font-size: 18px; color: var(--gold); }
-        
-        #gps-btn { font-size: 22px !important; }
+        .data-card { background: #111; border-left: 6px solid var(--gold); padding: 18px; margin: 12px; border-radius: 6px; font-size: 15px; line-height: 1.6; }
+        .data-card b { font-size: 18px; color: var(--gold); display: block; margin-bottom: 8px; border-bottom: 1px solid #333; }
+        .law-ref { color: #aaa; font-style: italic; font-size: 13px; }
     </style>
 </head>
 <body id="main-body">
@@ -45,8 +34,8 @@
 
 <div id="page-hub" class="page active-page">
     <div class="nav-btn" style="background:var(--orange); color:black; border:none;" onclick="showPage('page-map')">🗺️ OPEN SEARCH MAP</div>
-    <div class="nav-btn" style="border-color:var(--blue);" onclick="showPage('page-law')">⚖️ K9 CASE LAW</div>
-    <div class="nav-btn" style="border-color:#900;" onclick="showPage('page-med')">🩹 K9 MEDICAL</div>
+    <div class="nav-btn" style="border-color:var(--blue);" onclick="showPage('page-law')">⚖️ K9 CASE LAW & VA CODE</div>
+    <div class="nav-btn" style="border-color:#900;" onclick="showPage('page-med')">🩹 K9 MEDICAL & TRAUMA</div>
     <div class="nav-btn" style="border-color:var(--gold);" onclick="showPage('page-train')">📋 TRAINING LOG</div>
     <div class="nav-btn" style="background:#600; border:none; margin-top:20px; font-size:16px;" onclick="location.reload()">❌ RESET SYSTEM</div>
 </div>
@@ -61,30 +50,78 @@
             <div id="t-citizen" class="t-btn" onclick="setMode('citizen')">🚶<br>CITZ</div>
             <div id="t-hlz" class="t-btn" onclick="setMode('hlz')">🚁<br>HLZ</div>
             <div id="t-clue" class="t-btn" onclick="setMode('clue')">🚩<br>CLUE</div>
-            <div class="t-btn" style="background:#004d00; color:var(--live);" onclick="toggleNVG()">🕶️<br>NVG</div>
-            <div class="t-btn" style="background:#500;" onclick="undoLast()">⬅️<br>UNDO</div>
+            <button onclick="toggleNVG()" class="t-btn" style="background:#004d00;">🕶️<br>NVG</button>
+            <button onclick="undoLast()" class="t-btn" style="background:#500;">⬅️<br>UNDO</button>
         </div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <button id="gps-btn" onclick="toggleLiveGPS()" style="background:var(--live); color:black; padding:25px; border:none; font-weight:bold; border-radius:8px; text-transform:uppercase;">START TRACK</button>
-            <button onclick="showPage('page-hub')" style="background:var(--blue); color:white; padding:25px; border:none; font-weight:bold; border-radius:8px; text-transform:uppercase;">HUB</button>
+            <button id="gps-btn" onclick="toggleLiveGPS()" style="background:var(--live); color:black; padding:25px; border:none; font-weight:bold; border-radius:8px;">START TRACK</button>
+            <button onclick="showPage('page-hub')" style="background:var(--blue); color:white; padding:25px; border:none; font-weight:bold; border-radius:8px;">HUB</button>
         </div>
     </div>
 </div>
 
 <div id="page-law" class="page">
     <div style="padding:15px;"><button onclick="showPage('page-hub')" style="width:100%; padding:20px; background:#333; color:white; border:none; margin-bottom:15px; font-size:18px; font-weight:bold;">BACK TO HUB</button>
-        <div class="data-card"><b>VA § 18.2-144.1</b><p>Killing or Injuring Police Animals: Class 5 Felony to kill; Class 6 to maliciously injure.</p></div>
-        <div class="data-card"><b>Florida v. Harris (2013)</b><p>K9 reliability is established through training logs and certifications. Records are key for PC.</p></div>
-        <div class="data-card"><b>US v. Place (1983)</b><p>A sniff by a trained dog is not a 'search' under the 4th Amendment.</p></div>
-        <div class="data-card"><b>Florida v. Jardines</b><p>Warrant required to bring drug dog onto a suspect's porch (curtilage).</p></div>
+        
+        <div class="data-card"><b>VA Code § 18.2-144.1. Killing or injuring police animals; penalty.</b>
+            <p>A. Any person who (i) maliciously discharges a firearm or (ii) maliciously uses any weapon or other instrument and thereby causes the death of any animal that he knows or has reason to believe is a police animal for the purpose of aiding law-enforcement officers is guilty of a Class 5 felony.</p>
+            <p>B. Any person who maliciously kills or maliciously causes bodily injury to a police animal... is guilty of a Class 6 felony.</p>
+        </div>
+
+        <div class="data-card"><b>VA Code § 18.2-460. Obstruction of Justice.</b>
+            <p>Any person who without just cause knowingly obstructs... any law-enforcement officer or any animal being used by a law-enforcement officer... in the performance of his duties... is guilty of a Class 1 misdemeanor.</p>
+        </div>
+
+        <div class="data-card"><b>Florida v. Harris (2013) - 568 U.S. 237</b>
+            <p>The Supreme Court ruled that a K9's alert provides probable cause if the animal has been trained and certified. The Court rejected a "strict checklist" for reliability, stating that if a dog has completed a certification or training program, a court can presume the dog’s alert is reliable.</p>
+        </div>
+
+        <div class="data-card"><b>US v. Place (1983) - 462 U.S. 696</b>
+            <p>The "Sniff Test" Ruling. The court held that a sniff by a well-trained narcotics detection dog does not constitute a "search" within the meaning of the Fourth Amendment because it is "so limited both in the manner in which the information is obtained and in the content of the information revealed."</p>
+        </div>
+
+        <div class="data-card"><b>Florida v. Jardines (2013) - 569 U.S. 1</b>
+            <p>The Court held that using a drug-sniffing dog on a homeowner's porch to investigate the contents of the home is a "search" and requires a warrant. The porch is considered "curtilage" and enjoys the same protection as the home itself.</p>
+        </div>
     </div>
 </div>
 
 <div id="page-med" class="page">
     <div style="padding:15px;"><button onclick="showPage('page-hub')" style="width:100%; padding:20px; background:#333; color:white; border:none; margin-bottom:15px; font-size:18px; font-weight:bold;">BACK TO HUB</button>
-        <div class="data-card" style="border-left-color:red;"><b>K9 CPR</b><p>100-120 BPM. Right side down. Compress behind the elbow. 30:2 ratio.</p></div>
-        <div class="data-card"><b>K9 HEAT STROKE</b><p>Temp >106 is critical. Shade and cool paws/ears. No ice immersion.</p></div>
-        <div class="data-card"><b>K9 NARCAN</b><p>2-4mg intranasal for suspected exposure. Monitor breathing.</p></div>
+        
+        <div class="data-card" style="border-left-color:red;"><b>K9 CPR & Resuscitation</b>
+            <p>1. Position: Place K9 on right side (left side up).</p>
+            <p>2. Compressions: Place hands over the widest part of the chest (behind elbow). Depress chest 1/3 to 1/2 of its width.</p>
+            <p>3. Rate: 100-120 compressions per minute.</p>
+            <p>4. Ratio: 30 compressions followed by 2 breaths into the snout (mouth held closed).</p>
+        </div>
+
+        <div class="data-card"><b>K9 Narcan Deployment</b>
+            <p>1. Identify: Pinpoint pupils, collapse, slow/no breathing.</p>
+            <p>2. Dose: 4mg Nasal Spray. Use one full device in one nostril.</p>
+            <p>3. Note: K9s may require higher or repeat doses due to metabolic speed. Monitor closely for 15-30 minutes.</p>
+        </div>
+
+        <div class="data-card"><b>Hyperthermia (Heat Stroke)</b>
+            <p>1. Critical Temp: Rectal temp above 106°F is a life-threatening emergency.</p>
+            <p>2. Cooling: Move to shade/AC. Apply cool (not ice) water to paws, ears, and groin.</p>
+            <p>3. Warning: Do NOT submerge in ice water (causes shivering and spikes internal temp).</p>
+        </div>
+
+        <div class="data-card"><b>Gunshot/Trauma & Tourniquet</b>
+            <p>1. Tourniquet: Apply high and tight on the limb. Use a windlass style (CAT) and tighten until bleeding stops.</p>
+            <p>2. Chest Wounds: Use an occlusive dressing (chest seal) for sucking chest wounds. Tape on 3 sides.</p>
+        </div>
+    </div>
+</div>
+
+<div id="page-train" class="page">
+    <div style="padding:15px;"><button onclick="showPage('page-hub')" style="width:100%; padding:20px; background:#333; color:white; border:none; margin-bottom:15px;">BACK</button>
+        <h3 style="color:var(--gold);">K9 TRAINING LOG ENTRY</h3>
+        <input type="text" placeholder="Handler / K9 ID" style="width:90%; padding:15px; margin-bottom:10px;">
+        <textarea placeholder="Training Type: Track, Narc, Patrol..." style="width:90%; height:100px; padding:15px; margin-bottom:10px;"></textarea>
+        <textarea placeholder="Performance Notes / Alerts..." style="width:90%; height:100px; padding:15px;"></textarea>
+        <button class="nav-btn" style="width:100%; background:var(--gold); color:black;" onclick="alert('Training Record Saved')">SUBMIT RECORD</button>
     </div>
 </div>
 
