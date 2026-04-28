@@ -1,30 +1,40 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD K9 COMMAND - V56 STABLE</title>
+    <title>ACSD K9 COMMAND - FINAL V57</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --orange: #ff6600; --gold: #ffd700; --blue: #0044ff; --live: #00ff00; --red: #ff0000; }
         body, html { margin: 0; padding: 0; height: 100%; background: #000; color: white; font-family: sans-serif; overflow: hidden; }
         .header { background: #001a00; padding: 30px 10px 5px; border-bottom: 3px solid var(--orange); z-index: 9999; }
         .hud-row { display: flex; justify-content: space-between; background: #111; padding: 8px; font-size: 16px; color: var(--gold); font-weight: bold; }
-        #p-mon { background: #222; color: #aaa; padding: 8px; text-align: center; font-size: 18px; font-weight: bold; border-bottom: 2px solid #333; }
+        
+        /* BREACH MONITOR & SILENCE */
+        #p-mon-container { background: #222; border-bottom: 2px solid #333; display: flex; align-items: center; justify-content: center; height: 50px; }
+        #p-mon { font-size: 18px; font-weight: bold; width: 100%; text-align: center; }
+        #silence-btn { display: none; background: white; color: red; border: none; padding: 10px; font-weight: bold; margin-left: 10px; border-radius: 4px; }
+        
         .breach-alert { background: var(--red) !important; color: white !important; animation: blink 0.5s infinite; }
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-        .page { position: absolute; top: 125px; bottom: 0; width: 100%; display: none; background: #000; overflow-y: auto; z-index: 10; padding-bottom: 50px; }
+
+        .page { position: absolute; top: 125px; bottom: 0; width: 100%; display: none; background: #000; overflow-y: auto; z-index: 10; padding-bottom: 60px; }
         .active-page { display: block !important; }
+        
         #map { height: 45%; background: #111; }
         .footer { height: 55%; background: #000; display: flex; flex-direction: column; padding: 10px; box-sizing: border-box; }
+        
         .tool-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
         .t-btn { background: #1a1a1a; border: 1px solid #555; color: white; padding: 12px 0; border-radius: 4px; text-align: center; font-size: 11px; font-weight: bold; }
         .active-t { background: var(--orange) !important; color: black; }
+
         .deck-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex-grow: 1; min-height: 120px; }
         .giant-btn { height: 100%; font-size: 22px; font-weight: bold; border-radius: 12px; border: none; text-transform: uppercase; }
+        
         .nav-btn { background: #1a1a1a; border: 3px solid var(--gold); color: white; padding: 25px; margin: 10px; border-radius: 12px; font-size: 20px; font-weight: bold; text-align: center; display: block; }
         .data-card { background: #111; border-left: 6px solid var(--gold); padding: 15px; margin: 10px; font-size: 16px; border-bottom: 1px solid #222; }
+        .med-red { border-left-color: var(--red) !important; }
     </style>
 </head>
 <body>
@@ -43,7 +53,10 @@
 </div>
 
 <div id="page-map" class="page" style="overflow:hidden;">
-    <div id="p-mon">PERIMETER: NOT SET</div>
+    <div id="p-mon-container">
+        <div id="p-mon">PERIMETER: NOT SET</div>
+        <button id="silence-btn" onclick="silenceAlarm()">SILENCE</button>
+    </div>
     <div id="map"></div>
     <div class="footer">
         <div class="tool-grid">
@@ -65,58 +78,59 @@
 
 <div id="page-law" class="page">
     <button class="nav-btn" onclick="showPage('page-hub')">BACK TO HUB</button>
-    <div class="data-card"><b>VA § 18.2-144.1</b> Killing/Injuring Police Animal (Class 5/6 Felony).</div>
-    <div class="data-card"><b>VA § 18.2-460</b> Obstruction of Justice involving LEO animals.</div>
-    <div class="data-card"><b>Florida v. Harris</b> Certification records establish Probable Cause.</div>
-    <div class="data-card"><b>US v. Place</b> K9 sniff is not a search under 4th Amend.</div>
-    <div class="data-card"><b>Florida v. Jardines</b> Warrant required for porch/curtilage sniffs.</div>
-    <div class="data-card"><b>Illinois v. Caballes</b> Drug sniff allowed during traffic stops.</div>
-    <div class="data-card"><b>Rodriguez v. US</b> Stops cannot be extended for K9 without RAS.</div>
-    <div class="data-card"><b>Robinette v. Barnes</b> K9 use is not deadly force per se.</div>
-    <div class="data-card"><b>VA § 3.2-6570</b> Cruelty exemptions for LEO dogs.</div>
-    <div class="data-card"><b>US v. Ludwig</b> K9 alert on car covers entire vehicle PC.</div>
-    <div class="data-card"><b>City of Indianapolis v. Edmond</b> General crime checkpoints illegal.</div>
-    <div class="data-card"><b>Matthews v. Jones</b> Deployment for fleeing non-violent felons.</div>
-    <div class="data-card"><b>State v. Miller</b> Tracking dog evidence standards.</div>
-    <div class="data-card"><b>VA § 3.2-6540</b> Dangerous dog law exemptions.</div>
-    <div class="data-card"><b>US v. Sharp</b> Reasonable duration for K9 search stops.</div>
-    <div class="data-card"><b>Commonwealth v. Enos</b> VA specific alert standards.</div>
-    <div class="data-card"><b>US v. Garcia</b> K9 alerts on mail/packages.</div>
-    <div class="data-card"><b>State v. Wainman</b> Officer safety in deployments.</div>
-    <div class="data-card"><b>VA § 19.2-59</b> Tracking warrant exceptions.</div>
-    <div class="data-card"><b>State v. Sniff</b> Reliability of older certifications.</div>
-</div>
+    <div class="data-card"><b>VA § 18.2-144.1</b> Killing/Injuring Police Animal (Felony).</div>
+    <div class="data-card"><b>VA § 18.2-460</b> Obstruction of Justice.</div>
+    <div class="data-card"><b>Florida v. Harris</b> Certification establishes Probable Cause.</div>
+    <div class="data-card"><b>US v. Place</b> K9 sniff is not a search.</div>
+    <div class="data-card"><b>Florida v. Jardines</b> Porch/Curtilage protection.</div>
+    <div class="data-card"><b>Rodriguez v. US</b> Duration of stop restrictions.</div>
+    <div class="data-card"><b>Robinette v. Barnes</b> Non-deadly force standards.</div>
+    <div class="data-card"><b>VA § 3.2-6570</b> Animal cruelty LEO exemptions.</div>
+    </div>
 
 <div id="page-med" class="page">
     <button class="nav-btn" onclick="showPage('page-hub')">BACK TO HUB</button>
-    <div class="data-card" style="border-left-color:red;"><b>CPR:</b> Right side down, 100-120 BPM, 30:2 ratio.</div>
-    <div class="data-card"><b>NARCAN:</b> 4mg Intranasal. Repeat every 3-5 mins.</div>
-    <div class="data-card"><b>HEAT STROKE:</b> Cool paws/ears. No ice. Temp >106 critical.</div>
-    <div class="data-card"><b>BLEEDING:</b> TQ high and tight. Occlusive dressing for chest.</div>
-    <div class="data-card"><b>GDV/BLOAT:</b> Distended belly, retching. Emergency EVAC.</div>
+    
+    <div class="data-card med-red"><b>GUNSHOT / PENETRATING TRAUMA</b>
+        <p>1. Pack wound with hemostatic gauze (QuikClot). 2. Apply pressure for 3-5 mins. 3. Apply chest seal for torso wounds. 4. Limb wounds: TQ high and tight.</p>
+    </div>
+    
+    <div class="data-card med-red"><b>SNAKEBITES (Copperhead/Timber Rattler)</b>
+        <p>1. Keep K9 calm and immobilized. 2. Keep bite site BELOW heart level. 3. Do NOT cut or use suction. 4. Transport to ER immediately for antivenin.</p>
+    </div>
+
+    <div class="data-card med-red"><b>EYE INJURIES (Debris/Scratches)</b>
+        <p>1. Do NOT allow K9 to rub eye (use cone/collar). 2. Flush with saline ONLY. 3. Do not apply pressure to the eyeball.</p>
+    </div>
+
+    <div class="data-card"><b>K9 NARCAN</b> 4mg Intranasal. Repeat every 3-5 mins.</div>
+    <div class="data-card"><b>HEAT STROKE</b> Cool paws/ears. Temp >106 critical.</div>
+    <div class="data-card" style="border-left-color:var(--live);"><b>EMERGENCY RESOURCES</b>
+        <p><b>Amherst/Lynchburg Vet:</b> Animal Emergency & Critical Care of Lynchburg. (434) 846-1504.</p>
+    </div>
 </div>
 
 <div id="page-train" class="page">
     <button class="nav-btn" onclick="showPage('page-hub')">BACK</button>
-    <h2 style="text-align:center;">TRAINING ENTRY</h2>
-    <input type="text" placeholder="K9 ID" style="width:90%; padding:15px; margin:10px; background:#222; color:white; border:none;">
-    <textarea placeholder="Training Discipline & Notes..." style="width:90%; height:150px; margin:10px; background:#222; color:white;"></textarea>
-    <button class="nav-btn" style="background:var(--gold); color:black; width:95%;">SAVE LOG</button>
+    <h2 style="text-align:center;">TRAINING LOG</h2>
+    <input type="text" placeholder="Handler/K9 ID" style="width:90%; padding:15px; margin:10px; background:#222; color:white; border:none;">
+    <textarea placeholder="Discipline & Results..." style="width:90%; height:200px; margin:10px; background:#222; color:white;"></textarea>
+    <button class="nav-btn" style="background:var(--gold); color:black; width:95%;">SAVE</button>
 </div>
 
 <div id="page-report" class="page">
     <button class="nav-btn" onclick="showPage('page-hub')">BACK</button>
     <h2 style="text-align:center;">INCIDENT REPORT</h2>
     <input type="text" placeholder="Case #" style="width:90%; padding:15px; margin:10px; background:#222; color:white; border:none;">
-    <textarea placeholder="Deployment Results..." style="width:90%; height:150px; margin:10px; background:#222; color:white;"></textarea>
-    <button class="nav-btn" style="background:var(--blue); color:white; width:95%;">SUBMIT REPORT</button>
+    <textarea placeholder="Deployment Narrative..." style="width:90%; height:200px; margin:10px; background:#222; color:white;"></textarea>
+    <button class="nav-btn" style="background:var(--blue); color:white; width:95%;">SUBMIT</button>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     var map = L.map('map', { zoomControl: false }).setView([37.483, -78.971], 15);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    var mode = null, pPts = [], userMarker = null, watchID = null, markers = [];
+    var mode = null, pPts = [], userMarker = null, watchID = null, markers = [], alarmSilenced = false;
     var area = L.polygon([], {color: 'red', weight: 4, fillOpacity: 0.2}).addTo(map);
     var assetLayer = L.layerGroup().addTo(map);
 
@@ -145,7 +159,7 @@
     }
 
     function checkBreach(latlng) {
-        if (pPts.length < 3 || mode === 'perim') return;
+        if (pPts.length < 3 || mode || alarmSilenced) return;
         var isInside = false;
         var x = latlng[0], y = latlng[1];
         for (var i = 0, j = pPts.length - 1; i < pPts.length; j = i++) {
@@ -155,20 +169,37 @@
             if (intersect) isInside = !isInside;
         }
         var mon = document.getElementById('p-mon');
-        if(!isInside) { mon.innerText = "⚠️ BREACH DETECTED ⚠️"; mon.className = "breach-alert"; }
-        else { mon.innerText = "✅ WITHIN PERIMETER"; mon.className = ""; }
+        var sBtn = document.getElementById('silence-btn');
+        if(!isInside) { 
+            mon.innerText = "⚠️ PERIMETER BREACH ⚠️"; 
+            document.getElementById('p-mon-container').className = "breach-alert";
+            sBtn.style.display = "block";
+        } else { 
+            mon.innerText = "✅ WITHIN PERIMETER"; 
+            document.getElementById('p-mon-container').className = "";
+            sBtn.style.display = "none";
+        }
+    }
+
+    function silenceAlarm() {
+        alarmSilenced = true;
+        document.getElementById('p-mon-container').className = "";
+        document.getElementById('p-mon').innerText = "ALARM SILENCED";
+        document.getElementById('silence-btn').style.display = "none";
+        setTimeout(() => { alarmSilenced = false; }, 30000); // Re-arm after 30 seconds
     }
 
     function setMode(m) {
-        mode = m; document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('active-t'));
+        mode = m; 
+        document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('active-t'));
         if(document.getElementById('t-'+m)) document.getElementById('t-'+m).classList.add('active-t');
-        if(m === 'perim') { document.getElementById('p-mon').innerText = "SKETCHING PERIMETER..."; }
+        document.getElementById('p-mon').innerText = (m === 'perim') ? "DRAWING PERIMETER..." : "ASSET DEPLOYMENT MODE";
     }
 
     function undoLast() { 
         if(markers.length > 0) { 
             assetLayer.removeLayer(markers.pop()); 
-            if(pPts.length > 0) { pPts.pop(); area.setLatLngs(pPts); }
+            if(pPts.length > 0 && mode === 'perim') { pPts.pop(); area.setLatLngs(pPts); }
         } 
     }
 
