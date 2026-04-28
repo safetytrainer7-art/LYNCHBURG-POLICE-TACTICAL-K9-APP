@@ -1,34 +1,35 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD K9 COMMAND - V76</title>
+    <title>ACSD K9 COMMAND - V77</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --orange: #ff6600; --gold: #ffd700; --blue: #0044ff; --live: #00ff00; --red: #ff0000; --dark: #111; }
         body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; }
         
-        .header { background: #001a00; border-bottom: 4px solid var(--orange); padding: 35px 10px 10px; position: sticky; top: 0; z-index: 1000; }
-        .sig { font-size: 13px; color: var(--gold); text-align: center; font-weight: bold; text-transform: uppercase; }
-        
-        #map { height: 380px; background: #222; width: 100%; position: relative; border-bottom: 2px solid #444; }
+        .header { background: #001a00; border-bottom: 4px solid var(--orange); padding: 30px 10px 10px; text-align: center; }
+        .sig { font-size: 13px; color: var(--gold); font-weight: bold; text-transform: uppercase; }
 
-        /* SCROLLING ICON TOOLBELT */
-        .tool-belt { display: flex; overflow-x: auto; gap: 10px; padding: 15px; background: #1a1a1a; border-bottom: 2px solid #444; }
-        .t-item { flex: 0 0 90px; background: #333; border: 2px solid #555; border-radius: 10px; padding: 12px 0; text-align: center; font-size: 11px; font-weight: bold; }
-        .active-tool { border-color: var(--live); background: #002200; color: var(--live); }
+        /* THE TOOLS - FRONT AND CENTER */
+        .icon-row { display: flex; justify-content: space-around; background: #222; padding: 15px 5px; border-bottom: 2px solid #444; }
+        .tool { text-align: center; width: 18%; padding: 5px; border: 2px solid #555; border-radius: 8px; background: #333; cursor: pointer; }
+        .tool.active { border-color: var(--live); background: #002200; }
+        .tool span { font-size: 24px; display: block; }
+        .tool label { font-size: 10px; font-weight: bold; color: #fff; text-transform: uppercase; }
 
-        .section-bar { background: var(--orange); color: #000; padding: 14px; font-weight: bold; text-align: center; border-bottom: 1px solid #000; font-size: 14px; }
-        .content-area { padding: 15px; background: var(--dark); display: none; }
-        
-        .card { background: #222; border-left: 6px solid var(--gold); padding: 15px; margin-bottom: 15px; border-radius: 4px; }
-        .emergency { border-left-color: var(--red); }
-        
+        #map { height: 400px; background: #222; width: 100%; border-bottom: 2px solid #444; }
+
+        .btn-row { padding: 10px; }
         .action-btn { width: 100%; padding: 20px; font-size: 18px; font-weight: bold; border-radius: 10px; border: none; margin-bottom: 10px; text-transform: uppercase; cursor: pointer; }
-        textarea, input, select { width: 100%; padding: 12px; margin: 8px 0; background: #000; color: #fff; border: 1px solid var(--gold); box-sizing: border-box; }
 
-        #final-report-view { background: #fff; color: #000; padding: 25px; display: none; font-family: 'Courier New', monospace; }
+        .accordion { background: var(--orange); color: #000; padding: 15px; font-weight: bold; text-align: center; border-bottom: 1px solid #000; margin-top: 2px; }
+        .panel { padding: 15px; background: #111; display: none; border-left: 5px solid var(--gold); }
+        
+        textarea, input, select { width: 100%; padding: 12px; margin: 8px 0; background: #000; color: #fff; border: 1px solid var(--gold); box-sizing: border-box; }
+        .med-card { background: #222; padding: 10px; margin-bottom: 10px; border-left: 4px solid var(--red); font-size: 14px; }
     </style>
 </head>
 <body>
@@ -37,54 +38,47 @@
     <div class="sig">APP CREATOR: RETIRED DEPUTY SHERIFF EARL WOOD</div>
 </div>
 
+<div class="icon-row">
+    <div id="m-perim" class="tool" onclick="setMode('perim')"><span>🔴</span><label>PERIM</label></div>
+    <div id="m-k9" class="tool" onclick="setMode('k9')"><span>🐕</span><label>K9</label></div>
+    <div id="m-leo" class="tool" onclick="setMode('leo')"><span>🔵</span><label>LEO</label></div>
+    <div id="m-clue" class="tool" onclick="setMode('clue')"><span>🚩</span><label>CLUE</label></div>
+    <div id="m-suspect" class="tool" onclick="setMode('suspect')"><span>👤</span><label>SUSPECT</label></div>
+</div>
+
 <div id="map"></div>
 
-<div class="tool-belt">
-    <div id="m-perim" class="t-item" onclick="setMode('perim')">🔴<br>PERIMETER</div>
-    <div id="m-k9" class="t-item" onclick="setMode('k9')">🐕<br>K9 UNIT</div>
-    <div id="m-leo" class="t-item" onclick="setMode('leo')">🔵<br>OFFICER</div>
-    <div id="m-clue" class="t-item" onclick="setMode('clue')">🚩<br>EVIDENCE</div>
-    <div id="m-suspect" class="t-item" onclick="setMode('suspect')">👤<br>SUSPECT</div>
+<div class="btn-row">
+    <button id="gps-btn" class="action-btn" style="background:var(--live); color:#000;" onclick="startGPS()">START TRACKER</button>
 </div>
 
-<div class="controls" style="padding:15px;">
-    <button id="gps-btn" class="action-btn" style="background:var(--live); color:#000;" onclick="startGPS()">START LIVE TRACKER</button>
+<div class="accordion" onclick="toggle('med')">🩹 K9 FIRST AID (CPR #1)</div>
+<div id="med" class="panel">
+    <div class="med-card"><b>1. K9 CPR:</b> 100-120 compressions/min. Right side down. Heart at left elbow. 30 pumps / 2 nose breaths.</div>
+    <div class="med-card"><b>2. GSW / STAB:</b> Pack wound with gauze. Constant pressure. Do not remove soaked pads.</div>
+    <div class="med-card"><b>3. HEAT EXHAUSTION:</b> Temp >106°F fatal. Cool paws/ears with water. Move to AC.</div>
+    <div class="med-card"><b>VETS:</b> Lynchburg (434) 846-1504 | Laurel Stone (434) 946-5059</div>
 </div>
 
-<div class="section-bar" onclick="toggle('med-sec')">🩹 K9 MEDICAL: CPR / GSW / HEAT</div>
-<div id="med-sec" class="content-area">
-    <div class="card emergency"><b>1. K9 CPR (PRIORITY):</b> 100-120 compressions/min. Right side down. Heart at left elbow. 30 pumps / 2 nose breaths.</div>
-    <div class="card emergency"><b>2. GUNSHOT/STAB:</b> Pack wound with gauze. Constant pressure. Do not remove soaked pads.</div>
-    <div class="card"><b>3. HEAT:</b> Temp >106°F. Cool paws/ears with water. Move to Shade/AC.</div>
-    <div class="card"><b>VETS:</b> Lynchburg (434) 846-1504 | Laurel Stone (434) 946-5059</div>
+<div class="accordion" onclick="toggle('law')">⚖️ K9 CASE LAW (US & VA)</div>
+<div id="law" class="panel">
+    <p><b>VA CODE 18.2-144.1:</b> Felony protection for police animals.</p>
+    <p><b>FL v. HARRIS:</b> Training certs establish PC.</p>
+    <p><b>RODRIGUEZ v. US:</b> Traffic stop time limits.</p>
+    <p><b>5 SENSES:</b> Hearing, Smelling, Tasting, Seeing, Touch for PC.</p>
 </div>
 
-<div class="section-bar" onclick="toggle('law-sec')">⚖️ K9 CASE LAW (VA & US)</div>
-<div id="law-sec" class="content-area">
-    <div class="card"><b>VA CODE 18.2-144.1:</b> Felony to kill/harm police animal.</div>
-    <div class="card"><b>US: FL v. HARRIS:</b> Training certs = Probable Cause.</div>
-    <div class="card"><b>US: RODRIGUEZ v. US:</b> Traffic stop time limits for K9.</div>
-    <div class="card"><b>5 SENSES:</b> Hearing, Smelling, Tasting, Seeing, Touch for PC observation.</div>
+<div class="accordion" onclick="toggle('forms')">📝 REPORTS & TRAINING</div>
+<div id="forms" class="panel">
+    <button class="action-btn" style="background:var(--gold); color:#000;" onclick="showReport('TRAINING')">DAILY TRAINING LOG</button>
+    <button class="action-btn" style="background:var(--blue); color:#fff;" onclick="showReport('INCIDENT')">INCIDENT MISSION REPORT</button>
 </div>
 
-<div class="section-bar" onclick="toggle('train-sec')">🐕 DAILY TRAINING LOG</div>
-<div id="train-sec" class="content-area">
-    <input type="date" id="t-date">
-    <input type="text" id="t-loc" placeholder="Location">
-    <textarea id="t-aids" placeholder="Aids/Weight/Type"></textarea>
-    <select id="t-perf"><option>Proficient</option><option>Satisfactory</option><option>Unsatisfactory</option></select>
-    <button class="action-btn" style="background:var(--gold); color:#000;" onclick="saveLog('TRAINING')">GENERATE TRAINING PDF</button>
+<div class="accordion" onclick="toggle('log')">📋 COMMANDER'S FIELD LOG</div>
+<div id="log" class="panel">
+    <textarea id="incident-log" placeholder="Auto-logs activity here..."></textarea>
+    <button class="action-btn" style="background:var(--red); color:#fff;" onclick="window.print()">PRINT FINAL REPORT</button>
 </div>
-
-<div class="section-bar" onclick="toggle('inc-sec')">📝 INCIDENT MISSION REPORT</div>
-<div id="inc-sec" class="content-area">
-    <input type="text" id="i-case" placeholder="Case # / Address">
-    <textarea id="i-narrative" placeholder="Mission Details..."></textarea>
-    <select id="i-force"><option>No Force</option><option>Hold/Bite Occurred</option></select>
-    <button class="action-btn" style="background:var(--blue); color:#fff;" onclick="saveLog('INCIDENT')">GENERATE MISSION PDF</button>
-</div>
-
-<div id="final-report-view"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
@@ -94,8 +88,8 @@
 
     function setMode(m) {
         mode = m;
-        document.querySelectorAll('.t-item').forEach(b => b.classList.remove('active-tool'));
-        document.getElementById('m-'+m).classList.add('active-tool');
+        document.querySelectorAll('.tool').forEach(t => t.classList.remove('active'));
+        document.getElementById('m-'+m).classList.add('active');
     }
 
     function toggle(id) {
@@ -104,12 +98,13 @@
     }
 
     function startGPS() {
-        if (watchID) { navigator.geolocation.clearWatch(watchID); watchID = null; return; }
+        if (watchID) { navigator.geolocation.clearWatch(watchID); watchID = null; document.getElementById('gps-btn').innerText = "START TRACKER"; return; }
         watchID = navigator.geolocation.watchPosition(pos => {
             var latlng = [pos.coords.latitude, pos.coords.longitude];
             if (userMarker) userMarker.setLatLng(latlng);
             else userMarker = L.circleMarker(latlng, {radius: 10, color: '#fff', fillColor: '#007bff', fillOpacity: 1}).addTo(map);
             map.setView(latlng, 18);
+            document.getElementById('gps-btn').innerText = "TRACKING...";
         }, null, {enableHighAccuracy: true});
     }
 
@@ -117,13 +112,9 @@
         if(!mode) return;
         var colors = {'k9':'yellow', 'leo':'#0044ff', 'clue':'red', 'perim':'red', 'suspect':'#fff'};
         L.circleMarker(e.latlng, {radius:10, color:'black', fillColor:colors[mode], fillOpacity:1}).addTo(map);
+        var log = document.getElementById('incident-log');
+        log.value += "[" + new Date().toLocaleTimeString() + "] " + mode.toUpperCase() + " Marker Placed.\n";
     });
-
-    function saveLog(type) {
-        var view = document.getElementById('final-report-view');
-        view.innerHTML = "<h1>ACSD REPORT</h1><p>Creator: Retired Deputy Earl Wood</p><hr><p>Data Saved.</p><button onclick='window.print()'>PRINT</button>";
-        view.style.display = 'block';
-    }
 </script>
 </body>
 </html>
