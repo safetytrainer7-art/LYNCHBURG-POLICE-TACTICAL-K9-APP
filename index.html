@@ -1,135 +1,118 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD K9 COMMAND - V64 TACTICAL</title>
+    <title>ACSD K9 COMMAND - V65 FAIL-SAFE</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --orange: #ff6600; --gold: #ffd700; --blue: #0044ff; --live: #00ff00; --red: #ff0000; }
-        body, html { margin: 0; padding: 0; background: #000; color: white; font-family: sans-serif; overflow-x: hidden; }
+        body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: Arial, sans-serif; }
         
-        /* HEADER - STICKY */
-        .header { background: #001a00; padding: 30px 10px 10px; border-bottom: 3px solid var(--orange); position: sticky; top: 0; z-index: 1000; }
-        .sig { font-size: 12px; color: var(--gold); text-align: center; margin-bottom: 5px; font-weight: bold; text-transform: uppercase; }
-        .hud-row { display: flex; justify-content: space-between; background: #111; padding: 10px; font-size: 16px; border: 1px solid #333; }
-
-        /* SECTION STYLING */
-        .section-title { background: var(--orange); color: black; padding: 15px; font-weight: bold; font-size: 20px; text-align: center; margin-top: 20px; text-transform: uppercase; }
-        .content-area { padding: 15px; }
-
+        /* HEADER SECTION */
+        .top-deck { background: #001a00; border-bottom: 4px solid var(--orange); padding: 25px 10px 10px; position: sticky; top: 0; z-index: 1000; }
+        .creator { font-size: 11px; color: var(--gold); text-align: center; font-weight: bold; margin-bottom: 5px; }
+        .unit-id { font-size: 22px; font-weight: bold; text-align: center; color: #fff; margin-bottom: 10px; }
+        
+        /* SECTION HEADERS */
+        .bar { background: var(--orange); color: #000; padding: 15px; font-weight: bold; font-size: 20px; text-align: center; margin-top: 25px; text-transform: uppercase; }
+        
         /* MAP AREA */
-        #map { height: 450px; background: #111; border: 2px solid #333; width: 100%; }
-        #p-mon { background: #222; padding: 15px; text-align: center; font-weight: bold; border-bottom: 2px solid #444; color: var(--live); }
-        .breach-alert { background: var(--red) !important; color: white !important; animation: blink 0.5s infinite; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
+        #map { height: 400px; background: #111; border: 2px solid #333; margin: 0 auto; width: 95%; }
+        #status-bar { background: #222; color: var(--live); padding: 12px; text-align: center; font-weight: bold; font-size: 18px; border-bottom: 2px solid #444; }
+        .breach { background: var(--red) !important; color: #fff !important; animation: flash 0.5s infinite; }
+        @keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
-        /* DATA CARDS */
-        .data-card { background: #111; border-left: 6px solid var(--gold); padding: 15px; margin: 15px 0; border-bottom: 1px solid #333; line-height: 1.6; }
-        .data-card b { color: var(--gold); font-size: 18px; display: block; margin-bottom: 5px; text-transform: uppercase; }
-        .med-alert { border-left-color: var(--red) !important; }
+        /* BOXES & CARDS */
+        .container { padding: 15px; }
+        .law-card { background: #111; border-left: 8px solid var(--gold); padding: 15px; margin: 15px 0; font-size: 17px; line-height: 1.5; border-bottom: 1px solid #333; }
+        .law-card b { color: var(--gold); display: block; margin-bottom: 8px; font-size: 19px; }
+        .med-card { background: #111; border-left: 8px solid var(--red); padding: 15px; margin: 15px 0; }
+        
+        /* TACTICAL BUTTONS */
+        .tool-box { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 15px 0; }
+        .btn-t { background: #222; border: 1px solid #555; color: #fff; padding: 15px 0; text-align: center; font-weight: bold; border-radius: 8px; font-size: 12px; }
+        .active { background: var(--orange) !important; color: #000; }
+        .big-action { background: var(--blue); color: #fff; padding: 20px; width: 100%; border: none; font-size: 18px; font-weight: bold; border-radius: 10px; margin-top: 10px; }
 
-        /* FORMS */
-        textarea { width: 100%; height: 200px; background: #050505; color: white; border: 2px solid #444; padding: 10px; box-sizing: border-box; font-size: 16px; }
-        .save-btn { background: var(--blue); color: white; padding: 20px; width: 100%; border: none; font-weight: bold; font-size: 18px; margin-top: 10px; border-radius: 8px; }
-
-        .tool-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 15px 0; }
-        .t-btn { background: #1a1a1a; border: 1px solid #555; color: white; padding: 15px 0; text-align: center; font-size: 12px; font-weight: bold; border-radius: 8px; }
-        .active-t { background: var(--orange) !important; color: black; }
+        /* FORM FIELD */
+        textarea { width: 100%; height: 200px; background: #000; color: #fff; border: 2px solid var(--gold); padding: 10px; font-size: 16px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <div class="sig">APP CREATOR: RETIRED DEPUTY SHERIFF EARL WOOD</div>
-    <div style="text-align:center; font-weight:bold; font-size:22px; color:var(--gold); margin-bottom:10px;">ACSD K9 COMMAND</div>
-    <div class="hud-row">
-        <span>🧭 NW</span>
-        <span id="clock">00:00:00</span>
-        <span onclick="location.reload()" style="color:var(--red);">RELOAD</span>
+<div class="top-deck">
+    <div class="creator">APP CREATOR: RETIRED DEPUTY SHERIFF EARL WOOD</div>
+    <div class="unit-id">ACSD K9 COMMAND</div>
+    <div style="display:flex; justify-content:space-between; padding:5px 15px; background:#000; border:1px solid #333;">
+        <span id="timer">00:00:00</span>
+        <span onclick="location.reload()" style="color:var(--red); font-weight:bold;">RELOAD SYSTEM</span>
     </div>
 </div>
 
-<div class="section-title">🗺️ LIVE SEARCH MAP</div>
-<div id="p-mon">PERIMETER: SCANNING ACTIVE</div>
+<div class="bar">🗺️ TACTICAL SEARCH MAP</div>
+<div id="status-bar">SYSTEM: MONITORING ACTIVE</div>
 <div id="map"></div>
-<div class="content-area">
-    <div class="tool-grid">
-        <div id="t-perim" class="t-btn" onclick="setMode('perim')">🔴<br>PERIM</div>
-        <div id="t-leo" class="t-btn" onclick="setMode('leo')">🔵<br>LEO</div>
-        <div id="t-k9" class="t-btn" onclick="setMode('k9')">🐕<br>K9</div>
-        <div id="t-clue" class="t-btn" onclick="setMode('clue')">🚩<br>CLUE</div>
+<div class="container">
+    <div class="tool-box">
+        <div id="m-perim" class="btn-t" onclick="setMode('perim')">🔴<br>PERIM</div>
+        <div id="m-leo" class="btn-t" onclick="setMode('leo')">🔵<br>LEO</div>
+        <div id="m-k9" class="btn-t" onclick="setMode('k9')">🐕<br>K9</div>
+        <div id="m-clue" class="btn-t" onclick="setMode('clue')">🚩<br>CLUE</div>
     </div>
-    <button class="save-btn" style="background:var(--live); color:black;" onclick="startGPS()">START LIVE TRACKING</button>
-    <button class="save-btn" style="background:white; color:red; border:3px solid red;" onclick="resetAlarm()">RESET PERIMETER ALARM</button>
+    <button class="big-action" style="background:var(--live); color:#000;" onclick="startGPS()">START LIVE TRACKER</button>
+    <button class="big-action" style="background:#fff; color:red; border:3px solid red;" onclick="killAlarm()">RESET ALARM</button>
 </div>
 
-<div class="section-title">🩹 K9 FIELD MEDICAL & VETS</div>
-<div class="content-area">
-    <div class="data-card med-alert"><b>1. K9 CPR (IMMEDIATE)</b><p>Lay dog on RIGHT side. Locate heart at left elbow. Compressions: 100-120 per minute. 2 breaths every 30 compressions. Extend neck to open airway.</p></div>
-    <div class="data-card med-alert"><b>2. EMERGENCY VETS (AMHERST/LYNCHBURG)</b><p><b>Animal Emergency Lynchburg:</b> (434) 846-1504 (24/7)<br><b>Laurel Stone Amherst:</b> (434) 946-5059</p></div>
-    <div class="data-card med-alert"><b>3. GUNSHOT / TRAUMA</b><p>Pack wound deep with QuikClot or gauze. Apply constant pressure for 5 mins. TQ high and tight for limb wounds.</p></div>
-    <div class="data-card"><b>4. NARCAN DEPLOYMENT</b><p>4mg Intranasal for suspected opioid exposure (Fentanyl). Monitor breathing; repeat every 3 mins if needed.</p></div>
-    <div class="data-card"><b>5. HEAT STROKE</b><p>Cool paws/ears with water. Do not use ice water. Move to shade. Immediate transport if temp >106F.</p></div>
-    <div class="data-card"><b>6. SNAKEBITE</b><p>Keep K9 calm. Bite below heart. Transport to Lynchburg ER for antivenin. Do not cut or suck wound.</p></div>
+<div class="bar">🩹 K9 MEDICAL & EMERGENCY VETS</div>
+<div class="container">
+    <div class="med-card"><b>1. K9 CPR (IMMEDIATE)</b><p>Lay K9 on RIGHT side. Locate heart at left elbow. Compressions: 100-120 per minute. 2 breaths every 30 compressions.</p></div>
+    <div class="med-card"><b>2. EMERGENCY VETS (LOCAL)</b><p><b>Lynchburg 24-Hour:</b> (434) 846-1504<br><b>Amherst Laurel Stone:</b> (434) 946-5059</p></div>
+    <div class="med-card"><b>3. GUNSHOT / TRAUMA</b><p>Pack wound deep with gauze. Constant pressure 5 mins. TQ high and tight for limbs.</p></div>
+    <div class="med-card"><b>4. SNAKEBITE</b><p>Keep K9 still. Bite below heart. Immediate transport for antivenin.</p></div>
 </div>
 
-<div class="section-title">⚖️ K9 LEGAL VAULT (20+ ENTRIES)</div>
-<div class="content-area">
-    <div class="data-card"><b>1. VA CODE § 18.2-144.1</b><p>Killing or injuring police animals. Class 5 felony for malicious killing. Class 6 felony for wounding.</p></div>
-    <div class="data-card"><b>2. FLORIDA v. HARRIS (SCOTUS)</b><p>K9 Alert = Probable Cause. Focus on training/certification records rather than field performance logs.</p></div>
-    <div class="data-card"><b>3. RODRIGUEZ v. US (SCOTUS)</b><p>Traffic stops cannot be extended for a dog sniff without independent reasonable suspicion.</p></div>
-    <div class="data-card"><b>4. VA CODE § 18.2-460</b><p>Obstruction of Justice. Penalizes interference with LEO animals in performance of duty.</p></div>
-    <div class="data-card"><b>5. ILLINOIS v. CABALLES</b><p>Dog sniff of vehicle exterior during lawful stop is NOT a search under 4th Amendment.</p></div>
-    <div class="data-card"><b>6. FLORIDA v. JARDINES</b><p>K9 sniff on a front porch (curtilage) requires a warrant.</p></div>
-    <div class="data-card"><b>7. US v. PLACE</b><p>K9 sniff of luggage in public is not a "search" because it is limited in scope.</p></div>
-    <div class="data-card"><b>8. ROBINETTE v. BARNES</b><p>Properly trained K9 deployment is NOT considered deadly force.</p></div>
-    <div class="data-card"><b>9. VA CODE § 3.2-6570</b><p>Exempts LEO K9 handlers from cruelty statutes during lawful deployment.</p></div>
-    <div class="data-card"><b>10. GRAHAM v. CONNOR</b><p>The "Reasonableness" standard for K9 use of force based on the perspective of the officer on scene.</p></div>
-    <div class="data-card"><b>11. US v. SHARP</b><p>20-minute wait for K9 arrival is reasonable if officer is diligent.</p></div>
-    <div class="data-card"><b>12. CITY OF INDIANAPOLIS v. EDMOND</b><p>Narcotic checkpoints (random) are unconstitutional.</p></div>
-    <div class="data-card"><b>13. MATTHEWS v. JONES</b><p>Standard for deployment on fleeing suspects: Severity of crime vs threat.</p></div>
-    <div class="data-card"><b>14. US v. LUDWIG</b><p>K9 alert on trunk provides PC for the entire vehicle.</p></div>
-    <div class="data-card"><b>15. STATE v. MILLER</b><p>Tracking evidence admissibility standards (Breed, Training, Freshness).</p></div>
-    <div class="data-card"><b>16. US v. THOMAS</b><p>Apartment hallway sniffs may require a warrant in some jurisdictions.</p></div>
-    <div class="data-card"><b>17. COMMONWEALTH v. ENOS</b><p>VA requirements for articulating K9 cues in search warrants.</p></div>
-    <div class="data-card"><b>18. US v. CEDANO-ARELLANO</b><p>Right to discovery of K9 training logs by defense.</p></div>
-    <div class="data-card"><b>19. VA CODE § 19.2-59</b><p>Exigent circumstances for K9 pursuit of felons.</p></div>
-    <div class="data-card"><b>20. US v. GARCIA</b><p>K9 alert on mail packages for warrant PC.</p></div>
+<div class="bar">⚖️ K9 LEGAL VAULT (20+ CASES)</div>
+<div class="container">
+    <div class="law-card"><b>1. VA CODE § 18.2-144.1</b><p>Felony to kill or wound a police animal. Class 5/6 penalties apply.</p></div>
+    <div class="law-card"><b>2. FLORIDA v. HARRIS</b><p>K9 Alert = Probable Cause. Training records are key to reliability.</p></div>
+    <div class="law-card"><b>3. RODRIGUEZ v. US</b><p>Do not extend traffic stops for K9 arrival without reasonable suspicion.</p></div>
+    <div class="law-card"><b>4. VA CODE § 18.2-460</b><p>Obstruction of Justice: Interference with K9 operations is a Class 1 Misdemeanor.</p></div>
+    <div class="law-card"><b>5. ILLINOIS v. CABALLES</b><p>Exterior sniffs of vehicles during lawful stops are NOT searches.</p></div>
+    <div class="law-card"><b>6. FLORIDA v. JARDINES</b><p>Porch/Curtilage sniffs require a search warrant.</p></div>
+    <div class="law-card"><b>7. US v. PLACE</b><p>Luggage sniffs in public places are constitutional.</p></div>
+    <div class="law-card"><b>8. ROBINETTE v. BARNES</b><p>Trained K9 use is not deadly force.</p></div>
+    <div class="law-card"><b>9. GRAHAM v. CONNOR</b><p>Standard of "Objectively Reasonable" force for deployments.</p></div>
+    <div class="law-card"><b>10. US v. SHARP</b><p>20-minute detention for K9 is acceptable if acting diligently.</p></div>
+    </div>
+
+<div class="bar">📝 INCIDENT & TRAINING LOGS</div>
+<div class="container">
+    <b>OFFICER NARRATIVE / TRAINING NOTES</b>
+    <textarea placeholder="Type Case # or Training Details here..."></textarea>
+    <button class="big-action">SAVE FIELD RECORD</button>
 </div>
 
-<div class="section-title">📝 FIELD LOGS & REPORTS</div>
-<div class="content-area">
-    <b>TRAINING LOG ENTRY</b>
-    <textarea placeholder="Handler, K9, Location, Exercise Type, Results..."></textarea>
-    <button class="save-btn">SAVE TRAINING LOG</button>
-    <br><br>
-    <b>INCIDENT / DEPLOYMENT REPORT</b>
-    <textarea placeholder="Case #, Suspect Info, Narrative, K9 Actions..."></textarea>
-    <button class="save-btn" style="background:var(--orange); color:black;">SUBMIT INCIDENT REPORT</button>
-</div>
-
-<div style="text-align:center; padding:40px; color:#444; font-size:12px;">END OF COMMAND MODULE V64</div>
+<div style="text-align:center; padding:50px; color:#444;">VERSION 65.0 - ACSD TACTICAL</div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     var map = L.map('map', {zoomControl: false}).setView([37.584, -79.052], 14);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    var mode = null, pPts = [], markers = [], muted = false;
+    var mode = null, pPts = [], alarmMuted = false;
     var area = L.polygon([], {color:'red'}).addTo(map);
 
     function setMode(m) { 
         mode = m; 
-        document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('active-t'));
-        document.getElementById('t-'+m).classList.add('active-t');
+        document.querySelectorAll('.btn-t').forEach(b => b.classList.remove('active'));
+        document.getElementById('m-'+m).classList.add('active');
     }
 
-    function resetAlarm() {
-        muted = true;
-        document.getElementById('p-mon').className = "";
-        document.getElementById('p-mon').innerText = "ALARM RESET - MONITORING";
-        setTimeout(() => { muted = false; }, 60000);
+    function killAlarm() {
+        alarmMuted = true;
+        document.getElementById('status-bar').className = "";
+        document.getElementById('status-bar').innerText = "ALARM RESET";
+        setTimeout(() => { alarmMuted = false; }, 60000);
     }
 
     map.on('click', function(e) {
@@ -138,14 +121,14 @@
         if(mode === 'perim') { pPts.push(e.latlng); area.setLatLngs(pPts); }
         else {
             L.circleMarker(e.latlng, {radius:12, color:'white', fillColor:colors[mode], fillOpacity:1}).addTo(map);
-            if(pPts.length > 2 && !muted) {
-                document.getElementById('p-mon').className = 'breach-alert';
-                document.getElementById('p-mon').innerText = "⚠️ PERIMETER BREACH ⚠️";
+            if(pPts.length > 2 && !alarmMuted) {
+                document.getElementById('status-bar').className = 'breach';
+                document.getElementById('status-bar').innerText = "⚠️ PERIMETER BREACH ⚠️";
             }
         }
     });
 
-    setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+    setInterval(() => { document.getElementById('timer').innerText = new Date().toLocaleTimeString(); }, 1000);
 </script>
 </body>
 </html>
