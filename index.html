@@ -4,57 +4,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD K9 COMMAND - V72 WIND-SCENT</title>
+    <title>ACSD K9 COMMAND - V73 DASHBOARD</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        :root { --orange: #ff6600; --gold: #ffd700; --blue: #0044ff; --live: #00ff00; --red: #ff0000; --scent: rgba(255, 215, 0, 0.2); }
-        body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; }
+        :root { --orange: #ff6600; --gold: #ffd700; --blue: #0044ff; --live: #00ff00; --red: #ff0000; }
+        body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; overflow-x: hidden; }
         
-        .header { background: #001a00; border-bottom: 4px solid var(--orange); padding: 35px 10px 10px; position: sticky; top: 0; z-index: 1000; }
-        .sig { font-size: 12px; color: var(--gold); text-align: center; font-weight: bold; text-transform: uppercase; }
+        .header { background: #001a00; border-bottom: 4px solid var(--orange); padding: 30px 10px 10px; position: sticky; top: 0; z-index: 1000; }
+        .sig { font-size: 11px; color: var(--gold); text-align: center; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; }
         
-        #status { background: #111; color: var(--live); padding: 15px; text-align: center; font-weight: bold; font-size: 20px; border-bottom: 2px solid #333; }
-        #map { height: 450px; background: #111; width: 100%; }
+        /* SEARCH BOX RECOVERY */
+        .search-row { background: #222; padding: 12px; display: flex; gap: 8px; border-bottom: 2px solid #444; }
+        #addr-in { flex-grow: 1; padding: 12px; font-size: 16px; border-radius: 4px; border: none; font-weight: bold; background: #fff; color: #000; }
+        .go-btn { background: var(--orange); color: #000; padding: 0 15px; font-weight: bold; border: none; border-radius: 4px; }
 
-        /* TACTICAL OVERLAY FOR WIND */
-        .wind-overlay { position: absolute; top: 120px; right: 10px; z-index: 1001; background: rgba(0,0,0,0.8); border: 2px solid var(--orange); padding: 10px; border-radius: 10px; text-align: center; }
-        
+        #status { background: #111; color: var(--live); padding: 12px; text-align: center; font-weight: bold; font-size: 18px; border-bottom: 1px solid #333; }
+        #map { height: 420px; background: #111; width: 100%; position: relative; }
+
+        /* WIND OVERLAY */
+        .wind-box { position: absolute; top: 10px; right: 10px; z-index: 1001; background: rgba(0,0,0,0.85); border: 2px solid var(--orange); padding: 8px; border-radius: 8px; text-align: center; width: 70px; }
+        .wind-arrow { width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-bottom: 30px solid var(--orange); margin: 0 auto; transition: transform 0.2s ease-out; }
+
         .tool-belt { display: flex; overflow-x: auto; gap: 10px; padding: 15px; background: #1a1a1a; border-bottom: 2px solid #444; }
-        .t-item { flex: 0 0 90px; background: #333; border: 2px solid #555; border-radius: 10px; padding: 12px 0; text-align: center; font-size: 11px; font-weight: bold; }
+        .t-item { flex: 0 0 85px; background: #333; border: 1px solid #555; border-radius: 8px; padding: 10px 0; text-align: center; font-size: 11px; font-weight: bold; }
         .active-tool { border-color: var(--live); background: #002200; color: var(--live); }
 
         .controls { padding: 15px; }
-        .action-btn { width: 100%; padding: 22px; font-size: 18px; font-weight: bold; border-radius: 12px; border: none; margin-bottom: 10px; text-transform: uppercase; }
+        .action-btn { width: 100%; padding: 20px; font-size: 18px; font-weight: bold; border-radius: 10px; border: none; margin-bottom: 10px; text-transform: uppercase; }
         
-        textarea { width: 100%; height: 200px; background: #000; color: #fff; border: 2px solid var(--gold); padding: 12px; box-sizing: border-box; font-size: 16px; }
-        
-        /* THE WIND ARROW CSS */
-        .wind-arrow { width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-bottom: 40px solid var(--orange); position: relative; transition: transform 0.2s ease-out; margin: 0 auto; }
-        .scent-cone { position: absolute; top: -100px; left: -50px; width: 100px; height: 100px; background: radial-gradient(circle at bottom, var(--scent) 0%, transparent 70%); clip-path: polygon(50% 100%, 0 0, 100% 0); transform-origin: bottom center; }
+        textarea { width: 100%; height: 200px; background: #000; color: #fff; border: 1px solid var(--gold); padding: 10px; box-sizing: border-box; font-size: 15px; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <div class="sig">RETIRED DEPUTY SHERIFF EARL WOOD - ACSD COMMAND</div>
-    <div style="text-align:center; font-weight:bold; font-size:20px;">K9 TACTICAL SCENT COMPASS</div>
+    <div style="text-align:center; font-weight:bold; font-size:18px;">K9 TACTICAL DEPLOYMENT</div>
 </div>
 
-<div class="wind-overlay">
-    <div id="wind-dir-icon" class="wind-arrow"></div>
-    <div style="font-size:10px; margin-top:5px; color:var(--orange);">WIND DIRECTION</div>
-    <button onclick="setWind()" style="background:var(--orange); border:none; border-radius:5px; margin-top:5px; font-weight:bold; padding:5px;">SET WIND</button>
+<div class="search-row">
+    <input type="text" id="addr-in" placeholder="ENTER INCIDENT ADDRESS">
+    <button class="go-btn" onclick="locate()">SEARCH</button>
 </div>
 
-<div id="status">SATELLITE LINK ACTIVE</div>
-<div id="map"></div>
+<div id="status">GPS STANDBY</div>
+
+<div id="map">
+    <div class="wind-box">
+        <div id="wind-dir-icon" class="wind-arrow"></div>
+        <div style="font-size:9px; margin-top:4px; color:var(--orange); font-weight:bold;">WIND</div>
+        <button onclick="setWind()" style="background:var(--orange); border:none; border-radius:3px; margin-top:4px; font-size:9px; font-weight:bold; width:100%;">SET</button>
+    </div>
+</div>
 
 <div class="tool-belt">
     <div id="m-perim" class="t-item" onclick="setMode('perim')">🔴<br>PERIMETER</div>
     <div id="m-k9" class="t-item" onclick="setMode('k9')">🐕<br>K9 UNIT</div>
-    <div id="m-leo" class="t-item" onclick="setMode('leo')">🔵<br>L.E.O.</div>
-    <div id="m-clue" class="t-item" onclick="setMode('clue')">🚩<br>CLUE/EVID</div>
+    <div id="m-leo" class="t-item" onclick="setMode('leo')">🔵<br>OFFICER</div>
+    <div id="m-clue" class="t-item" onclick="setMode('clue')">🚩<br>EVIDENCE</div>
     <div id="m-suspect" class="t-item" onclick="setMode('suspect')">👤<br>SUSPECT</div>
 </div>
 
@@ -63,10 +71,10 @@
     <button class="action-btn" style="background:var(--orange); color:#000;" onclick="setWind()">LOCK WIND DIRECTION</button>
 </div>
 
-<div class="card" style="background:#111; padding:15px; margin:15px; border-left: 8px solid var(--gold);">
-    <p style="color:var(--gold); font-weight:bold;">AUTO-NARRATIVE LOG</p>
-    <textarea id="incident-log"></textarea>
-    <button class="action-btn" style="background:var(--blue); color:#fff; margin-top:10px;" onclick="window.print()">PRINT CASE REPORT</button>
+<div style="background:var(--orange); color:#000; padding:10px; font-weight:bold; text-align:center;">📋 AUTO-GENERATED REPORT</div>
+<div style="padding:15px;">
+    <textarea id="incident-log" placeholder="Activity Log..."></textarea>
+    <button class="action-btn" style="background:var(--blue); color:#fff;" onclick="window.print()">PRINT FOR SHERIFF</button>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -74,9 +82,9 @@
     var map = L.map('map', {zoomControl: false}).setView([37.584, -79.052], 14);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     
-    var mode = null, pPts = [], watchID = null, userMarker = null, scentMarker = null;
+    var mode = null, pPts = [], watchID = null, userMarker = null;
     var currentHeading = 0, windHeading = 0;
-    var area = L.polygon([], {color:'red', weight: 4, fillOpacity: 0.1}).addTo(map);
+    var area = L.polygon([], {color:'red', weight: 3, fillOpacity: 0.15}).addTo(map);
 
     function setMode(m) {
         mode = m;
@@ -88,38 +96,35 @@
     window.addEventListener('deviceorientationabsolute', function(event) {
         if (event.alpha !== null) {
             currentHeading = event.alpha;
-            updateArrows();
+            var relativeWind = (windHeading - currentHeading);
+            document.getElementById('wind-dir-icon').style.transform = `rotate(${relativeWind}deg)`;
         }
     }, true);
 
     function setWind() {
         windHeading = currentHeading;
-        logEvent("WIND DIRECTION SET TO HEADING: " + Math.round(360 - windHeading) + "°");
-        alert("Wind Locked. Scent Cone Adjusted.");
+        logEvent("Tactical wind direction locked.");
     }
 
-    function updateArrows() {
-        // Update the Floating GUI Arrow
-        var relativeWind = (windHeading - currentHeading);
-        document.getElementById('wind-dir-icon').style.transform = `rotate(${relativeWind}deg)`;
-        
-        // Update the Scent Cone on the Map (Locked to GPS Dot)
-        if (scentMarker) {
-            scentMarker.setRotationAngle(relativeWind);
-        }
+    function locate() {
+        var q = document.getElementById('addr-in').value;
+        fetch('https://nominatim.openstreetmap.org/search?format=json&q='+q)
+        .then(r => r.json()).then(d => { 
+            if(d[0]) {
+                map.setView([d[0].lat, d[0].lon], 17); 
+                logEvent("Address Set: " + q);
+            }
+        });
     }
 
     function startGPS() {
-        if (watchID) { navigator.geolocation.clearWatch(watchID); watchID = null; return; }
+        if (watchID) { navigator.geolocation.clearWatch(watchID); watchID = null; document.getElementById('gps-btn').innerText = "START TRACKER"; return; }
         watchID = navigator.geolocation.watchPosition(pos => {
             var latlng = [pos.coords.latitude, pos.coords.longitude];
-            if (userMarker) { 
-                userMarker.setLatLng(latlng); 
-            } else {
-                userMarker = L.circleMarker(latlng, {radius: 10, color: '#fff', fillColor: '#007bff', fillOpacity: 1}).addTo(map);
-                logEvent("Live tracker started at mailbox/start point.");
-            }
+            if (userMarker) userMarker.setLatLng(latlng);
+            else userMarker = L.circleMarker(latlng, {radius: 10, color: '#fff', fillColor: '#007bff', fillOpacity: 1}).addTo(map);
             map.setView(latlng, 18);
+            document.getElementById('gps-btn').innerText = "TRACKING LIVE";
         }, null, {enableHighAccuracy: true});
     }
 
@@ -132,16 +137,12 @@
     map.on('click', function(e) {
         if(!mode) return;
         var colors = {'k9':'yellow', 'leo':'#0044ff', 'clue':'red', 'perim':'red', 'suspect':'#fff'};
-        if(mode === 'perim') { pPts.push(e.latlng); area.setLatLngs(pPts); logEvent("Perimeter Point Placed."); }
+        if(mode === 'perim') { pPts.push(e.latlng); area.setLatLngs(pPts); }
         else { 
-            L.circleMarker(e.latlng, {radius:10, color:'black', fillColor:colors[mode], fillOpacity:1}).addTo(map); 
-            logEvent(mode.toUpperCase() + " MARKER PLACED.");
+            L.circleMarker(e.latlng, {radius:9, color:'black', fillColor:colors[mode], fillOpacity:1}).addTo(map); 
+            logEvent(mode.toUpperCase() + " marker placed on map.");
         }
     });
-
-    function locate() {
-        logEvent("Deployment Address Confirmed.");
-    }
 </script>
 </body>
 </html>
