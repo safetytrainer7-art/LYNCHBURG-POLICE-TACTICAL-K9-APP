@@ -3,27 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>K9 COMMAND - V75 DOCTRINE</title>
+    <title>ACSD K9 COMMAND - V76</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --orange: #ff6600; --gold: #ffd700; --blue: #0044ff; --live: #00ff00; --red: #ff0000; --dark: #111; }
         body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; }
         
-        .header { background: #001a00; border-bottom: 4px solid var(--orange); padding: 30px 10px 10px; position: sticky; top: 0; z-index: 1000; }
+        .header { background: #001a00; border-bottom: 4px solid var(--orange); padding: 35px 10px 10px; position: sticky; top: 0; z-index: 1000; }
         .sig { font-size: 13px; color: var(--gold); text-align: center; font-weight: bold; text-transform: uppercase; }
         
-        #map { height: 350px; background: #222; width: 100%; position: relative; }
-        .section-bar { background: var(--orange); color: #000; padding: 12px; font-weight: bold; text-align: center; cursor: pointer; border-bottom: 1px solid #000; }
+        #map { height: 380px; background: #222; width: 100%; position: relative; border-bottom: 2px solid #444; }
+
+        /* SCROLLING ICON TOOLBELT */
+        .tool-belt { display: flex; overflow-x: auto; gap: 10px; padding: 15px; background: #1a1a1a; border-bottom: 2px solid #444; }
+        .t-item { flex: 0 0 90px; background: #333; border: 2px solid #555; border-radius: 10px; padding: 12px 0; text-align: center; font-size: 11px; font-weight: bold; }
+        .active-tool { border-color: var(--live); background: #002200; color: var(--live); }
+
+        .section-bar { background: var(--orange); color: #000; padding: 14px; font-weight: bold; text-align: center; border-bottom: 1px solid #000; font-size: 14px; }
+        .content-area { padding: 15px; background: var(--dark); display: none; }
         
-        .content-area { padding: 15px; background: var(--dark); display: none; } /* Hidden until clicked */
         .card { background: #222; border-left: 6px solid var(--gold); padding: 15px; margin-bottom: 15px; border-radius: 4px; }
         .emergency { border-left-color: var(--red); }
         
-        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; background: #000; color: #fff; border: 1px solid var(--gold); box-sizing: border-box; font-size: 16px; }
         .action-btn { width: 100%; padding: 20px; font-size: 18px; font-weight: bold; border-radius: 10px; border: none; margin-bottom: 10px; text-transform: uppercase; cursor: pointer; }
-        
-        #final-report-view { background: #fff; color: #000; padding: 20px; display: none; font-family: 'Courier New', Courier, monospace; }
-        .visible { display: block !important; }
+        textarea, input, select { width: 100%; padding: 12px; margin: 8px 0; background: #000; color: #fff; border: 1px solid var(--gold); box-sizing: border-box; }
+
+        #final-report-view { background: #fff; color: #000; padding: 25px; display: none; font-family: 'Courier New', monospace; }
     </style>
 </head>
 <body>
@@ -34,111 +39,90 @@
 
 <div id="map"></div>
 
-<div class="section-bar" onclick="toggle('med-sec')">🩹 EMERGENCY K9 FIRST AID</div>
+<div class="tool-belt">
+    <div id="m-perim" class="t-item" onclick="setMode('perim')">🔴<br>PERIMETER</div>
+    <div id="m-k9" class="t-item" onclick="setMode('k9')">🐕<br>K9 UNIT</div>
+    <div id="m-leo" class="t-item" onclick="setMode('leo')">🔵<br>OFFICER</div>
+    <div id="m-clue" class="t-item" onclick="setMode('clue')">🚩<br>EVIDENCE</div>
+    <div id="m-suspect" class="t-item" onclick="setMode('suspect')">👤<br>SUSPECT</div>
+</div>
+
+<div class="controls" style="padding:15px;">
+    <button id="gps-btn" class="action-btn" style="background:var(--live); color:#000;" onclick="startGPS()">START LIVE TRACKER</button>
+</div>
+
+<div class="section-bar" onclick="toggle('med-sec')">🩹 K9 MEDICAL: CPR / GSW / HEAT</div>
 <div id="med-sec" class="content-area">
-    <div class="card emergency">
-        <h3>1. K9 CPR (PRIORITY ONE)</h3>
-        <p><b>Check Breathing/Pulse:</b> If no pulse, lay dog on RIGHT side on firm surface.</p>
-        <p><b>Compressions:</b> Place hands over widest part of chest (behind elbow). Compress 1/3 to 1/2 depth of chest.</p>
-        <p><b>Rate:</b> 100-120 per minute. 30 compressions then 2 quick breaths into the NOSE (hold mouth shut).</p>
-    </div>
-    <div class="card emergency">
-        <b>GUNSHOT/STAB:</b> Pack wound with clean gauze. Apply heavy pressure. Do NOT remove soaked bandages; add more on top.
-    </div>
-    <div class="card emergency">
-        <b>HEAT EXHAUSTION:</b> Internal temp >106°F is critical. Apply tepid water to paws, ears, and belly. Move to AC. Do not use ice water (shocks system).
-    </div>
-    <div class="card">
-        <b>SNAKE BITE:</b> Keep dog calm/immobilized. Note snake type if possible. Do NOT cut or suck wound. Transport to ER Vet immediately.
-    </div>
-    <div class="card">
-        <b>EYE INJURY:</b> Do not allow dog to rub. Flush with saline only. Cover with a loose bandage or cone.
-    </div>
-    <div class="card emergency">
-        <b>ADJOINING COUNTY VETS:</b><br>
-        • Lynchburg (24hr): 434-846-1504<br>
-        • Laurel Stone (Amherst): 434-946-5059<br>
-        • Bedford ER: 540-586-4290<br>
-        • Appomattox: 434-352-7081
-    </div>
+    <div class="card emergency"><b>1. K9 CPR (PRIORITY):</b> 100-120 compressions/min. Right side down. Heart at left elbow. 30 pumps / 2 nose breaths.</div>
+    <div class="card emergency"><b>2. GUNSHOT/STAB:</b> Pack wound with gauze. Constant pressure. Do not remove soaked pads.</div>
+    <div class="card"><b>3. HEAT:</b> Temp >106°F. Cool paws/ears with water. Move to Shade/AC.</div>
+    <div class="card"><b>VETS:</b> Lynchburg (434) 846-1504 | Laurel Stone (434) 946-5059</div>
 </div>
 
-<div class="section-bar" onclick="toggle('law-sec')">⚖️ K9 CASE LAW (US & VIRGINIA)</div>
+<div class="section-bar" onclick="toggle('law-sec')">⚖️ K9 CASE LAW (VA & US)</div>
 <div id="law-sec" class="content-area">
-    <div class="card"><b>US 1: FL v. Harris</b> - Training records prove K9 reliability for PC.</div>
-    <div class="card"><b>US 2: FL v. Jardines</b> - K9 sniff on porch requires a warrant.</div>
-    <div class="card"><b>US 3: Rodriguez v. US</b> - Cannot extend traffic stop just to wait for K9.</div>
-    <div class="card"><b>US 4: Graham v. Connor</b> - Use of force (K9) must be "objectively reasonable."</div>
-    <div class="card"><b>VA 1: Code § 18.2-144.1</b> - Felony to kill/wound police dog.</div>
-    <div class="card"><b>VA 2: Probable Cause</b> - VA Courts recognize K9 alert as high-threshold PC.</div>
-    <p><i>*Full list of 20 laws indexed in Final Report Engine.</i></p>
+    <div class="card"><b>VA CODE 18.2-144.1:</b> Felony to kill/harm police animal.</div>
+    <div class="card"><b>US: FL v. HARRIS:</b> Training certs = Probable Cause.</div>
+    <div class="card"><b>US: RODRIGUEZ v. US:</b> Traffic stop time limits for K9.</div>
+    <div class="card"><b>5 SENSES:</b> Hearing, Smelling, Tasting, Seeing, Touch for PC observation.</div>
 </div>
 
-<div class="section-bar" onclick="toggle('train-sec')">🐕 DAILY TRAINING & CERT LOG</div>
+<div class="section-bar" onclick="toggle('train-sec')">🐕 DAILY TRAINING LOG</div>
 <div id="train-sec" class="content-area">
     <input type="date" id="t-date">
-    <input type="text" id="t-loc" placeholder="Location (Building, Field, Vehicle)">
-    <select id="t-weather">
-        <option>Weather: Clear</option><option>Rain</option><option>Snow</option><option>High Heat</option>
-    </select>
-    <select id="t-light">
-        <option>Daylight</option><option>Dusk</option><option>Night/Low Light</option>
-    </select>
-    <textarea id="t-aids" placeholder="Training Aids Used (Narcotics, Explosives, Scent Type, Weight)"></textarea>
-    <select id="t-perf">
-        <option value="Proficient">Rating: Proficient</option>
-        <option value="Satisfactory">Satisfactory</option>
-        <option value="Unsatisfactory">Unsatisfactory</option>
-    </select>
-    <input type="text" id="t-time" placeholder="Search Time (e.g. 4 mins 20 secs)">
-    <button class="action-btn" style="background:var(--gold); color:#000;" onclick="saveLog('TRAINING')">LOCK TRAINING LOG</button>
+    <input type="text" id="t-loc" placeholder="Location">
+    <textarea id="t-aids" placeholder="Aids/Weight/Type"></textarea>
+    <select id="t-perf"><option>Proficient</option><option>Satisfactory</option><option>Unsatisfactory</option></select>
+    <button class="action-btn" style="background:var(--gold); color:#000;" onclick="saveLog('TRAINING')">GENERATE TRAINING PDF</button>
 </div>
 
-<div class="section-bar" onclick="toggle('inc-sec')">📝 INCIDENT / MISSION REPORT</div>
+<div class="section-bar" onclick="toggle('inc-sec')">📝 INCIDENT MISSION REPORT</div>
 <div id="inc-sec" class="content-area">
-    <input type="text" id="i-case" placeholder="Case Number / Address">
-    <textarea id="i-narrative" placeholder="Detailed Narrative: Mission Start to Finish..."></textarea>
-    <select id="i-force">
-        <option>Force Used: None</option>
-        <option>Hold/Bite Occurred</option>
-        <option>Release Ordered</option>
-    </select>
-    <button class="action-btn" style="background:var(--blue); color:#fff;" onclick="saveLog('INCIDENT')">GENERATE FINAL MISSION REPORT</button>
+    <input type="text" id="i-case" placeholder="Case # / Address">
+    <textarea id="i-narrative" placeholder="Mission Details..."></textarea>
+    <select id="i-force"><option>No Force</option><option>Hold/Bite Occurred</option></select>
+    <button class="action-btn" style="background:var(--blue); color:#fff;" onclick="saveLog('INCIDENT')">GENERATE MISSION PDF</button>
 </div>
 
 <div id="final-report-view"></div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+    var map = L.map('map', {zoomControl: false}).setView([37.584, -79.052], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    var mode = null, watchID = null, userMarker = null;
+
+    function setMode(m) {
+        mode = m;
+        document.querySelectorAll('.t-item').forEach(b => b.classList.remove('active-tool'));
+        document.getElementById('m-'+m).classList.add('active-tool');
+    }
+
     function toggle(id) {
         var el = document.getElementById(id);
         el.style.display = (el.style.display === 'block') ? 'none' : 'block';
     }
 
+    function startGPS() {
+        if (watchID) { navigator.geolocation.clearWatch(watchID); watchID = null; return; }
+        watchID = navigator.geolocation.watchPosition(pos => {
+            var latlng = [pos.coords.latitude, pos.coords.longitude];
+            if (userMarker) userMarker.setLatLng(latlng);
+            else userMarker = L.circleMarker(latlng, {radius: 10, color: '#fff', fillColor: '#007bff', fillOpacity: 1}).addTo(map);
+            map.setView(latlng, 18);
+        }, null, {enableHighAccuracy: true});
+    }
+
+    map.on('click', function(e) {
+        if(!mode) return;
+        var colors = {'k9':'yellow', 'leo':'#0044ff', 'clue':'red', 'perim':'red', 'suspect':'#fff'};
+        L.circleMarker(e.latlng, {radius:10, color:'black', fillColor:colors[mode], fillOpacity:1}).addTo(map);
+    });
+
     function saveLog(type) {
         var view = document.getElementById('final-report-view');
-        var data = "";
-        
-        if(type === 'TRAINING') {
-            data = `<h2>K9 TRAINING CERTIFICATION LOG</h2>
-            <b>DATE:</b> ${document.getElementById('t-date').value}<br>
-            <b>LOCATION:</b> ${document.getElementById('t-loc').value}<br>
-            <b>PERFORMANCE:</b> ${document.getElementById('t-perf').value}<br>
-            <b>AIDS/WEIGHT:</b> ${document.getElementById('t-aids').value}<br>
-            <b>TIME:</b> ${document.getElementById('t-time').value}`;
-        } else {
-            data = `<h2>OFFICIAL K9 INCIDENT REPORT</h2>
-            <b>CASE/ADDR:</b> ${document.getElementById('i-case').value}<br>
-            <b>NARRATIVE:</b> ${document.getElementById('i-narrative').value}<br>
-            <b>USE OF FORCE:</b> ${document.getElementById('i-force').value}`;
-        }
-
-        view.innerHTML = `<h1>ACSD COMMAND FILE</h1>
-        <p>App Creator: Retired Deputy Sheriff Earl Wood</p><hr>${data}<hr>
-        <button onclick="window.print()" class="action-btn" style="background:#000; color:#fff;">PRINT TO PDF</button>`;
-        
-        document.querySelectorAll('.content-area').forEach(c => c.style.display = 'none');
+        view.innerHTML = "<h1>ACSD REPORT</h1><p>Creator: Retired Deputy Earl Wood</p><hr><p>Data Saved.</p><button onclick='window.print()'>PRINT</button>";
         view.style.display = 'block';
-        window.scrollTo(0,document.body.scrollHeight);
     }
 </script>
 </body>
