@@ -1,94 +1,143 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD K9 COMMAND - V62 STABLE</title>
+    <title>ACSD K9 COMMAND - V63 ULTRA-STABLE</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --orange: #ff6600; --gold: #ffd700; --blue: #0044ff; --live: #00ff00; --red: #ff0000; }
-        body, html { margin: 0; padding: 0; height: 100%; background: #000; color: white; font-family: sans-serif; overflow: hidden; }
+        body, html { margin: 0; padding: 0; height: 100%; background: #000; color: white; font-family: sans-serif; }
         
-        /* HEADER & SIGNATURE */
-        .header { background: #001a00; padding: 25px 10px 5px; border-bottom: 3px solid var(--orange); z-index: 10000; position: relative; }
-        .sig { font-size: 10px; color: #888; text-align: center; margin-bottom: 5px; letter-spacing: 1px; }
-        .hud-row { display: flex; justify-content: space-between; background: #111; padding: 8px; font-size: 14px; color: var(--gold); font-weight: bold; }
+        /* HEADER */
+        .header { background: #001a00; padding: 25px 10px 10px; border-bottom: 3px solid var(--orange); position: sticky; top: 0; z-index: 1000; }
+        .sig { font-size: 11px; color: var(--gold); text-align: center; margin-bottom: 5px; font-weight: bold; }
+        .hud-row { display: flex; justify-content: space-between; background: #111; padding: 10px; font-size: 16px; color: #fff; font-weight: bold; border: 1px solid #333; }
         
-        /* ALARM MONITOR */
-        #p-mon-container { background: #222; border-bottom: 2px solid #333; display: flex; align-items: center; justify-content: center; height: 60px; }
-        #p-mon { font-size: 16px; font-weight: bold; text-align: center; width: 100%; }
-        #reset-alarm-btn { display: none; background: white; color: var(--red); border: 3px solid var(--red); padding: 8px 15px; font-weight: bold; border-radius: 4px; margin-left: 10px; }
-        .breach-alert { background: var(--red) !important; color: white !important; animation: blink 0.4s infinite; }
+        /* PAGE ENGINE */
+        .app-page { display: none; padding: 10px; min-height: 100vh; background: #000; }
+        .active-page { display: block !important; }
+
+        /* BUTTONS */
+        .nav-btn { background: #1a1a1a; border: 3px solid var(--gold); color: white; padding: 25px; margin: 15px 0; border-radius: 12px; font-size: 20px; font-weight: bold; text-align: center; width: 100%; box-sizing: border-box; display: block; text-decoration: none; }
+        .giant-btn { width: 48%; padding: 20px; font-size: 20px; font-weight: bold; border-radius: 10px; border: none; text-transform: uppercase; }
+        
+        /* MAP AREA */
+        #map { height: 400px; background: #111; border: 2px solid #333; margin: 10px 0; }
+        #p-mon { background: #222; padding: 15px; text-align: center; font-weight: bold; border-bottom: 2px solid #444; }
+        .breach-alert { background: var(--red) !important; color: white !important; animation: blink 0.5s infinite; }
         @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
 
-        /* PAGE ENGINE */
-        .page { position: absolute; top: 125px; bottom: 0; width: 100%; display: none; background: #000; overflow-y: auto; z-index: 50; }
-        .active-page { display: block !important; }
+        /* DATA CARDS */
+        .data-card { background: #111; border-left: 6px solid var(--gold); padding: 15px; margin: 10px 0; border-bottom: 1px solid #333; }
+        .data-card b { color: var(--gold); font-size: 18px; display: block; margin-bottom: 5px; }
         
-        #map { height: 40%; background: #111; }
-        .footer { height: 60%; background: #000; display: flex; flex-direction: column; padding: 10px; box-sizing: border-box; }
-        
-        .nav-btn { background: #1a1a1a; border: 3px solid var(--gold); color: white; padding: 22px; margin: 12px; border-radius: 12px; font-size: 20px; font-weight: bold; text-align: center; cursor: pointer; }
-        .data-card { background: #111; border-left: 8px solid var(--gold); padding: 18px; margin: 12px; font-size: 16px; line-height: 1.5; }
-        .data-card b { color: var(--gold); display: block; margin-bottom: 5px; font-size: 18px; text-transform: uppercase; }
-        
-        .tool-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
-        .t-btn { background: #1a1a1a; border: 1px solid #555; color: white; padding: 12px 0; border-radius: 4px; text-align: center; font-size: 11px; font-weight: bold; }
-        .active-t { background: var(--orange) !important; color: black; }
-        .deck-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex-grow: 1; }
-        .giant-btn { height: 100%; font-size: 22px; font-weight: bold; border-radius: 12px; border: none; text-transform: uppercase; }
+        .tool-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 10px 0; }
+        .t-btn { background: #1a1a1a; border: 1px solid #555; color: white; padding: 15px 0; border-radius: 5px; text-align: center; font-size: 12px; font-weight: bold; }
+        .active-t { background: var(--orange) !important; color: #000; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <div class="sig">APP CREATOR: RETIRED DEPUTY SHERIFF EARL WOOD</div>
-    <div style="text-align:center; font-weight:bold; font-size:18px; color:var(--gold);">ACSD K9 COMMAND</div>
-    <div class="hud-row"><span>🧭 <span id="heading">NW</span></span><span id="clock">00:00:00</span><span>💨 8MPH NW</span></div>
-</div>
-
-<div id="page-hub" class="page active-page">
-    <div class="nav-btn" style="background:var(--orange); color:black;" onclick="forcePage('page-map')">🗺️ START LIVE MAP</div>
-    <div class="nav-btn" onclick="forcePage('page-law')">⚖️ K9 LEGAL VAULT</div>
-    <div class="nav-btn" onclick="forcePage('page-med')">🩹 K9 FIRST AID & VETS</div>
-    <div class="nav-btn" onclick="forcePage('page-train')">📋 TRAINING LOGS</div>
-    <div class="nav-btn" onclick="forcePage('page-report')">📝 INCIDENT REPORTS</div>
-</div>
-
-<div id="page-map" class="page" style="overflow:hidden;">
-    <div id="p-mon-container">
-        <div id="p-mon">PERIMETER: SCANNING ACTIVE</div>
-        <button id="reset-alarm-btn" onclick="killAlarm()">RESET</button>
+    <div style="text-align:center; font-weight:bold; font-size:20px; color:var(--gold); margin-bottom:10px;">ACSD K9 COMMAND</div>
+    <div class="hud-row">
+        <span>🧭 NW</span>
+        <span id="clock">00:00:00</span>
+        <span onclick="location.reload()" style="color:var(--red);">RESET SYSTEM</span>
     </div>
-    <div style="background:#222; padding:8px; display:flex; gap:5px;">
-        <input type="text" id="search-in" placeholder="Address Search..." style="flex-grow:1; padding:12px; background:#000; color:white; border:1px solid #555;">
-        <button onclick="doSearch()" style="background:var(--orange); border:none; padding:10px 15px; font-weight:bold;">GO</button>
+</div>
+
+<div id="home" class="app-page active-page">
+    <button class="nav-btn" style="background:var(--orange); color:black;" onclick="goTo('map-page')">🗺️ START LIVE MAP</button>
+    <button class="nav-btn" onclick="goTo('law-page')">⚖️ K9 LEGAL VAULT</button>
+    <button class="nav-btn" onclick="goTo('med-page')">🩹 K9 FIRST AID & VETS</button>
+    <button class="nav-btn" onclick="goTo('log-page')">📋 TRAINING & REPORTS</button>
+</div>
+
+<div id="map-page" class="app-page">
+    <div id="p-mon">PERIMETER STATUS: ACTIVE SCAN</div>
+    <div style="padding:10px; display:flex; gap:5px;">
+        <input type="text" id="addr" placeholder="Address..." style="flex-grow:1; padding:12px; font-size:16px;">
+        <button onclick="findAddr()" style="background:var(--orange); padding:10px;">GO</button>
     </div>
     <div id="map"></div>
-    <div class="footer">
-        <div class="tool-grid">
-            <div id="t-perim" class="t-btn" onclick="setMode('perim')">🔴<br>PERIM</div>
-            <div id="t-leo" class="t-btn" onclick="setMode('leo')">🔵<br>LEO</div>
-            <div id="t-k9" class="t-btn" onclick="setMode('k9')">🐕<br>K9</div>
-            <div id="t-clue" class="t-btn" onclick="setMode('clue')">🚩<br>CLUE</div>
-        </div>
-        <div class="deck-row">
-            <button id="gps-btn" class="giant-btn" onclick="toggleGPS()" style="background:var(--live); color:black;">START TRACK</button>
-            <button class="giant-btn" onclick="forcePage('page-hub')" style="background:var(--blue); color:white;">MAIN HUB</button>
-        </div>
+    <div class="tool-grid">
+        <div id="t-perim" class="t-btn" onclick="sm('perim')">🔴<br>PERIM</div>
+        <div id="t-leo" class="t-btn" onclick="sm('leo')">🔵<br>LEO</div>
+        <div id="t-k9" class="t-btn" onclick="sm('k9')">🐕<br>K9</div>
+        <div id="t-clue" class="t-btn" onclick="sm('clue')">🚩<br>CLUE</div>
+    </div>
+    <div style="display:flex; justify-content:space-between; margin-top:10px;">
+        <button class="giant-btn" style="background:var(--live);" onclick="startTrack()">START TRACK</button>
+        <button class="giant-btn" style="background:var(--blue); color:white;" onclick="goTo('home')">BACK</button>
     </div>
 </div>
 
-<div id="page-law" class="page">
-    <div class="nav-btn" style="background:#333;" onclick="forcePage('page-hub')">⬅️ BACK TO HUB</div>
-    <div class="data-card"><b>VA CODE § 18.2-144.1</b><p>Maliciously killing a police animal is a Class 5 felony. Wounding with intent to maim is a Class 6 felony. Protects K9s in the line of duty.</p></div>
-    <div class="data-card"><b>FLORIDA v. HARRIS</b><p>K9 alert = Probable Cause. SCOTUS ruled certification is the gold standard for reliability in the field.</p></div>
-    <div class="data-card"><b>RODRIGUEZ v. US</b><p>Traffic stops cannot be prolonged for a dog sniff without independent reasonable suspicion.</p></div>
-    <div class="data-card"><b>VA CODE § 18.2-460</b><p>Obstruction of Justice. Penalizes anyone interfering with a K9 team during an active deployment.</p></div>
+<div id="law-page" class="app-page">
+    <button class="nav-btn" style="background:#333;" onclick="goTo('home')">⬅️ BACK TO HUB</button>
+    <div class="data-card"><b>VA CODE § 18.2-144.1</b><p>Class 5 Felony to kill a police animal. Class 6 Felony to wound or maim. This is the primary protection for K9s in Virginia.</p></div>
+    <div class="data-card"><b>FLORIDA v. HARRIS</b><p>SCOTUS ruling: K9 alert = Probable Cause. Reliability is based on training and certification records.</p></div>
+    <div class="data-card"><b>RODRIGUEZ v. US</b><p>You cannot extend a traffic stop specifically to wait for a K9 without reasonable suspicion.</p></div>
+    <div class="data-card"><b>VA CODE § 18.2-460</b><p>Obstruction of Justice. Interference with a LEO animal performing its duty is a Class 1 Misdemeanor.</p></div>
+    </div>
+
+<div id="med-page" class="app-page">
+    <button class="nav-btn" style="background:#333;" onclick="goTo('home')">⬅️ BACK TO HUB</button>
+    <div class="data-card" style="border-left-color:red;"><b>K9 CPR</b><p>Right Side down. Compressions at left elbow. 100-120 per min. 2 breaths every 30 compressions.</p></div>
+    <div class="data-card"><b>EMERGENCY VETS</b><p>Lynchburg Emergency (24/7): 434-846-1504<br>Amherst Laurel Stone: 434-946-5059</p></div>
+    <div class="data-card"><b>GSW / TRAUMA</b><p>Hemostatic gauze pack. Constant pressure for 5 mins. TQ for limbs.</p></div>
 </div>
 
-<div id="page-med" class="page">
-    <div class="nav-btn" style="background:#333;" onclick="forcePage('page-hub')">⬅️ BACK TO HUB</div>
-    <div class="data-card" style="border-left-color:red;"><b>K9 CPR</b><p>Lay K9 on right side. Locate heart at left elbow. 100-120 compressions per minute. 2 breaths every 30 compressions.</p></div>
-    <div class="data-card"><b>EMERGENCY VETS</b><p><b>Lynchburg Emergency:</b> (434) 846-1504<br><b>Laurel Stone Amherst:</b> (434) 946-5059</p
+<div id="log-page" class="app-page">
+    <button class="nav-btn" style="background:#333;" onclick="goTo('home')">⬅️ BACK TO HUB</button>
+    <h2 style="text-align:center;">FIELD NOTES</h2>
+    <textarea style="width:100%; height:300px; background:#111; color:white; border:2px solid var(--gold);"></textarea>
+    <button class="nav-btn" style="background:var(--gold); color:black;">SAVE RECORD</button>
+</div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // THE ENGINE - STAYS AT TOP
+    function goTo(id) {
+        var pages = document.getElementsByClassName('app-page');
+        for (var i = 0; i < pages.length; i++) { pages[i].classList.remove('active-page'); }
+        document.getElementById(id).classList.add('active-page');
+        if(id === 'map-page') { setTimeout(() => { map.invalidateSize(); }, 300); }
+    }
+
+    // MAP SETUP
+    var map = L.map('map', {zoomControl: false}).setView([37.584, -79.052], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    var mode = null, pPts = [], markers = [], area = L.polygon([], {color:'red'}).addTo(map);
+
+    function sm(m) { 
+        mode = m; 
+        document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('active-t'));
+        document.getElementById('t-'+m).classList.add('active-t');
+    }
+
+    function findAddr() {
+        var q = document.getElementById('addr').value;
+        fetch('https://nominatim.openstreetmap.org/search?format=json&q='+q)
+        .then(r => r.json()).then(d => { if(d[0]) map.setView([d[0].lat, d[0].lon], 17); });
+    }
+
+    map.on('click', function(e) {
+        if(!mode) return;
+        var colors = {'k9':'yellow', 'leo':'#0044ff', 'clue':'red', 'perim':'red'};
+        if(mode === 'perim') { pPts.push(e.latlng); area.setLatLngs(pPts); }
+        L.circleMarker(e.latlng, {radius:12, color:'white', fillColor:colors[mode], fillOpacity:1}).addTo(map);
+        // Instant check
+        if(pPts.length > 2 && mode !== 'perim') {
+            document.getElementById('p-mon').className = 'breach-alert';
+            document.getElementById('p-mon').innerText = "⚠️ BREACH DETECTED";
+        }
+    });
+
+    setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+</script>
+</body>
+</html>
