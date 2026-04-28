@@ -1,27 +1,25 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD K9 COMMAND - V71 AUTO-LOG</title>
+    <title>ACSD K9 COMMAND - V72 WIND-SCENT</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        :root { --orange: #ff6600; --gold: #ffd700; --blue: #0044ff; --live: #00ff00; --red: #ff0000; }
+        :root { --orange: #ff6600; --gold: #ffd700; --blue: #0044ff; --live: #00ff00; --red: #ff0000; --scent: rgba(255, 215, 0, 0.2); }
         body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; }
         
         .header { background: #001a00; border-bottom: 4px solid var(--orange); padding: 35px 10px 10px; position: sticky; top: 0; z-index: 1000; }
         .sig { font-size: 12px; color: var(--gold); text-align: center; font-weight: bold; text-transform: uppercase; }
         
-        .search-bar { background: #222; padding: 15px; display: flex; gap: 10px; }
-        #addr-in { flex-grow: 1; padding: 15px; font-size: 18px; border-radius: 5px; border: none; font-weight: bold; background: #fff; color: #000; }
-
         #status { background: #111; color: var(--live); padding: 15px; text-align: center; font-weight: bold; font-size: 20px; border-bottom: 2px solid #333; }
-        .breach-alert { background: var(--red) !important; color: #fff !important; animation: flash 0.4s infinite; }
-        @keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
+        #map { height: 450px; background: #111; width: 100%; }
 
-        #map { height: 400px; background: #111; width: 100%; }
-
+        /* TACTICAL OVERLAY FOR WIND */
+        .wind-overlay { position: absolute; top: 120px; right: 10px; z-index: 1001; background: rgba(0,0,0,0.8); border: 2px solid var(--orange); padding: 10px; border-radius: 10px; text-align: center; }
+        
         .tool-belt { display: flex; overflow-x: auto; gap: 10px; padding: 15px; background: #1a1a1a; border-bottom: 2px solid #444; }
         .t-item { flex: 0 0 90px; background: #333; border: 2px solid #555; border-radius: 10px; padding: 12px 0; text-align: center; font-size: 11px; font-weight: bold; }
         .active-tool { border-color: var(--live); background: #002200; color: var(--live); }
@@ -29,57 +27,46 @@
         .controls { padding: 15px; }
         .action-btn { width: 100%; padding: 22px; font-size: 18px; font-weight: bold; border-radius: 12px; border: none; margin-bottom: 10px; text-transform: uppercase; }
         
-        .section-bar { background: var(--orange); color: #000; padding: 12px; font-weight: bold; text-align: center; margin-top: 25px; }
-        .card { background: #111; border-left: 8px solid var(--gold); padding: 15px; margin: 15px; border-bottom: 1px solid #333; }
+        textarea { width: 100%; height: 200px; background: #000; color: #fff; border: 2px solid var(--gold); padding: 12px; box-sizing: border-box; font-size: 16px; }
         
-        textarea { width: 100%; height: 250px; background: #000; color: #fff; border: 2px solid var(--gold); padding: 12px; box-sizing: border-box; font-size: 16px; line-height: 1.4; }
-        #report-preview { background: #fff; color: #000; padding: 25px; display: none; margin: 15px; border-radius: 5px; font-family: 'Courier New', Courier, monospace; border: 1px solid #000; box-shadow: 0 0 10px rgba(255,255,255,0.2); }
+        /* THE WIND ARROW CSS */
+        .wind-arrow { width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-bottom: 40px solid var(--orange); position: relative; transition: transform 0.2s ease-out; margin: 0 auto; }
+        .scent-cone { position: absolute; top: -100px; left: -50px; width: 100px; height: 100px; background: radial-gradient(circle at bottom, var(--scent) 0%, transparent 70%); clip-path: polygon(50% 100%, 0 0, 100% 0); transform-origin: bottom center; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <div class="sig">RETIRED DEPUTY SHERIFF EARL WOOD - ACSD COMMAND</div>
-    <div style="text-align:center; font-weight:bold; font-size:22px; color:white;">TACTICAL K9 AUTO-LOGGER</div>
+    <div style="text-align:center; font-weight:bold; font-size:20px;">K9 TACTICAL SCENT COMPASS</div>
 </div>
 
-<div class="search-bar">
-    <input type="text" id="addr-in" placeholder="INCIDENT ADDRESS">
-    <button onclick="locate()" style="background:var(--orange); padding:10px 20px; font-weight:bold; border:none; border-radius:5px;">SET</button>
+<div class="wind-overlay">
+    <div id="wind-dir-icon" class="wind-arrow"></div>
+    <div style="font-size:10px; margin-top:5px; color:var(--orange);">WIND DIRECTION</div>
+    <button onclick="setWind()" style="background:var(--orange); border:none; border-radius:5px; margin-top:5px; font-weight:bold; padding:5px;">SET WIND</button>
 </div>
 
-<div id="status">PERIMETER SCANNING</div>
+<div id="status">SATELLITE LINK ACTIVE</div>
 <div id="map"></div>
 
 <div class="tool-belt">
     <div id="m-perim" class="t-item" onclick="setMode('perim')">🔴<br>PERIMETER</div>
-    <div id="m-leo" class="t-item" onclick="setMode('leo')">🔵<br>L.E.O.</div>
     <div id="m-k9" class="t-item" onclick="setMode('k9')">🐕<br>K9 UNIT</div>
+    <div id="m-leo" class="t-item" onclick="setMode('leo')">🔵<br>L.E.O.</div>
     <div id="m-clue" class="t-item" onclick="setMode('clue')">🚩<br>CLUE/EVID</div>
     <div id="m-suspect" class="t-item" onclick="setMode('suspect')">👤<br>SUSPECT</div>
-    <div id="m-mental" class="t-item" onclick="setMode('mental')">🧠<br>MENTAL</div>
-    <div id="m-victim" class="t-item" onclick="setMode('victim')">🆘<br>VICTIM</div>
 </div>
 
 <div class="controls">
-    <button id="gps-btn" class="action-btn" style="background:var(--live); color:#000;" onclick="startGPS()">START TRACKER</button>
-    <button class="action-btn" style="background:#fff; color:red; border:4px solid red;" onclick="resetAlarm()">RESET ALARM</button>
+    <button id="gps-btn" class="action-btn" style="background:var(--live); color:#000;" onclick="startGPS()">START LIVE TRACKER</button>
+    <button class="action-btn" style="background:var(--orange); color:#000;" onclick="setWind()">LOCK WIND DIRECTION</button>
 </div>
 
-<div class="section-bar">⚖️ VIRGINIA K9 CASE LAW & FIELD REFS</div>
-<div class="card"><b>VA CODE 18.2-144.1:</b> Felony protection for Police Animals.</div>
-<div class="card"><b>FLORIDA v. HARRIS:</b> K9 reliability via training records.</div>
-<div class="card"><b>RODRIGUEZ v. US:</b> Traffic stop time limits for K9.</div>
-
-<div class="section-bar">📋 AUTO-GENERATED NARRATIVE</div>
-<div class="card">
-    <p style="font-size: 13px; color: var(--gold);"><i>*Every map tap automatically logs the time and location below.</i></p>
-    <textarea id="incident-log" placeholder="Auto-log will populate here. Add manual notes at any time..."></textarea>
-    <button class="action-btn" style="background:var(--gold); color:#000;" onclick="previewReport()">1. REVIEW FINAL REPORT</button>
-    
-    <div id="report-preview"></div>
-    
-    <button id="print-btn" class="action-btn" style="background:var(--blue); color:#fff; display:none;" onclick="generatePDF()">2. PRINT FOR SHERIFF</button>
+<div class="card" style="background:#111; padding:15px; margin:15px; border-left: 8px solid var(--gold);">
+    <p style="color:var(--gold); font-weight:bold;">AUTO-NARRATIVE LOG</p>
+    <textarea id="incident-log"></textarea>
+    <button class="action-btn" style="background:var(--blue); color:#fff; margin-top:10px;" onclick="window.print()">PRINT CASE REPORT</button>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -87,8 +74,9 @@
     var map = L.map('map', {zoomControl: false}).setView([37.584, -79.052], 14);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     
-    var mode = null, pPts = [], watchID = null, userMarker = null, alarmMuted = false;
-    var area = L.polygon([], {color:'red', weight: 4, fillOpacity: 0.2}).addTo(map);
+    var mode = null, pPts = [], watchID = null, userMarker = null, scentMarker = null;
+    var currentHeading = 0, windHeading = 0;
+    var area = L.polygon([], {color:'red', weight: 4, fillOpacity: 0.1}).addTo(map);
 
     function setMode(m) {
         mode = m;
@@ -96,15 +84,43 @@
         document.getElementById('m-'+m).classList.add('active-tool');
     }
 
-    function locate() {
-        var q = document.getElementById('addr-in').value;
-        fetch('https://nominatim.openstreetmap.org/search?format=json&q='+q)
-        .then(r => r.json()).then(d => { 
-            if(d[0]) {
-                map.setView([d[0].lat, d[0].lon], 17); 
-                logEvent("Incident address set to: " + q);
+    // COMPASS SENSOR
+    window.addEventListener('deviceorientationabsolute', function(event) {
+        if (event.alpha !== null) {
+            currentHeading = event.alpha;
+            updateArrows();
+        }
+    }, true);
+
+    function setWind() {
+        windHeading = currentHeading;
+        logEvent("WIND DIRECTION SET TO HEADING: " + Math.round(360 - windHeading) + "°");
+        alert("Wind Locked. Scent Cone Adjusted.");
+    }
+
+    function updateArrows() {
+        // Update the Floating GUI Arrow
+        var relativeWind = (windHeading - currentHeading);
+        document.getElementById('wind-dir-icon').style.transform = `rotate(${relativeWind}deg)`;
+        
+        // Update the Scent Cone on the Map (Locked to GPS Dot)
+        if (scentMarker) {
+            scentMarker.setRotationAngle(relativeWind);
+        }
+    }
+
+    function startGPS() {
+        if (watchID) { navigator.geolocation.clearWatch(watchID); watchID = null; return; }
+        watchID = navigator.geolocation.watchPosition(pos => {
+            var latlng = [pos.coords.latitude, pos.coords.longitude];
+            if (userMarker) { 
+                userMarker.setLatLng(latlng); 
+            } else {
+                userMarker = L.circleMarker(latlng, {radius: 10, color: '#fff', fillColor: '#007bff', fillOpacity: 1}).addTo(map);
+                logEvent("Live tracker started at mailbox/start point.");
             }
-        });
+            map.setView(latlng, 18);
+        }, null, {enableHighAccuracy: true});
     }
 
     function logEvent(msg) {
@@ -113,88 +129,18 @@
         log.value += "[" + time + "] " + msg + "\n";
     }
 
-    function startGPS() {
-        if (watchID) { 
-            navigator.geolocation.clearWatch(watchID); 
-            watchID = null; 
-            document.getElementById('gps-btn').innerText = "START TRACKER"; 
-            logEvent("Live GPS tracking stopped.");
-            return; 
-        }
-        watchID = navigator.geolocation.watchPosition(pos => {
-            var latlng = [pos.coords.latitude, pos.coords.longitude];
-            if (userMarker) userMarker.setLatLng(latlng);
-            else {
-                userMarker = L.circleMarker(latlng, {radius: 12, color: '#fff', fillColor: '#007bff', fillOpacity: 1}).addTo(map);
-                logEvent("Live tracker started. Initial position locked.");
-            }
-            if(!alarmMuted) checkBreach(latlng[0], latlng[1]);
-            document.getElementById('gps-btn').innerText = "TRACKING LIVE";
-        }, null, {enableHighAccuracy: true});
-    }
-
-    function checkBreach(x, y) {
-        if (pPts.length < 3 || alarmMuted) return;
-        var inside = false;
-        for (var i = 0, j = pPts.length - 1; i < pPts.length; j = i++) {
-            var xi = pPts[i].lat, yi = pPts[i].lng;
-            var xj = pPts[j].lat, yj = pPts[j].lng;
-            var intersect = ((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-            if (intersect) inside = !inside;
-        }
-        var s = document.getElementById('status');
-        if (!inside) { 
-            s.innerText = "⚠️ PERIMETER BREACH ⚠️"; 
-            s.classList.add('breach-alert'); 
-            // Only log breach once to prevent flooding
-            if (!s.dataset.logged) { logEvent("BREACH ALERT: Tracker moved outside perimeter."); s.dataset.logged = "true"; }
-        } else { 
-            s.innerText = "PERIMETER SECURE"; 
-            s.classList.remove('breach-alert'); 
-            delete s.dataset.logged;
-        }
-    }
-
-    function resetAlarm() {
-        alarmMuted = true;
-        document.getElementById('status').innerText = "ALARM RESET";
-        document.getElementById('status').classList.remove('breach-alert');
-        logEvent("Manual alarm reset performed by operator.");
-        setTimeout(() => { alarmMuted = false; }, 20000);
-    }
-
     map.on('click', function(e) {
         if(!mode) return;
-        var colors = {'k9':'yellow', 'leo':'#0044ff', 'clue':'red', 'perim':'red', 'suspect':'#fff', 'mental':'purple', 'victim':'#00ff00'};
-        var labels = {'k9':'K9 UNIT DEPLOYED', 'leo':'L.E.O. POSITIONED', 'clue':'CLUE/EVIDENCE LOCATED', 'perim':'PERIMETER POINT SET', 'suspect':'SUSPECT SPOTTED', 'mental':'MENTAL PERSON LOCATED', 'victim':'VICTIM LOCATED'};
-        
-        if(mode === 'perim') { 
-            pPts.push(e.latlng); 
-            area.setLatLngs(pPts); 
-            logEvent("Perimeter point established at " + e.latlng.lat.toFixed(4) + ", " + e.latlng.lng.toFixed(4));
-        } else { 
+        var colors = {'k9':'yellow', 'leo':'#0044ff', 'clue':'red', 'perim':'red', 'suspect':'#fff'};
+        if(mode === 'perim') { pPts.push(e.latlng); area.setLatLngs(pPts); logEvent("Perimeter Point Placed."); }
+        else { 
             L.circleMarker(e.latlng, {radius:10, color:'black', fillColor:colors[mode], fillOpacity:1}).addTo(map); 
-            logEvent(labels[mode] + " at " + e.latlng.lat.toFixed(4) + ", " + e.latlng.lng.toFixed(4));
+            logEvent(mode.toUpperCase() + " MARKER PLACED.");
         }
     });
 
-    function previewReport() {
-        var log = document.getElementById('incident-log').value;
-        var addr = document.getElementById('addr-in').value || "NO ADDRESS ENTERED";
-        var date = new Date().toLocaleDateString();
-        var content = "<strong>ACSD K9 COMMAND - OFFICIAL REPORT</strong><br>" +
-                      "<strong>DATE:</strong> " + date + "<br>" +
-                      "<strong>LOCATION:</strong> " + addr + "<br>" +
-                      "<strong>COMMANDER:</strong> RETIRED DEPUTY SHERIFF EARL WOOD<hr>" +
-                      "<pre style='white-space: pre-wrap; font-family: Courier; font-size: 14px;'>" + log + "</pre>";
-        document.getElementById('report-preview').innerHTML = content;
-        document.getElementById('report-preview').style.display = "block";
-        document.getElementById('print-btn').style.display = "block";
-        logEvent("Report review generated.");
-    }
-
-    function generatePDF() {
-        window.print();
+    function locate() {
+        logEvent("Deployment Address Confirmed.");
     }
 </script>
 </body>
