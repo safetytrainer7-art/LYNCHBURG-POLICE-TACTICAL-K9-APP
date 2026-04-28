@@ -4,34 +4,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD K9 COMMAND - V68</title>
+    <title>ACSD K9 COMMAND - V69</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root { --orange: #ff6600; --gold: #ffd700; --blue: #0044ff; --live: #00ff00; --red: #ff0000; }
         body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; }
         
+        /* HEADER */
         .header { background: #001a00; border-bottom: 4px solid var(--orange); padding: 30px 10px 10px; position: sticky; top: 0; z-index: 1000; }
         .sig { font-size: 12px; color: var(--gold); text-align: center; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
         
         .search-bar { background: #222; padding: 15px; display: flex; gap: 10px; }
-        #addr-in { flex-grow: 1; padding: 15px; font-size: 18px; border: none; border-radius: 5px; font-weight: bold; }
+        #addr-in { flex-grow: 1; padding: 15px; font-size: 18px; border-radius: 5px; border: none; font-weight: bold; }
 
         #status { background: #111; color: var(--live); padding: 15px; text-align: center; font-weight: bold; font-size: 20px; }
         .breach-alert { background: var(--red) !important; color: #fff !important; animation: blinker 0.4s infinite; }
         @keyframes blinker { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
 
-        #map { height: 450px; background: #111; width: 100%; border-bottom: 2px solid #444; }
+        #map { height: 400px; background: #111; width: 100%; border-bottom: 2px solid #444; }
+
+        /* HORIZONTAL SCROLLING TOOLS */
+        .tool-belt { display: flex; overflow-x: auto; gap: 10px; padding: 15px; background: #111; border-bottom: 2px solid #333; -webkit-overflow-scrolling: touch; }
+        .tool-belt::-webkit-scrollbar { display: none; }
+        .t-item { flex: 0 0 80px; background: #222; border: 2px solid #555; border-radius: 10px; padding: 10px 0; text-align: center; font-size: 11px; font-weight: bold; }
+        .active-tool { border-color: var(--orange); background: #331100; color: var(--orange); }
 
         .controls { padding: 15px; }
-        .tool-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px; }
-        .btn-m { background: #222; border: 1px solid #555; color: #fff; padding: 18px 0; text-align: center; font-weight: bold; border-radius: 8px; font-size: 13px; }
-        .active { background: var(--orange) !important; color: #000; }
-        
         .action-btn { width: 100%; padding: 22px; font-size: 18px; font-weight: bold; border-radius: 12px; border: none; margin-bottom: 10px; text-transform: uppercase; }
         
         .section-header { background: var(--orange); color: #000; padding: 12px; font-weight: bold; text-align: center; margin-top: 20px; }
         .card { background: #111; border-left: 8px solid var(--gold); padding: 15px; margin: 15px; border-bottom: 1px solid #333; }
-        textarea { width: 100%; height: 180px; background: #050505; color: #fff; border: 2px solid var(--gold); padding: 10px; box-sizing: border-box; }
+        textarea { width: 100%; height: 180px; background: #050505; color: #fff; border: 2px solid var(--gold); padding: 10px; box-sizing: border-box; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -42,48 +46,41 @@
 </div>
 
 <div class="search-bar">
-    <input type="text" id="addr-in" placeholder="ENTER ADDRESS">
-    <button onclick="locate()" style="background:var(--orange); padding:10px 20px; font-weight:bold; border:none; border-radius:5px;">GO</button>
+    <input type="text" id="addr-in" placeholder="CASE ADDRESS">
+    <button onclick="locate()" style="background:var(--orange); padding:10px 20px; font-weight:bold; border:none; border-radius:5px;">LOCATE</button>
 </div>
 
 <div id="status">PERIMETER SECURE</div>
 <div id="map"></div>
 
+<div class="tool-belt">
+    <div id="m-perim" class="t-item" onclick="setMode('perim')">🔴<br>PERIM</div>
+    <div id="m-leo" class="t-item" onclick="setMode('leo')">🔵<br>L.E.O.</div>
+    <div id="m-k9" class="t-item" onclick="setMode('k9')">🐕<br>K9</div>
+    <div id="m-clue" class="t-item" onclick="setMode('clue')">🚩<br>CLUE</div>
+    <div id="m-suspect" class="t-item" onclick="setMode('suspect')">👤<br>SUSPECT</div>
+    <div id="m-mental" class="t-item" onclick="setMode('mental')">🧠<br>MENTAL</div>
+</div>
+
 <div class="controls">
-    <div class="tool-grid">
-        <div id="m-perim" class="btn-m" onclick="setMode('perim')">🔴<br>PERIM</div>
-        <div id="m-leo" class="btn-m" onclick="setMode('leo')">🔵<br>LEO</div>
-        <div id="m-k9" class="btn-m" onclick="setMode('k9')">🐕<br>K9</div>
-        <div id="m-clue" class="btn-m" onclick="setMode('clue')">🚩<br>CLUE</div>
-    </div>
-    
-    <button id="gps-btn" class="action-btn" style="background:var(--live); color:#000;" onclick="forceGPS()">START LIVE TRACKER</button>
-    <button class="action-btn" style="background:#fff; color:red; border:4px solid red;" onclick="resetAll()">RESET & CLEAR ALARM</button>
+    <button id="gps-btn" class="action-btn" style="background:var(--live); color:#000;" onclick="forceGPS()">START TRACKER</button>
+    <button class="action-btn" style="background:#fff; color:red; border:4px solid red;" onclick="resetAlarm()">RESET ALARM</button>
 </div>
 
-<div class="section-header">🩹 K9 EMERGENCY MEDICAL</div>
-<div class="card" style="border-left-color:red;"><b>K9 CPR</b><p>Right side down. Heart at left elbow. 100-120bpm. 2 breaths/30 pumps.</p></div>
-<div class="card" style="border-left-color:red;"><b>VET EMERGENCY</b><p>Lynchburg (24hr): (434) 846-1504<br>Amherst Laurel Stone: (434) 946-5059</p></div>
-<div class="card"><b>NARCAN</b><p>4mg Intranasal for opioid exposure. Repeat every 3 mins if needed.</p></div>
-<div class="card"><b>HEAT STROKE</b><p>Cool paws/ears with water. Move to shade. Temp >106 is critical.</p></div>
+<div class="section-header">🩹 K9 MEDICAL (VA REFILL)</div>
+<div class="card" style="border-left-color:red;"><b>K9 CPR</b><p>100-120bpm. Heart at left elbow. 2 breaths/30 pumps. Right side down.</p></div>
+<div class="card"><b>Lynchburg Emergency Vets:</b> (434) 846-1504<br><b>Amherst Laurel Stone:</b> (434) 946-5059</div>
 
-<div class="section-header">⚖️ K9 LEGAL VAULT</div>
-<div class="card"><b>VA CODE § 18.2-144.1</b><p>Felony to kill/wound police animals.</p></div>
-<div class="card"><b>FLORIDA v. HARRIS</b><p>K9 Alert = Probable Cause.</p></div>
-<div class="card"><b>RODRIGUEZ v. US</b><p>Traffic stops cannot be extended solely for K9 arrival.</p></div>
-<div class="card"><b>FLORIDA v. JARDINES</b><p>Porch sniffs require a search warrant.</p></div>
+<div class="section-header">⚖️ K9 LEGAL VAULT (K9 SPECIFIC)</div>
+<div class="card"><b>VA CODE § 18.2-144.1</b><p>Class 5 Felony to kill police animal; Class 6 to wound.</p></div>
+<div class="card"><b>FLORIDA v. HARRIS</b><p>K9 Alert = Probable Cause based on training records.</p></div>
+<div class="card"><b>RODRIGUEZ v. US</b><p>Cannot extend stops for K9 arrival without suspicion.</p></div>
 
-<div class="section-header">📝 FIELD REPORTS & LOGS</div>
+<div class="section-header">📝 CASE REPORTING</div>
 <div class="card">
-    <b>TRAINING FORM</b>
-    <textarea placeholder="Handler, K9, Exercise Type, Results..."></textarea>
-    <button class="action-btn" style="background:var(--gold); color:#000; margin-top:10px;">SAVE TRAINING LOG</button>
-</div>
-
-<div class="card">
-    <b>INCIDENT REPORT FORM</b>
-    <textarea placeholder="Case #, Suspect Name, Narrative, K9 Actions..."></textarea>
-    <button class="action-btn" style="background:var(--blue); color:#fff; margin-top:10px;">SUBMIT INCIDENT REPORT</button>
+    <b>INCIDENT / SEARCH REPORT</b>
+    <textarea id="incident-log" placeholder="Enter Case #, Narrative, and Outcomes..."></textarea>
+    <button class="action-btn" style="background:var(--blue); color:#fff;" onclick="generatePDF()">GENERATE FINAL CASE PDF</button>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -96,8 +93,8 @@
 
     function setMode(m) {
         mode = m;
-        document.querySelectorAll('.btn-m').forEach(b => b.classList.remove('active'));
-        document.getElementById('m-'+m).classList.add('active');
+        document.querySelectorAll('.t-item').forEach(b => b.classList.remove('active-tool'));
+        document.getElementById('m-'+m).classList.add('active-tool');
     }
 
     function locate() {
@@ -107,33 +104,19 @@
     }
 
     function forceGPS() {
-        if (watchID !== null) {
-            navigator.geolocation.clearWatch(watchID);
-            watchID = null;
-            document.getElementById('gps-btn').innerText = "START LIVE TRACKER";
-            document.getElementById('gps-btn').style.background = "var(--live)";
-            return;
-        }
-
-        document.getElementById('gps-btn').innerText = "CONNECTING...";
-        
-        navigator.geolocation.watchPosition(pos => {
+        if (watchID) { navigator.geolocation.clearWatch(watchID); watchID = null; document.getElementById('gps-btn').innerText = "START TRACKER"; return; }
+        watchID = navigator.geolocation.watchPosition(pos => {
             var latlng = [pos.coords.latitude, pos.coords.longitude];
-            if (userMarker) { userMarker.setLatLng(latlng); } 
-            else { userMarker = L.circleMarker(latlng, {radius: 12, color: '#fff', fillColor: '#007bff', fillOpacity: 1}).addTo(map); }
+            if (userMarker) userMarker.setLatLng(latlng);
+            else userMarker = L.circleMarker(latlng, {radius: 12, color: '#fff', fillColor: '#007bff', fillOpacity: 1}).addTo(map);
             map.setView(latlng, 18);
-            checkBreach(latlng[0], latlng[1]);
-            
+            if(!alarmMuted) checkBreach(latlng[0], latlng[1]);
             document.getElementById('gps-btn').innerText = "STOP TRACKER";
-            document.getElementById('gps-btn').style.background = "red";
-            document.getElementById('gps-btn').style.color = "#fff";
-            watchID = 1; // Flag active
-        }, err => { alert("GPS ERROR: ENABLE LOCATION IN SETTINGS"); }, {enableHighAccuracy: true});
+        }, null, {enableHighAccuracy: true});
     }
 
     function checkBreach(x, y) {
         if (pPts.length < 3 || alarmMuted) return;
-        
         var inside = false;
         for (var i = 0, j = pPts.length - 1; i < pPts.length; j = i++) {
             var xi = pPts[i].lat, yi = pPts[i].lng;
@@ -141,38 +124,41 @@
             var intersect = ((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
             if (intersect) inside = !inside;
         }
-
         var s = document.getElementById('status');
-        if (!inside) {
-            s.innerText = "⚠️ PERIMETER BREACH ⚠️";
-            s.classList.add('breach-alert');
-        } else {
-            s.innerText = "PERIMETER SECURE";
-            s.classList.remove('breach-alert');
-        }
+        if (!inside) { s.innerText = "⚠️ PERIMETER BREACH ⚠️"; s.classList.add('breach-alert'); }
+        else { s.innerText = "PERIMETER SECURE"; s.classList.remove('breach-alert'); }
     }
 
-    function resetAll() {
+    function resetAlarm() {
         alarmMuted = true;
-        document.getElementById('status').innerText = "SYSTEM RESET";
+        document.getElementById('status').innerText = "ALARM SILENCED";
         document.getElementById('status').classList.remove('breach-alert');
-        markers.forEach(m => map.removeLayer(m));
-        markers = [];
-        setTimeout(() => { alarmMuted = false; }, 5000);
+        setTimeout(() => { alarmMuted = false; }, 15000); // 15s absolute silence
     }
 
     map.on('click', function(e) {
         if(!mode) return;
-        var colors = {'k9':'yellow', 'leo':'#0044ff', 'clue':'red', 'perim':'red'};
-        if(mode === 'perim') { 
-            pPts.push(e.latlng); 
-            area.setLatLngs(pPts); 
-        } else {
-            var m = L.circleMarker(e.latlng, {radius:12, color:'white', fillColor:colors[mode], fillOpacity:1}).addTo(map);
-            markers.push(m);
-            checkBreach(e.latlng.lat, e.latlng.lng);
-        }
+        var colors = {'k9':'yellow', 'leo':'#0044ff', 'clue':'red', 'perim':'red', 'suspect':'white', 'mental':'purple'};
+        if(mode === 'perim') { pPts.push(e.latlng); area.setLatLngs(pPts); }
+        else { L.circleMarker(e.latlng, {radius:12, color:'black', fillColor:colors[mode], fillOpacity:1}).addTo(map); }
     });
+
+    function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(18); doc.text("ACSD K9 COMMAND CASE REPORT", 10, 20);
+        doc.setFontSize(10); doc.text("App Creator: Retired Deputy Sheriff Earl Wood", 10, 28);
+        doc.line(10, 30, 200, 30);
+        doc.text("ADDRESS: " + document.getElementById('addr-in').value, 10, 40);
+        doc.text("STATUS: " + document.getElementById('status').innerText, 10, 50);
+        doc.text("NARRATIVE:", 10, 65);
+        var log = document.getElementById('incident-log').value;
+        var splitText = doc.splitTextToSize(log, 180);
+        doc.text(splitText, 10, 75);
+        doc.save("K9_Case_Report.pdf");
+        alert("Report Prepared for Sheriff. Opening Print Preview...");
+        window.print();
+    }
 </script>
 </body>
 </html>
