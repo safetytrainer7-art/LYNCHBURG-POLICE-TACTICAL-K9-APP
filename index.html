@@ -1,1 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ACSD K9 COMMAND - V78</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root { --orange: #ff6600; --gold: #ffd700; --blue: #0044ff; --live: #00ff00; --red: #ff0000; --dark: #0a0a0a; }
+        body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; }
+        
+        .header { background: #001a00; border-bottom: 4px solid var(--orange); padding: 30px 10px 10px; text-align: center; }
+        .sig { font-size: 13px; color: var(--gold); font-weight: bold; text-transform: uppercase; }
 
+        /* TACTICAL SEARCH TOOLS */
+        .icon-row { display: flex; justify-content: space-around; background: #222; padding: 15px 5px; border-bottom: 2px solid #444; }
+        .tool { text-align: center; width: 18%; padding: 5px; border: 2px solid #555; border-radius: 8px; background: #333; }
+        .tool.active { border-color: var(--live); background: #002200; }
+        .tool span { font-size: 24px; display: block; }
+        .tool label { font-size: 10px; font-weight: bold; color: #fff; }
+
+        #map { height: 300px; background: #222; width: 100%; }
+
+        /* THE COMMAND GRID (WHAT YOU WERE MISSING) */
+        .grid-header { background: #1a1a1a; padding: 10px; color: var(--orange); font-weight: bold; text-align: center; border-top: 2px solid var(--orange); }
+        .command-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; background: #111; }
+        .grid-item { background: #222; border: 2px solid #444; border-radius: 10px; padding: 15px; text-align: center; cursor: pointer; }
+        .grid-item:active { background: #333; border-color: var(--gold); }
+        .grid-item i { font-size: 28px; display: block; margin-bottom: 5px; }
+        .grid-item label { font-size: 12px; font-weight: bold; text-transform: uppercase; color: var(--gold); }
+
+        /* MODAL WINDOWS FOR LAWS/MED */
+        .modal { display: none; position: fixed; top: 10%; left: 5%; width: 90%; height: 80%; background: #fff; color: #000; z-index: 2000; border-radius: 15px; padding: 20px; overflow-y: auto; box-shadow: 0 0 20px var(--red); }
+        .modal-close { background: var(--red); color: #fff; padding: 10px; text-align: center; font-weight: bold; border-radius: 5px; margin-bottom: 15px; }
+        
+        .med-rule { border-bottom: 1px solid #ddd; padding: 10px 0; }
+        .law-card { background: #f0f0f0; padding: 10px; margin-bottom: 10px; border-left: 5px solid var(--blue); }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="sig">APP CREATOR: RETIRED DEPUTY SHERIFF EARL WOOD</div>
+</div>
+
+<div class="icon-row">
+    <div id="m-perim" class="tool" onclick="setMode('perim')"><span>🔴</span><label>PERIM</label></div>
+    <div id="m-k9" class="tool" onclick="setMode('k9')"><span>🐕</span><label>K9</label></div>
+    <div id="m-leo" class="tool" onclick="setMode('leo')"><span>🔵</span><label>LEO</label></div>
+    <div id="m-clue" class="tool" onclick="setMode('clue')"><span>🚩</span><label>CLUE</label></div>
+    <div id="m-suspect" class="tool" onclick="setMode('suspect')"><span>👤</span><label>SUSPECT</label></div>
+</div>
+
+<div id="map"></div>
+
+<div class="grid-header">TACTICAL COMMAND & BIBLE</div>
+<div class="command-grid">
+    <div class="grid-item" style="border-color: var(--red);" onclick="openModal('med-modal')">
+        <i>🚑</i><label>K9 FIRST AID</label>
+    </div>
+    <div class="grid-item" style="border-color: var(--blue);" onclick="openModal('law-modal')">
+        <i>⚖️</i><label>LEGAL BIBLE</label>
+    </div>
+    <div class="grid-item" style="border-color: var(--gold);" onclick="openModal('train-modal')">
+        <i>📋</i><label>TRAINING LOG</label>
+    </div>
+    <div class="grid-item" style="border-color: var(--live);" onclick="openModal('inc-modal')">
+        <i>📝</i><label>MISSION RPT</label>
+    </div>
+</div>
+
+<div id="med-modal" class="modal">
+    <div class="modal-close" onclick="closeModal('med-modal')">CLOSE MEDICAL BIBLE</div>
+    <h2>K9 EMERGENCY FIELD MEDICINE</h2>
+    <div class="med-rule"><b>#1 K9 CPR:</b> Place dog on right side. Heart behind left elbow. 100-120 bpm. 30 pumps, then 2 breaths into nose (hold mouth shut).</div>
+    <div class="med-rule"><b>GUNSHOT/STAB:</b> Pack wound with gauze. Constant pressure. Do not remove soaked pads.</div>
+    <div class="med-rule"><b>HEAT EXHAUSTION:</b> If temp >106, use water on paws/ears. Move to AC/Shade immediately.</div>
+    <div class="med-rule"><b>SNAKE BITE:</b> Calm dog. Immobilize limb. Transport to ER Vet.</div>
+    <div class="med-rule"><b>VETS:</b> Lynchburg (434) 846-1504 | Laurel Stone (434) 946-5059</div>
+</div>
+
+<div id="law-modal" class="modal">
+    <div class="modal-close" onclick="closeModal('law-modal')">CLOSE LEGAL BIBLE</div>
+    <h2>K9 CASE LAW: US & VIRGINIA</h2>
+    <div class="law-card"><b>FLORIDA v. HARRIS:</b> Field performance & certifications establish Probable Cause.</div>
+    <div class="law-card"><b>RODRIGUEZ v. US:</b> Traffic stops cannot be delayed solely for a K9 arrival.</div>
+    <div class="law-card"><b>VA CODE 18.2-144.1:</b> Felony to kill or harm a police animal in Virginia.</div>
+    <div class="law-card"><b>THE 5 SENSES:</b> PC observations via Sight, Hearing, Smell, Touch, and Taste (where applicable).</div>
+    <p><i>*20 Total Case Laws Indexed for Reporting...</i></p>
+</div>
+
+<div id="train-modal" class="modal">
+    <div class="modal-close" onclick="closeModal('train-modal')">CLOSE TRAINING FORM</div>
+    <h2>DAILY TRAINING LOG</h2>
+    <input type="date" id="t-date">
+    <input type="text" placeholder="Location/Weather/Day-Night">
+    <textarea placeholder="Aids Used/Weight/Placement/Time"></textarea>
+    <select><option>Proficient</option><option>Satisfactory</option><option>Unsatisfactory</option></select>
+    <button style="width:100%; padding:15px; background:var(--blue); color:#fff; font-weight:bold;">PRINT TRAINING CERT</button>
+</div>
+
+<div id="inc-modal" class="modal">
+    <div class="modal-close" onclick="closeModal('inc-modal')">CLOSE MISSION REPORT</div>
+    <h2>INCIDENT MISSION REPORT</h2>
+    <input type="text" placeholder="Case Number / Address">
+    <textarea style="height:200px;" placeholder="Full Narrative: Start to Finish..."></textarea>
+    <select><option>No Use of Force</option><option>K9 Bite/Hold</option><option>Verbal Release Order Given</option></select>
+    <button style="width:100%; padding:15px; background:var(--red); color:#fff; font-weight:bold;">END SEARCH & PRINT PDF</button>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    var map = L.map('map', {zoomControl: false}).setView([37.584, -79.052], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    var mode = null;
+
+    function setMode(m) {
+        mode = m;
+        document.querySelectorAll('.tool').forEach(t => t.classList.remove('active'));
+        document.getElementById('m-'+m).classList.add('active');
+    }
+
+    function openModal(id) { document.getElementById(id).style.display = 'block'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    map.on('click', function(e) {
+        if(!mode) return;
+        var colors = {'k9':'yellow', 'leo':'#0044ff', 'clue':'red', 'perim':'red', 'suspect':'#fff'};
+        L.circleMarker(e.latlng, {radius:10, color:'black', fillColor:colors[mode], fillOpacity:1}).addTo(map);
+    });
+</script>
+</body>
+</html>
