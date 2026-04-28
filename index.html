@@ -1,36 +1,47 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD K9 COMMAND - V79 FULL LAW</title>
+    <title>ACSD K9 COMMAND - V81 FULL BUILD</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --orange: #ff6600; --gold: #ffd700; --blue: #0044ff; --live: #00ff00; --red: #ff0000; --dark: #0a0a0a; }
         body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; }
         .header { background: #001a00; border-bottom: 4px solid var(--orange); padding: 30px 10px 10px; text-align: center; }
         .sig { font-size: 13px; color: var(--gold); font-weight: bold; text-transform: uppercase; }
-        .icon-row { display: flex; justify-content: space-around; background: #222; padding: 15px 5px; border-bottom: 2px solid #444; }
-        .tool { text-align: center; width: 18%; padding: 5px; border: 2px solid #555; border-radius: 8px; background: #333; }
+        .dash { background: #222; padding: 10px; display: flex; gap: 10px; align-items: center; border-bottom: 2px solid #444; }
+        #addr-in { flex-grow: 1; padding: 12px; border-radius: 5px; border: none; font-weight: bold; font-size: 14px; }
+        .gps-light { width: 15px; height: 15px; background: #333; border-radius: 50%; border: 2px solid #000; }
+        .gps-on { background: var(--live); box-shadow: 0 0 10px var(--live); }
+        .icon-row { display: flex; justify-content: space-around; background: #1a1a1a; padding: 15px 5px; border-bottom: 2px solid #444; }
+        .tool { text-align: center; width: 18%; padding: 5px; border: 2px solid #555; border-radius: 8px; background: #333; cursor: pointer; }
         .tool.active { border-color: var(--live); background: #002200; }
         .tool span { font-size: 24px; display: block; }
-        .tool label { font-size: 10px; font-weight: bold; color: #fff; }
         #map { height: 300px; background: #222; width: 100%; }
-        .command-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; background: #111; }
+        .command-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; }
         .grid-item { background: #222; border: 2px solid #444; border-radius: 10px; padding: 15px; text-align: center; cursor: pointer; }
         .grid-item label { font-size: 12px; font-weight: bold; text-transform: uppercase; color: var(--gold); display:block; margin-top:5px; }
-        .modal { display: none; position: fixed; top: 5%; left: 5%; width: 90%; height: 85%; background: #fff; color: #000; z-index: 2000; border-radius: 15px; padding: 20px; overflow-y: auto; box-shadow: 0 0 20px var(--red); }
+        .modal { display: none; position: fixed; top: 5%; left: 5%; width: 90%; height: 85%; background: #fff; color: #000; z-index: 2000; border-radius: 15px; padding: 20px; overflow-y: auto; }
         .modal-close { background: var(--red); color: #fff; padding: 12px; text-align: center; font-weight: bold; border-radius: 5px; margin-bottom: 15px; cursor: pointer; }
         .law-card { background: #f0f0f0; padding: 10px; margin-bottom: 10px; border-left: 5px solid var(--blue); font-size: 13px; }
-        .law-header { font-weight: bold; color: var(--blue); text-transform: uppercase; margin-bottom: 5px; display: block; }
-        textarea, input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; font-size: 16px; }
-        .print-btn { background: var(--red); color: #fff; width: 100%; padding: 20px; font-weight: bold; border: none; border-radius: 10px; font-size: 18px; cursor: pointer; }
+        .med-card { background: #fff5f5; padding: 10px; margin-bottom: 10px; border-left: 5px solid var(--red); font-size: 13px; }
+        .law-header { font-weight: bold; color: var(--blue); text-transform: uppercase; display: block; }
+        textarea, input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
+        .action-btn { width: 100%; padding: 18px; font-weight: bold; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <div class="sig">APP CREATOR: RETIRED DEPUTY SHERIFF EARL WOOD</div>
+</div>
+
+<div class="dash">
+    <div id="gps-indicator" class="gps-light"></div>
+    <input type="text" id="addr-in" placeholder="SEARCH ADDRESS / COMMAND LOCATION">
+    <button onclick="startGPS()" style="background:var(--live); border:none; padding:10px 15px; border-radius:5px; font-weight:bold; cursor:pointer;">TRACK</button>
 </div>
 
 <div class="icon-row">
@@ -50,65 +61,74 @@
     <div class="grid-item" style="border-color: var(--live);" onclick="openModal('inc-modal')"><span>📝</span><label>MISSION RPT</label></div>
 </div>
 
+<div id="med-modal" class="modal">
+    <div class="modal-close" onclick="closeModal('med-modal')">CLOSE MEDICAL BIBLE</div>
+    <h2>K9 EMERGENCY FIELD MEDICINE</h2>
+    <div class="med-card"><b>1. K9 CPR (PRIORITY):</b> 100-120 bpm. RIGHT side down. 30 compressions then 2 nose breaths.</div>
+    <div class="med-card"><b>2. GUNSHOT / STAB:</b> Pack wound with gauze. Constant pressure. Do not remove soaked pads.</div>
+    <div class="med-card"><b>3. HEAT EXHAUSTION:</b> Temp >106°F is critical. Cool paws/ears with water. Move to AC.</div>
+    <div class="med-card"><b>4. SNAKE BITE:</b> Keep dog calm. Immobilize. Transport to ER Vet. No cutting.</div>
+    <div class="med-card"><b>5. EXCESSIVE BLEEDING:</b> Apply pressure points above wound. Tourniquet as last resort.</div>
+    <div class="med-card"><b>6. EYE INJURIES:</b> Flush with saline only. Cover with cone/bandage.</div>
+    <p><b>ADJOINING VETS:</b> Lynchburg (434-846-1504) | Laurel Stone (434-946-5059)</p>
+</div>
+
 <div id="law-modal" class="modal">
     <div class="modal-close" onclick="closeModal('law-modal')">CLOSE LEGAL BIBLE</div>
-    <h2>K9 CASE LAW: UNITED STATES & VIRGINIA</h2>
-    <div class="law-card"><span class="law-header">OFFICER SENSES (PROBABLE CAUSE)</span>SIGHT, HEARING, SMELL, TOUCH, TASTE. Observations made through these senses form the basis of reasonable suspicion and PC.</div>
-    
-    <h3>FEDERAL (UNITED STATES)</h3>
-    <div class="law-card"><span class="law-header">1. FL v. Harris</span>K9 training records and certifications are sufficient to establish reliability for Probable Cause.</div>
-    <div class="law-card"><span class="law-header">2. FL v. Jardines</span>A K9 sniff on the front porch (curtilage) of a home is a search and requires a warrant.</div>
-    <div class="law-card"><span class="law-header">3. Rodriguez v. US</span>Police cannot extend a traffic stop to wait for a K9 unit without independent reasonable suspicion.</div>
-    <div class="law-card"><span class="law-header">4. Graham v. Connor</span>K9 use of force must be "objectively reasonable" based on the totality of circumstances.</div>
-    <div class="law-card"><span class="law-header">5. US v. Place</span>A K9 sniff of luggage in a public place is not a "search" under the 4th Amendment.</div>
-    <div class="law-card"><span class="law-header">6. IL v. Caballes</span>A K9 sniff during a lawful traffic stop does not require additional suspicion if it doesn't prolong the stop.</div>
-    <div class="law-card"><span class="law-header">7. US v. Thomas</span>Sniffing outside an apartment door may require a higher level of suspicion in some circuits.</div>
-    <div class="law-card"><span class="law-header">8. US v. Sharp</span>Determines the reasonable length of a detention during a search.</div>
-    <div class="law-card"><span class="law-header">9. Terry v. Ohio</span>Basis for "Stop and Frisk" and brief detentions for investigation.</div>
-    <div class="law-card"><span class="law-header">10. Tennessee v. Garner</span>Limits on use of deadly force; applies to high-level K9 force.</div>
+    <h2>K9 CASE LAW: US & VIRGINIA</h2>
+    <div class="law-card"><span class="law-header">OFFICER SENSES (PC)</span>SIGHT, HEARING, SMELL, TOUCH, TASTE. Basis for Probable Cause.</div>
+    <div class="law-card"><span class="law-header">1. FL v. Harris</span>Certs prove K9 reliability.</div>
+    <div class="law-card"><span class="law-header">2. FL v. Jardines</span>Sniff on porch requires warrant.</div>
+    <div class="law-card"><span class="law-header">3. Rodriguez v. US</span>No extending stops for K9.</div>
+    <div class="law-card"><span class="law-header">4. Graham v. Connor</span>Objectively Reasonable force.</div>
+    <div class="law-card"><span class="law-header">5. US v. Place</span>Public luggage sniffs ok.</div>
+    <div class="law-card"><span class="law-header">6. IL v. Caballes</span>Traffic stop sniffs ok.</div>
+    <div class="law-card"><span class="law-header">7. US v. Thomas</span>Apartment sniffs restricted.</div>
+    <div class="law-card"><span class="law-header">8. Terry v. Ohio</span>Reasonable suspicion/Detention.</div>
+    <div class="law-card"><span class="law-header">9. TN v. Garner</span>Deadly force limits.</div>
+    <div class="law-card"><span class="law-header">10. US v. Sharp</span>Detention length standards.</div>
+    <div class="law-card"><span class="law-header">11. VA Code § 18.2-144.1</span>Class 6 Felony harm to K9.</div>
+    <div class="law-card"><span class="law-header">12. VA Code § 19.2-83.1</span>Use of force reporting.</div>
+    <div class="law-card"><span class="law-header">13. VA v. Brown</span>K9 alert = Vehicle PC in VA.</div>
+    <div class="law-card"><span class="law-header">14. Consent Standards</span>Voluntary consent rules.</div>
+    <div class="law-card"><span class="law-header">15. Hot Pursuit</span>Tracking into private property.</div>
+    <div class="law-card"><span class="law-header">16. VA § 3.2-6500</span>Working Dog welfare standards.</div>
+    <div class="law-card"><span class="law-header">17. Exigent Circumstances</span>Warrantless search to save evidence.</div>
+    <div class="law-card"><span class="law-header">18. Plain View</span>Seizing visible evidence.</div>
+    <div class="law-card"><span class="law-header">19. Open Fields</span>Property search outside curtilage.</div>
+    <div class="law-card"><span class="law-header">20. Release/Apprehension</span>Standard for release order.</div>
+</div>
 
-    <h3>STATE OF VIRGINIA</h3>
-    <div class="law-card"><span class="law-header">11. VA Code § 18.2-144.1</span>Class 6 Felony to kill or maliciously wound a law enforcement dog.</div>
-    <div class="law-card"><span class="law-header">12. VA Code § 19.2-83.1</span>Requirements for reporting use of force, including K9 bites.</div>
-    <div class="law-card"><span class="law-header">13. VA v. Brown</span>Case law regarding K9 alerts as sufficient PC for vehicle searches in VA.</div>
-    <div class="law-card"><span class="law-header">14. Consent Searches</span>VA standards for voluntary consent during K9 deployment.</div>
-    <div class="law-card"><span class="law-header">15. Hot Pursuit Exception</span>K9 tracking into private property during an active chase.</div>
-    <div class="law-card"><span class="law-header">16. VA § 3.2-6500</span>Animal Welfare standards for working LEO dogs.</div>
-    <div class="law-card"><span class="law-header">17. Exigent Circumstances</span>Searching without a warrant to prevent destruction of evidence.</div>
-    <div class="law-card"><span class="law-header">18. Plain View Doctrine</span>Seizing evidence found by K9 handler while in a lawful position.</div>
-    <div class="law-card"><span class="law-header">19. Open Fields Doctrine</span>Searching property outside the immediate home curtilage.</div>
-    <div class="law-card"><span class="law-header">20. VA Use of Force Policy</span>State-specific standards for K9 release and apprehension.</div>
+<div id="train-modal" class="modal">
+    <div class="modal-close" onclick="closeModal('train-modal')">CLOSE TRAINING LOG</div>
+    <h2>DAILY K9 TRAINING CERTIFICATION</h2>
+    <input type="date" id="t-date">
+    <input type="text" id="t-loc" placeholder="Location & Weather">
+    <textarea id="t-aids" placeholder="Training Aids / Weights / Performance Notes"></textarea>
+    <select id="t-perf">
+        <option>PROFICIENT</option>
+        <option>SATISFACTORY</option>
+        <option>UNSATISFACTORY</option>
+    </select>
+    <button class="action-btn" style="background:var(--gold); color:#000;" onclick="window.print()">LOCK & PRINT CERT</button>
 </div>
 
 <div id="inc-modal" class="modal">
     <div class="modal-close" onclick="closeModal('inc-modal')">CLOSE MISSION REPORT</div>
     <h2>MISSION INCIDENT REPORT</h2>
-    <input type="text" id="inc-addr" placeholder="Search Address / Case #">
-    <textarea id="inc-narrative" style="height:200px;" placeholder="Full Narrative: Start to Finish..."></textarea>
+    <textarea id="inc-narrative" style="height:250px;" placeholder="Full Narrative: Start to Finish..."></textarea>
     <select id="inc-force">
         <option>USE OF FORCE: NONE</option>
         <option>USE OF FORCE: K9 BITE/HOLD</option>
-        <option>VERBAL RELEASE COMMAND GIVEN</option>
     </select>
-    <div style="background:#f9f9f9; padding:10px; border:1px solid #ccc; margin-bottom:15px;">
-        <b>PROCEDURE:</b> Filling this out and hitting the button below will lock the GPS, clear the map, and open the print window for the Sheriff.
-    </div>
-    <button class="print-btn" onclick="endAndPrint()">🛑 END MISSION & PRINT REPORT</button>
-</div>
-
-<div id="med-modal" class="modal">
-    <div class="modal-close" onclick="closeModal('med-modal')">CLOSE MEDICAL BIBLE</div>
-    <h2>K9 FIRST AID & CPR</h2>
-    <div class="law-card"><span class="law-header">1. K9 CPR (PRIORITY ONE)</span>100-120 compressions per minute. Lay dog on RIGHT side. 30 pumps followed by 2 nose-breaths.</div>
-    <div class="law-card"><span class="law-header">2. GUNSHOT / STAB</span>Pack with gauze. Apply direct pressure. Do not remove soaked pads.</div>
-    <div class="law-card"><span class="law-header">3. HEAT EXHAUSTION</span>Cool paws and ears. Move to AC. Temp >106 is fatal.</div>
+    <button class="action-btn" style="background:var(--red); color:#fff;" onclick="window.print()">END MISSION & PRINT</button>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     var map = L.map('map', {zoomControl: false}).setView([37.584, -79.052], 14);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    var mode = null;
+    var mode = null, watchID = null, userMarker = null;
 
     function setMode(m) {
         mode = m;
@@ -119,28 +139,20 @@
     function openModal(id) { document.getElementById(id).style.display = 'block'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    function endAndPrint() {
-        var narrative = document.getElementById('inc-narrative').value;
-        var addr = document.getElementById('inc-addr').value;
-        var force = document.getElementById('inc-force').value;
-        
-        // Build the print layout
-        document.body.innerHTML = `
-            <div style="padding:50px; color:#000; background:#fff; font-family:serif;">
-                <h1>OFFICIAL K9 INCIDENT REPORT</h1>
-                <p><b>DATE:</b> ${new Date().toLocaleDateString()}</p>
-                <p><b>LOCATION/CASE:</b> ${addr}</p>
-                <hr>
-                <h3>MISSION NARRATIVE</h3>
-                <p>${narrative}</p>
-                <hr>
-                <p><b>FORCE STATUS:</b> ${force}</p>
-                <p><b>APP CREATOR:</b> RETIRED DEPUTY SHERIFF EARL WOOD</p>
-                <p style="margin-top:50px;">OFFICER SIGNATURE: ___________________________</p>
-            </div>
-        `;
-        window.print();
-        location.reload(); // Refresh app after printing
+    function startGPS() {
+        if (watchID) {
+            navigator.geolocation.clearWatch(watchID);
+            watchID = null;
+            document.getElementById('gps-indicator').classList.remove('gps-on');
+            return;
+        }
+        document.getElementById('gps-indicator').classList.add('gps-on');
+        watchID = navigator.geolocation.watchPosition(pos => {
+            var latlng = [pos.coords.latitude, pos.coords.longitude];
+            if (userMarker) userMarker.setLatLng(latlng);
+            else userMarker = L.circleMarker(latlng, {radius: 10, color: '#fff', fillColor: '#007bff', fillOpacity: 1}).addTo(map);
+            map.setView(latlng, 18);
+        }, null, {enableHighAccuracy: true});
     }
 
     map.on('click', function(e) {
