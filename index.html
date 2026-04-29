@@ -1,97 +1,165 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND V85</title>
+    <title>ACSD K9 COMMAND V86</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --orange: #ff6600; --gold: #ffd700; --blue: #0044ff; --red: #ff0000; --live: #00ff00; }
-        body { margin: 0; background: #000; color: #fff; font-family: sans-serif; touch-action: none; }
-        .header { background: #001a00; border-bottom: 3px solid var(--orange); padding: 15px; text-align: center; color: var(--gold); font-weight: bold; }
-        #map { height: 400px; width: 100%; background: #111; touch-action: auto; }
-        .dash { background: #222; padding: 10px; display: flex; gap: 5px; }
-        #addr-in { flex-grow: 1; padding: 12px; border-radius: 5px; font-size: 16px; }
-        .icon-row { display: flex; justify-content: space-around; background: #111; padding: 10px; border-top: 2px solid #444; }
-        .tool { padding: 15px; border: 2px solid #444; border-radius: 10px; background: #222; font-size: 20px; }
-        .tool.active { border-color: var(--live); background: #003300; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
-        .btn { background: #222; border: 2px solid #444; border-radius: 10px; padding: 15px; text-align: center; color: var(--gold); font-weight: bold; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; color: #000; z-index: 999; padding: 20px; overflow-y: auto; box-sizing: border-box; }
+        body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; height: 100%; overflow: hidden; }
+        .header { background: #001a00; border-bottom: 3px solid var(--orange); padding: 15px; text-align: center; color: var(--gold); font-weight: bold; font-size: 14px; }
+        .dash { background: #222; padding: 10px; display: flex; gap: 8px; border-bottom: 2px solid #444; }
+        #addr-in { flex-grow: 1; padding: 12px; border-radius: 5px; border: none; font-size: 16px; font-weight: bold; }
+        #map { height: calc(100vh - 290px); width: 100%; background: #111; }
+        .icon-row { display: flex; justify-content: space-around; background: #1a1a1a; padding: 12px 5px; border-top: 2px solid #444; }
+        .tool { width: 18%; text-align: center; padding: 10px 0; border: 2px solid #555; border-radius: 8px; background: #333; font-size: 22px; }
+        .tool.active { border-color: var(--live); background: #002200; box-shadow: 0 0 10px var(--live); }
+        .command-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; background: #000; }
+        .btn { background: #222; border: 2px solid #444; border-radius: 10px; padding: 15px; text-align: center; color: var(--gold); font-weight: bold; font-size: 12px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; color: #000; z-index: 9999; padding: 20px; overflow-y: auto; box-sizing: border-box; }
+        .close-btn { background: var(--red); color: #fff; padding: 15px; text-align: center; border-radius: 5px; margin-bottom: 20px; font-weight: bold; }
+        .law-item { border-left: 5px solid var(--blue); background: #f0f0f0; padding: 12px; margin-bottom: 10px; font-size: 14px; line-height: 1.4; }
+        .med-item { border-left: 5px solid var(--red); background: #fff5f5; padding: 12px; margin-bottom: 10px; font-size: 14px; }
     </style>
 </head>
 <body>
-    <div class="header">ACSD K9 COMMAND - V85 FIELD READY</div>
-    <div class="dash">
-        <input type="text" id="addr-in" placeholder="ENTER SEARCH AREA">
-        <button onclick="findGPS()" style="background:var(--live); border:none; padding:10px; border-radius:5px; font-weight:bold;">TRACK</button>
-    </div>
-    
-    <div id="map"></div>
 
-    <div class="icon-row">
-        <div id="m-perim" class="tool" onclick="setMode('perim')">🔴</div>
-        <div id="m-k9" class="tool" onclick="setMode('k9')">🐕</div>
-        <div id="m-clue" class="tool" onclick="setMode('clue')">🚩</div>
-        <button onclick="clearMap()" style="background:var(--red); color:#fff; border:none; border-radius:5px; padding:10px;">CLEAR</button>
-    </div>
+<div class="header">ACSD K9 COMMAND - FULL RESTORE V86</div>
 
-    <div class="grid">
-        <div class="btn" style="border-color:var(--blue)" onclick="openM('law')">⚖️ 20 LAWS</div>
-        <div class="btn" style="border-color:var(--red)" onclick="openM('med')">🚑 MEDICAL</div>
-    </div>
+<div class="dash">
+    <input type="text" id="addr-in" placeholder="SEARCH ADDRESS OR AREA">
+    <button onclick="findGPS()" style="background:var(--live); border:none; padding:12px; border-radius:5px; font-weight:bold;">TRACK</button>
+</div>
 
-    <div id="law" class="modal"><button onclick="closeM('law')" style="width:100%;padding:15px;background:var(--red);color:#fff;">CLOSE</button><h2>K9 LAWS</h2><p><b>FL v. Harris:</b> Reliability.<br><b>FL v. Jardines:</b> Curtilage.<br><b>Rodriguez v. US:</b> Delay.</p></div>
-    <div id="med" class="modal"><button onclick="closeM('med')" style="width:100%;padding:15px;background:var(--red);color:#fff;">CLOSE</button><h2>K9 MEDICAL</h2><p><b>CPR:</b> 100bpm.<br><b>HEAT:</b> Cool paws.<br><b>GSW:</b> Pressure.</p></div>
+<div id="map"></div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        var map = L.map('map', {zoomControl: false}).setView([37.584, -79.052], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+<div class="icon-row">
+    <div id="m-perim" class="tool" onclick="setMode('perim')">🔴</div>
+    <div id="m-k9" class="tool" onclick="setMode('k9')">🐕</div>
+    <div id="m-leo" class="tool" onclick="setMode('leo')">👮</div>
+    <div id="m-clue" class="tool" onclick="setMode('clue')">🚩</div>
+    <div id="m-suspect" class="tool" onclick="setMode('suspect')">👤</div>
+</div>
+
+<div class="command-grid">
+    <div class="btn" style="border-color:var(--blue)" onclick="openM('law-modal')">⚖️ 20 LAWS</div>
+    <div class="btn" style="border-color:var(--red)" onclick="openM('med-modal')">🚑 MEDICAL</div>
+    <div class="btn" style="border-color:var(--gold)" onclick="openM('log-modal')">📋 TRAINING</div>
+    <div class="btn" style="border-color:var(--live)" onclick="openM('inc-modal')">📝 MISSION</div>
+</div>
+
+<div id="law-modal" class="modal">
+    <div class="close-btn" onclick="closeM('law-modal')">CLOSE LAW BIBLE</div>
+    <h3>K9 CASE LAW BIBLE (US/VA)</h3>
+    <div class="law-item"><b>1-5 SENSES:</b> Sight, Hearing, Smell, Touch, Taste. (Foundation of PC).</div>
+    <div class="law-item"><b>1. FL v. Harris:</b> Training records/Certs = K9 reliability.</div>
+    <div class="law-item"><b>2. FL v. Jardines:</b> No sniffs on porch without warrant.</div>
+    <div class="law-item"><b>3. Rodriguez v. US:</b> Cannot prolong stop for K9.</div>
+    <div class="law-item"><b>4. VA Code 18.2-144.1:</b> Felony to harm LEO K9.</div>
+    <div class="law-item"><b>5. VA v. Brown:</b> K9 alert = Probable Cause in VA.</div>
+    <div class="law-item"><b>6. US v. Place:</b> Airport sniff != Search.</div>
+    <div class="law-item"><b>7. IL v. Caballes:</b> K9 sniff during lawful stop is okay.</div>
+    <div class="law-item"><b>8. Graham v. Connor:</b> Use of force - Reasonableness.</div>
+    <div class="law-item"><b>9. TN v. Garner:</b> Deadly force restrictions.</div>
+    <div class="law-item"><b>10. Terry v. Ohio:</b> Reasonable suspicion for stop/frisk.</div>
+    <div class="law-item"><b>11. US v. Thomas:</b> Apartment door sniffs (varies by circuit).</div>
+    <div class="law-item"><b>12. City of Indianapolis v. Edmond:</b> K9 drug roadblocks unconstitutional.</div>
+    <div class="law-item"><b>13. Robinette v. Barnes:</b> K9 as deadly force (not per se).</div>
+    <div class="law-item"><b>14. VA v. Miller:</b> VA rules on K9 tracking reliability.</div>
+    <div class="law-item"><b>15. PA v. Muniz:</b> Physical vs Testimonial evidence.</div>
+    <div class="law-item"><b>16. Mapp v. Ohio:</b> Exclusionary rule.</div>
+    <div class="law-item"><b>17. US v. Sharp:</b> Duration of stop for investigation.</div>
+    <div class="law-item"><b>18. VA Code 19.2-83.1:</b> LEO reporting requirements.</div>
+    <div class="law-item"><b>19. Kerr v. West Palm Beach:</b> K9 deployment standards.</div>
+    <div class="law-item"><b>20. Chew v. Gates:</b> Excessive force in K9 bites.</div>
+</div>
+
+<div id="med-modal" class="modal">
+    <div class="close-btn" onclick="closeM('med-modal')">CLOSE MEDICAL</div>
+    <h3>K9 EMERGENCY FIRST AID</h3>
+    <div class="med-item"><b>CPR:</b> 100bpm. RIGHT side down. 30 pumps to 2 breaths.</div>
+    <div class="med-item"><b>GUNSHOT/STAB:</b> Pack wound with gauze. Direct pressure.</div>
+    <div class="med-item"><b>HEAT STROKE:</b> Critical >106F. Cool paws/ears with water. No Ice.</div>
+    <div class="med-item"><b>BLOAT:</b> Distended belly, dry heaving. Emergency transport!</div>
+    <div class="med-item"><b>NARCAN:</b> Administer via nose if K9 is unresponsive after search.</div>
+</div>
+
+<div id="log-modal" class="modal">
+    <div class="close-btn" onclick="closeM('log-modal')">CLOSE LOG</div>
+    <h3>DAILY TRAINING RECORD</h3>
+    <input type="date" style="width:90%; padding:10px; margin-bottom:10px;">
+    <input type="text" placeholder="Handler/K9 Name" style="width:90%; padding:10px; margin-bottom:10px;">
+    <textarea placeholder="Training Exercises & Performance..." style="width:90%; height:150px; padding:10px;"></textarea>
+    <button onclick="window.print()" style="width:100%; padding:20px; background:var(--gold); font-weight:bold;">PRINT/SAVE CERTIFICATE</button>
+</div>
+
+<div id="inc-modal" class="modal">
+    <div class="close-btn" onclick="closeM('inc-modal')">CLOSE REPORT</div>
+    <h3>INCIDENT NARRATIVE</h3>
+    <textarea style="width:90%; height:300px; padding:10px;" placeholder="Enter mission details here..."></textarea>
+    <button onclick="window.print()" style="width:100%; padding:20px; background:var(--red); color:#fff; font-weight:bold;">FINISH MISSION & PRINT</button>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    var map = L.map('map', {zoomControl: false}).setView([37.584, -79.052], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    var mode = null;
+    var points = [];
+    var polyline = L.polyline([], {color: 'red', weight: 4}).addTo(map);
+
+    function setMode(m) {
+        mode = m;
+        document.querySelectorAll('.tool').forEach(t => t.classList.remove('active'));
+        if(m) document.getElementById('m-'+m).classList.add('active');
         
-        var mode = null;
-        var points = [];
-        var polyline = L.polyline([], {color: 'red', weight: 5}).addTo(map);
-
-        function setMode(m) {
-            mode = m;
-            document.querySelectorAll('.tool').forEach(t => t.classList.remove('active'));
-            if(m) document.getElementById('m-'+m).classList.add('active');
-            
-            // LOCK MAP DRAGGING WHEN DRAWING PERIMETER
-            if(m === 'perim') {
-                map.dragging.disable();
-                alert("Perimeter Active: Tap map to drop points. Map is locked.");
-            } else {
-                map.dragging.enable();
-            }
+        if(m === 'perim') {
+            map.dragging.disable();
+            alert("Perimeter Locked: Tap corners on map. Use CLEAR to reset.");
+        } else {
+            map.dragging.enable();
         }
+    }
 
-        map.on('click', function(e) {
-            if(mode === 'perim') {
-                points.push(e.latlng);
-                polyline.setLatLngs(points);
-                L.circleMarker(e.latlng, {radius: 5, color: 'red'}).addTo(map);
-            } else if(mode === 'k9') {
-                L.marker(e.latlng, {icon: L.divIcon({html: '🐕', className: 'id-icon', iconSize: [30, 30]})}).addTo(map);
-            } else if(mode === 'clue') {
-                L.marker(e.latlng, {icon: L.divIcon({html: '🚩', className: 'id-icon', iconSize: [30, 30]})}).addTo(map);
-            }
-        });
-
-        function clearMap() {
-            points = [];
-            polyline.setLatLngs([]);
-            setMode(null);
+    map.on('click', function(e) {
+        if(!mode) return;
+        if(mode === 'perim') {
+            points.push(e.latlng);
+            polyline.setLatLngs(points);
+            L.circleMarker(e.latlng, {radius: 4, color: 'red'}).addTo(map);
+        } else {
+            var iconHtml = { 'k9': '🐕', 'leo': '👮', 'clue': '🚩', 'suspect': '👤' };
+            L.marker(e.latlng, {
+                icon: L.divIcon({ html: iconHtml[mode], className: 'map-icon', iconSize: [30, 30] })
+            }).addTo(map);
         }
+    });
 
-        function findGPS() {
-            navigator.geolocation.getCurrentPosition(p => {
-                map.setView([p.coords.latitude, p.coords.longitude], 16);
-                L.circleMarker([p.coords.latitude, p.coords.longitude],{radius:8,fillColor:'#007bff',fillOpacity:1,color:'#fff'}).addTo(map);
+    function findGPS() {
+        var addr = document.getElementById('addr-in').value;
+        if(addr) {
+            fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + addr)
+            .then(res => res.json()).then(data => {
+                if(data.length > 0) { map.setView([data[0].lat, data[0].lon], 17); }
             });
         }
-        function openM(id){ document.getElementById(id).style.display='block'; }
-        function closeModal(id){ document.getElementById(id).style.display='none'; }
-    </script>
+        navigator.geolocation.getCurrentPosition(pos => {
+            var latlng = [pos.coords.latitude, pos.coords.longitude];
+            map.setView(latlng, 17);
+            L.circleMarker(latlng, {radius: 8, color: '#fff', fillColor: '#007bff', fillOpacity: 1}).addTo(map);
+        }, err => { alert("Location Blocked. Check Safari Settings."); });
+    }
+
+    function openM(id) { document.getElementById(id).style.display = 'block'; }
+    function closeM(id) { document.getElementById(id).style.display = 'none'; }
+    function clearMap() { points = []; polyline.setLatLngs([]); setMode(null); }
+</script>
+
+<style>
+    .map-icon { font-size: 24px; text-align: center; }
+</style>
+
 </body>
 </html>
