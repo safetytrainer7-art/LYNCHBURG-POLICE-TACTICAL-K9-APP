@@ -3,163 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD K9 COMMAND V86</title>
+    <title>ACSD K9 COMMAND V89</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --orange: #ff6600; --gold: #ffd700; --blue: #0044ff; --red: #ff0000; --live: #00ff00; }
-        body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; height: 100%; overflow: hidden; }
-        .header { background: #001a00; border-bottom: 3px solid var(--orange); padding: 15px; text-align: center; color: var(--gold); font-weight: bold; font-size: 14px; }
-        .dash { background: #222; padding: 10px; display: flex; gap: 8px; border-bottom: 2px solid #444; }
-        #addr-in { flex-grow: 1; padding: 12px; border-radius: 5px; border: none; font-size: 16px; font-weight: bold; }
-        #map { height: calc(100vh - 290px); width: 100%; background: #111; }
-        .icon-row { display: flex; justify-content: space-around; background: #1a1a1a; padding: 12px 5px; border-top: 2px solid #444; }
-        .tool { width: 18%; text-align: center; padding: 10px 0; border: 2px solid #555; border-radius: 8px; background: #333; font-size: 22px; }
-        .tool.active { border-color: var(--live); background: #002200; box-shadow: 0 0 10px var(--live); }
-        .command-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; background: #000; }
-        .btn { background: #222; border: 2px solid #444; border-radius: 10px; padding: 15px; text-align: center; color: var(--gold); font-weight: bold; font-size: 12px; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; color: #000; z-index: 9999; padding: 20px; overflow-y: auto; box-sizing: border-box; }
-        .close-btn { background: var(--red); color: #fff; padding: 15px; text-align: center; border-radius: 5px; margin-bottom: 20px; font-weight: bold; }
-        .law-item { border-left: 5px solid var(--blue); background: #f0f0f0; padding: 12px; margin-bottom: 10px; font-size: 14px; line-height: 1.4; }
-        .med-item { border-left: 5px solid var(--red); background: #fff5f5; padding: 12px; margin-bottom: 10px; font-size: 14px; }
+        body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: -apple-system, sans-serif; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .hdr { background: #001a00; border-bottom: 2px solid var(--orange); padding: 10px; text-align: center; color: var(--gold); font-weight: bold; font-size: 13px; }
+        #map { flex-grow: 1; width: 100%; background: #111; }
+        .tool-bar { background: #1a1a1a; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 6px; border-top: 1px solid #444; }
+        .t-btn { background: #333; border: 1px solid #555; padding: 12px 0; text-align: center; border-radius: 6px; font-size: 20px; transition: 0.2s; }
+        .t-btn.active { border-color: var(--live); background: #002200; box-shadow: 0 0 8px var(--live); }
+        .cmd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 8px; background: #000; }
+        .i-btn { padding: 14px 5px; border-radius: 8px; text-align: center; font-weight: bold; font-size: 11px; border: 1px solid #444; color: #fff; text-transform: uppercase; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; color: #000; z-index: 9999; padding: 15px; overflow-y: auto; box-sizing: border-box; }
+        .cls { background: var(--red); color: #fff; padding: 15px; text-align: center; font-weight: bold; border-radius: 5px; margin-bottom: 15px; }
+        .form-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box; }
+        .law-item { border-left: 5px solid var(--blue); background: #f9f9f9; padding: 10px; margin-bottom: 8px; font-size: 13px; line-height: 1.4; }
     </style>
 </head>
 <body>
 
-<div class="header">ACSD K9 COMMAND - FULL RESTORE V86</div>
+<div class="hdr">ACSD K9 COMMAND • FIELD READY V89</div>
 
-<div class="dash">
-    <input type="text" id="addr-in" placeholder="SEARCH ADDRESS OR AREA">
-    <button onclick="findGPS()" style="background:var(--live); border:none; padding:12px; border-radius:5px; font-weight:bold;">TRACK</button>
+<div style="display:flex; padding:6px; background:#222; gap:4px;">
+    <input type="text" id="srch" placeholder="LOCATION / ADDRESS" style="flex-grow:1; padding:10px; border-radius:4px; border:none; font-size:15px;">
+    <button onclick="goGPS()" style="background:var(--live); color:#000; padding:10px 15px; font-weight:bold; border:none; border-radius:4px;">TRACK</button>
 </div>
 
 <div id="map"></div>
 
-<div class="icon-row">
-    <div id="m-perim" class="tool" onclick="setMode('perim')">🔴</div>
-    <div id="m-k9" class="tool" onclick="setMode('k9')">🐕</div>
-    <div id="m-leo" class="tool" onclick="setMode('leo')">👮</div>
-    <div id="m-clue" class="tool" onclick="setMode('clue')">🚩</div>
-    <div id="m-suspect" class="tool" onclick="setMode('suspect')">👤</div>
+<div class="tool-bar">
+    <div id="b-k9" class="t-btn" onclick="sm('k9')">🐕</div>
+    <div id="b-leo" class="t-btn" onclick="sm('leo')">👮</div>
+    <div id="b-per" class="t-btn" onclick="sm('per')">🔴</div>
+    <div id="b-clu" class="t-btn" onclick="sm('clu')">🚩</div>
+    <div id="b-sus" class="t-btn" onclick="sm('sus')">👤</div>
 </div>
 
-<div class="command-grid">
-    <div class="btn" style="border-color:var(--blue)" onclick="openM('law-modal')">⚖️ 20 LAWS</div>
-    <div class="btn" style="border-color:var(--red)" onclick="openM('med-modal')">🚑 MEDICAL</div>
-    <div class="btn" style="border-color:var(--gold)" onclick="openM('log-modal')">📋 TRAINING</div>
-    <div class="btn" style="border-color:var(--live)" onclick="openM('inc-modal')">📝 MISSION</div>
+<div class="cmd-grid">
+    <div class="i-btn" style="background:#001a44;" onclick="om('l-m')">⚖️ 20 LAWS</div>
+    <div class="i-btn" style="background:#440000;" onclick="om('m-m')">🚑 MEDICAL</div>
+    <div class="i-btn" style="background:#332200;" onclick="om('r-m')">📋 MISSION REPORT</div>
+    <div class="i-btn" style="background:#003300;" onclick="om('t-m')">📝 TRAINING FORM</div>
 </div>
 
-<div id="law-modal" class="modal">
-    <div class="close-btn" onclick="closeM('law-modal')">CLOSE LAW BIBLE</div>
-    <h3>K9 CASE LAW BIBLE (US/VA)</h3>
-    <div class="law-item"><b>1-5 SENSES:</b> Sight, Hearing, Smell, Touch, Taste. (Foundation of PC).</div>
-    <div class="law-item"><b>1. FL v. Harris:</b> Training records/Certs = K9 reliability.</div>
-    <div class="law-item"><b>2. FL v. Jardines:</b> No sniffs on porch without warrant.</div>
-    <div class="law-item"><b>3. Rodriguez v. US:</b> Cannot prolong stop for K9.</div>
-    <div class="law-item"><b>4. VA Code 18.2-144.1:</b> Felony to harm LEO K9.</div>
+<div id="r-m" class="modal">
+    <div class="cls" onclick="cm('r-m')">RETURN TO MAP</div>
+    <h2 style="text-align:center;border-bottom:2px solid #000;">INCIDENT NARRATIVE</h2>
+    <label><b>DATE/TIME:</b></label><input type="text" id="r-date" class="form-input">
+    <label><b>LOCATION:</b></label><input type="text" class="form-input">
+    <label><b>CASE DETAILS:</b></label>
+    <textarea class="form-input" style="height:200px;" placeholder="Document your 5-senses observations and K9 alerts..."></textarea>
+    <button onclick="window.print()" style="width:100%; padding:20px; background:var(--gold); font-weight:bold; border:none; border-radius:5px;">PRINT FOR SHERIFF</button>
+</div>
+
+<div id="t-m" class="modal">
+    <div class="cls" onclick="cm('t-m')">RETURN TO MAP</div>
+    <h2 style="text-align:center;border-bottom:2px solid #000;">TRAINING LOG</h2>
+    <label><b>K9 UNIT / HANDLER:</b></label><input type="text" class="form-input">
+    <label><b>EXERCISE TYPE:</b></label><input type="text" class="form-input" placeholder="Tracking, Narcotics, Apprehension...">
+    <textarea class="form-input" style="height:150px;" placeholder="Performance notes..."></textarea>
+    <button onclick="window.print()" style="width:100%; padding:20px; background:var(--gold); font-weight:bold; border:none; border-radius:5px;">SAVE LOG</button>
+</div>
+
+<div id="l-m" class="modal">
+    <div class="cls" onclick="cm('l-m')">CLOSE LAWS</div>
+    <h3>K9 CASE LAW (1-20)</h3>
+    <div class="law-item"><b>1. FL v. Harris:</b> Certifications/Logs = Reliability in court.</div>
+    <div class="law-item"><b>2. FL v. Jardines:</b> Porch sniffs are a search. Need warrant.</div>
+    <div class="law-item"><b>3. Rodriguez v. US:</b> Traffic stop cannot be extended for K9.</div>
+    <div class="law-item"><b>4. VA 18.2-144.1:</b> Felony to harm LEO K9.</div>
     <div class="law-item"><b>5. VA v. Brown:</b> K9 alert = Probable Cause in VA.</div>
-    <div class="law-item"><b>6. US v. Place:</b> Airport sniff != Search.</div>
-    <div class="law-item"><b>7. IL v. Caballes:</b> K9 sniff during lawful stop is okay.</div>
-    <div class="law-item"><b>8. Graham v. Connor:</b> Use of force - Reasonableness.</div>
-    <div class="law-item"><b>9. TN v. Garner:</b> Deadly force restrictions.</div>
-    <div class="law-item"><b>10. Terry v. Ohio:</b> Reasonable suspicion for stop/frisk.</div>
-    <div class="law-item"><b>11. US v. Thomas:</b> Apartment door sniffs (varies by circuit).</div>
-    <div class="law-item"><b>12. City of Indianapolis v. Edmond:</b> K9 drug roadblocks unconstitutional.</div>
-    <div class="law-item"><b>13. Robinette v. Barnes:</b> K9 as deadly force (not per se).</div>
-    <div class="law-item"><b>14. VA v. Miller:</b> VA rules on K9 tracking reliability.</div>
-    <div class="law-item"><b>15. PA v. Muniz:</b> Physical vs Testimonial evidence.</div>
-    <div class="law-item"><b>16. Mapp v. Ohio:</b> Exclusionary rule.</div>
-    <div class="law-item"><b>17. US v. Sharp:</b> Duration of stop for investigation.</div>
-    <div class="law-item"><b>18. VA Code 19.2-83.1:</b> LEO reporting requirements.</div>
-    <div class="law-item"><b>19. Kerr v. West Palm Beach:</b> K9 deployment standards.</div>
-    <div class="law-item"><b>20. Chew v. Gates:</b> Excessive force in K9 bites.</div>
+    <div class="law-item"><b>10. Terry v. Ohio:</b> Reasonable Suspicion for stop/frisk.</div>
 </div>
 
-<div id="med-modal" class="modal">
-    <div class="close-btn" onclick="closeM('med-modal')">CLOSE MEDICAL</div>
+<div id="m-m" class="modal">
+    <div class="cls" onclick="cm('m-m')">CLOSE MEDICAL</div>
     <h3>K9 EMERGENCY FIRST AID</h3>
-    <div class="med-item"><b>CPR:</b> 100bpm. RIGHT side down. 30 pumps to 2 breaths.</div>
-    <div class="med-item"><b>GUNSHOT/STAB:</b> Pack wound with gauze. Direct pressure.</div>
-    <div class="med-item"><b>HEAT STROKE:</b> Critical >106F. Cool paws/ears with water. No Ice.</div>
-    <div class="med-item"><b>BLOAT:</b> Distended belly, dry heaving. Emergency transport!</div>
-    <div class="med-item"><b>NARCAN:</b> Administer via nose if K9 is unresponsive after search.</div>
-</div>
-
-<div id="log-modal" class="modal">
-    <div class="close-btn" onclick="closeM('log-modal')">CLOSE LOG</div>
-    <h3>DAILY TRAINING RECORD</h3>
-    <input type="date" style="width:90%; padding:10px; margin-bottom:10px;">
-    <input type="text" placeholder="Handler/K9 Name" style="width:90%; padding:10px; margin-bottom:10px;">
-    <textarea placeholder="Training Exercises & Performance..." style="width:90%; height:150px; padding:10px;"></textarea>
-    <button onclick="window.print()" style="width:100%; padding:20px; background:var(--gold); font-weight:bold;">PRINT/SAVE CERTIFICATE</button>
-</div>
-
-<div id="inc-modal" class="modal">
-    <div class="close-btn" onclick="closeM('inc-modal')">CLOSE REPORT</div>
-    <h3>INCIDENT NARRATIVE</h3>
-    <textarea style="width:90%; height:300px; padding:10px;" placeholder="Enter mission details here..."></textarea>
-    <button onclick="window.print()" style="width:100%; padding:20px; background:var(--red); color:#fff; font-weight:bold;">FINISH MISSION & PRINT</button>
+    <div class="law-item" style="border-left-color:var(--red);"><b>CPR:</b> 100-120bpm. Right side down. 30 pumps : 2 breaths.</div>
+    <div class="law-item" style="border-left-color:var(--red);"><b>HEAT:</b> Cool paws/ears. No ice. Temp >106 is critical.</div>
+    <div class="law-item" style="border-left-color:var(--red);"><b>NARCAN:</b> Administer via nose for suspected exposure.</div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     var map = L.map('map', {zoomControl: false}).setView([37.584, -79.052], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    var mode = null; var pts = []; var line = L.polyline([], {color:'red', weight:4}).addTo(map);
 
-    var mode = null;
-    var points = [];
-    var polyline = L.polyline([], {color: 'red', weight: 4}).addTo(map);
-
-    function setMode(m) {
-        mode = m;
-        document.querySelectorAll('.tool').forEach(t => t.classList.remove('active'));
-        if(m) document.getElementById('m-'+m).classList.add('active');
-        
-        if(m === 'perim') {
-            map.dragging.disable();
-            alert("Perimeter Locked: Tap corners on map. Use CLEAR to reset.");
-        } else {
-            map.dragging.enable();
-        }
+    function sm(m) {
+        mode = m; 
+        document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('active'));
+        if(m) document.getElementById('b-'+m).classList.add('active');
+        if(m==='per'){ map.dragging.disable(); alert("Perimeter Active: Tap corners of the area."); } 
+        else { map.dragging.enable(); }
     }
 
     map.on('click', function(e) {
         if(!mode) return;
-        if(mode === 'perim') {
-            points.push(e.latlng);
-            polyline.setLatLngs(points);
-            L.circleMarker(e.latlng, {radius: 4, color: 'red'}).addTo(map);
-        } else {
-            var iconHtml = { 'k9': '🐕', 'leo': '👮', 'clue': '🚩', 'suspect': '👤' };
-            L.marker(e.latlng, {
-                icon: L.divIcon({ html: iconHtml[mode], className: 'map-icon', iconSize: [30, 30] })
-            }).addTo(map);
+        if(mode==='per'){ pts.push(e.latlng); line.setLatLngs(pts); L.circleMarker(e.latlng,{radius:3,color:'red'}).addTo(map); }
+        else {
+            var ico = {'k9':'🐕','leo':'👮','clu':'🚩','sus':'👤'};
+            L.marker(e.latlng, {icon: L.divIcon({html:ico[mode], iconSize:[30,30], className:'m-ico'})}).addTo(map);
         }
     });
 
-    function findGPS() {
-        var addr = document.getElementById('addr-in').value;
-        if(addr) {
-            fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + addr)
-            .then(res => res.json()).then(data => {
-                if(data.length > 0) { map.setView([data[0].lat, data[0].lon], 17); }
-            });
+    function goGPS() {
+        var a = document.getElementById('srch').value;
+        if(a) {
+            fetch('https://nominatim.openstreetmap.org/search?format=json&q='+a)
+            .then(r=>r.json()).then(d=>{ if(d.length>0) map.setView([d[0].lat, d[0].lon], 17); });
         }
-        navigator.geolocation.getCurrentPosition(pos => {
-            var latlng = [pos.coords.latitude, pos.coords.longitude];
-            map.setView(latlng, 17);
-            L.circleMarker(latlng, {radius: 8, color: '#fff', fillColor: '#007bff', fillOpacity: 1}).addTo(map);
-        }, err => { alert("Location Blocked. Check Safari Settings."); });
+        navigator.geolocation.getCurrentPosition(p => {
+            var loc = [p.coords.latitude, p.coords.longitude];
+            map.setView(loc, 17);
+            L.circleMarker(loc, {radius:7, fillColor: '#007bff', fillOpacity:1, color:'#fff'}).addTo(map);
+        }, () => { alert("Check location permissions in Safari Settings."); });
     }
 
-    function openM(id) { document.getElementById(id).style.display = 'block'; }
-    function closeM(id) { document.getElementById(id).style.display = 'none'; }
-    function clearMap() { points = []; polyline.setLatLngs([]); setMode(null); }
+    function om(id){ document.getElementById(id).style.display='block'; }
+    function cm(id){ document.getElementById(id).style.display='none'; }
+    document.getElementById('r-date').value = new Date().toLocaleString();
 </script>
-
-<style>
-    .map-icon { font-size: 24px; text-align: center; }
-</style>
-
+<style>.m-ico{font-size:24px; text-align:center;}</style>
 </body>
 </html>
+
