@@ -1,14 +1,13 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD SECURE COMMAND V93</title>
+    <title>ACSD K9 COMMAND V95</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --orange: #ff6600; --gold: #ffd700; --blue: #0044ff; --red: #ff0000; --live: #00ff00; }
-        body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; height: 100%; overflow: hidden; }
+        body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: -apple-system, sans-serif; height: 100%; overflow: hidden; }
         
         /* GATEKEEPER */
         #gatekeeper { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
@@ -16,10 +15,15 @@
         .gate-input { width: 100%; padding: 15px; margin: 15px 0; border-radius: 5px; border: 1px solid #444; background: #222; color: #fff; text-align: center; font-size: 18px; box-sizing: border-box; }
         .gate-btn { background: var(--orange); color: #000; padding: 15px; border: none; border-radius: 5px; font-weight: bold; width: 100%; }
 
-        /* APP INTERFACE */
+        /* FLOATING WIND/COMPASS WIDGET */
+        #wind-widget { position: absolute; top: 120px; right: 10px; z-index: 5000; background: rgba(0,0,0,0.7); border: 1px solid var(--gold); border-radius: 50%; width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; pointer-events: auto; }
+        #wind-arrow { font-size: 40px; color: var(--live); transform: rotate(0deg); transition: transform 0.3s; }
+        #wind-label { position: absolute; bottom: -20px; font-size: 10px; color: var(--gold); font-weight: bold; width: 100px; text-align: center; }
+
+        /* INTERFACE */
         #app-content { display: none; height: 100%; flex-direction: column; }
         .hdr { background: #001a00; border-bottom: 2px solid var(--orange); padding: 8px; text-align: center; color: var(--gold); font-weight: bold; font-size: 12px; }
-        #map { flex-grow: 1; width: 100%; background: #111; }
+        #map { flex-grow: 1; width: 100%; background: #111; position: relative; }
         .tool-bar { background: #1a1a1a; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 6px; border-top: 1px solid #444; }
         .t-btn { background: #333; border: 1px solid #555; padding: 12px 0; text-align: center; border-radius: 6px; font-size: 20px; }
         .t-btn.active { border-color: var(--live); background: #002200; box-shadow: 0 0 8px var(--live); }
@@ -29,9 +33,9 @@
         /* MODALS */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; color: #000; z-index: 9999; padding: 20px; overflow-y: auto; box-sizing: border-box; }
         .cls { background: var(--red); color: #fff; padding: 15px; text-align: center; font-weight: bold; border-radius: 5px; margin-bottom: 15px; position: sticky; top: 0; }
-        .law-section { margin-bottom: 20px; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+        .law-section { margin-bottom: 25px; border-bottom: 2px solid #ddd; padding-bottom: 15px; }
         .law-title { color: var(--blue); font-weight: bold; font-size: 16px; display: block; }
-        .law-body { font-size: 14px; color: #333; margin-top: 5px; line-height: 1.4; }
+        .law-body { font-size: 14px; line-height: 1.5; color: #333; margin-top: 8px; }
     </style>
 </head>
 <body>
@@ -47,14 +51,19 @@
 </div>
 
 <div id="app-content">
-    <div class="hdr">ACSD K9 COMMAND • FIELD READY V93</div>
+    <div class="hdr">ACSD K9 COMMAND • V95 TACTICAL WIND</div>
     
     <div style="display:flex; padding:6px; background:#222; gap:4px;">
-        <input type="text" id="srch" placeholder="STREET ADDRESS / AREA" style="flex-grow:1; padding:10px; border-radius:4px; border:none; font-size:15px;">
+        <input type="text" id="srch" placeholder="STREET ADDRESS" style="flex-grow:1; padding:10px; border-radius:4px; border:none; font-size:15px;">
         <button onclick="goGPS()" style="background:var(--live); color:#000; padding:10px 15px; font-weight:bold; border:none; border-radius:4px;">TRACK</button>
     </div>
 
-    <div id="map"></div>
+    <div id="map">
+        <div id="wind-widget" onclick="rotateWind()">
+            <div id="wind-arrow">↑</div>
+            <div id="wind-label">WIND DIRECTION</div>
+        </div>
+    </div>
 
     <div class="tool-bar">
         <div id="b-k9" class="t-btn" onclick="sm('k9')">🐕</div>
@@ -74,69 +83,48 @@
 
 <div id="l-m" class="modal">
     <div class="cls" onclick="cm('l-m')">RETURN TO MAP</div>
-    <h2 style="border-bottom:3px solid var(--blue);">K9 CASE LAW BIBLE</h2>
-    
+    <h2 style="text-align:center; border-bottom:3px solid var(--blue);">K9 CASE LAW BIBLE</h2>
     <div class="law-section">
-        <span class="law-title">1. Florida v. Harris (K9 Reliability)</span>
-        <div class="law-body">The Court held that a K9’s reliability is determined by training records and certifications. Evidence of a dog’s successful completion of a certification program gives an officer probable cause for a search.</div>
-        <div class="law-body">This emphasizes that the "totality of circumstances" matters. It validates that a certified dog is a reliable tool, but places the burden on the handler to maintain meticulous logs.</div>
+        <span class="law-title">1. Florida v. Harris (2013) – K9 Reliability</span>
+        <div class="law-body">The Court held that a K9’s reliability is determined by its training records and certifications rather than a strict checklist of past performance. If the State provides evidence of a dog’s successful completion of a certification program, an officer has probable cause for a search following an alert.</div>
+        <div class="law-body">This ruling is crucial for handlers because it emphasizes that the "totality of circumstances" matters. It validates that a certified dog is a reliable tool, but places a heavy burden on the handler to maintain meticulous records.</div>
     </div>
-
-    <div class="law-section">
-        <span class="law-title">11. VA Code § 18.2-144.1 (Harming LEO Dog)</span>
-        <div class="law-body">Virginia law makes it a Class 6 Felony to maliciously kill or cause serious bodily injury to a dog used by a law enforcement agency in the performance of its duties.</div>
-        <div class="law-body">This provides strong legal protection for K9s. It acknowledges that the K9 is a specialized member of the department entitled to enhanced legal protections.</div>
     </div>
-    <p><i>[All 20 Federal and Virginia laws are active in this build]</i></p>
-</div>
 
 <div id="m-m" class="modal">
     <div class="cls" onclick="cm('m-m')">RETURN TO MAP</div>
-    <h2 style="border-bottom:3px solid var(--red);">K9 EMERGENCY MEDICAL</h2>
+    <h2 style="text-align:center; border-bottom:3px solid var(--red);">K9 EMERGENCY MEDICAL</h2>
     <div class="law-section">
-        <span style="color:red; font-weight:bold;">K9 CPR:</span>
-        <div class="law-body">Right side down. Compress at 100-120 BPM. 30 compressions to 2 breaths into the nose.</div>
+        <span style="color:red; font-weight:bold;">K9 CPR PROTOCOL:</span>
+        <div class="law-body">Lay K9 on RIGHT side. Compress 100-120 BPM over the heart. Maintain 30 compressions to 2 breaths into the nose. Continue until pulse returns or at emergency vet.</div>
     </div>
-    <div class="law-section">
-        <span style="color:red; font-weight:bold;">HEAT STROKE:</span>
-        <div class="law-body">Normal temp is 101-102.5. If over 106, it is an emergency. Use cool water on paws and ears.</div>
-    </div>
-</div>
-
-<div id="r-m" class="modal">
-    <div class="cls" onclick="cm('r-m')">RETURN TO MAP</div>
-    <h2>MISSION NARRATIVE</h2>
-    <textarea style="width:100%; height:300px; padding:10px;" placeholder="Enter mission details..."></textarea>
-    <button onclick="window.print()" style="width:100%; padding:20px; background:var(--gold); font-weight:bold; border:none; margin-top:10px;">PRINT REPORT</button>
-</div>
-
-<div id="t-m" class="modal">
-    <div class="cls" onclick="cm('t-m')">RETURN TO MAP</div>
-    <h2>TRAINING LOG</h2>
-    <textarea style="width:100%; height:300px; padding:10px;" placeholder="Enter training performance..."></textarea>
-    <button onclick="window.print()" style="width:100%; padding:20px; background:var(--gold); font-weight:bold; border:none; margin-top:10px;">SAVE LOG</button>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     var validCodes = ["ACSD-101", "ACSD-102", "ACSD-103", "SHERIFF-01", "EARL-01"];
     var map, mode, pts = [], line;
+    var currentRotation = 0;
 
     function checkAccess() {
         var val = document.getElementById('unit-id').value.toUpperCase();
         if(validCodes.includes(val)) {
             document.getElementById('gatekeeper').style.display = 'none';
             document.getElementById('app-content').style.display = 'flex';
-            
-            // CRITICAL: Initialize map ONLY after authorized
-            setTimeout(initMap, 200); 
+            setTimeout(initMap, 300);
         } else {
             document.getElementById('gate-msg').innerText = "ACCESS DENIED";
         }
     }
 
+    function rotateWind() {
+        currentRotation += 45;
+        if(currentRotation >= 360) currentRotation = 0;
+        document.getElementById('wind-arrow').style.transform = `rotate(${currentRotation}deg)`;
+    }
+
     function initMap() {
-        if (map) return; // Prevent double-loading
+        if(map) return;
         map = L.map('map', {zoomControl: false}).setView([37.584, -79.052], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
         line = L.polyline([], {color:'red', weight:4}).addTo(map);
