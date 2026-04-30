@@ -3,199 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD K9 COMMAND - DEPLOYMENT V100</title>
+    <title>ACSD K9 COMMAND - V101</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --orange: #ff6600; --gold: #ffd700; --blue: #0044ff; --red: #ff0000; --nv: #00ff44; }
-        body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: -apple-system, sans-serif; height: 100%; overflow: hidden; }
-        
-        /* NIGHT VISION */
-        #nv-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 255, 68, 0.1); pointer-events: none; z-index: 8000; }
-        .nv-active { filter: brightness(1.2) contrast(1.2) sepia(1) hue-rotate(80deg); }
-
-        /* AUTH */
-        #gatekeeper { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .gate-box { background: #111; border: 2px solid var(--orange); padding: 30px; border-radius: 15px; width: 85%; max-width: 300px; text-align: center; }
-        .gate-input { width: 100%; padding: 15px; margin: 15px 0; border-radius: 5px; border: 1px solid #444; background: #222; color: #fff; text-align: center; font-size: 18px; }
-        .gate-btn { background: var(--orange); color: #000; padding: 15px; border: none; border-radius: 5px; font-weight: bold; width: 100%; }
-
-        /* UI */
-        #app-content { display: none; height: 100%; flex-direction: column; }
-        .hdr { background: #001a00; border-bottom: 2px solid var(--orange); padding: 8px; text-align: center; color: var(--gold); font-weight: bold; font-size: 11px; }
-        #map { flex-grow: 1; width: 100%; background: #111; position: relative; }
-        
-        .tool-bar { background: #1a1a1a; display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; padding: 5px; border-top: 1px solid #444; }
-        .t-btn { background: #333; border: 1px solid #555; padding: 10px 0; text-align: center; border-radius: 4px; font-size: 20px; }
-        .t-btn.active { border-color: var(--nv); background: #002200; box-shadow: 0 0 5px var(--nv); }
-        
-        .cmd-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 6px; background: #000; }
-        .i-btn { padding: 12px 2px; border-radius: 6px; text-align: center; font-weight: bold; font-size: 9px; border: 1px solid #444; color: #fff; text-transform: uppercase; }
-        
-        /* MODALS */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; color: #000; z-index: 9999; padding: 20px; overflow-y: auto; box-sizing: border-box; }
-        .cls { background: var(--red); color: #fff; padding: 15px; text-align: center; font-weight: bold; border-radius: 5px; margin-bottom: 15px; position: sticky; top: 0; }
-        .data-section { margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
-        .data-title { color: var(--blue); font-weight: bold; font-size: 16px; border-left: 4px solid var(--orange); padding-left: 8px; }
-        .data-para { font-size: 14px; line-height: 1.6; color: #222; margin-top: 8px; }
-        
-        label { font-weight: bold; display: block; margin-top: 10px; font-size: 12px; }
-        input, textarea, select { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; }
+        :root { --og: #ff6600; --gd: #ffd700; --bl: #0044ff; --rd: #ff0000; --nv: #00ff44; }
+        body, html { margin:0; padding:0; background:#000; color:#fff; font-family:sans-serif; height:100%; overflow:hidden; }
+        #nv-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,255,68,0.1); pointer-events:none; z-index:8000; }
+        .nv-active { filter: brightness(1.2) sepia(1) hue-rotate(80deg); }
+        #gatekeeper { position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:10000; display:flex; justify-content:center; align-items:center; }
+        .gate-box { border:2px solid var(--og); padding:30px; border-radius:15px; text-align:center; background:#111; width:80%; }
+        #app-content { display:none; height:100%; flex-direction:column; }
+        .hdr { background:#001a00; border-bottom:2px solid var(--og); padding:10px; text-align:center; color:var(--gd); font-weight:bold; font-size:12px; }
+        #map { flex-grow:1; width:100%; }
+        .tool-bar { background:#1a1a1a; display:grid; grid-template-columns:repeat(6,1fr); padding:5px; gap:2px; }
+        .t-btn { background:#333; padding:12px 0; text-align:center; border-radius:4px; font-size:20px; border:1px solid #555; }
+        .cmd-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:4px; padding:8px; background:#000; }
+        .i-btn { padding:12px 2px; border-radius:6px; text-align:center; font-weight:bold; font-size:9px; border:1px solid #444; color:#fff; }
+        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#fff; color:#000; z-index:9999; padding:20px; overflow-y:auto; box-sizing:border-box; }
+        .cls { background:var(--rd); color:#fff; padding:15px; text-align:center; font-weight:bold; border-radius:5px; margin-bottom:15px; position:sticky; top:0; }
+        h3 { color:var(--bl); border-bottom:2px solid var(--og); padding-bottom:5px; margin-top:25px; }
+        p { line-height:1.6; font-size:14px; margin-bottom:15px; }
     </style>
 </head>
 <body>
-
 <div id="nv-overlay"></div>
-
 <div id="gatekeeper">
     <div class="gate-box">
-        <h2 style="color:var(--gold); margin:0;">ACSD K9 COMMAND</h2>
-        <input type="text" id="unit-id" class="gate-input" placeholder="UNIT ID">
-        <button class="gate-btn" onclick="checkAccess()">AUTHORIZE</button>
+        <h2 style="color:var(--gd)">ACSD K9 COMMAND</h2>
+        <input type="text" id="u-id" style="width:100%; padding:15px; margin:15px 0; text-align:center;" placeholder="UNIT ID">
+        <button onclick="checkAccess()" style="width:100%; padding:15px; background:var(--og); font-weight:bold;">AUTHORIZE</button>
     </div>
 </div>
-
 <div id="app-content">
-    <div class="hdr">ACSD K9 • DEPLOYMENT V100 • FIELD SECURE</div>
-    
-    <div style="display:flex; padding:4px; background:#111; gap:4px;">
-        <input type="text" id="srch" placeholder="STREET ADDRESS" style="flex-grow:1; padding:10px; border:none; border-radius:4px; background:#222; color:#fff;">
-        <button onclick="goGPS()" style="background:var(--nv); color:#000; padding:10px; font-weight:bold; border:none; border-radius:4px;">TRACK</button>
-    </div>
-
+    <div class="hdr">ACSD K9 • DEPLOYMENT V101</div>
     <div id="map"></div>
-
     <div class="tool-bar">
-        <div id="b-k9" class="t-btn" onclick="sm('k9')">🐕</div>
-        <div id="b-leo" class="t-btn" onclick="sm('leo')">👮</div>
-        <div id="b-per" class="t-btn" onclick="sm('per')">🔴</div>
-        <div id="b-clu" class="t-btn" onclick="sm('clu')">🚩</div>
-        <div id="b-sus" class="t-btn" onclick="sm('sus')">👤</div>
+        <div class="t-btn" onclick="sm('k9')">🐕</div>
+        <div class="t-btn" onclick="sm('leo')">👮</div>
+        <div class="t-btn" onclick="sm('per')">🔴</div>
+        <div class="t-btn" onclick="sm('clu')">🚩</div>
+        <div class="t-btn" onclick="sm('sus')">👤</div>
         <div class="t-btn" onclick="toggleNV()">👁️</div>
     </div>
-
     <div class="cmd-grid">
-        <div class="i-btn" style="background:#001a44;" onclick="om('l-fed')">⚖️ FED LAW</div>
-        <div class="i-btn" style="background:#001a44;" onclick="om('l-va')">⚖️ VA LAW</div>
-        <div class="i-btn" style="background:#440000;" onclick="om('m-k9')">🚑 K9 MED</div>
+        <div class="i-btn" style="background:#001a44;" onclick="om('fed')">⚖️ FED LAW</div>
+        <div class="i-btn" style="background:#001a44;" onclick="om('va')">⚖️ VA LAW</div>
+        <div class="i-btn" style="background:#440000;" onclick="om('med')">🚑 K9 MED</div>
         <div class="i-btn" style="background:#222;" onclick="om('vets')">🏥 VETS</div>
-        <div class="i-btn" style="background:#332200;" onclick="om('r-mis')">📋 MISSION</div>
-        <div class="i-btn" style="background:#003300;" onclick="om('r-trn')">📝 TRAINING</div>
+        <div class="i-btn" style="background:#332200;" onclick="om('mis')">📋 MISSION</div>
+        <div class="i-btn" style="background:#003300;" onclick="om('trn')">📝 TRAINING</div>
     </div>
 </div>
 
-<div id="l-fed" class="modal">
-    <div class="cls" onclick="cm('l-fed')">RETURN TO MAP</div>
-    <h2>FEDERAL CASE LAW</h2>
-    <div class="data-section">
-        <span class="data-title">Probable Cause (Florida v. Harris)</span>
-        <p class="data-para">Para 1: The Supreme Court held that a K9's alert provides probable cause if the dog has been certified or has successfully completed a training program. Reliability is judged by training records, not just field performance.</p>
-        <p class="data-para">Para 2: Defense challenges based on "false positives" are addressed by the Court acknowledging that dogs identify residual odors. Certification serves as the legal proof of the dog's nose.</p>
-        <p class="data-para">Para 3: Operationally, handlers must document all "blind" training to prove the dog is not responding to handler cues. Meticulous logs are required for Federal court admissibility.</p>
-    </div>
-    </div>
-
-<div id="l-va" class="modal">
-    <div class="cls" onclick="cm('l-va')">RETURN TO MAP</div>
-    <h2>VIRGINIA CASE LAW</h2>
-    <div class="data-section">
-        <span class="data-title">Tracking & Apprehensions</span>
-        <p class="data-para">Para 1: VA courts accept tracking evidence when pedigree and training are proven. Handlers must testify to the dog's ability to follow human scent over distance.</p>
-        <p class="data-para">Para 2: Apprehensions use the "Objective Reasonableness" standard. Clear warnings must be given before deployment to allow for surrender.</p>
-        <p class="data-para">Para 3: Experience matters—Virginia courts weigh the handler's years of service heavily when interpreting the dog's behavioral changes on a track.</p>
-    </div>
+<div id="fed" class="modal">
+    <div class="cls" onclick="cm('fed')">CLOSE</div>
+    <h3>FEDERAL LAW: PROBABLE CAUSE (Harris)</h3>
+    <p><b>PARA 1:</b> The Supreme Court in <i>Florida v. Harris</i> established that a dog's alert provides probable cause if the dog is certified by a recognized body or has successfully completed a training program. The "totality of circumstances" is the standard used to evaluate reliability.</p>
+    <p><b>PARA 2:</b> Challenges to a dog's reliability based on "false positives" in the field are generally dismissed if the training logs show consistent proficiency. The Court recognizes that dogs may alert to residual odors of drugs no longer physically present.</p>
+    <p><b>PARA 3:</b> For the officer, this means the training log is the most vital legal document. It must show "blind" hides where the handler did not know the location, proving the dog was not cued by the handler's behavior.</p>
+    
+    <h3>FEDERAL LAW: HOLDING TIMES (Rodriguez)</h3>
+    <p><b>PARA 1:</b> <i>Rodriguez v. U.S.</i> states a traffic stop cannot be prolonged for a K9 sniff without independent reasonable suspicion. The stop must end when the traffic mission (issuing the ticket) is done.</p>
+    <p><b>PARA 2:</b> If the K9 is on scene, the sniff can occur while the officer is checking the license or writing the summons. As long as it doesn't "add time" to the stop, the Fourth Amendment is satisfied.</p>
+    <p><b>PARA 3:</b> Handlers must document the exact timeline: Stop Start, K9 Arrival, and Alert Time. If the alert happens before the ticket is finished, the detention remains legal for a full search.</p>
 </div>
 
-<div id="m-k9" class="modal">
-    <div class="cls" onclick="cm('m-k9')">RETURN TO MAP</div>
-    <h2>K9 MEDICAL EMERGENCY</h2>
-    <div class="data-section">
-        <span class="data-title">K9 CPR PROTOCOL</span>
-        <p class="data-para">Para 1: Check femoral pulse. Lay dog on right side. Compress 100-120 BPM over the widest part of the chest (Shepherds/Malinois).</p>
-        <p class="data-para">Para 2: Rescue breathing is "Mouth-to-Snout." Seal the muzzle and blow into the nose until the chest rises. Ratio is 30:2.</p>
-        <p class="data-para">Para 3: Rotate handlers every 2 mins to prevent fatigue. Continue until heartbeat returns or you reach the vet clinic.</p>
-    </div>
-    </div>
-
-<div id="r-mis" class="modal">
-    <div class="cls" onclick="cm('r-mis')">CLOSE</div>
-    <h2>MISSION REPORT</h2>
-    <label>DATE/TIME</label><input type="datetime-local">
-    <label>NARRATIVE</label><textarea rows="10"></textarea>
-    <button onclick="window.print()" style="padding:15px; background:var(--gold); width:100%; font-weight:bold; margin-top:10px;">PRINT FOR SHERIFF</button>
+<div id="va" class="modal">
+    <div class="cls" onclick="cm('va')">CLOSE</div>
+    <h3>VIRGINIA LAW: SEARCH & SEIZURE</h3>
+    <p><b>PARA 1:</b> Virginia courts allow the search of an entire vehicle, including the trunk and containers, based on a definitive K9 alert. This aligns with the federal Carroll Doctrine but is strictly enforced in VA Appeals.</p>
+    <p><b>PARA 2:</b> Handlers must describe the "final response" of the dog. In Virginia, a "behavioral change" isn't enough; the handler must be able to testify to the specific alert (sit/stare/scratch) trained for that dog.</p>
+    <p><b>PARA 3:</b> Experience is a major factor in VA courts. A handler with your 40 years of experience carries significant weight when testifying about the nuances of a dog's behavior during a search or track.</p>
 </div>
 
-<div id="r-trn" class="modal">
-    <div class="cls" onclick="cm('r-trn')">CLOSE</div>
-    <h2>TRAINING LOG</h2>
-    <label>AID TYPE/WEIGHT</label><input type="text">
-    <label>PERFORMANCE (1-10)</label><input type="number">
-    <button onclick="window.print()" style="padding:15px; background:var(--gold); width:100%; font-weight:bold; margin-top:10px;">SAVE RECORD</button>
+<div id="med" class="modal">
+    <div class="cls" onclick="cm('med')">CLOSE</div>
+    <h3>K9 CPR (INSTRUCTIONAL)</h3>
+    <p><b>PARA 1:</b> Check femoral pulse first. Lay dog on its right side. Compress 100-120 BPM over the widest part of the chest (for GSD/Malinois). Push down 1/3 to 1/2 of the chest width.</p>
+    <p><b>PARA 2:</b> Use "Mouth-to-Snout" breathing. Hold the muzzle shut and blow into the nose until you see the chest rise. The cycle is 30 compressions to 2 breaths. Repeat without stopping.</p>
+    <p><b>PARA 3:</b> Rotate handlers every 2 minutes to keep compressions deep. Physical fatigue is the #1 reason CPR fails in the field. Continue until heartbeat returns or you reach the ER.</p>
+    
+    <h3>GUNSHOTS & BLEEDING</h3>
+    <p><b>PARA 1:</b> Apply immediate pressure. For limbs, use a K9 tourniquet high and tight. For chest/body wounds, pack the wound with hemostatic gauze (QuikClot) and hold for 5 minutes.</p>
+    <p><b>PARA 2:</b> Chest wounds require an occlusive seal (chest seal) to prevent lung collapse. If you hear a sucking sound, seal it immediately with plastic or a dedicated seal.</p>
+    <p><b>PARA 3:</b> Move the dog to a cruiser and transport with sirens. Do not wait for a vet to come to you. Keep the dog warm to prevent shock and watch for pale gums.</p>
 </div>
 
-<div id="vets" class="modal">
-    <div class="cls" onclick="cm('vets')">CLOSE</div>
-    <h2>LOCAL VETS</h2>
-    <p><b>LYNCHBURG:</b> (434) 846-1504</p>
-    <p><b>AMHERST:</b> (434) 946-5657</p>
-</div>
+<div id="mis" class="modal"><div class="cls" onclick="cm('mis')">CLOSE</div><h2>MISSION REPORT</h2><textarea style="width:100%;height:300px;"></textarea><button onclick="window.print()">PRINT</button></div>
+<div id="trn" class="modal"><div class="cls" onclick="cm('trn')">CLOSE</div><h2>TRAINING LOG</h2><textarea style="width:100%;height:300px;"></textarea><button onclick="window.print()">SAVE</button></div>
+<div id="vets" class="modal"><div class="cls" onclick="cm('vets')">CLOSE</div><h2>LOCAL VETS</h2><p>Lynchburg Emergency: (434) 846-1504</p><p>Amherst Vet: (434) 946-5657</p></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    var validCodes = ["EARL-01", "ACSD-101", "SHERIFF-01"];
-    var map, mode, pts = [], line, nv = false;
-
-    function checkAccess() {
-        var val = document.getElementById('unit-id').value.toUpperCase();
-        if(validCodes.includes(val)) {
-            document.getElementById('gatekeeper').style.display = 'none';
-            document.getElementById('app-content').style.display = 'flex';
-            setTimeout(initMap, 300);
-        }
-    }
-
-    function toggleNV() {
-        nv = !nv;
-        document.getElementById('nv-overlay').style.display = nv ? 'block' : 'none';
-        document.getElementById('map').className = nv ? 'nv-active' : '';
-    }
-
-    function initMap() {
-        if(map) return;
-        map = L.map('map', {zoomControl: false, attributionControl: false}).setView([37.584, -79.052], 13);
+    var map, mode, line, pts=[], nv=false;
+    function checkAccess(){ if(document.getElementById('u-id').value.toUpperCase()){ document.getElementById('gatekeeper').style.display='none'; document.getElementById('app-content').style.display='flex'; setTimeout(initMap,300); } }
+    function toggleNV(){ nv=!nv; document.getElementById('nv-overlay').style.display=nv?'block':'none'; document.getElementById('map').className=nv?'nv-active':''; }
+    function initMap(){
+        if(map)return;
+        map = L.map('map',{zoomControl:false, attributionControl:false}).setView([37.584, -79.052], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        line = L.polyline([], {color:'red', weight:4}).addTo(map);
-
-        map.on('click', function(e) {
-            if(!mode) return;
-            if(mode==='per'){ 
-                pts.push(e.latlng); 
-                line.setLatLngs(pts); 
-                L.circleMarker(e.latlng,{radius:3,color:'red'}).addTo(map); 
-            } else {
-                var ico = {'k9':'🐕','leo':'👮','clu':'🚩','sus':'👤'};
-                L.marker(e.latlng, {icon: L.divIcon({html:ico[mode], iconSize:[30,30], className:'m-ico'})}).addTo(map);
+        line = L.polyline([],{color:'red',weight:4}).addTo(map);
+        map.on('click', function(e){
+            if(!mode)return;
+            if(mode==='per'){ pts.push(e.latlng); line.setLatLngs(pts); L.circleMarker(e.latlng,{radius:3,color:'red'}).addTo(map); }
+            else {
+                var ico={'k9':'🐕','leo':'👮','clu':'🚩','sus':'👤'};
+                L.marker(e.latlng,{icon:L.divIcon({html:ico[mode],iconSize:[30,30],className:'m-ico'})}).addTo(map);
             }
         });
     }
-
-    function sm(m) { 
-        mode = m; 
-        document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('active')); 
-        if(m) document.getElementById('b-'+m).classList.add('active'); 
-    }
-    
-    function goGPS() {
-        navigator.geolocation.getCurrentPosition(p => {
-            var loc = [p.coords.latitude, p.coords.longitude];
-            map.setView(loc, 17);
-            L.circleMarker(loc, {radius:7, fillColor: '#007bff', fillOpacity:1, color:'#fff', weight:2}).addTo(map);
-        });
-    }
-
+    function sm(m){ mode=m; document.querySelectorAll('.t-btn').forEach(b=>b.style.borderColor='#555'); }
+    function goGPS(){ navigator.geolocation.getCurrentPosition(p=>{ var l=[p.coords.latitude,p.coords.longitude]; map.setView(l,17); L.circleMarker(l,{radius:6,fillColor:'#007bff',color:'#fff'}).addTo(map); }); }
     function om(id){ document.getElementById(id).style.display='block'; }
     function cm(id){ document.getElementById(id).style.display='none'; }
 </script>
 <style>.m-ico{font-size:24px; text-align:center;}</style>
 </body>
 </html>
-
