@@ -1,57 +1,65 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD K9 COMMAND V97</title>
+    <title>ACSD K9 ULTIMATE COMMAND V98</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --orange: #ff6600; --gold: #ffd700; --blue: #0044ff; --red: #ff0000; --live: #00ff00; }
+        :root { --orange: #ff6600; --gold: #ffd700; --blue: #0044ff; --red: #ff0000; --nv: #00ff44; }
         body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: -apple-system, sans-serif; height: 100%; overflow: hidden; }
         
+        /* NIGHT VISION OVERLAY */
+        #nv-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 255, 68, 0.15); pointer-events: none; z-index: 8000; box-shadow: inset 0 0 100px #000; }
+        .nv-active { filter: brightness(1.2) contrast(1.5) sepia(1) hue-rotate(80deg); }
+
         /* GATEKEEPER */
-        #gatekeeper { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .gate-box { background: #111; border: 2px solid var(--orange); padding: 30px; border-radius: 15px; width: 85%; max-width: 300px; }
-        .gate-input { width: 100%; padding: 15px; margin: 15px 0; border-radius: 5px; border: 1px solid #444; background: #222; color: #fff; text-align: center; font-size: 18px; box-sizing: border-box; }
+        #gatekeeper { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .gate-box { background: #111; border: 2px solid var(--orange); padding: 30px; border-radius: 15px; width: 85%; max-width: 300px; text-align: center; }
+        .gate-input { width: 100%; padding: 15px; margin: 15px 0; border-radius: 5px; border: 1px solid #444; background: #222; color: #fff; text-align: center; font-size: 18px; }
         .gate-btn { background: var(--orange); color: #000; padding: 15px; border: none; border-radius: 5px; font-weight: bold; width: 100%; }
 
-        /* INTERFACE */
+        /* APP LAYOUT */
         #app-content { display: none; height: 100%; flex-direction: column; }
-        .hdr { background: #001a00; border-bottom: 2px solid var(--orange); padding: 8px; text-align: center; color: var(--gold); font-weight: bold; font-size: 12px; }
+        .hdr { background: #001a00; border-bottom: 2px solid var(--orange); padding: 8px; text-align: center; color: var(--gold); font-weight: bold; font-size: 11px; }
         #map { flex-grow: 1; width: 100%; background: #111; }
-        .tool-bar { background: #1a1a1a; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 6px; border-top: 1px solid #444; }
-        .t-btn { background: #333; border: 1px solid #555; padding: 12px 0; text-align: center; border-radius: 6px; font-size: 20px; }
-        .t-btn.active { border-color: var(--live); background: #002200; box-shadow: 0 0 8px var(--live); }
-        .cmd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 8px; background: #000; }
-        .i-btn { padding: 14px 5px; border-radius: 8px; text-align: center; font-weight: bold; font-size: 11px; border: 1px solid #444; color: #fff; text-transform: uppercase; }
+        
+        /* EXTENDED COMMAND GRID */
+        .cmd-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 6px; background: #000; border-top: 2px solid #333; }
+        .i-btn { padding: 12px 2px; border-radius: 6px; text-align: center; font-weight: bold; font-size: 9px; border: 1px solid #444; color: #fff; text-transform: uppercase; }
         
         /* MODALS */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; color: #000; z-index: 9999; padding: 20px; overflow-y: auto; box-sizing: border-box; }
         .cls { background: var(--red); color: #fff; padding: 15px; text-align: center; font-weight: bold; border-radius: 5px; margin-bottom: 15px; position: sticky; top: 0; }
-        .data-section { margin-bottom: 25px; border-bottom: 2px solid #ddd; padding-bottom: 15px; }
-        .data-title { color: var(--blue); font-weight: bold; font-size: 16px; display: block; }
-        .data-body { font-size: 14px; line-height: 1.5; color: #333; margin-top: 8px; }
+        .data-section { margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 20px; }
+        .data-title { color: var(--blue); font-weight: bold; font-size: 16px; text-transform: uppercase; border-left: 4px solid var(--orange); padding-left: 8px; }
+        .data-para { font-size: 14px; line-height: 1.6; color: #222; margin-top: 10px; }
+        
+        /* TOOLBAR */
+        .tool-bar { background: #1a1a1a; display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; padding: 5px; }
+        .t-btn { background: #333; border: 1px solid #555; padding: 10px 0; text-align: center; border-radius: 4px; font-size: 18px; }
+        .t-btn.active { border-color: var(--nv); background: #002200; }
     </style>
 </head>
 <body>
 
+<div id="nv-overlay"></div>
+
 <div id="gatekeeper">
     <div class="gate-box">
-        <h2 style="color:var(--gold); margin-top:0;">ACSD K9</h2>
-        <p style="font-size:12px; color:#aaa;">SECURE FIELD INTERFACE</p>
+        <h2 style="color:var(--gold); margin:0;">ACSD K9 COMMAND</h2>
+        <p style="font-size:10px; color:#888;">FEDERAL & STATE PROTECTED SYSTEM</p>
         <input type="text" id="unit-id" class="gate-input" placeholder="ENTER UNIT ID">
-        <button class="gate-btn" onclick="checkAccess()">AUTHORIZE</button>
-        <p id="gate-msg" style="color:var(--red); font-size:12px; margin-top:10px;"></p>
+        <button class="gate-btn" onclick="checkAccess()">AUTHORIZE ACCESS</button>
     </div>
 </div>
 
 <div id="app-content">
-    <div class="hdr">ACSD K9 COMMAND • V97 STABILIZED</div>
+    <div class="hdr">ACSD K9 • ULTIMATE COMMAND V98 • 24/7 FIELD SUPPORT</div>
     
-    <div style="display:flex; padding:6px; background:#222; gap:4px;">
-        <input type="text" id="srch" placeholder="STREET ADDRESS" style="flex-grow:1; padding:10px; border-radius:4px; border:none; font-size:15px;">
-        <button onclick="goGPS()" style="background:var(--live); color:#000; padding:10px 15px; font-weight:bold; border:none; border-radius:4px;">TRACK</button>
+    <div style="display:flex; padding:4px; background:#111; gap:4px;">
+        <input type="text" id="srch" placeholder="ADDRESS SEARCH" style="flex-grow:1; padding:10px; border:none; border-radius:4px; background:#222; color:#fff;">
+        <button onclick="goGPS()" style="background:var(--nv); color:#000; padding:10px; font-weight:bold; border:none; border-radius:4px;">TRACK</button>
     </div>
 
     <div id="map"></div>
@@ -62,61 +70,100 @@
         <div id="b-per" class="t-btn" onclick="sm('per')">🔴</div>
         <div id="b-clu" class="t-btn" onclick="sm('clu')">🚩</div>
         <div id="b-sus" class="t-btn" onclick="sm('sus')">👤</div>
+        <div class="t-btn" onclick="toggleNV()" title="Night Vision">👁️</div>
     </div>
 
     <div class="cmd-grid">
-        <div id="law-btn" class="i-btn" style="background:#001a44;" onclick="om('l-m')">⚖️ LEGAL BIBLE</div>
-        <div id="med-btn" class="i-btn" style="background:#440000;" onclick="om('m-m')">🚑 MEDICAL</div>
-        <div class="i-btn" style="background:#332200;" onclick="om('r-m')">📋 MISSION REPORT</div>
-        <div class="i-btn" style="background:#003300;" onclick="om('t-m')">📝 TRAINING FORM</div>
+        <div class="i-btn" style="background:#001a44;" onclick="om('law-fed')">⚖️ FED LAW</div>
+        <div class="i-btn" style="background:#001a44;" onclick="om('law-va')">⚖️ VA LAW</div>
+        <div class="i-btn" style="background:#440000;" onclick="om('med-k9')">🚑 K9 MED</div>
+        <div class="i-btn" style="background:#222;" onclick="om('vets')">🏥 LOCAL VETS</div>
+        <div class="i-btn" style="background:#332200;" onclick="om('r-mission')">📋 MISSION</div>
+        <div class="i-btn" style="background:#003300;" onclick="om('r-train')">📝 TRAINING</div>
     </div>
 </div>
 
-<div id="l-m" class="modal">
-    <div class="cls" onclick="cm('l-m')">RETURN TO MAP</div>
-    <h2 style="border-bottom:3px solid var(--blue);">K9 CASE LAW BIBLE</h2>
+<div id="law-fed" class="modal">
+    <div class="cls" onclick="cm('law-fed')">BACK TO TACTICAL MAP</div>
+    <h2>FEDERAL CASE LAW BIBLE</h2>
+    
     <div class="data-section">
-        <span class="data-title">1. Florida v. Harris (2013) – K9 Reliability</span>
-        <div class="data-body">The Court held that a K9’s reliability is determined by its training records and certifications. If the State provides evidence of a dog’s successful completion of a certification program, an officer has probable cause for a search following an alert.</div>
-        <div class="data-body">This emphasizes that the "totality of circumstances" matters. It validates that a certified dog is a reliable tool, but places the burden on the handler to maintain meticulous logs.</div>
+        <span class="data-title">Probable Cause & Reliability (Florida v. Harris)</span>
+        <p class="data-para">The United States Supreme Court established that a K9's "reliability" for establishing Probable Cause depends on the dog's training records and certifications. If the K9 has successfully completed a certification program through a recognized body, it is deemed reliable enough to grant an officer the authority to search a vehicle or container. The "totality of circumstances" remains the guiding principle in evaluating these alerts.</p>
+        <p class="data-para">Handlers must be aware that the defense will attempt to discredit the "alert" by citing poor maintenance of logs or "false positives." However, the Court ruled that a dog does not need a perfect record in the field, as field performance can be affected by "residue" or scents that the dog correctly identifies even if no physical drugs are found. The certification is the legal "shield" for the officer.</p>
+        <p class="data-para">In practice, this means your K9 training logs are your most important legal document. Every training session, every "blank" search, and every certification must be documented to prove to a Federal Judge that the dog's nose meets the constitutional standard for a warrantless search under the Fourth Amendment.</p>
     </div>
+
     <div class="data-section">
-        <span class="data-title">2. Florida v. Jardines (2013) – Curtilage Sniffs</span>
-        <div class="data-body">The Supreme Court ruled that using a drug-sniffing dog on a homeowner's porch constitutes a "search" under the Fourth Amendment. An officer cannot bring a K9 to the "curtilage" of a home for a sniff without a warrant or specific exception.</div>
-        <div class="data-body">This means while a dog can sniff a car on a public road, it cannot be used at the front door of a private residence without legal cover. Handlers must stay on the public sidewalk or driveway.</div>
+        <span class="data-title">Holding Times (Rodriguez v. United States)</span>
+        <p class="data-para">The Supreme Court clarified that a police officer may not extend the duration of a traffic stop beyond the time necessary to complete the original mission (issuing a ticket or warning) to conduct a K9 sniff. Unless the officer has "reasonable suspicion" of a separate crime, the stop must end as soon as the traffic business is concluded. Waiting even 7 or 8 minutes for a K9 to arrive is a violation if the ticket is already written.</p>
+        <p class="data-para">This ruling places a premium on K9 deployment speed. Handlers should be called to the scene early in the stop process. If the K9 is already on-scene, the sniff can occur while the second officer is running the license or writing the summons. As long as the sniff does not "prolong" the stop, no Fourth Amendment violation occurs.</p>
+        <p class="data-para">To protect the case in court, the officer should document the exact times: when the stop began, when the K9 arrived, and when the ticket was issued. If the dog alerts *before* the ticket is handed over, the Probable Cause is established, and the holding time becomes a moot point because a full investigation is now authorized.</p>
     </div>
     </div>
 
-<div id="m-m" class="modal">
-    <div class="cls" onclick="cm('m-m')">RETURN TO MAP</div>
-    <h2 style="border-bottom:3px solid var(--red);">K9 EMERGENCY MEDICAL</h2>
+<div id="law-va" class="modal">
+    <div class="cls" onclick="cm('law-va')">BACK TO TACTICAL MAP</div>
+    <h2>VIRGINIA CASE LAW & CODES</h2>
+    
     <div class="data-section">
-        <span class="data-title" style="color:red;">K9 CPR PROTOCOL</span>
-        <div class="data-body">Lay K9 on RIGHT side. Compress 100-120 BPM over the heart. Maintain 30 compressions to 2 breaths into the nose. Continue until pulse returns or at emergency vet.</div>
-    </div>
-    <div class="data-section">
-        <span class="data-title" style="color:red;">HEAT STROKE EMERGENCY</span>
-        <div class="data-body">Normal temp is 101-102.5. If over 106, it is life-threatening. Move dog to shade/A/C. Use cool water (not ice) on paws and ears. Stop cooling once temp reaches 103.5. Organ damage can occur even if dog looks better.</div>
+        <span class="data-title">Virginia v. Brown (Search Scope)</span>
+        <p class="data-para">In the Commonwealth of Virginia, the Court of Appeals has been very clear: a K9 alert on a vehicle provides Probable Cause to search the *entire* vehicle, including the trunk and all locked or unlocked containers within it. This follows the federal "Carroll Doctrine" but emphasizes that the dog's nose is the catalyst for the entire search scope.</p>
+        <p class="data-para">Virginia handlers must ensure the alert is "final and definitive." If a dog "interests" but does not "alert," the search may be ruled illegal. The handler's testimony must describe the specific behavioral change (sitting, staring, or scratching) that constitutes the alert according to that specific dog's training.</p>
+        <p class="data-para">Furthermore, Virginia courts heavily weigh the handler's experience. If you have 40 years of experience, the court is significantly more likely to trust your interpretation of the dog's behavior. Always lead your testimony with your decades of service and the thousands of hours spent on the lead.</p>
     </div>
 </div>
 
-<div id="r-m" class="modal"><div class="cls" onclick="cm('r-m')">CLOSE</div><h2>REPORT FORM</h2><textarea style="width:100%;height:300px;"></textarea></div>
-<div id="t-m" class="modal"><div class="cls" onclick="cm('t-m')">CLOSE</div><h2>TRAINING LOG</h2><textarea style="width:100%;height:300px;"></textarea></div>
+<div id="med-k9" class="modal">
+    <div class="cls" onclick="cm('med-k9')">BACK TO TACTICAL MAP</div>
+    <h2 style="color:red;">EMERGENCY MEDICAL BIBLE</h2>
+
+    <div class="data-section">
+        <span class="data-title">K9 CPR & Life Support</span>
+        <p class="data-para">Check for a pulse immediately at the femoral artery (inside the upper back leg). If no pulse, lay the K9 on their RIGHT side. For most working dogs (Shepherds/Malinois), place your hands over the widest part of the chest. Compress at 100-120 beats per minute (the tempo of "Stayin' Alive"). Compress 1/3 to 1/2 of the chest's depth.</p>
+        <p class="data-para">Rescue breathing must be done "Mouth-to-Snout." Close the dog’s muzzle with both hands to create a seal and breathe directly into the nostrils. You should see the chest rise. The ratio is 30 compressions to 2 breaths. Do not stop until the dog breathes on its own or you reach a veterinarian.</p>
+        <p class="data-para">Note: K9 CPR is physically exhausting. If you have a second officer, rotate every 2 minutes to keep the quality of compressions high. High-quality compressions are the only thing that will keep oxygen flowing to the brain in a cardiac arrest scenario.</p>
+    </div>
+
+    <div class="data-section">
+        <span class="data-title">Gunshot Wounds & Massive Bleeding</span>
+        <p class="data-para">Immediate priority is "Stop the Bleed." If the wound is on a limb, apply a K9-specific tourniquet (or a human one tightened significantly) as high as possible on the leg. If the wound is in the chest or abdomen (a "junctional" wound), you must pack the wound with hemostatic gauze (QuikClot) and apply direct, heavy pressure for at least 3 to 5 minutes without letting go.</p>
+        <p class="data-para">For chest wounds, use an occlusive dressing (chest seal) to prevent air from entering the chest cavity and collapsing the lungs. If you hear a "sucking" sound, seal it immediately. Watch for signs of shock: pale gums, rapid heart rate, and cold extremities. Keep the dog warm with a space blanket during transport.</p>
+        <p class="data-para">Transport the dog immediately in the cruiser. Do not wait for an ambulance. Secure the dog so it cannot bite due to pain-induced stress. Use your siren—every second counts when an artery is breached.</p>
+    </div>
+</div>
+
+<div id="vets" class="modal">
+    <div class="cls" onclick="cm('vets')">BACK TO TACTICAL MAP</div>
+    <h2>LOCAL EMERGENCY VETS</h2>
+    <div class="data-section">
+        <span class="data-title">Lynchburg Area</span>
+        <p class="data-para"><b>Animal Emergency & Critical Care of Lynchburg</b><br>3432 Old Forest Rd, Lynchburg, VA 24501<br>Phone: (434) 846-1504<br><i>24/7 Support for Trauma and GSW.</i></p>
+    </div>
+    <div class="data-section">
+        <span class="data-title">Amherst Area</span>
+        <p class="data-para"><b>Amherst Veterinary Hospital</b><br>152 Ambriar Plaza, Amherst, VA 24521<br>Phone: (434) 946-5657<br><i>Standard hours; call ahead for emergencies.</i></p>
+    </div>
+</div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    var validCodes = ["ACSD-101", "ACSD-102", "ACSD-103", "SHERIFF-01", "EARL-01"];
-    var map, mode, pts = [], line;
+    var validCodes = ["EARL-01", "ACSD-101", "ACSD-102", "ACSD-103", "SHERIFF-01"];
+    var map, mode, pts = [], line, nv = false;
 
     function checkAccess() {
         var val = document.getElementById('unit-id').value.toUpperCase();
         if(validCodes.includes(val)) {
             document.getElementById('gatekeeper').style.display = 'none';
             document.getElementById('app-content').style.display = 'flex';
-            setTimeout(initMap, 400); 
-        } else {
-            document.getElementById('gate-msg').innerText = "ACCESS DENIED";
+            setTimeout(initMap, 300);
         }
+    }
+
+    function toggleNV() {
+        nv = !nv;
+        document.getElementById('nv-overlay').style.display = nv ? 'block' : 'none';
+        document.getElementById('map').className = nv ? 'nv-active' : '';
     }
 
     function initMap() {
@@ -127,11 +174,8 @@
 
         map.on('click', function(e) {
             if(!mode) return;
-            if(mode==='per'){ 
-                pts.push(e.latlng); 
-                line.setLatLngs(pts); 
-                L.circleMarker(e.latlng,{radius:3,color:'red'}).addTo(map); 
-            } else {
+            if(mode==='per'){ pts.push(e.latlng); line.setLatLngs(pts); L.circleMarker(e.latlng,{radius:3,color:'red'}).addTo(map); }
+            else {
                 var ico = {'k9':'🐕','leo':'👮','clu':'🚩','sus':'👤'};
                 L.marker(e.latlng, {icon: L.divIcon({html:ico[mode], iconSize:[30,30], className:'m-ico'})}).addTo(map);
             }
@@ -145,11 +189,6 @@
     }
     
     function goGPS() {
-        var a = document.getElementById('srch').value;
-        if(a) {
-            fetch('https://nominatim.openstreetmap.org/search?format=json&q='+a)
-            .then(r=>r.json()).then(d=>{ if(d.length>0) map.setView([d[0].lat, d[0].lon], 17); });
-        }
         navigator.geolocation.getCurrentPosition(p => {
             var loc = [p.coords.latitude, p.coords.longitude];
             map.setView(loc, 17);
