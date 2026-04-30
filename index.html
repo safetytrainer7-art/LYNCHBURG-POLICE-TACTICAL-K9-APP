@@ -1,34 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ACSD K9 COMMAND V115</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root { --og: #ff6600; --gd: #ffd700; --nv: #00ff44; --bl: #007bff; --rd: #ff4444; }
+        body, html { margin:0; padding:0; background:#000; color:#fff; font-family:sans-serif; height:100%; overflow:hidden; }
+        #app-container { display: flex; flex-direction: column; height: 100vh; }
+        .hdr { background:#001a00; border-bottom:2px solid var(--og); padding:8px; text-align:center; color:var(--gd); font-weight:bold; font-size:12px; }
+        
+        .search-area { display: flex; padding: 5px; background: #111; gap: 5px; }
+        #addr-input { flex-grow: 1; padding: 12px; border-radius: 4px; border: none; background: #222; color: #fff; font-size: 14px; }
+        .go-btn { background: var(--nv); color: #000; padding: 10px 15px; font-weight: bold; border: none; border-radius: 4px; }
 
+        #map { flex-grow: 1; width: 100%; background: #222; }
+        
+        #dist-hud { background: #000; color: var(--nv); padding: 10px; font-size: 13px; text-align: center; border-top: 2px solid var(--og); font-family: monospace; font-weight: bold; min-height: 20px; }
+        
+        .tool-bar { background:#1a1a1a; display:grid; grid-template-columns:repeat(5,1fr); padding:8px; gap:5px; }
+        .t-btn { background:#333; padding:15px 0; text-align:center; border-radius:6px; font-size:24px; border:1px solid #555; cursor: pointer; }
+        .t-btn.active { background: #002200; border-color: var(--nv); box-shadow: 0 0 10px var(--nv); }
+        
+        .vault-trigger { background: var(--og); color: #fff; padding: 15px; text-align: center; font-weight: bold; cursor: pointer; }
+
+        #vault-panel { display:none; position:fixed; top:10%; left:0; width:100%; height:90%; background:#fff; color:#000; z-index:10000; padding:20px; overflow-y:auto; box-sizing:border-box; }
+        .close-vault { background:var(--rd); color:#fff; padding:15px; text-align:center; font-weight:bold; border-radius:5px; margin-bottom:20px; }
+
+        .gps-beacon { width: 20px; height: 20px; background: var(--bl); border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 25px var(--bl); animation: pulse 1s infinite; z-index: 9999 !important; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
+        .m-ico { font-size: 30px; text-shadow: 0 0 5px #000; }
+        h3 { border-bottom: 2px solid var(--og); color: #0044ff; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    <div class="hdr">ACSD K9 COMMAND • V115 SUPERVISOR BUILD</div>
+    
+    <div class="search-area">
+        <input type="text" id="addr-input" placeholder="ENTER SEARCH ADDRESS">
+        <button class="go-btn" onclick="searchAddr()">GO</button>
+    </div>
+
+    <div id="map"></div>
+    
+    <div id="dist-hud">GAP LOG: PLACE 2+ OFFICERS</div>
+
+    <div class="tool-bar">
+        <div id="b-k9" class="t-btn" onclick="sm('k9')">🐕</div>
+        <div id="b-leo" class="t-btn" onclick="sm('leo')">👮</div>
+        <div id="b-per" class="t-btn" onclick="sm('per')">🔴</div>
+        <div id="b-sus" class="t-btn" onclick="sm('sus')">👤</div>
+        <div class="t-btn" onclick="forceGPS()" style="background:#003366; color:white;">🛰️</div>
+    </div>
+
+    <div class="vault-trigger" onclick="toggleVault(true)">OPEN LAWS & MEDICAL</div>
+</div>
+
+<div id="vault-panel">
+    <div class="close-vault" onclick="toggleVault(false)">BACK TO MAP</div>
+    <h3>FEDERAL & VIRGINIA LAW</h3>
+    <p><b>Florida v. Harris:</b> Training records = Reliability. Field misses aren't fatal if training is solid.</p>
+    <p><b>Rodriguez v. U.S.:</b> Stop cannot be extended for a sniff without separate suspicion.</p>
+    <p><b>Virginia (Whitehead):</b> Alert on car does not automatically permit search of passengers. Airflow matters.</p>
+    
+    <h3>K9 EMERGENCY MEDICAL</h3>
+    <p><b>Bloat (GDV):</b> 10-43 Emergency. Swollen stomach/retching. Drive with sirens to surgery.</p>
+    <p><b>GSW/Trauma:</b> Tourniquet HIGH and TIGHT on legs. Pack body wounds with gauze.</p>
+    <p><b>Heat Stroke:</b> Cool paws and ears. Stop at 103.5. Do not ice the whole dog.</p>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // NEW TACTICAL DISTANCE LOGIC (V114)
-    function calcDist(){
-        if(officerMarkers.length < 2) {
-            document.getElementById('dist-hud').innerText = "PLACE AT LEAST 2 OFFICERS TO MEASURE PERIMETER GAPS";
-            return;
+    var map, mode, line, pts=[], userMarker, watchID, officerMarkers = [];
+    
+    map = L.map('map',{zoomControl:false}).setView([37.584, -79.052], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    line = L.polyline([],{color:'red',weight:4,dashArray:'10,10'}).addTo(map);
+
+    function searchAddr() {
+        var val = document.getElementById('addr-input').value;
+        if(!val) return;
+        fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(val))
+            .then(r => r.json())
+            .then(d => {
+                if(d.length > 0) {
+                    map.setView([d[0].lat, d[0].lon], 18);
+                    L.marker([d[0].lat, d[0].lon]).addTo(map).bindPopup("<b>SEARCH START</b>").openPopup();
+                }
+            });
+    }
+
+    function forceGPS() {
+        if (navigator.geolocation) {
+            watchID = navigator.geolocation.watchPosition(p => {
+                var pos = [p.coords.latitude, p.coords.longitude];
+                if (!userMarker) {
+                    userMarker = L.marker(pos, {icon: L.divIcon({className: 'gps-beacon', iconSize:[20,20]}), zIndexOffset: 1000}).addTo(map);
+                    map.setView(pos, 19);
+                } else { userMarker.setLatLng(pos); }
+            }, null, {enableHighAccuracy: true, maximumAge: 0});
         }
-        
-        var hud = document.getElementById('dist-hud');
+    }
+
+    map.on('click', function(e){
+        if(!mode) return;
+        if(mode==='per'){ 
+            pts.push(e.latlng); line.setLatLngs(pts); 
+            L.circleMarker(e.latlng,{radius:5,color:'red',fillColor:'red',fillOpacity:1}).addTo(map); 
+        } else { 
+            var m = L.marker(e.latlng,{icon:L.divIcon({html:{'k9':'🐕','leo':'👮','sus':'👤'}[mode],iconSize:[35,35],className:'m-ico'})}).addTo(map);
+            if(mode === 'leo') { officerMarkers.push(m); calcGaps(); }
+        }
+    });
+
+    function calcGaps(){
+        if(officerMarkers.length < 2) return;
         var text = "";
-        
-        // Measures the gap between each officer placed in sequence
         for (var i = 0; i < officerMarkers.length - 1; i++) {
-            var p1 = officerMarkers[i].getLatLng();
-            var p2 = officerMarkers[i+1].getLatLng();
-            var d = p1.distanceTo(p2) * 1.09361; // Meters to Yards
-            
-            var color = d > 150 ? "#ff4444" : "#00ff44"; // Red if gap is over 150 yards
+            var d = officerMarkers[i].getLatLng().distanceTo(officerMarkers[i+1].getLatLng()) * 1.09361;
+            var color = d > 150 ? "#ff4444" : "#00ff44";
             text += `<span style="color:${color}">GAP ${i+1}-${i+2}: ${Math.round(d)} YDS</span> | `;
         }
-        
-        // If it's a closed square/triangle, measure the final gap to close the loop
-        if(officerMarkers.length > 2) {
-            var first = officerMarkers[0].getLatLng();
-            var last = officerMarkers[officerMarkers.length - 1].getLatLng();
-            var dFinal = last.distanceTo(first) * 1.09361;
-            var colorFinal = dFinal > 150 ? "#ff4444" : "#00ff44";
-            text += `<span style="color:${colorFinal}">GAP ${officerMarkers.length}-1: ${Math.round(dFinal)} YDS</span>`;
-        }
-        
-        hud.innerHTML = text;
+        document.getElementById('dist-hud').innerHTML = text.slice(0, -3);
     }
+
+    function sm(m){ mode = m; document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('active')); document.getElementById('b-'+m).classList.add('active'); }
+    function toggleVault(show) { document.getElementById('vault-panel').style.display = show ? 'block' : 'none'; }
 </script>
+</body>
+</html>
