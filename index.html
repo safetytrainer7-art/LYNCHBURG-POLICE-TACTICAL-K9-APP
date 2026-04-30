@@ -3,273 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD K9 COMMAND V90</title>
+    <title>ACSD K9 COMMAND - DEPLOYMENT V100</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --orange: #ff6600; --gold: #ffd700; --blue: #0044ff; --red: #ff0000; --live: #00ff00; }
-        body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: -apple-system, sans-serif; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
-        .hdr { background: #001a00; border-bottom: 2px solid var(--orange); padding: 10px; text-align: center; color: var(--gold); font-weight: bold; font-size: 13px; }
-        #map { flex-grow: 1; width: 100%; background: #111; }
-        .tool-bar { background: #1a1a1a; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 6px; border-top: 1px solid #444; }
-        .t-btn { background: #333; border: 1px solid #555; padding: 12px 0; text-align: center; border-radius: 6px; font-size: 20px; }
-        .t-btn.active { border-color: var(--live); background: #002200; box-shadow: 0 0 8px var(--live); }
-        .cmd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 8px; background: #000; }
-        .i-btn { padding: 14px 5px; border-radius: 8px; text-align: center; font-weight: bold; font-size: 11px; border: 1px solid #444; color: #fff; text-transform: uppercase; }
+        :root { --orange: #ff6600; --gold: #ffd700; --blue: #0044ff; --red: #ff0000; --nv: #00ff44; }
+        body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: -apple-system, sans-serif; height: 100%; overflow: hidden; }
+        
+        /* NIGHT VISION */
+        #nv-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 255, 68, 0.1); pointer-events: none; z-index: 8000; }
+        .nv-active { filter: brightness(1.2) contrast(1.2) sepia(1) hue-rotate(80deg); }
+
+        /* AUTH */
+        #gatekeeper { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .gate-box { background: #111; border: 2px solid var(--orange); padding: 30px; border-radius: 15px; width: 85%; max-width: 300px; text-align: center; }
+        .gate-input { width: 100%; padding: 15px; margin: 15px 0; border-radius: 5px; border: 1px solid #444; background: #222; color: #fff; text-align: center; font-size: 18px; }
+        .gate-btn { background: var(--orange); color: #000; padding: 15px; border: none; border-radius: 5px; font-weight: bold; width: 100%; }
+
+        /* UI */
+        #app-content { display: none; height: 100%; flex-direction: column; }
+        .hdr { background: #001a00; border-bottom: 2px solid var(--orange); padding: 8px; text-align: center; color: var(--gold); font-weight: bold; font-size: 11px; }
+        #map { flex-grow: 1; width: 100%; background: #111; position: relative; }
+        
+        .tool-bar { background: #1a1a1a; display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; padding: 5px; border-top: 1px solid #444; }
+        .t-btn { background: #333; border: 1px solid #555; padding: 10px 0; text-align: center; border-radius: 4px; font-size: 20px; }
+        .t-btn.active { border-color: var(--nv); background: #002200; box-shadow: 0 0 5px var(--nv); }
+        
+        .cmd-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 6px; background: #000; }
+        .i-btn { padding: 12px 2px; border-radius: 6px; text-align: center; font-weight: bold; font-size: 9px; border: 1px solid #444; color: #fff; text-transform: uppercase; }
+        
+        /* MODALS */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; color: #000; z-index: 9999; padding: 20px; overflow-y: auto; box-sizing: border-box; }
         .cls { background: var(--red); color: #fff; padding: 15px; text-align: center; font-weight: bold; border-radius: 5px; margin-bottom: 15px; position: sticky; top: 0; }
-        .law-section { margin-bottom: 25px; border-bottom: 2px solid #ddd; padding-bottom: 15px; }
-        .law-title { color: var(--blue); font-weight: bold; font-size: 16px; margin-bottom: 5px; display: block; }
-        .law-body { font-size: 14px; line-height: 1.5; color: #333; margin-top: 8px; }
-        .med-title { color: var(--red); font-weight: bold; font-size: 16px; margin-bottom: 5px; display: block; }
+        .data-section { margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        .data-title { color: var(--blue); font-weight: bold; font-size: 16px; border-left: 4px solid var(--orange); padding-left: 8px; }
+        .data-para { font-size: 14px; line-height: 1.6; color: #222; margin-top: 8px; }
+        
+        label { font-weight: bold; display: block; margin-top: 10px; font-size: 12px; }
+        input, textarea, select { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-<div class="hdr">ACSD K9 COMMAND • V90 LAW BIBLE</div>
+<div id="nv-overlay"></div>
 
-<div style="display:flex; padding:6px; background:#222; gap:4px;">
-    <input type="text" id="srch" placeholder="LOCATION SEARCH" style="flex-grow:1; padding:10px; border-radius:4px; border:none; font-size:15px;">
-    <button onclick="goGPS()" style="background:var(--live); color:#000; padding:10px 15px; font-weight:bold; border:none; border-radius:4px;">TRACK</button>
+<div id="gatekeeper">
+    <div class="gate-box">
+        <h2 style="color:var(--gold); margin:0;">ACSD K9 COMMAND</h2>
+        <input type="text" id="unit-id" class="gate-input" placeholder="UNIT ID">
+        <button class="gate-btn" onclick="checkAccess()">AUTHORIZE</button>
+    </div>
 </div>
 
-<div id="map"></div>
-
-<div class="tool-bar">
-    <div id="b-k9" class="t-btn" onclick="sm('k9')">🐕</div>
-    <div id="b-leo" class="t-btn" onclick="sm('leo')">👮</div>
-    <div id="b-per" class="t-btn" onclick="sm('per')">🔴</div>
-    <div id="b-clu" class="t-btn" onclick="sm('clu')">🚩</div>
-    <div id="b-sus" class="t-btn" onclick="sm('sus')">👤</div>
-</div>
-
-<div class="cmd-grid">
-    <div class="i-btn" style="background:#001a44;" onclick="om('l-m')">⚖️ LEGAL BIBLE</div>
-    <div class="i-btn" style="background:#440000;" onclick="om('m-m')">🚑 MEDICAL</div>
-    <div class="i-btn" style="background:#332200;" onclick="om('r-m')">📋 MISSION REPORT</div>
-    <div class="i-btn" style="background:#003300;" onclick="om('t-m')">📝 TRAINING FORM</div>
-</div>
-
-<div id="l-m" class="modal">
-    <div class="cls" onclick="cm('l-m')">RETURN TO COMMAND MAP</div>
-    <h2 style="text-align:center; border-bottom:3px solid var(--blue);">K9 CASE LAW BIBLE</h2>
+<div id="app-content">
+    <div class="hdr">ACSD K9 • DEPLOYMENT V100 • FIELD SECURE</div>
     
-    <h3>FEDERAL CASE LAW (U.S. SUPREME COURT)</h3>
-    
-    <div class="law-section">
-        <span class="law-title">1. Florida v. Harris (2013) – K9 Reliability</span>
-        <div class="law-body">The Court held that a K9’s reliability is determined by its training records and certifications rather than a strict checklist of past performance. If the State provides evidence of a dog’s successful completion of a certification program, an officer has probable cause for a search following an alert. The defense may still challenge this by pointing to poor training techniques or handler errors during the specific deployment.</div>
-        <div class="law-body">This ruling is crucial for handlers because it emphasizes that the "totality of circumstances" matters. It validates that a certified dog is a reliable tool for establishing Probable Cause, but it also places a heavy burden on the handler to maintain meticulous, up-to-date training logs to survive a challenge in court.</div>
+    <div style="display:flex; padding:4px; background:#111; gap:4px;">
+        <input type="text" id="srch" placeholder="STREET ADDRESS" style="flex-grow:1; padding:10px; border:none; border-radius:4px; background:#222; color:#fff;">
+        <button onclick="goGPS()" style="background:var(--nv); color:#000; padding:10px; font-weight:bold; border:none; border-radius:4px;">TRACK</button>
     </div>
 
-    <div class="law-section">
-        <span class="law-title">2. Florida v. Jardines (2013) – Curtilage & Search</span>
-        <div class="law-body">The Supreme Court ruled that using a drug-sniffing dog on a homeowner's porch (the curtilage) constitutes a "search" under the Fourth Amendment. Because the porch is an area intimately linked to the home, an officer cannot bring a K9 there for the purpose of a sniff without a warrant or a specific exception. The court viewed this as an unlicensed physical intrusion into the home's private sphere.</div>
-        <div class="law-body">For K9 teams, this means that while a dog can sniff a car on a public road, it cannot be used at the front door of a private residence without legal cover. Handlers must stay on the public sidewalk or driveway unless they have consent, a warrant, or exigent circumstances to avoid suppressing the evidence found.</div>
+    <div id="map"></div>
+
+    <div class="tool-bar">
+        <div id="b-k9" class="t-btn" onclick="sm('k9')">🐕</div>
+        <div id="b-leo" class="t-btn" onclick="sm('leo')">👮</div>
+        <div id="b-per" class="t-btn" onclick="sm('per')">🔴</div>
+        <div id="b-clu" class="t-btn" onclick="sm('clu')">🚩</div>
+        <div id="b-sus" class="t-btn" onclick="sm('sus')">👤</div>
+        <div class="t-btn" onclick="toggleNV()">👁️</div>
     </div>
 
-    <div class="law-section">
-        <span class="law-title">3. Rodriguez v. United States (2015) – Traffic Stop Duration</span>
-        <div class="law-body">This landmark case established that a police officer may not extend the duration of a completed traffic stop to conduct a K9 sniff. Once the mission of the stop (issuing a ticket or warning) is finished, any further detention is an unreasonable seizure unless there is independent reasonable suspicion of a crime. The "de minimis" delay of even a few minutes is a violation of the Fourth Amendment.</div>
-        <div class="law-body">Officers must work efficiently. The K9 sniff should ideally happen while the officer is running the license or writing the citation. If the K9 arrives after the ticket is written, the officer must be able to articulate a new, separate reason to keep the driver there, or the entire search will be tossed out.</div>
-    </div>
-
-    <div class="law-section">
-        <span class="law-title">4. Illinois v. Caballes (2005) – Public Sniff Doctrine</span>
-        <div class="law-body">The Court found that a K9 sniff performed during a lawful traffic stop does not violate the Fourth Amendment because it does not infringe on a legitimate privacy interest. Since a well-trained dog only alerts to illegal contraband, and there is no "right" to possess contraband, the sniff itself is not a search. This applies as long as the stop is not prolonged specifically for the sniff.</div>
-        <div class="law-body">This case is the handler's best friend for roadside interdiction. It confirms that you do not need "Reasonable Suspicion" to walk a dog around a vehicle that is already legally stopped for a traffic violation, provided the officer is still processing the initial violation.</div>
-    </div>
-
-    <div class="law-section">
-        <span class="law-title">5. United States v. Place (1983) – Luggage & Public Places</span>
-        <div class="law-body">The Supreme Court held that a "canine sniff" of a traveler's luggage in a public place (like an airport) is so limited in its intrusiveness that it does not constitute a search. The dog only reveals the presence or absence of narcotics without opening the bag or exposing non-contraband items. Therefore, it is a unique investigative tool that does not require a warrant in a public setting.</div>
-        <div class="law-body">This set the precedent for K9 use in transportation hubs. It allows officers to use dogs to scan bags, lockers, or packages in public areas without probable cause, as long as the seizure of the item for the sniff doesn't last an unreasonable amount of time.</div>
-    </div>
-
-    <div class="law-section">
-        <span class="law-title">6. Graham v. Connor (1989) – Use of Force Standard</span>
-        <div class="law-body">While not specifically a K9 case, Graham established the "Objectively Reasonable" standard for all uses of force, including K9 deployments. The court ruled that force must be judged from the perspective of a reasonable officer on the scene, rather than with 20/20 hindsight. Factors include the severity of the crime, the immediate threat to officers, and whether the suspect is actively resisting or fleeing.</div>
-        <div class="law-body">Handlers must apply these factors before releasing a dog for an apprehension. A K9 bite is a significant use of force, and the officer must be able to document that the suspect's actions made the deployment necessary to ensure safety or prevent the escape of a dangerous individual.</div>
-    </div>
-
-    <div class="law-section">
-        <span class="law-title">7. City of Indianapolis v. Edmond (2000) – Drug Roadblocks</span>
-        <div class="law-body">The Court ruled that police cannot use a checkpoint/roadblock where the primary purpose is the general interest in crime control, specifically drug interdiction with K9s. Unlike sobriety checkpoints (for public safety), drug checkpoints are for uncovering criminal evidence and require individualized suspicion.</div>
-        <div class="law-body">This prevents departments from setting up "K9 Checkpoints" where every car is sniffed. Handlers should ensure their deployment is based on a specific, lawful stop or individualized suspicion to avoid violating the Edmond ruling.</div>
-    </div>
-
-    <div class="law-section">
-        <span class="law-title">8. Tennessee v. Garner (1985) – Deadly Force</span>
-        <div class="law-body">Garner limits the use of deadly force against fleeing suspects. It states that force may only be used if it is necessary to prevent escape and the officer has probable cause to believe the suspect poses a significant threat of death or serious physical injury to others.</div>
-        <div class="law-body">In K9 terms, if a dog is used in a way that could cause death (rare but possible), it falls under this scrutiny. Handlers must ensure the crime and the threat level justify the level of K9 force being used during an apprehension.</div>
-    </div>
-
-    <div class="law-section">
-        <span class="law-title">9. United States v. Sharpe (1985) – Investigative Detentions</span>
-        <div class="law-body">The Court looked at how long a "Terry Stop" can last. It ruled that there is no hard time limit, but officers must use "diligent" investigative methods. If a K9 is requested, the officer must show they called for the dog immediately and didn't sit on their hands.</div>
-        <div class="law-body">For K9 teams, this means dispatch records are key. If it took 20 minutes for the K9 to arrive, the officer better be able to show they were busy with the investigation that entire time, or the stop becomes an illegal detention.</div>
-    </div>
-
-    <div class="law-section">
-        <span class="law-title">10. Terry v. Ohio (1968) – Reasonable Suspicion</span>
-        <div class="law-body">The foundation for all "Stop and Frisks." It allows an officer to briefly detain a person and perform a pat-down if they have Reasonable Suspicion that the person is armed and dangerous or involved in criminal activity.</div>
-        <div class="law-body">K9 handlers use Terry as the basis for deployments where they don't yet have Probable Cause. If you have "Terry" suspicion, you have the right to hold the suspect long enough to conduct a K9 sniff, provided you are diligent in the process.</div>
-    </div>
-
-    <h3>VIRGINIA STATE CASE LAW & STATUTES</h3>
-
-    <div class="law-section">
-        <span class="law-title">11. VA Code § 18.2-144.1 – Harming a Law Enforcement Dog</span>
-        <div class="law-body">Virginia law makes it a Class 6 Felony to maliciously kill or cause serious bodily injury to a dog used by a law enforcement agency in the performance of its duties. If the act is not malicious but still intentional, it may be charged as a Class 1 Misdemeanor. This provides strong legal protection for K9s in the line of duty.</div>
-        <div class="law-body">Officers should know this statute when charging suspects who fight or injure their K9. It acknowledges that the K9 is not just property, but a specialized member of the department entitled to enhanced legal protections under the Code of Virginia.</div>
-    </div>
-
-    <div class="law-section">
-        <span class="law-title">12. Virginia v. Brown (2010) – K9 Alert = Probable Cause</span>
-        <div class="law-body">The Virginia Court of Appeals reaffirmed that once a properly trained and certified K9 provides a positive alert to a vehicle, the police have Probable Cause to search the entire vehicle for contraband. This search can include any containers within the vehicle where the drugs might be hidden.</div>
-        <div class="law-body">This aligns Virginia strictly with federal law. Handlers should focus their narrative on the dog's "Final Response" (sit/down) and the training that led to that specific behavior to satisfy the judge that the alert was definitive.</div>
-    </div>
-
-    <div class="law-section">
-        <span class="law-title">13. VA Code § 19.2-83.1 – Reporting K9 Deployments</span>
-        <div class="law-body">Virginia has specific administrative requirements for documenting the use of K9s, especially in use-of-force incidents. Departments are often required to track K9 bites and deployments to ensure compliance with state-wide standards and to protect against civil liability.</div>
-        <div class="law-body">Meticulous reporting isn't just "paperwork"—it's a legal shield. Using the Mission Report feature in this app helps satisfy these requirements by creating a clear, time-stamped narrative of why and how the dog was used.</div>
-    </div>
-
-    <div class="law-section">
-        <span class="law-title">14. Whitehead v. Commonwealth (2010) – Odor & Probable Cause</span>
-        <div class="law-body">This case discussed the "plain smell" doctrine in Virginia. It reinforced that just as an officer's smell of marijuana can provide probable cause, a K9's superior olfactory sense acts as an extension of that officer's senses to detect hidden contraband.</div>
-        <div class="law-body">Handlers should always document the environmental factors (wind direction, temperature) that might affect how an odor travels, as Virginia courts look at these details to verify if the dog's alert was logically possible.</div>
-    </div>
-
-    <div class="law-section">
-        <span class="law-title">15. VA Code § 3.2-6500 – K9 as Law Enforcement Tool</span>
-        <div class="law-body">Virginia distinguishes law enforcement K9s from "dangerous dogs" or "vicious dogs" under animal control laws. A K9 performing its duty is exempt from the standard biting laws that apply to civilian pets, provided the use of force was lawful.</div>
-        <div class="law-body">This is a vital protection for the handler. As long as you are following Graham v. Connor and your department policy, your K9 is legally "immune" from being labeled a dangerous animal following a bite during an arrest.</div>
-    </div>
-
-    <div class="law-section">
-        <span class="law-title">16. Harris v. Commonwealth (2014) – Reliability and Certification</span>
-        <div class="law-body">Following the federal Harris case, Virginia courts have focused on the "Performance Bond" between the handler and the dog. The court looks at how often the pair trains together and if their certification is current under Virginia's specific standards.</div>
-        <div class="law-body">If you are working with a new dog or haven't trained in 6 months, Virginia courts are much more likely to throw out your evidence. Stay current, stay certified, and log every hour of work.</div>
-    </div>
-
-    <div class="law-section">
-        <span class="law-title">17. Logan v. Commonwealth (1993) – K9 Tracking Evidence</span>
-        <div class="law-body">Virginia law allows K9 tracking evidence to be used in court, but it requires a "foundation" to be laid. You must prove the dog is of a breed known for tracking, has been trained to track, and was put on the scent at a place where the suspect was known to be.</div>
-        <div class="law-body">When using the 🚩 Clue marker on your map, remember that for court, you need to explain how you established the "start" of the track. If the dog is a "generalist," Virginia courts will scrutinize the track much harder than they would for a dedicated Bloodhound.</div>
-    </div>
-
-    <div class="law-section">
-        <span class="law-title">18. VA Code § 18.2-57 – Assault on LEO & K9 Presence</span>
-        <div class="law-body">This code section deals with assaults on Law Enforcement Officers. In many cases, the presence or deployment of a K9 can be used as a de-escalation tool. Virginia courts recognize that a K9 can be a "non-deadly" force option that prevents the need for higher levels of force.</div>
-        <div class="law-body">Documentation should reflect if the K9's presence alone gained compliance from the suspect. This "display of force" is often enough to end a pursuit safely, and it should be noted in your report as a successful use of the tool.</div>
-    </div>
-
-    <div class="law-section">
-        <span class="law-title">19. United States v. Mason (Virginia 4th Circuit) – Stop Extensions</span>
-        <div class="law-body">In a case originating in Virginia, the 4th Circuit clarified that even "brief" delays for a K9 arrival are unconstitutional. If an officer waits for the dog to arrive after the traffic business is done, the evidence is suppressed.</div>
-        <div class="law-body">This reinforces the need for K9s to be strategically positioned. If you're the K9 officer, getting to the scene before the primary officer finishes the license check is the difference between a "good bust" and a "bad search."</div>
-    </div>
-
-    <div class="law-section">
-        <span class="law-title">20. VA Code § 19.2-59 – Warrants and Search Exemptions</span>
-        <div class="law-body">Virginia's statute on search warrants specifically exempts certain roadside and exigent searches. K9 alerts are one of the primary drivers of these exemptions, allowing a search of a vehicle without a physical paper warrant based on the "Mobile Exception."</div>
-        <div class="law-body">Understanding when you DON'T need a warrant is just as important as knowing when you do. The K9 gives you the legal "bypass" needed to search a vehicle right then and there before the evidence can be driven away.</div>
+    <div class="cmd-grid">
+        <div class="i-btn" style="background:#001a44;" onclick="om('l-fed')">⚖️ FED LAW</div>
+        <div class="i-btn" style="background:#001a44;" onclick="om('l-va')">⚖️ VA LAW</div>
+        <div class="i-btn" style="background:#440000;" onclick="om('m-k9')">🚑 K9 MED</div>
+        <div class="i-btn" style="background:#222;" onclick="om('vets')">🏥 VETS</div>
+        <div class="i-btn" style="background:#332200;" onclick="om('r-mis')">📋 MISSION</div>
+        <div class="i-btn" style="background:#003300;" onclick="om('r-trn')">📝 TRAINING</div>
     </div>
 </div>
 
-<div id="m-m" class="modal">
-    <div class="cls" onclick="cm('m-m')">RETURN TO COMMAND MAP</div>
-    <h2 style="text-align:center; border-bottom:3px solid var(--red);">K9 EMERGENCY MEDICAL BIBLE</h2>
-    
-    <div class="law-section">
-        <span class="med-title">K9 CPR – LIFE SAVING MEASURES</span>
-        <div class="law-body">Lay the K9 on their RIGHT side on a firm surface. For large dogs, place your hands over the widest part of the rib cage. For deep-chested dogs (like Shepherds), place hands more directly over the heart. Compress at a rate of 100 to 120 beats per minute—matching the beat of "Stayin' Alive."</div>
-        <div class="law-body">Maintain a ratio of 30 compressions to 2 breaths. Close the dog’s mouth and breathe directly into the nose until you see the chest rise. Continue this cycle until the K9 regains a pulse or you reach an emergency vet. Constant, high-quality compressions are the most important factor in survival.</div>
+<div id="l-fed" class="modal">
+    <div class="cls" onclick="cm('l-fed')">RETURN TO MAP</div>
+    <h2>FEDERAL CASE LAW</h2>
+    <div class="data-section">
+        <span class="data-title">Probable Cause (Florida v. Harris)</span>
+        <p class="data-para">Para 1: The Supreme Court held that a K9's alert provides probable cause if the dog has been certified or has successfully completed a training program. Reliability is judged by training records, not just field performance.</p>
+        <p class="data-para">Para 2: Defense challenges based on "false positives" are addressed by the Court acknowledging that dogs identify residual odors. Certification serves as the legal proof of the dog's nose.</p>
+        <p class="data-para">Para 3: Operationally, handlers must document all "blind" training to prove the dog is not responding to handler cues. Meticulous logs are required for Federal court admissibility.</p>
+    </div>
     </div>
 
-    <div class="law-section">
-        <span class="med-title">GUNSHOT & STAB WOUNDS – TRAUMA CARE</span>
-        <div class="law-body">The primary goal is hemorrhage control. Immediately locate the entry and exit wounds. Use sterile gauze or the cleanest cloth available and "pack" the wound—literally stuffing the gauze into the hole to create internal pressure. Apply heavy, constant pressure with both hands for at least 5-10 minutes without stopping.</div>
-        <div class="law-body">Do not use a tourniquet unless the wound is on a limb and direct pressure fails to stop life-threatening bleeding. If the dog is shot in the chest, use a "chest seal" or plastic wrap taped on three sides to prevent air from collapsing the lung. Transport the K9 to a trauma vet immediately; every second counts.</div>
-    </div>
-
-    <div class="law-section">
-        <span class="med-title">HEAT STROKE – THE SILENT KILLER</span>
-        <div class="law-body">A K9’s normal temperature is 101-102.5°F. If the temperature exceeds 106°F, it is a life-threatening emergency. Signs include heavy panting, dark red or purple gums, and collapse. Immediately move the dog to an air-conditioned vehicle or shade.</div>
-        <div class="law-body">Use cool water (not ice-cold) to soak the paws, ears, and belly. Do not cover the dog in wet towels, as this can trap heat. Use a fan to circulate air. Stop cooling once the temp reaches 103.5°F to avoid hypothermia. Heat stroke causes organ failure—even if the dog looks better, they MUST see a vet.</div>
-    </div>
-
-    <div class="law-section">
-        <span class="med-title">NARCAN – OPIOID EXPOSURE</span>
-        <div class="law-body">If a K9 is exposed to Fentanyl or other opioids during a search, they may become lethargic, lose coordination, or stop breathing. Administer 4mg of Narcan (Naloxone) via the nose immediately. There is no harm in giving Narcan if you only suspect exposure; it will not hurt a dog that hasn't ingested opioids.</div>
-        <div class="law-body">One dose may not be enough for high-potency drugs like Fentanyl. Be prepared to give a second or third dose if the K9 doesn't wake up within 2-3 minutes. Once the K9 is stable, transport them immediately, as Narcan can wear off before the drugs do, causing the dog to crash again.</div>
+<div id="l-va" class="modal">
+    <div class="cls" onclick="cm('l-va')">RETURN TO MAP</div>
+    <h2>VIRGINIA CASE LAW</h2>
+    <div class="data-section">
+        <span class="data-title">Tracking & Apprehensions</span>
+        <p class="data-para">Para 1: VA courts accept tracking evidence when pedigree and training are proven. Handlers must testify to the dog's ability to follow human scent over distance.</p>
+        <p class="data-para">Para 2: Apprehensions use the "Objective Reasonableness" standard. Clear warnings must be given before deployment to allow for surrender.</p>
+        <p class="data-para">Para 3: Experience matters—Virginia courts weigh the handler's years of service heavily when interpreting the dog's behavioral changes on a track.</p>
     </div>
 </div>
 
-<div id="r-m" class="modal">
-    <div class="cls" onclick="cm('r-m')">RETURN TO MAP</div>
-    <h2 style="text-align:center;border-bottom:2px solid #000;">COURT NARRATIVE REPORT</h2>
-    <label><b>DATE/TIME:</b></label><input type="text" id="r-date" class="form-input">
-    <label><b>LOCATION:</b></label><input type="text" class="form-input">
-    <label><b>CASE DETAILS:</b></label>
-    <textarea class="form-input" style="height:300px;" placeholder="Document your 5-senses observations, K9 final response, and case law justifications..."></textarea>
-    <button onclick="window.print()" style="width:100%; padding:20px; background:var(--gold); font-weight:bold; border:none; border-radius:5px;">GENERATE COURT DOCUMENT</button>
+<div id="m-k9" class="modal">
+    <div class="cls" onclick="cm('m-k9')">RETURN TO MAP</div>
+    <h2>K9 MEDICAL EMERGENCY</h2>
+    <div class="data-section">
+        <span class="data-title">K9 CPR PROTOCOL</span>
+        <p class="data-para">Para 1: Check femoral pulse. Lay dog on right side. Compress 100-120 BPM over the widest part of the chest (Shepherds/Malinois).</p>
+        <p class="data-para">Para 2: Rescue breathing is "Mouth-to-Snout." Seal the muzzle and blow into the nose until the chest rises. Ratio is 30:2.</p>
+        <p class="data-para">Para 3: Rotate handlers every 2 mins to prevent fatigue. Continue until heartbeat returns or you reach the vet clinic.</p>
+    </div>
+    </div>
+
+<div id="r-mis" class="modal">
+    <div class="cls" onclick="cm('r-mis')">CLOSE</div>
+    <h2>MISSION REPORT</h2>
+    <label>DATE/TIME</label><input type="datetime-local">
+    <label>NARRATIVE</label><textarea rows="10"></textarea>
+    <button onclick="window.print()" style="padding:15px; background:var(--gold); width:100%; font-weight:bold; margin-top:10px;">PRINT FOR SHERIFF</button>
 </div>
 
-<div id="t-m" class="modal">
-    <div class="cls" onclick="cm('t-m')">RETURN TO MAP</div>
-    <h2 style="text-align:center;border-bottom:2px solid #000;">TRAINING LOG</h2>
-    <label><b>K9 UNIT / HANDLER:</b></label><input type="text" class="form-input">
-    <label><b>EXERCISE TYPE:</b></label><input type="text" class="form-input" placeholder="Tracking, Narcotics, Apprehension...">
-    <textarea class="form-input" style="height:150px;" placeholder="Performance notes..."></textarea>
-    <button onclick="window.print()" style="width:100%; padding:20px; background:var(--gold); font-weight:bold; border:none; border-radius:5px;">SAVE TRAINING RECORD</button>
+<div id="r-trn" class="modal">
+    <div class="cls" onclick="cm('r-trn')">CLOSE</div>
+    <h2>TRAINING LOG</h2>
+    <label>AID TYPE/WEIGHT</label><input type="text">
+    <label>PERFORMANCE (1-10)</label><input type="number">
+    <button onclick="window.print()" style="padding:15px; background:var(--gold); width:100%; font-weight:bold; margin-top:10px;">SAVE RECORD</button>
+</div>
+
+<div id="vets" class="modal">
+    <div class="cls" onclick="cm('vets')">CLOSE</div>
+    <h2>LOCAL VETS</h2>
+    <p><b>LYNCHBURG:</b> (434) 846-1504</p>
+    <p><b>AMHERST:</b> (434) 946-5657</p>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    var map = L.map('map', {zoomControl: false}).setView([37.584, -79.052], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    var mode = null; var pts = []; var line = L.polyline([], {color:'red', weight:4}).addTo(map);
+    var validCodes = ["EARL-01", "ACSD-101", "SHERIFF-01"];
+    var map, mode, pts = [], line, nv = false;
 
-    function sm(m) {
-        mode = m; 
-        document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('active'));
-        if(m) document.getElementById('b-'+m).classList.add('active');
-        if(m==='per'){ map.dragging.disable(); } 
-        else { map.dragging.enable(); }
+    function checkAccess() {
+        var val = document.getElementById('unit-id').value.toUpperCase();
+        if(validCodes.includes(val)) {
+            document.getElementById('gatekeeper').style.display = 'none';
+            document.getElementById('app-content').style.display = 'flex';
+            setTimeout(initMap, 300);
+        }
     }
 
-    map.on('click', function(e) {
-        if(!mode) return;
-        if(mode==='per'){ pts.push(e.latlng); line.setLatLngs(pts); L.circleMarker(e.latlng,{radius:3,color:'red'}).addTo(map); }
-        else {
-            var ico = {'k9':'🐕','leo':'👮','clu':'🚩','sus':'👤'};
-            L.marker(e.latlng, {icon: L.divIcon({html:ico[mode], iconSize:[30,30], className:'m-ico'})}).addTo(map);
-        }
-    });
+    function toggleNV() {
+        nv = !nv;
+        document.getElementById('nv-overlay').style.display = nv ? 'block' : 'none';
+        document.getElementById('map').className = nv ? 'nv-active' : '';
+    }
 
+    function initMap() {
+        if(map) return;
+        map = L.map('map', {zoomControl: false, attributionControl: false}).setView([37.584, -79.052], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        line = L.polyline([], {color:'red', weight:4}).addTo(map);
+
+        map.on('click', function(e) {
+            if(!mode) return;
+            if(mode==='per'){ 
+                pts.push(e.latlng); 
+                line.setLatLngs(pts); 
+                L.circleMarker(e.latlng,{radius:3,color:'red'}).addTo(map); 
+            } else {
+                var ico = {'k9':'🐕','leo':'👮','clu':'🚩','sus':'👤'};
+                L.marker(e.latlng, {icon: L.divIcon({html:ico[mode], iconSize:[30,30], className:'m-ico'})}).addTo(map);
+            }
+        });
+    }
+
+    function sm(m) { 
+        mode = m; 
+        document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('active')); 
+        if(m) document.getElementById('b-'+m).classList.add('active'); 
+    }
+    
     function goGPS() {
-        var a = document.getElementById('srch').value;
-        if(a) {
-            fetch('https://nominatim.openstreetmap.org/search?format=json&q='+a)
-            .then(r=>r.json()).then(d=>{ if(d.length>0) map.setView([d[0].lat, d[0].lon], 17); });
-        }
         navigator.geolocation.getCurrentPosition(p => {
             var loc = [p.coords.latitude, p.coords.longitude];
             map.setView(loc, 17);
-            L.circleMarker(loc, {radius:7, fillColor: '#007bff', fillOpacity:1, color:'#fff'}).addTo(map);
+            L.circleMarker(loc, {radius:7, fillColor: '#007bff', fillOpacity:1, color:'#fff', weight:2}).addTo(map);
         });
     }
 
     function om(id){ document.getElementById(id).style.display='block'; }
     function cm(id){ document.getElementById(id).style.display='none'; }
-    document.getElementById('r-date').value = new Date().toLocaleString();
 </script>
-<style>
-    .m-ico{font-size:24px; text-align:center;}
-    .form-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box; }
-</style>
+<style>.m-ico{font-size:24px; text-align:center;}</style>
 </body>
 </html>
 
