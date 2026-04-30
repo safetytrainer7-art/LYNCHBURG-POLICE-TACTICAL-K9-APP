@@ -4,69 +4,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND - V126 COMMANDER EDITION</title>
+    <title>ACSD COMMAND - V127 FINAL TACTICAL</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --orange: #ff6600; --gold: #ffd700; --live: #00ff00; --blue: #007bff; --red: #ff4444; --dark: #050505; }
         body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; height: 100vh; overflow: hidden; }
         #app-container { display: flex; flex-direction: column; height: 100vh; }
-        
-        /* HEADER & SEARCH */
         .header { background: #001a00; border-bottom: 3px solid var(--orange); padding: 5px; text-align: center; }
         .sig { font-size: 11px; color: var(--gold); font-weight: bold; text-transform: uppercase; }
         .dash { background: #111; padding: 8px; display: flex; gap: 8px; border-bottom: 2px solid #444; }
         #addr-in { flex-grow: 1; padding: 12px; border-radius: 5px; border: none; background: #222; color: #fff; font-size: 14px; }
         .go-btn { background: var(--live); color: #000; padding: 10px 15px; font-weight: bold; border: none; border-radius: 4px; }
-
-        /* TACTICAL MAP */
         #map { flex-grow: 1; width: 100%; background: #222; }
         #dist-hud { background: #000; color: var(--live); padding: 8px; text-align: center; font-family: monospace; border-top: 2px solid var(--orange); font-weight: bold; font-size: 13px; }
-
-        /* TOOL BAR */
         .tool-bar { background: #1a1a1a; display: grid; grid-template-columns: repeat(5, 1fr); padding: 8px; gap: 8px; }
         .tool { text-align: center; padding: 12px 0; border: 1px solid #555; border-radius: 8px; background: #333; cursor: pointer; }
         .tool.active { border-color: var(--live); background: #002200; box-shadow: 0 0 10px var(--live); }
         .tool span { font-size: 24px; display: block; }
-
-        /* COMMAND DRAWERS */
         .drawer-grid { display: grid; grid-template-columns: 1fr 1fr; background: #000; gap: 2px; border-top: 2px solid var(--gold); }
         .dr-btn { padding: 15px; text-align: center; font-weight: bold; cursor: pointer; font-size: 13px; text-transform: uppercase; }
-        .b-law { background: #002244; color: #fff; }
-        .b-med { background: #440000; color: #fff; }
-        .b-form { background: #003300; color: #fff; }
-        .b-logs { background: #333300; color: #fff; }
-
-        /* MODAL PANELS */
+        .b-law { background: #002244; color: #fff; } .b-med { background: #440000; color: #fff; }
+        .b-form { background: #003300; color: #fff; } .b-logs { background: #333300; color: #fff; }
         .panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; padding: 15px; overflow-y: auto; box-sizing: border-box; }
         .p-header { background: var(--orange); padding: 15px; border-radius: 5px; text-align: center; font-weight: bold; margin-bottom: 15px; }
         .close-p { background: var(--red); padding: 12px; text-align: center; font-weight: bold; border-radius: 5px; margin-bottom: 20px; }
-
-        /* DATA CARDS */
         .v-cat { background: #111; border-left: 5px solid var(--gold); padding: 12px; margin-bottom: 8px; border-radius: 4px; }
         .v-title { color: var(--gold); font-weight: bold; display: block; margin-bottom: 5px; border-bottom: 1px solid #333; }
-        
-        /* PRINTABLE FORMS */
-        .report-paper { background: #fff; color: #000; padding: 25px; border-radius: 2px; margin-bottom: 20px; font-family: "Times New Roman", serif; box-shadow: 0 0 10px rgba(255,255,255,0.2); }
-        .report-paper h2 { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; font-size: 20px; }
+        .report-paper { background: #fff; color: #000; padding: 25px; border-radius: 2px; margin-bottom: 20px; font-family: serif; }
         .f-row { border-bottom: 1px solid #ccc; padding: 8px 0; display: flex; justify-content: space-between; }
-        
         .gps-beacon { width: 22px; height: 22px; background: var(--blue); border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 20px var(--blue); animation: pulse 1s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
-
 <div id="app-container">
-    <div class="header"><div class="sig">ACSD COMMAND V126 • SATELLITE TACTICAL</div></div>
-    
-    <div class="dash">
-        <input type="text" id="addr-in" placeholder="SEARCH SCENE ADDRESS">
-        <button class="go-btn" onclick="searchAddr()">GO</button>
-    </div>
-
+    <div class="header"><div class="sig">ACSD COMMAND V127 • PRECISION LOCK</div></div>
+    <div class="dash"><input type="text" id="addr-in" placeholder="SEARCH SCENE ADDRESS"><button class="go-btn" onclick="searchAddr()">GO</button></div>
     <div id="map"></div>
-    <div id="dist-hud">GPS STANDBY | READY FOR MISSION</div>
-
+    <div id="dist-hud">GPS: STANDBY (HIT 🛰️ FOR SATELLITE LOCK)</div>
     <div class="tool-bar">
         <div id="b-k9" class="tool" onclick="sm('k9')"><span>🐕</span></div>
         <div id="b-leo" class="tool" onclick="sm('leo')"><span>👮</span></div>
@@ -74,7 +49,6 @@
         <div id="b-sus" class="tool" onclick="sm('sus')"><span>👤</span></div>
         <div class="tool" onclick="forceGPS()" style="background:#003366;"><span>🛰️</span></div>
     </div>
-
     <div class="drawer-grid">
         <div class="dr-btn b-law" onclick="openP('law')">⚖️ LAWS</div>
         <div class="dr-btn b-med" onclick="openP('med')">🚑 MEDICAL</div>
@@ -85,39 +59,49 @@
 
 <div id="p-law" class="panel">
     <div class="close-p" onclick="closeP()">BACK TO MAP</div>
-    <div class="p-header">LEGAL BIBLE (FULL 20)</div>
-    <div class="v-cat"><span class="v-title">FL v. HARRIS</span>Training logs prove K9 reliability in court.</div>
-    <div class="v-cat"><span class="v-title">FL v. JARDINES</span>Porch sniffs require a search warrant.</div>
-    <div class="v-cat"><span class="v-title">RODRIGUEZ v. US</span>Cannot extend stop for K9 arrival.</div>
-    <div class="v-cat"><span class="v-title">GRAHAM v. CONNOR</span>Objectively Reasonable Use of Force standard.</div>
-    <div class="v-cat"><span class="v-title">US v. PLACE</span>Luggage sniffs in public are not searches.</div>
-    <div class="v-cat"><span class="v-title">VA v. BROWN</span>K9 alert = PC for vehicle search in Virginia.</div>
-    <div class="v-cat"><span class="v-title">VA § 18.2-144.1</span>Malicious injury to LEO K9 is a Class 6 Felony.</div>
-    <div class="v-cat"><span class="v-title">TERRY v. OHIO</span>Reasonable suspicion for detention.</div>
-    <p style="text-align:center; color:var(--gold);">[ALL 20 ENTRIES LOADED]</p>
+    <div class="p-header">FULL LEGAL BIBLE</div>
+    <div class="v-cat"><span class="v-title">1. FL v. HARRIS</span>Training/cert logs establish K9 reliability for Probable Cause.</div>
+    <div class="v-cat"><span class="v-title">2. FL v. JARDINES</span>A K9 sniff on a home porch is a search; requires a warrant.</div>
+    <div class="v-cat"><span class="v-title">3. RODRIGUEZ v. US</span>Cannot extend a traffic stop to wait for a K9 arrival.</div>
+    <div class="v-cat"><span class="v-title">4. GRAHAM v. CONNOR</span>"Objectively Reasonable" standard for use of force.</div>
+    <div class="v-cat"><span class="v-title">5. US v. PLACE</span>K9 sniff of luggage in a public place is NOT a search.</div>
+    <div class="v-cat"><span class="v-title">6. IL v. CABALLES</span>K9 sniff during a lawful traffic stop is permitted.</div>
+    <div class="v-cat"><span class="v-title">7. US v. THOMAS</span>Restricts K9 sniffs at apartment doors (heightened privacy).</div>
+    <div class="v-cat"><span class="v-title">8. TERRY v. OHIO</span>Reasonable suspicion required for temporary detention.</div>
+    <div class="v-cat"><span class="v-title">9. TN v. GARNER</span>Limits on deadly force against fleeing felons.</div>
+    <div class="v-cat"><span class="v-title">10. US v. SHARP</span>Standard for reasonable length of roadside detention.</div>
+    <div class="v-cat"><span class="v-title">11. VA § 18.2-144.1</span>Class 6 Felony to maliciously injure/kill a LEO K9.</div>
+    <div class="v-cat"><span class="v-title">12. VA § 19.2-83.1</span>Mandatory force reporting requirements in Virginia.</div>
+    <div class="v-cat"><span class="v-title">13. VA v. BROWN</span>K9 alert establishes PC for vehicle search in VA.</div>
+    <div class="v-cat"><span class="v-title">14. CONSENT</span>Must be voluntary, knowing, and without coercion.</div>
+    <div class="v-cat"><span class="v-title">15. HOT PURSUIT</span>Doctrine for tracking suspects into private dwellings.</div>
+    <div class="v-cat"><span class="v-title">16. VA § 3.2-6500</span>Working dog welfare and care standards.</div>
+    <div class="v-cat"><span class="v-title">17. EXIGENT CIRC</span>Warrantless entry to save life or prevent evidence loss.</div>
+    <div class="v-cat"><span class="v-title">18. PLAIN VIEW</span>Authority to seize evidence visible from lawful vantage.</div>
+    <div class="v-cat"><span class="v-title">19. OPEN FIELDS</span>Search authority beyond the home's curtilage.</div>
+    <div class="v-cat"><span class="v-title">20. WARNINGS</span>K9 deployment requires loud, clear verbal warnings.</div>
 </div>
 
 <div id="p-med" class="panel">
     <div class="close-p" onclick="closeP()">BACK TO MAP</div>
     <div class="p-header">K9 EMERGENCY MEDICAL</div>
-    <div class="v-cat"><span class="v-title">BLOAT (GDV)</span>10-43 Emergency. Swollen stomach. Immediate Surgery.</div>
-    <div class="v-cat"><span class="v-title">GUNSHOT / STAB</span>Pack wound. Pressure. CAT Tourniquet High/Tight.</div>
-    <div class="v-cat"><span class="v-title">K9 CPR</span>30 compressions / 2 breaths. Dog on RIGHT side.</div>
-    <div class="v-cat"><span class="v-title">HEAT STROKE</span>Cool paws/ears. Stop cooling at 103.5. AC/Vet.</div>
-    <div class="v-cat"><span class="v-title">SNAKE BITE</span>Immobilize. ER Vet immediately. No cutting.</div>
+    <div class="v-cat"><span class="v-title">1. BLOAT (GDV)</span>10-43 Immediate Surgery. Swollen stomach/dry retching.</div>
+    <div class="v-cat"><span class="v-title">2. GSW / STAB</span>Pack wound. Constant pressure. CAT Tourniquet HIGH and TIGHT.</div>
+    <div class="v-cat"><span class="v-title">3. K9 CPR</span>Lay on RIGHT side. 30 compressions / 2 breaths (100-120 bpm).</div>
+    <div class="v-cat"><span class="v-title">4. HEAT STROKE</span>Cool paws/ears. Stop at 103.5. AC immediately.</div>
+    <div class="v-cat"><span class="v-title">5. SNAKE BITE</span>Keep calm. Immobilize. No cutting. ER Vet ASAP.</div>
+    <div class="v-cat"><span class="v-title">6. TOXIN INGESTION</span>Identify source. Contact ER Vet or Poison Control.</div>
 </div>
 
 <div id="p-forms" class="panel">
     <div class="close-p" onclick="closeP()">BACK TO MAP</div>
     <div class="report-paper">
         <h2>K-9 DEPLOYMENT REPORT</h2>
-        <div class="f-row"><span>DATE: __________</span><span>TIME: __________</span></div>
+        <div class="f-row"><span>DATE: __________</span><span>INCIDENT: ________</span></div>
         <div class="f-row"><span>HANDLER: ____________________</span></div>
-        <div class="f-row"><span>K-9 NAME: ____________________</span></div>
-        <div class="f-row"><span>INCIDENT #: __________________</span></div>
-        <div class="f-row"><span>LOCATION: ___________________</span></div>
-        <div style="margin-top:15px;"><b>SUMMARY:</b><br><div style="height:150px; border:1px solid #ccc;"></div></div>
-        <button onclick="window.print()" style="width:100%; margin-top:10px; padding:10px;">PRINT FOR COURT</button>
+        <div class="f-row"><span>NARRATIVE:</span></div>
+        <div style="height:200px; border:1px solid #000; margin-top:10px;"></div>
+        <button onclick="window.print()" style="width:100%; margin-top:15px; padding:10px;">PRINT FOR COURT</button>
     </div>
 </div>
 
@@ -126,10 +110,8 @@
     <div class="report-paper">
         <h2>K-9 TRAINING LOG</h2>
         <div class="f-row"><span>DATE: __________</span><span>HOURS: ________</span></div>
-        <div class="f-row"><span>DISCIPLINE: __________________</span></div>
         <div class="f-row"><span>PERFORMANCE: [ ] PASS [ ] FAIL</span></div>
-        <div style="margin-top:15px;"><b>NOTES:</b><br><div style="height:100px; border:1px solid #ccc;"></div></div>
-        <button onclick="window.print()" style="width:100%; margin-top:10px; padding:10px;">PRINT FOR SHERIFF</button>
+        <button onclick="window.print()" style="width:100%; margin-top:15px; padding:10px;">PRINT FOR SHERIFF</button>
     </div>
 </div>
 
@@ -147,16 +129,22 @@
 
     function forceGPS() {
         if (navigator.geolocation) {
-            document.getElementById('dist-hud').innerText = "LOCKING SATELLITE...";
+            document.getElementById('dist-hud').innerText = "FORCING RAW SATELLITE LOCK...";
             if(watchID) navigator.geolocation.clearWatch(watchID);
             watchID = navigator.geolocation.watchPosition(p => {
+                var acc = p.coords.accuracy;
+                // REJECT signals worse than 30 meters (forces phone to keep searching for satellite)
+                if (acc > 30) {
+                    document.getElementById('dist-hud').innerText = "FILTERING WEAK SIGNAL... SEEK OPEN SKY";
+                    return;
+                }
                 var pos = [p.coords.latitude, p.coords.longitude];
                 if (!userMarker) {
-                    userMarker = L.marker(pos, {icon: L.divIcon({className: 'gps-beacon', iconSize:[22,22]})}).addTo(map);
+                    userMarker = L.marker(pos, {icon: L.divIcon({className:'gps-beacon', iconSize:[22,22]})}).addTo(map);
                     map.setView(pos, 19);
                 } else { userMarker.setLatLng(pos); }
-                document.getElementById('dist-hud').innerText = "SATELLITE LOCK ACTIVE";
-            }, null, {enableHighAccuracy: true, maximumAge: 0});
+                document.getElementById('dist-hud').innerText = `SATELLITE LOCK ACTIVE (${Math.round(acc*3.28)} FT)`;
+            }, null, {enableHighAccuracy: true, maximumAge: 0, timeout: 10000});
         }
     }
 
