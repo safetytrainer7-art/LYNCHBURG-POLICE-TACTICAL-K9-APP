@@ -1,65 +1,116 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD INTERCEPTOR - V110</title>
+    <title>ACSD INTERCEPTOR - V111</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --og: #ff6600; --gd: #ffd700; --nv: #00ff44; }
+        :root { --og: #ff6600; --gd: #ffd700; --nv: #00ff44; --rd: #ff4444; }
         body, html { margin:0; padding:0; background:#000; color:#fff; font-family:sans-serif; height:100%; overflow:hidden; }
-        #map { flex-grow:1; width:100%; height: 80vh; }
-        .hdr { background:#001a00; border-bottom:2px solid var(--og); padding:10px; text-align:center; color:var(--gd); font-weight:bold; font-size:12px; }
-        #dist-hud { background: #111; color: var(--nv); padding: 8px; font-size: 14px; text-align: center; border-top: 1px solid var(--og); font-family: monospace; font-weight:bold; }
-        .tool-bar { background:#1a1a1a; display:grid; grid-template-columns:repeat(5,1fr); padding:10px; gap:5px; }
-        .t-btn { background:#333; padding:15px 0; text-align:center; border-radius:4px; font-size:24px; border:1px solid #555; }
-        .t-btn.active { background: #002200; border-color: var(--nv); }
-        .nav-btn { background:var(--og); color:#fff; padding:15px; text-align:center; font-weight:bold; text-decoration:none; display:block; margin:5px; border-radius:5px; }
+        #app-container { display: flex; flex-direction: column; height: 100vh; }
+        .hdr { background:#001a00; border-bottom:2px solid var(--og); padding:8px; text-align:center; color:var(--gd); font-weight:bold; font-size:12px; }
+        
+        /* SEARCH BAR AREA */
+        .search-area { display: flex; padding: 5px; background: #111; gap: 5px; border-bottom: 1px solid #333; }
+        #addr-input { flex-grow: 1; padding: 12px; border-radius: 4px; border: none; background: #222; color: #fff; font-size: 14px; }
+        .go-btn { background: var(--nv); color: #000; padding: 10px 15px; font-weight: bold; border: none; border-radius: 4px; }
+
+        #map { flex-grow: 1; width: 100%; }
+        
+        #dist-hud { background: #000; color: var(--nv); padding: 8px; font-size: 13px; text-align: center; border-top: 1px solid var(--og); font-family: monospace; }
+        
+        .tool-bar { background:#1a1a1a; display:grid; grid-template-columns:repeat(5,1fr); padding:8px; gap:5px; border-top: 1px solid #444; }
+        .t-btn { background:#333; padding:15px 0; text-align:center; border-radius:6px; font-size:24px; border:1px solid #555; color: #fff; }
+        .t-btn.active { background: #002200; border-color: var(--nv); box-shadow: inset 0 0 10px var(--nv); }
+        
+        .vault-link { background: var(--og); color: #fff; padding: 15px; text-align: center; font-weight: bold; text-decoration: none; font-size: 14px; }
+
         .gps-beacon { width: 14px; height: 14px; background: #007bff; border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 20px #007bff; animation: pulse 1s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.4); } 100% { transform: scale(1); } }
+        .m-ico { font-size: 28px; text-shadow: 0 0 5px #000; }
     </style>
 </head>
 <body>
+
+<div id="app-container">
     <div class="hdr">ACSD INTERCEPTOR • FIELD GPS MODULE</div>
+    
+    <div class="search-area">
+        <input type="text" id="addr-input" placeholder="ENTER SEARCH ADDRESS">
+        <button class="go-btn" onclick="searchAddr()">GO</button>
+    </div>
+
     <div id="map"></div>
-    <div id="dist-hud">GPS STATUS: STANDBY</div>
+    
+    <div id="dist-hud">GPS: STANDBY</div>
+
     <div class="tool-bar">
         <div id="b-k9" class="t-btn" onclick="sm('k9')">🐕</div>
         <div id="b-leo" class="t-btn" onclick="sm('leo')">👮</div>
         <div id="b-per" class="t-btn" onclick="sm('per')">🔴</div>
         <div id="b-sus" class="t-btn" onclick="sm('sus')">👤</div>
-        <div class="t-btn" onclick="startLiveTrack()">🛰️</div>
+        <div class="t-btn" onclick="startLiveTrack()" style="background:#002a55;">🛰️</div>
     </div>
-    <a href="vault.html" class="nav-btn">OPEN THE VAULT (LEGAL/MED/REPORTS)</a>
+
+    <a href="vault.html" class="vault-link">LOAD FOR BEAR (LAWS/MED/REPORTS)</a>
+</div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     var map, mode, line, pts=[], userMarker, watchID, officerMarkers = [];
+    
+    // Initialize Map
     map = L.map('map',{zoomControl:false}).setView([37.584, -79.052], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     line = L.polyline([],{color:'red',weight:4,dashArray:'10,10'}).addTo(map);
 
+    // Search Function
+    function searchAddr() {
+        var val = document.getElementById('addr-input').value;
+        if(!val) return;
+        fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(val))
+            .then(r => r.json())
+            .then(d => {
+                if(d.length > 0) {
+                    var lat = d[0].lat;
+                    var lon = d[0].lon;
+                    map.setView([lat, lon], 18);
+                    L.marker([lat, lon]).addTo(map).bindPopup("SEARCH SCENE").openPopup();
+                } else {
+                    alert("Address not found.");
+                }
+            });
+    }
+
+    // GPS Function
     function startLiveTrack(){
         if(navigator.geolocation){
-            navigator.geolocation.getCurrentPosition(p=>{
-                var pos = [p.coords.latitude, p.coords.longitude];
-                map.setView(pos, 18);
-            });
+            document.getElementById('dist-hud').innerText = "LOCKING GPS...";
             watchID = navigator.geolocation.watchPosition(p => {
                 var pos = [p.coords.latitude, p.coords.longitude];
                 if(!userMarker){
                     userMarker = L.marker(pos, {icon: L.divIcon({className: 'gps-beacon', iconSize:[14,14]})}).addTo(map);
-                } else { userMarker.setLatLng(pos); }
+                    map.setView(pos, 18);
+                } else { 
+                    userMarker.setLatLng(pos); 
+                }
+                document.getElementById('dist-hud').innerText = "GPS ACTIVE - TRACKING";
                 calcDist();
-            }, null, {enableHighAccuracy:true, maximumAge:0});
-            document.getElementById('dist-hud').innerText = "GPS ACTIVE - TRACKING";
+            }, (e) => {
+                alert("GPS Error: " + e.message);
+            }, {enableHighAccuracy:true, maximumAge:0, timeout: 5000});
         }
     }
 
+    // Icon Placement
     map.on('click', function(e){
         if(!mode) return;
-        if(mode==='per'){ pts.push(e.latlng); line.setLatLngs(pts); L.circleMarker(e.latlng,{radius:5,color:'red'}).addTo(map); }
+        if(mode==='per'){ 
+            pts.push(e.latlng); 
+            line.setLatLngs(pts); 
+            L.circleMarker(e.latlng,{radius:5,color:'red',fillColor:'red',fillOpacity:1}).addTo(map); 
+        }
         else { 
             var m = L.marker(e.latlng,{icon:L.divIcon({html:{'k9':'🐕','leo':'👮','sus':'👤'}[mode],iconSize:[30,30],className:'m-ico'})}).addTo(map);
             if(mode === 'leo') officerMarkers.push(m);
@@ -67,17 +118,25 @@
         calcDist();
     });
 
+    // Distance Calculation
     function calcDist(){
         if(!userMarker || officerMarkers.length === 0) return;
         var uPos = userMarker.getLatLng();
         var text = "";
         officerMarkers.forEach((m, i) => {
-            var d = uPos.distanceTo(m.getLatLng()) * 1.09361;
-            text += `LEO ${i+1}: ${Math.round(d)}yd | `;
+            var d = uPos.distanceTo(m.getLatLng()) * 1.09361; // Meters to Yards
+            var color = d < 40 ? "#00ff44" : (d < 100 ? "#ffd700" : "#ff4444");
+            text += `<span style="color:${color}">LEO ${i+1}: ${Math.round(d)}yd</span> | `;
         });
         document.getElementById('dist-hud').innerHTML = text.slice(0, -3);
     }
-    function sm(m){ mode=m; document.querySelectorAll('.t-btn').forEach(b=>b.classList.remove('active')); document.getElementById('b-'+m).classList.add('active'); }
+
+    // Tool Selector
+    function sm(m){ 
+        mode = m; 
+        document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('active')); 
+        document.getElementById('b-'+m).classList.add('active'); 
+    }
 </script>
 </body>
 </html>
