@@ -1,145 +1,135 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD K9 COMMAND V117</title>
+    <title>ACSD COMMAND - V121 FULL VAULT</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --og: #ff6600; --gd: #ffd700; --nv: #00ff44; --bl: #007bff; --rd: #ff4444; }
-        body, html { margin:0; padding:0; background:#000; color:#fff; font-family:sans-serif; height:100%; overflow:hidden; }
+        :root { --orange: #ff6600; --gold: #ffd700; --live: #00ff00; --blue: #007bff; --red: #ff4444; }
+        body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; height: 100vh; overflow: hidden; }
         #app-container { display: flex; flex-direction: column; height: 100vh; }
-        .hdr { background:#001a00; border-bottom:2px solid var(--og); padding:8px; text-align:center; color:var(--gd); font-weight:bold; font-size:12px; }
-        
-        /* PART A: THE TACTICAL ENGINE */
-        .search-area { display: flex; padding: 5px; background: #111; gap: 5px; }
-        #addr-input { flex-grow: 1; padding: 12px; border-radius: 4px; border: none; background: #222; color: #fff; font-size: 14px; }
-        .go-btn { background: var(--nv); color: #000; padding: 10px 15px; font-weight: bold; border: none; border-radius: 4px; }
+        .header { background: #001a00; border-bottom: 3px solid var(--orange); padding: 10px; text-align: center; }
+        .sig { font-size: 11px; color: var(--gold); font-weight: bold; text-transform: uppercase; }
+        .dash { background: #111; padding: 10px; display: flex; gap: 8px; border-bottom: 2px solid #333; }
+        #addr-in { flex-grow: 1; padding: 12px; border-radius: 5px; border: none; background: #222; color: #fff; font-size: 14px; }
+        .go-btn { background: var(--live); color: #000; padding: 10px 15px; font-weight: bold; border: none; border-radius: 4px; }
         #map { flex-grow: 1; width: 100%; background: #222; }
-        #dist-hud { background: #000; color: var(--nv); padding: 10px; font-size: 13px; text-align: center; border-top: 2px solid var(--og); font-family: monospace; font-weight: bold; }
-        .tool-bar { background:#1a1a1a; display:grid; grid-template-columns:repeat(5,1fr); padding:8px; gap:5px; }
-        .t-btn { background:#333; padding:15px 0; text-align:center; border-radius:6px; font-size:24px; border:1px solid #555; }
-        .t-btn.active { background: #002200; border-color: var(--nv); box-shadow: 0 0 10px var(--nv); }
-        
-        /* PART B: THE VAULT (THE HEAVY LIFTING) */
-        .vault-trigger { background: var(--og); color: #fff; padding: 15px; text-align: center; font-weight: bold; cursor: pointer; border-top: 1px solid var(--gd); }
-        #vault-panel { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#111; color:#fff; z-index:10000; padding:15px; overflow-y:auto; box-sizing:border-box; }
-        .vault-cat { background: #222; border: 1px solid var(--og); padding: 15px; margin-bottom: 10px; border-radius: 8px; }
-        .vault-content { display:none; padding: 10px; background: #000; border-left: 3px solid var(--gd); margin-top: 10px; font-size: 14px; line-height: 1.5; }
-        .close-vault { background:var(--rd); color:#fff; padding:15px; text-align:center; font-weight:bold; border-radius:5px; margin-bottom:20px; position: sticky; top: 0; }
+        #dist-hud { background: #000; color: var(--live); padding: 10px; text-align: center; font-family: monospace; border-top: 2px solid var(--orange); font-weight: bold; font-size: 14px; min-height: 20px; }
+        .tool-bar { background: #1a1a1a; display: grid; grid-template-columns: repeat(5, 1fr); padding: 8px; gap: 8px; }
+        .tool { text-align: center; padding: 15px 0; border: 1px solid #555; border-radius: 8px; background: #333; cursor: pointer; }
+        .tool.active { border-color: var(--live); background: #002200; box-shadow: 0 0 10px var(--live); }
+        .tool span { font-size: 26px; display: block; }
+        .vault-btn { background: var(--orange); color: #fff; padding: 18px; text-align: center; font-weight: bold; cursor: pointer; font-size: 16px; border-top: 1px solid var(--gold); }
 
-        .gps-beacon { width: 20px; height: 20px; background: var(--bl); border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 25px var(--bl); animation: pulse 1s infinite; z-index: 9999 !important; }
+        /* THE VAULT SYSTEM */
+        #vault-panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; padding: 15px; overflow-y: auto; box-sizing: border-box; }
+        .v-cat { background: #1a1a1a; border: 1px solid #444; padding: 18px; margin-bottom: 12px; border-radius: 8px; border-left: 6px solid var(--gold); }
+        .v-content { display: none; padding: 15px; background: #080808; border-top: 1px solid #333; margin-top: 10px; font-size: 14px; line-height: 1.6; color: #eee; }
+        .close-v { background: var(--red); padding: 15px; text-align: center; font-weight: bold; border-radius: 5px; margin-bottom: 25px; }
+        .law-card { border-bottom: 1px solid #333; padding: 10px 0; }
+        .law-header { color: var(--blue); font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 4px; }
+        .med-card { background: #1a0000; padding: 10px; margin-bottom: 8px; border-radius: 4px; border-left: 3px solid var(--red); }
+
+        .gps-beacon { width: 22px; height: 22px; background: var(--blue); border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 25px var(--blue); animation: pulse 1s infinite; z-index: 5000 !important; }
         @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
-        .m-ico { font-size: 30px; text-shadow: 0 0 5px #000; text-align: center; }
     </style>
 </head>
 <body>
 
 <div id="app-container">
-    <div class="hdr">ACSD K9 COMMAND • V117 TACTICAL SPLIT</div>
-    <div class="search-area">
-        <input type="text" id="addr-input" placeholder="SEARCH SCENE ADDRESS">
+    <div class="header"><div class="sig">ACSD COMMAND V121 • LOADED FOR BEAR</div></div>
+    <div class="dash">
+        <input type="text" id="addr-in" placeholder="ENTER SEARCH ADDRESS">
         <button class="go-btn" onclick="searchAddr()">GO</button>
     </div>
     <div id="map"></div>
-    <div id="dist-hud">GAP LOG: PLACE 2+ OFFICERS</div>
+    <div id="dist-hud">GPS: STANDBY (HIT 🛰️ TO LOCK)</div>
     <div class="tool-bar">
-        <div id="b-k9" class="t-btn" onclick="sm('k9')">🐕</div>
-        <div id="b-leo" class="t-btn" onclick="sm('leo')">👮</div>
-        <div id="b-per" class="t-btn" onclick="sm('per')">🔴</div>
-        <div id="b-sus" class="t-btn" onclick="sm('sus')">👤</div>
-        <div class="t-btn" onclick="forceGPS()" style="background:#003366; color:white;">🛰️</div>
+        <div id="b-k9" class="tool" onclick="sm('k9')"><span>🐕</span></div>
+        <div id="b-leo" class="tool" onclick="sm('leo')"><span>👮</span></div>
+        <div id="b-per" class="tool" onclick="sm('per')"><span>🔴</span></div>
+        <div id="b-sus" class="tool" onclick="sm('sus')"><span>👤</span></div>
+        <div id="b-gps" class="tool" onclick="forceGPS()" style="background:#003366;"><span>🛰️</span></div>
     </div>
-    <div class="vault-trigger" onclick="toggleVault(true)">📂 OPEN THE VAULT (LOADED FOR BEAR)</div>
+    <div class="vault-btn" onclick="toggleVault(true)">📂 OPEN THE VAULT (FULL LIBRARY)</div>
 </div>
 
 <div id="vault-panel">
-    <div class="close-vault" onclick="toggleVault(false)">RETURN TO TACTICAL MAP</div>
+    <div class="close-v" onclick="toggleVault(false)">RETURN TO MISSION MAP</div>
     
-    <h2 style="color:var(--og); text-align:center;">THE VAULT</h2>
-
-    <div class="vault-cat" onclick="toggleCat('v-law')">
-        <h3 style="margin:0;">⚖️ FEDERAL & VIRGINIA LAW</h3>
-        <div id="v-law" class="vault-content">
-            <p><b>Florida v. Harris:</b> Training records = Reliability. If the dog is certified and training is current, a "miss" in the field doesn't destroy Probable Cause.</p>
-            <hr>
-            <p><b>Rodriguez v. U.S.:</b> You cannot extend a traffic stop specifically to wait for a K9. The sniff must happen within the "mission" of the original stop.</p>
-            <hr>
-            <p><b>Virginia Case Law:</b> An alert on a vehicle allows a search of the vehicle, but search of occupants requires independent articulable suspicion.</p>
+    <div class="v-cat" onclick="tc('v-law')">
+        <h3 style="margin:0;">⚖️ LEGAL BIBLE (US & VIRGINIA)</h3>
+        <div id="v-law" class="v-content">
+            <div class="law-card"><span class="law-header">1. FL v. Harris</span>Certs and training logs prove K9 reliability in court.</div>
+            <div class="law-card"><span class="law-header">2. FL v. Jardines</span>A K9 sniff on a homeowner's porch is a search requiring a warrant.</div>
+            <div class="law-card"><span class="law-header">3. Rodriguez v. US</span>Police cannot extend a traffic stop to wait for a K9 arrival.</div>
+            <div class="law-card"><span class="law-header">4. Graham v. Connor</span>Standard for "Objectively Reasonable" use of force.</div>
+            <div class="law-card"><span class="law-header">5. US v. Place</span>K9 sniffs of luggage in public places are not "searches."</div>
+            <div class="law-card"><span class="law-header">6. IL v. Caballes</span>K9 sniff during a lawful traffic stop is generally permitted.</div>
+            <div class="law-card"><span class="law-header">7. US v. Thomas</span>Strict limits on K9 sniffs at apartment doors.</div>
+            <div class="law-card"><span class="law-header">8. Terry v. Ohio</span>Basis for Reasonable Suspicion and temporary detention.</div>
+            <div class="law-card"><span class="law-header">9. TN v. Garner</span>Limits on use of deadly force against fleeing felons.</div>
+            <div class="law-card"><span class="law-header">10. US v. Sharp</span>Standards for the length of a roadside detention.</div>
+            <div class="law-card"><span class="law-header">11. VA Code § 18.2-144.1</span>Class 6 Felony to maliciously kill or injure a Law Enforcement K9.</div>
+            <div class="law-card"><span class="law-header">12. VA Code § 19.2-83.1</span>Mandatory reporting requirements for use of force.</div>
+            <div class="law-card"><span class="law-header">13. VA v. Brown</span>K9 alert on a vehicle establishes PC for a search in Virginia.</div>
+            <div class="law-card"><span class="law-header">14. Consent Standards</span>Rules for "Voluntary and Knowing" search consent.</div>
+            <div class="law-card"><span class="law-header">15. Hot Pursuit</span>Doctrine allowing tracking into private dwellings during active pursuit.</div>
+            <div class="law-card"><span class="law-header">16. VA § 3.2-6500</span>Welfare and care standards for working police dogs.</div>
+            <div class="law-card"><span class="law-header">17. Exigent Circumstances</span>Warrantless entry to prevent destruction of evidence or save life.</div>
+            <div class="law-card"><span class="law-header">18. Plain View</span>Seizing evidence visible from a lawful vantage point.</div>
+            <div class="law-card"><span class="law-header">19. Open Fields</span>Search authority outside the curtilage of a home.</div>
+            <div class="law-card"><span class="law-header">20. Release/Apprehension</span>Standards for K9 deployment and the verbal warning.</div>
         </div>
     </div>
 
-    <div class="vault-cat" onclick="toggleCat('v-med')">
-        <h3 style="margin:0;">🚑 K9 EMERGENCY MEDICAL</h3>
-        <div id="v-med" class="vault-content">
-            <p><b>BLOT (GDV):</b> 10-43 Emergency. If the dog is dry-retching and the stomach is hard/swollen, transport to surgery immediately with sirens.</p>
-            <hr>
-            <p><b>GSW/TRAUMA:</b> Use a CAT tourniquet HIGH and TIGHT on limbs. For body wounds, pack tightly with gauze and apply pressure.</p>
-            <hr>
-            <p><b>HEAT STROKE:</b> Do not submerge in ice. Wet the paws and ears with cool water. Stop cooling when body temp hits 103.5°F.</p>
+    <div class="v-cat" onclick="tc('v-med')">
+        <h3 style="margin:0;">🚑 K9 EMERGENCY FIELD MEDICINE</h3>
+        <div id="v-med" class="v-content">
+            <div class="med-card"><b>1. K9 CPR:</b> 100-120 bpm. Lay dog on RIGHT side. 30 compressions / 2 nose breaths.</div>
+            <div class="med-card"><b>2. GUNSHOT / STAB:</b> Pack wound with gauze. Constant pressure. Do not remove blood-soaked pads.</div>
+            <div class="med-card"><b>3. HEAT EXHAUSTION:</b> Temp >106°F is critical. Cool paws/ears with water. Move to AC immediately.</div>
+            <div class="med-card"><b>4. BLOAT (GDV):</b> 10-43 Emergency. Hard/swollen stomach. Dry retching. Immediate surgery required.</div>
+            <div class="med-card"><b>5. SNAKE BITE:</b> Keep dog calm/immobile. Transport to ER Vet. Do not cut or suck wound.</div>
+            <div class="med-card"><b>6. VET CONTACTS:</b> Lynchburg (434-846-1504) | Laurel Stone (434-946-5059).</div>
         </div>
     </div>
-
-    <div class="vault-cat" onclick="toggleCat('v-trn')">
-        <h3 style="margin:0;">🐕 TRAINING & CERTIFICATION</h3>
-        <div id="v-trn" class="vault-content">
-            <p><b>Tracking Logic:</b> Always document environmental conditions (wind, temp, humidity). Note the age of the track and surface types.</p>
-            <hr>
-            <p><b>Maintenance:</b> Minimum 16 hours per month. Focus on "problem" areas identified in previous missions.</p>
-        </div>
-    </div>
-
-    <div class="vault-cat" onclick="toggleCat('v-rep')">
-        <h3 style="margin:0;">📋 MISSION REPORTS</h3>
-        <div id="v-rep" class="vault-content">
-            <p>Use this area to draft mission details before transferring to official department software.</p>
-            <textarea style="width:100%; height:150px; background:#222; color:#fff; border:1px solid var(--gd);"></textarea>
-        </div>
-    </div>
-
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    var map, mode, line, pts=[], userMarker, watchID, officerMarkers = [];
-    map = L.map('map',{zoomControl:false}).setView([37.584, -79.052], 13);
+    var map, mode, userMarker, watchID, officerMarkers = [];
+    map = L.map('map',{zoomControl:false}).setView([37.584, -79.052], 14);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    line = L.polyline([],{color:'red',weight:4,dashArray:'10,10'}).addTo(map);
 
     function searchAddr() {
-        var val = document.getElementById('addr-input').value;
-        if(!val) return;
+        var val = document.getElementById('addr-in').value;
         fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(val))
-            .then(r => r.json()).then(d => {
-                if(d.length > 0) {
-                    map.setView([d[0].lat, d[0].lon], 18);
-                    L.marker([d[0].lat, d[0].lon]).addTo(map).bindPopup("<b>SCENE START</b>").openPopup();
-                }
-            });
+            .then(r => r.json()).then(d => { if(d.length > 0) map.setView([d[0].lat, d[0].lon], 18); });
     }
 
     function forceGPS() {
         if (navigator.geolocation) {
+            document.getElementById('dist-hud').innerText = "LOCKING SATELLITE...";
+            if(watchID) navigator.geolocation.clearWatch(watchID);
             watchID = navigator.geolocation.watchPosition(p => {
                 var pos = [p.coords.latitude, p.coords.longitude];
                 if (!userMarker) {
-                    userMarker = L.marker(pos, {icon: L.divIcon({className: 'gps-beacon', iconSize:[20,20]}), zIndexOffset: 1000}).addTo(map);
+                    userMarker = L.marker(pos, {icon: L.divIcon({className: 'gps-beacon', iconSize:[22,22]}), zIndexOffset: 5000}).addTo(map);
                     map.setView(pos, 19);
                 } else { userMarker.setLatLng(pos); }
-            }, null, {enableHighAccuracy: true});
+                document.getElementById('dist-hud').innerText = "SATELLITE LOCK ACTIVE";
+                calcGaps();
+            }, null, {enableHighAccuracy: true, maximumAge: 0, timeout: 5000});
         }
     }
 
     map.on('click', function(e){
         if(!mode) return;
-        if(mode==='per'){ 
-            pts.push(e.latlng); line.setLatLngs(pts); 
-            L.circleMarker(e.latlng,{radius:5,color:'red',fillColor:'red',fillOpacity:1}).addTo(map); 
-        } else { 
-            var m = L.marker(e.latlng,{icon:L.divIcon({html:{'k9':'🐕','leo':'👮','sus':'👤'}[mode],iconSize:[35,35],className:'m-ico'})}).addTo(map);
-            if(mode === 'leo') { officerMarkers.push(m); calcGaps(); }
-        }
+        var icons = {'k9':'🐕','leo':'👮','per':'🔴','sus':'👤'};
+        var m = L.marker(e.latlng, {icon: L.divIcon({html: `<div style="font-size:30px;">${icons[mode]}</div>`, className: 'tactical-icon', iconSize:[35,35]})}).addTo(map);
+        if(mode === 'leo') { officerMarkers.push(m); calcGaps(); }
     });
 
     function calcGaps(){
@@ -147,18 +137,15 @@
         var text = "";
         for (var i = 0; i < officerMarkers.length - 1; i++) {
             var d = officerMarkers[i].getLatLng().distanceTo(officerMarkers[i+1].getLatLng()) * 1.09361;
-            var color = d > 150 ? "#ff4444" : "#00ff44";
+            var color = d > 150 ? "#ff4444" : "#00ff00";
             text += `<span style="color:${color}">GAP ${i+1}-${i+2}: ${Math.round(d)} YDS</span> | `;
         }
         document.getElementById('dist-hud').innerHTML = text.slice(0, -3);
     }
 
-    function sm(m){ mode = m; document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('active')); document.getElementById('b-'+m).classList.add('active'); }
-    function toggleVault(show) { document.getElementById('vault-panel').style.display = show ? 'block' : 'none'; }
-    function toggleCat(id) { 
-        var el = document.getElementById(id);
-        el.style.display = (el.style.display === 'block') ? 'none' : 'block';
-    }
+    function sm(m){ mode = m; document.querySelectorAll('.tool').forEach(t => t.classList.remove('active')); document.getElementById('b-'+m).classList.add('active'); }
+    function toggleVault(s){ document.getElementById('vault-panel').style.display = s ? 'block' : 'none'; }
+    function tc(id){ var e = document.getElementById(id); e.style.display = (e.style.display === 'block') ? 'none' : 'block'; }
 </script>
 </body>
 </html>
