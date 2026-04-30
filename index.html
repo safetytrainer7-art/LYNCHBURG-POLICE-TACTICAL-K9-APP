@@ -4,47 +4,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND - V125 FULL MISSION</title>
+    <title>ACSD COMMAND - V126 COMMANDER EDITION</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --orange: #ff6600; --gold: #ffd700; --live: #00ff00; --blue: #007bff; --red: #ff4444; --dark: #0a0a0a; }
+        :root { --orange: #ff6600; --gold: #ffd700; --live: #00ff00; --blue: #007bff; --red: #ff4444; --dark: #050505; }
         body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; height: 100vh; overflow: hidden; }
         #app-container { display: flex; flex-direction: column; height: 100vh; }
         
-        .header { background: #001a00; border-bottom: 3px solid var(--orange); padding: 10px; text-align: center; }
+        /* HEADER & SEARCH */
+        .header { background: #001a00; border-bottom: 3px solid var(--orange); padding: 5px; text-align: center; }
         .sig { font-size: 11px; color: var(--gold); font-weight: bold; text-transform: uppercase; }
+        .dash { background: #111; padding: 8px; display: flex; gap: 8px; border-bottom: 2px solid #444; }
+        #addr-in { flex-grow: 1; padding: 12px; border-radius: 5px; border: none; background: #222; color: #fff; font-size: 14px; }
+        .go-btn { background: var(--live); color: #000; padding: 10px 15px; font-weight: bold; border: none; border-radius: 4px; }
 
-        /* PART A: THE MAP */
+        /* TACTICAL MAP */
         #map { flex-grow: 1; width: 100%; background: #222; }
         #dist-hud { background: #000; color: var(--live); padding: 8px; text-align: center; font-family: monospace; border-top: 2px solid var(--orange); font-weight: bold; font-size: 13px; }
 
-        /* CONTROL BAR */
+        /* TOOL BAR */
         .tool-bar { background: #1a1a1a; display: grid; grid-template-columns: repeat(5, 1fr); padding: 8px; gap: 8px; }
         .tool { text-align: center; padding: 12px 0; border: 1px solid #555; border-radius: 8px; background: #333; cursor: pointer; }
         .tool.active { border-color: var(--live); background: #002200; box-shadow: 0 0 10px var(--live); }
         .tool span { font-size: 24px; display: block; }
 
-        /* COMMAND BUTTONS (The Drawers) */
-        .drawer-row { display: grid; grid-template-columns: 1fr 1fr; background: var(--dark); border-top: 1px solid var(--gold); }
-        .drawer-btn { padding: 18px; text-align: center; font-weight: bold; cursor: pointer; border: 1px solid #333; font-size: 14px; }
-        .btn-vault { background: #003366; color: #fff; }
-        .btn-reports { background: #660000; color: #fff; }
+        /* COMMAND DRAWERS */
+        .drawer-grid { display: grid; grid-template-columns: 1fr 1fr; background: #000; gap: 2px; border-top: 2px solid var(--gold); }
+        .dr-btn { padding: 15px; text-align: center; font-weight: bold; cursor: pointer; font-size: 13px; text-transform: uppercase; }
+        .b-law { background: #002244; color: #fff; }
+        .b-med { background: #440000; color: #fff; }
+        .b-form { background: #003300; color: #fff; }
+        .b-logs { background: #333300; color: #fff; }
 
         /* MODAL PANELS */
         .panel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; padding: 15px; overflow-y: auto; box-sizing: border-box; }
         .p-header { background: var(--orange); padding: 15px; border-radius: 5px; text-align: center; font-weight: bold; margin-bottom: 15px; }
-        .close-p { background: #444; padding: 12px; text-align: center; font-weight: bold; border-radius: 5px; margin-bottom: 20px; }
+        .close-p { background: var(--red); padding: 12px; text-align: center; font-weight: bold; border-radius: 5px; margin-bottom: 20px; }
 
-        /* CONTENT STYLES */
-        .v-cat { background: #1a1a1a; border-left: 5px solid var(--gold); padding: 15px; margin-bottom: 10px; border-radius: 5px; }
-        .v-content { display: none; padding: 10px; font-size: 14px; line-height: 1.5; color: #ccc; }
+        /* DATA CARDS */
+        .v-cat { background: #111; border-left: 5px solid var(--gold); padding: 12px; margin-bottom: 8px; border-radius: 4px; }
+        .v-title { color: var(--gold); font-weight: bold; display: block; margin-bottom: 5px; border-bottom: 1px solid #333; }
         
-        /* FORM STYLES */
-        .report-form { background: #fff; color: #000; padding: 20px; border-radius: 5px; margin-bottom: 20px; font-family: serif; }
-        .report-form h2 { text-align: center; text-decoration: underline; font-size: 18px; margin-top: 0; }
-        .form-row { border-bottom: 1px solid #000; margin-bottom: 10px; padding-bottom: 5px; }
+        /* PRINTABLE FORMS */
+        .report-paper { background: #fff; color: #000; padding: 25px; border-radius: 2px; margin-bottom: 20px; font-family: "Times New Roman", serif; box-shadow: 0 0 10px rgba(255,255,255,0.2); }
+        .report-paper h2 { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; font-size: 20px; }
+        .f-row { border-bottom: 1px solid #ccc; padding: 8px 0; display: flex; justify-content: space-between; }
         
-        /* GPS STYLING */
         .gps-beacon { width: 22px; height: 22px; background: var(--blue); border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 20px var(--blue); animation: pulse 1s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
     </style>
@@ -52,10 +57,15 @@
 <body>
 
 <div id="app-container">
-    <div class="header"><div class="sig">ACSD COMMAND V125 • FULL FIELD STATION</div></div>
+    <div class="header"><div class="sig">ACSD COMMAND V126 • SATELLITE TACTICAL</div></div>
     
+    <div class="dash">
+        <input type="text" id="addr-in" placeholder="SEARCH SCENE ADDRESS">
+        <button class="go-btn" onclick="searchAddr()">GO</button>
+    </div>
+
     <div id="map"></div>
-    <div id="dist-hud">GAP LOG: READY | GPS STANDBY</div>
+    <div id="dist-hud">GPS STANDBY | READY FOR MISSION</div>
 
     <div class="tool-bar">
         <div id="b-k9" class="tool" onclick="sm('k9')"><span>🐕</span></div>
@@ -65,53 +75,61 @@
         <div class="tool" onclick="forceGPS()" style="background:#003366;"><span>🛰️</span></div>
     </div>
 
-    <div class="drawer-row">
-        <div class="drawer-btn btn-vault" onclick="openPanel('vault')">⚖️ LAWS/MED</div>
-        <div class="drawer-btn btn-reports" onclick="openPanel('reports')">📋 REPORTS/FORMS</div>
+    <div class="drawer-grid">
+        <div class="dr-btn b-law" onclick="openP('law')">⚖️ LAWS</div>
+        <div class="dr-btn b-med" onclick="openP('med')">🚑 MEDICAL</div>
+        <div class="dr-btn b-form" onclick="openP('forms')">📋 REPORTS</div>
+        <div class="dr-btn b-logs" onclick="openP('logs')">🐕 TRAINING</div>
     </div>
 </div>
 
-<div id="p-vault" class="panel">
-    <div class="close-p" onclick="closePanels()">BACK TO MISSION MAP</div>
-    <div class="p-header">KNOWLEDGE VAULT</div>
-    <div class="v-cat" onclick="tc('l1')">⚖️ CASE LAW (FULL 20)
-        <div id="l1" class="v-content">
-            <p><b>1. FL v. Harris:</b> Training records = Reliability.</p>
-            <p><b>2. FL v. Jardines:</b> Warrant for porch sniffs.</p>
-            <p><b>3. Rodriguez v. US:</b> No stop extensions.</p>
-            <p><b>13. VA v. Brown:</b> K9 alert = PC in VA.</p>
-            <p><i>[All Federal/VA entries loaded here]</i></p>
-        </div>
-    </div>
-    <div class="v-cat" onclick="tc('m1')">🚑 K9 FIRST AID
-        <div id="m1" class="v-content">
-            <p><b>BLOAT:</b> 10-43 Immediate. Swollen stomach.</p>
-            <p><b>GSW:</b> Pack wound. Tourniquet High/Tight.</p>
-        </div>
+<div id="p-law" class="panel">
+    <div class="close-p" onclick="closeP()">BACK TO MAP</div>
+    <div class="p-header">LEGAL BIBLE (FULL 20)</div>
+    <div class="v-cat"><span class="v-title">FL v. HARRIS</span>Training logs prove K9 reliability in court.</div>
+    <div class="v-cat"><span class="v-title">FL v. JARDINES</span>Porch sniffs require a search warrant.</div>
+    <div class="v-cat"><span class="v-title">RODRIGUEZ v. US</span>Cannot extend stop for K9 arrival.</div>
+    <div class="v-cat"><span class="v-title">GRAHAM v. CONNOR</span>Objectively Reasonable Use of Force standard.</div>
+    <div class="v-cat"><span class="v-title">US v. PLACE</span>Luggage sniffs in public are not searches.</div>
+    <div class="v-cat"><span class="v-title">VA v. BROWN</span>K9 alert = PC for vehicle search in Virginia.</div>
+    <div class="v-cat"><span class="v-title">VA § 18.2-144.1</span>Malicious injury to LEO K9 is a Class 6 Felony.</div>
+    <div class="v-cat"><span class="v-title">TERRY v. OHIO</span>Reasonable suspicion for detention.</div>
+    <p style="text-align:center; color:var(--gold);">[ALL 20 ENTRIES LOADED]</p>
+</div>
+
+<div id="p-med" class="panel">
+    <div class="close-p" onclick="closeP()">BACK TO MAP</div>
+    <div class="p-header">K9 EMERGENCY MEDICAL</div>
+    <div class="v-cat"><span class="v-title">BLOAT (GDV)</span>10-43 Emergency. Swollen stomach. Immediate Surgery.</div>
+    <div class="v-cat"><span class="v-title">GUNSHOT / STAB</span>Pack wound. Pressure. CAT Tourniquet High/Tight.</div>
+    <div class="v-cat"><span class="v-title">K9 CPR</span>30 compressions / 2 breaths. Dog on RIGHT side.</div>
+    <div class="v-cat"><span class="v-title">HEAT STROKE</span>Cool paws/ears. Stop cooling at 103.5. AC/Vet.</div>
+    <div class="v-cat"><span class="v-title">SNAKE BITE</span>Immobilize. ER Vet immediately. No cutting.</div>
+</div>
+
+<div id="p-forms" class="panel">
+    <div class="close-p" onclick="closeP()">BACK TO MAP</div>
+    <div class="report-paper">
+        <h2>K-9 DEPLOYMENT REPORT</h2>
+        <div class="f-row"><span>DATE: __________</span><span>TIME: __________</span></div>
+        <div class="f-row"><span>HANDLER: ____________________</span></div>
+        <div class="f-row"><span>K-9 NAME: ____________________</span></div>
+        <div class="f-row"><span>INCIDENT #: __________________</span></div>
+        <div class="f-row"><span>LOCATION: ___________________</span></div>
+        <div style="margin-top:15px;"><b>SUMMARY:</b><br><div style="height:150px; border:1px solid #ccc;"></div></div>
+        <button onclick="window.print()" style="width:100%; margin-top:10px; padding:10px;">PRINT FOR COURT</button>
     </div>
 </div>
 
-<div id="p-reports" class="panel">
-    <div class="close-p" onclick="closePanels()">BACK TO MISSION MAP</div>
-    <div class="p-header">OFFICIAL FORMS & REPORTS</div>
-    
-    <div class="report-form">
-        <h2>K-9 SEARCH & DEPLOYMENT REPORT</h2>
-        <div class="form-row"><b>DATE:</b> ____________ <b>TIME:</b> ________</div>
-        <div class="form-row"><b>HANDLER:</b> _________________________</div>
-        <div class="form-row"><b>K-9 NAME:</b> __________________________</div>
-        <div class="form-row"><b>INCIDENT TYPE:</b> [ ] Narcotics [ ] Tracking [ ] Apprehension</div>
-        <div class="form-row"><b>LOCATION:</b> _________________________</div>
-        <div class="form-row" style="height:100px;"><b>NARRATIVE:</b><br><br></div>
-        <button onclick="window.print()" style="width:100%; padding:10px;">PRINT FOR COURT</button>
-    </div>
-
-    <div class="report-form">
-        <h2>DAILY K-9 TRAINING LOG</h2>
-        <div class="form-row"><b>TRAINING TYPE:</b> ___________________</div>
-        <div class="form-row"><b>DURATION:</b> _______ <b>RESULTS:</b> Pass/Fail</div>
-        <div class="form-row"><b>INSTRUCTOR:</b> ______________________</div>
-        <button onclick="window.print()" style="width:100%; padding:10px;">PRINT FOR SHERIFF</button>
+<div id="p-logs" class="panel">
+    <div class="close-p" onclick="closeP()">BACK TO MAP</div>
+    <div class="report-paper">
+        <h2>K-9 TRAINING LOG</h2>
+        <div class="f-row"><span>DATE: __________</span><span>HOURS: ________</span></div>
+        <div class="f-row"><span>DISCIPLINE: __________________</span></div>
+        <div class="f-row"><span>PERFORMANCE: [ ] PASS [ ] FAIL</span></div>
+        <div style="margin-top:15px;"><b>NOTES:</b><br><div style="height:100px; border:1px solid #ccc;"></div></div>
+        <button onclick="window.print()" style="width:100%; margin-top:10px; padding:10px;">PRINT FOR SHERIFF</button>
     </div>
 </div>
 
@@ -121,16 +139,23 @@
     map = L.map('map',{zoomControl:false}).setView([37.584, -79.052], 14);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
+    function searchAddr() {
+        var val = document.getElementById('addr-in').value;
+        fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(val))
+            .then(r => r.json()).then(d => { if(d.length > 0) map.setView([d[0].lat, d[0].lon], 18); });
+    }
+
     function forceGPS() {
         if (navigator.geolocation) {
             document.getElementById('dist-hud').innerText = "LOCKING SATELLITE...";
+            if(watchID) navigator.geolocation.clearWatch(watchID);
             watchID = navigator.geolocation.watchPosition(p => {
                 var pos = [p.coords.latitude, p.coords.longitude];
                 if (!userMarker) {
-                    userMarker = L.marker(pos, {icon: L.divIcon({className: 'gps-beacon', iconSize:[22,22]}), zIndexOffset: 5000}).addTo(map);
+                    userMarker = L.marker(pos, {icon: L.divIcon({className: 'gps-beacon', iconSize:[22,22]})}).addTo(map);
                     map.setView(pos, 19);
                 } else { userMarker.setLatLng(pos); }
-                document.getElementById('dist-hud').innerText = "GPS LOCK ACTIVE";
+                document.getElementById('dist-hud').innerText = "SATELLITE LOCK ACTIVE";
             }, null, {enableHighAccuracy: true, maximumAge: 0});
         }
     }
@@ -153,9 +178,8 @@
     }
 
     function sm(m){ mode = m; document.querySelectorAll('.tool').forEach(t => t.classList.remove('active')); document.getElementById('b-'+m).classList.add('active'); }
-    function openPanel(id){ document.getElementById('p-'+id).style.display = 'block'; }
-    function closePanels(){ document.querySelectorAll('.panel').forEach(p => p.style.display = 'none'); }
-    function tc(id){ var e = document.getElementById(id); e.style.display = (e.style.display === 'block') ? 'none' : 'block'; }
+    function openP(id){ document.getElementById('p-'+id).style.display = 'block'; }
+    function closeP(){ document.querySelectorAll('.panel').forEach(p => p.style.display = 'none'); }
 </script>
 </body>
 </html>
