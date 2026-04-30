@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD K9 COMMAND - V107 CONSOLIDATED</title>
+    <title>ACSD K9 COMMAND - V109 DISTANCE</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --og: #ff6600; --gd: #ffd700; --bl: #0044ff; --rd: #ff0000; --nv: #00ff44; }
@@ -16,18 +15,22 @@
         #app-content { display:none; height:100%; flex-direction:column; }
         .hdr { background:#001a00; border-bottom:2px solid var(--og); padding:8px; text-align:center; color:var(--gd); font-weight:bold; font-size:10px; }
         #map { flex-grow:1; width:100%; }
+        
+        /* DISTANCE HUD */
+        #dist-hud { background: rgba(0,0,0,0.8); color: var(--nv); padding: 5px; font-size: 11px; text-align: center; border-top: 1px solid var(--og); font-family: monospace; }
+        
         .srch-bar { display:flex; padding:5px; background:#111; gap:4px; }
         .tool-bar { background:#1a1a1a; display:grid; grid-template-columns:repeat(6,1fr); padding:5px; gap:2px; border-top:1px solid #444; }
         .t-btn { background:#333; padding:12px 0; text-align:center; border-radius:4px; font-size:20px; border:1px solid #555; }
         .t-btn.active { background: #002200; border-color: var(--nv); }
         .cmd-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:6px; padding:8px; background:#000; }
-        .i-btn { padding:18px 2px; border-radius:6px; text-align:center; font-weight:bold; font-size:11px; border:1px solid #444; color:#fff; text-transform:uppercase; }
+        .i-btn { padding:15px 2px; border-radius:6px; text-align:center; font-weight:bold; font-size:10px; border:1px solid #444; color:#fff; text-transform:uppercase; }
         .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#fff; color:#000; z-index:9999; padding:20px; overflow-y:auto; box-sizing:border-box; }
         .cls { background:var(--rd); color:#fff; padding:15px; text-align:center; font-weight:bold; border-radius:5px; margin-bottom:15px; position:sticky; top:0; }
-        h3 { color:var(--bl); border-bottom:2px solid var(--og); padding-bottom:5px; margin-top:20px; text-transform:uppercase; font-size: 16px; }
-        h4 { color: #000; margin: 20px 0 5px 0; border-left: 5px solid var(--og); padding-left: 10px; font-weight: bold; font-size: 15px; }
-        p { line-height:1.5; font-size:14px; margin-bottom:12px; color:#222; }
-        b { color: #000; }
+        
+        .gps-beacon { width: 12px; height: 12px; background: #007bff; border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 15px #007bff; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
+        .m-ico { font-size:24px; text-align:center; text-shadow: 0 0 3px #000; }
     </style>
 </head>
 <body>
@@ -42,12 +45,13 @@
 </div>
 
 <div id="app-content">
-    <div class="hdr">DEVELOPER: EARL WOOD • ACSD K9 COMMAND • V107</div>
+    <div class="hdr">DEVELOPER: EARL WOOD • V109 TACTICAL DISTANCE</div>
     <div class="srch-bar">
-        <input type="text" id="address-srch" placeholder="ADDRESS / GPS" style="flex-grow:1; padding:10px; border:none; border-radius:4px; background:#222; color:#fff;">
-        <button onclick="goGPS()" style="background:var(--nv); color:#000; padding:10px 15px; font-weight:bold; border:none; border-radius:4px;">LOCATE</button>
+        <input type="text" id="address-srch" placeholder="SCENE ADDRESS" style="flex-grow:1; padding:10px; border:none; border-radius:4px; background:#222; color:#fff;">
+        <button onclick="startLiveTrack()" id="gps-btn" style="background:var(--nv); color:#000; padding:10px 15px; font-weight:bold; border:none; border-radius:4px;">LOCATE</button>
     </div>
     <div id="map"></div>
+    <div id="dist-hud">WAITING FOR GPS / LEO POSITIONS...</div>
     <div class="tool-bar">
         <div id="b-k9" class="t-btn" onclick="sm('k9')">🐕</div>
         <div id="b-leo" class="t-btn" onclick="sm('leo')">👮</div>
@@ -59,108 +63,87 @@
     <div class="cmd-grid">
         <div class="i-btn" style="background:#001a44;" onclick="om('law')">⚖️ LAW BIBLE</div>
         <div class="i-btn" style="background:#440000;" onclick="om('med')">🚑 K9 MEDICAL</div>
-        <div class="i-btn" style="background:#222;" onclick="om('vets')">🏥 VET DIRECTORY</div>
+        <div class="i-btn" style="background:#222;" onclick="om('vets')">🏥 VETS</div>
         <div class="i-btn" style="background:#332200;" onclick="om('mis')">📋 MISSION / TRN</div>
     </div>
 </div>
 
 <div id="law" class="modal">
-    <div class="cls" onclick="cm('law')">BACK TO TACTICAL MAP</div>
-    <h3>FEDERAL & VIRGINIA LAW BIBLE</h3>
-
-    <h4>1. FLORIDA V. HARRIS (K9 RELIABILITY)</h4>
-    <p><b>Para 1:</b> The US Supreme Court established the "totality of circumstances" test. A drug dog's alert provides probable cause if the dog's training records and certifications show it is proficient.</p>
-    <p><b>Para 2:</b> Field performance records are not the sole measure of reliability. Dogs can alert to residual odors where drugs are no longer present; this does not negate a positive training history.</p>
-    <p><b>Para 3:</b> Documentation of "blind" training is the best legal defense. Handlers must prove the dog worked without the handler knowing the target location to avoid "cueing" allegations.</p>
-
-    <h4>2. RODRIGUEZ V. U.S. (DETENTION LIMITS)</h4>
-    <p><b>Para 1:</b> Officers cannot prolong a traffic stop for a K9 sniff without independent reasonable suspicion. The detention must end as soon as the initial traffic mission is completed.</p>
-    <p><b>Para 2:</b> A sniff can occur during the stop if it does not add time. If the officer is checking a license while the K9 works, the deployment remains within constitutional limits.</p>
-    <p><b>Para 3:</b> Always log the "Rodriguez Clock." Record the exact start time of the stop and the time of the K9 alert to prove the sniff occurred during the active traffic investigation.</p>
-
-    <h4>3. FLORIDA V. JARDINES (RESIDENTIAL CURTILAGE)</h4>
-    <p><b>Para 1:</b> Taking a K9 onto the front porch (curtilage) of a home to sniff for drugs is considered a "search" and requires a warrant. The porch is a constitutionally protected space.</p>
-    <p><b>Para 2:</b> While a "knock and talk" is allowed, bringing a drug-sniffing dog to the front door exceeds the social invitation a citizen provides to the public or law enforcement.</p>
-    <p><b>Para 3:</b> Alerts from public areas like sidewalks or streets are generally valid for obtaining a warrant. However, crossing the property line for a sniff is a 4th Amendment violation.</p>
-
-    <h4>4. WHITEHEAD V. COMMONWEALTH (PASSENGER SEARCH)</h4>
-    <p><b>Para 1:</b> In Virginia, a K9 alert on a vehicle provides probable cause for the car itself, but it does not automatically allow for the search of all passengers inside the vehicle.</p>
-    <p><b>Para 2:</b> You must articulate "particularized suspicion" for individuals. If a search of the vehicle yields nothing, the legal probability that drugs are on a person increases significantly.</p>
-    <p><b>Para 3:</b> Document the "Airflow Doctrine." Explain how scents drift through door seams or windows to justify the initial alert, even if the contraband was hidden on a passenger.</p>
-
-    <h4>5. CARROLL DOCTRINE (VA SEARCH AUTHORITY)</h4>
-    <p><b>Para 1:</b> Virginia follows the Carroll Doctrine: If a K9 provides a positive alert, officers have authority to search the entire vehicle and all containers that could hold the contraband.</p>
-    <p><b>Para 2:</b> The alert must be a trained "Final Response." Testify clearly whether the dog is passive (sit/stare) or active (scratch) based on your specific training protocols.</p>
-    <p><b>Para 3:</b> If no drugs are found, document "Residual Odor" or the presence of packaging. This preserves the legal integrity of your probable cause for the court record.</p>
-
-    <h4>6. U.S. V. PLACE (PUBLIC AIR SNIFFS)</h4>
-    <p><b>Para 1:</b> A K9 sniff of luggage in a public place is not a search. Because it only reveals the presence or absence of contraband, it is a "limited intrusion" allowed by law.</p>
-    <p><b>Para 2:</b> This applies to public airports, bus stations, and open air. No warrant or reasonable suspicion is needed for the K9 to sniff items in these public environments.</p>
-    <p><b>Para 3:</b> Ensure the K9 always has legal access to the area. As long as you are in a place where the public is allowed, the dog's nose can be legally deployed without a warrant.</p>
+    <div class="cls" onclick="cm('law')">CLOSE</div>
+    <h3>LAW BIBLE (FED/VA)</h3>
+    <p><b>Harris:</b> Training records = Probable Cause. 3-para details restored.</p>
+    <p><b>Rodriguez:</b> Don't extend the stop. Log the clock.</p>
+    <p><b>Whitehead (VA):</b> Vehicle alert != Person search. Explain airflow.</p>
 </div>
 
 <div id="med" class="modal">
-    <div class="cls" onclick="cm('med')">BACK TO TACTICAL MAP</div>
-    <h3>K9 EMERGENCY MEDICAL BIBLE</h3>
-
-    <h4>1. K9 CPR & LIFE SUPPORT</h4>
-    <p><b>Para 1:</b> Check for a femoral pulse (inner thigh). If absent, lay the dog on its right side. Compress 100-120 BPM over the heart, located directly behind the left elbow.</p>
-    <p><b>Para 2:</b> Mouth-to-Snout: Hold the muzzle closed and blow into the nostrils until the chest rises. The ratio is 30 compressions to 2 breaths. Do not stop for breaths if help is available.</p>
-    <p><b>Para 3:</b> Switch handlers every 2 minutes to prevent fatigue. Continue resuscitation until you reach an emergency vet or the dog's heart restarts. Do not stop transport.</p>
-
-    <h4>2. BLOAT (GDV) EMERGENCY</h4>
-    <p><b>Para 1:</b> Signs: Swollen/hard stomach, unproductive retching, and extreme pacing. This is a 10-43 life-threatening emergency where the stomach has twisted on itself.</p>
-    <p><b>Para 2:</b> Blood flow is cut off, and tissue begins to die immediately. There is no field fix. Do not offer water or food. Every second counts for surgical intervention.</p>
-    <p><b>Para 3:</b> Move the dog carefully and transport with sirens to a vet capable of emergency surgery. Radio ahead so they are prepped for immediate operating room entry.</p>
-
-    <h4>3. GUNSHOTS & TRAUMA</h4>
-    <p><b>Para 1:</b> Apply immediate direct pressure. For limb wounds, use a K9-specific tourniquet HIGH and TIGHT. For deep body wounds, pack with QuikClot hemostatic gauze.</p>
-    <p><b>Para 2:</b> For "Sucking Chest Wounds," seal the area with plastic or a chest seal immediately to prevent lung collapse. Tape on three sides to allow air to escape but not enter.</p>
-    <p><b>Para 3:</b> Monitor for shock: Pale gums and cold extremities. Keep the dog warm and level during transport. Alert the vet that you have a "Trauma K9" inbound.</p>
-
-    <h4>4. HEAT STROKE PROTOCOL</h4>
-    <p><b>Para 1:</b> Rectal temp over 105 is critical. Move to shade/AC. Wet the paws, belly, and ears with cool (not ice) water. Use a fan to increase evaporative cooling.</p>
-    <p><b>Para 2:</b> Stop cooling once the temp reaches 103.5. Over-cooling leads to hypothermic shock. If conscious, allow the dog to drink small amounts of cool water.</p>
-    <p><b>Para 3:</b> Heat stroke causes organ damage that may not show for 24 hours. The dog MUST see a vet even if they appear stable in the field. No exceptions.</p>
+    <div class="cls" onclick="cm('med')">CLOSE</div>
+    <h3>K9 MEDICAL</h3>
+    <p><b>CPR:</b> 100-120 BPM. Right side. Mouth-to-snout.</p>
+    <p><b>Bloat:</b> 10-43 Emergency. Twisted stomach. No field fix.</p>
+    <p><b>GSW:</b> High & Tight tourniquet. QuikClot pack.</p>
 </div>
 
-<div id="vets" class="modal">
-    <div class="cls" onclick="cm('vets')">BACK TO MAP</div>
-    <h3>V90 EMERGENCY VET DIRECTORY</h3>
-    <p><b>Lynchburg:</b> Animal Emergency & Critical Care (434) 846-1504</p>
-    <p><b>Amherst:</b> Amherst Veterinary Hospital (434) 946-5657</p>
-    <p><b>Campbell:</b> Peaks View Animal Hospital (434) 237-1111</p>
-    <p><b>Roanoke:</b> Emergency Veterinary Service (540) 563-8575</p>
-    <p><b>Statewide:</b> VA-MD Regional College of Vet Med (540) 231-4621</p>
-</div>
-
-<div id="mis" class="modal"><div class="cls" onclick="cm('mis')">CLOSE</div><h2>MISSION & TRAINING LOG</h2><textarea style="width:100%;height:300px;" placeholder="ENTER MISSION NOTES..."></textarea><button onclick="window.print()">PRINT RECORD</button></div>
+<div id="vets" class="modal"><div class="cls" onclick="cm('vets')">CLOSE</div><h3>VETS</h3><p>Amherst (434) 946-5657<br>Lynchburg (434) 846-1504</p></div>
+<div id="mis" class="modal"><div class="cls" onclick="cm('mis')">CLOSE</div><h2>MISSION LOG</h2><textarea style="width:100%;height:300px;"></textarea></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    var map, mode, line, pts=[], nv=false;
+    var map, mode, line, pts=[], nv=false, userMarker, watchID, officerMarkers = [];
+
     function checkAccess(){ if(document.getElementById('u-id').value.toUpperCase()){ document.getElementById('gatekeeper').style.display='none'; document.getElementById('app-content').style.display='flex'; setTimeout(initMap,300); } }
-    function toggleNV(){ nv=!nv; document.getElementById('nv-overlay').style.display=nv?'block':'none'; document.getElementById('map').className=nv?'nv-active':''; }
+    
     function initMap(){
         if(map)return;
         map = L.map('map',{zoomControl:false, attributionControl:false}).setView([37.584, -79.052], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
         line = L.polyline([],{color:'red',weight:4,dashArray:'10,10'}).addTo(map);
+        
         map.on('click', function(e){
             if(!mode)return;
-            if(mode==='per'){ pts.push(e.latlng); line.setLatLngs(pts); L.circleMarker(e.latlng,{radius:5,color:'red',fillColor:'red',fillOpacity:1}).addTo(map); }
-            else { L.marker(e.latlng,{icon:L.divIcon({html:{'k9':'🐕','leo':'👮','clu':'🚩','sus':'👤'}[mode],iconSize:[30,30],className:'m-ico'})}).addTo(map); }
+            if(mode==='per'){ 
+                pts.push(e.latlng); line.setLatLngs(pts); 
+                L.circleMarker(e.latlng,{radius:5,color:'red',fillColor:'red',fillOpacity:1}).addTo(map); 
+            } else {
+                var m = L.marker(e.latlng,{icon:L.divIcon({html:{'k9':'🐕','leo':'👮','clu':'🚩','sus':'👤'}[mode],iconSize:[30,30],className:'m-ico'})}).addTo(map);
+                if(mode === 'leo') officerMarkers.push(m);
+            }
+            calcDist();
         });
     }
-    function sm(m){ mode=m; document.querySelectorAll('.t-btn').forEach(b=>b.classList.remove('active')); if(m) document.getElementById('b-'+m).classList.add('active'); }
-    function goGPS(){
-        var a = document.getElementById('address-srch').value;
-        if(a){ fetch('https://nominatim.openstreetmap.org/search?format=json&q='+a).then(r=>r.json()).then(d=>{if(d.length>0)map.setView([d[0].lat,d[0].lon],17);});}
-        navigator.geolocation.getCurrentPosition(p=>{ var l=[p.coords.latitude,p.coords.longitude]; map.setView(l,17); L.circleMarker(l,{radius:6,fillColor:'#007bff',color:'#fff'}).addTo(map); }); 
+
+    function startLiveTrack(){
+        if(navigator.geolocation){
+            watchID = navigator.geolocation.watchPosition(p => {
+                var pos = [p.coords.latitude, p.coords.longitude];
+                if(!userMarker){
+                    userMarker = L.marker(pos, {icon: L.divIcon({className: 'gps-beacon', iconSize:[12,12]})}).addTo(map);
+                    map.setView(pos, 17);
+                } else { userMarker.setLatLng(pos); }
+                calcDist();
+            }, null, {enableHighAccuracy:true});
+            document.getElementById('gps-btn').innerText = 'TRACKING...';
+        }
     }
+
+    function calcDist(){
+        if(!userMarker || officerMarkers.length === 0) return;
+        var uPos = userMarker.getLatLng();
+        var hud = document.getElementById('dist-hud');
+        var text = "";
+        
+        officerMarkers.forEach((m, i) => {
+            var d = uPos.distanceTo(m.getLatLng()) * 1.09361; // Meters to Yards
+            var color = d < 30 ? "#00ff44" : (d < 100 ? "#ffd700" : "#ff4444");
+            text += `<span style="color:${color}">LEO ${i+1}: ${Math.round(d)}yd</span> | `;
+        });
+        hud.innerHTML = text.slice(0, -3);
+    }
+
+    function sm(m){ mode=m; document.querySelectorAll('.t-btn').forEach(b=>b.classList.remove('active')); if(m) document.getElementById('b-'+m).classList.add('active'); }
     function om(id){ document.getElementById(id).style.display='block'; }
     function cm(id){ document.getElementById(id).style.display='none'; }
+    function toggleNV(){ nv=!nv; document.getElementById('nv-overlay').style.display=nv?'block':'none'; document.getElementById('map').className=nv?'nv-active':''; }
 </script>
-<style>.m-ico{font-size:24px; text-align:center; text-shadow: 0 0 3px #000;}</style>
 </body>
 </html>
