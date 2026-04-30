@@ -3,51 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD K9 COMMAND V115</title>
+    <title>ACSD K9 COMMAND V116</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --og: #ff6600; --gd: #ffd700; --nv: #00ff44; --bl: #007bff; --rd: #ff4444; }
         body, html { margin:0; padding:0; background:#000; color:#fff; font-family:sans-serif; height:100%; overflow:hidden; }
         #app-container { display: flex; flex-direction: column; height: 100vh; }
         .hdr { background:#001a00; border-bottom:2px solid var(--og); padding:8px; text-align:center; color:var(--gd); font-weight:bold; font-size:12px; }
-        
         .search-area { display: flex; padding: 5px; background: #111; gap: 5px; }
         #addr-input { flex-grow: 1; padding: 12px; border-radius: 4px; border: none; background: #222; color: #fff; font-size: 14px; }
         .go-btn { background: var(--nv); color: #000; padding: 10px 15px; font-weight: bold; border: none; border-radius: 4px; }
-
         #map { flex-grow: 1; width: 100%; background: #222; }
-        
-        #dist-hud { background: #000; color: var(--nv); padding: 10px; font-size: 13px; text-align: center; border-top: 2px solid var(--og); font-family: monospace; font-weight: bold; min-height: 20px; }
-        
+        #dist-hud { background: #000; color: var(--nv); padding: 10px; font-size: 13px; text-align: center; border-top: 2px solid var(--og); font-family: monospace; font-weight: bold; }
         .tool-bar { background:#1a1a1a; display:grid; grid-template-columns:repeat(5,1fr); padding:8px; gap:5px; }
-        .t-btn { background:#333; padding:15px 0; text-align:center; border-radius:6px; font-size:24px; border:1px solid #555; cursor: pointer; }
+        .t-btn { background:#333; padding:15px 0; text-align:center; border-radius:6px; font-size:24px; border:1px solid #555; }
         .t-btn.active { background: #002200; border-color: var(--nv); box-shadow: 0 0 10px var(--nv); }
-        
-        .vault-trigger { background: var(--og); color: #fff; padding: 15px; text-align: center; font-weight: bold; cursor: pointer; }
-
+        .vault-trigger { background: var(--og); color: #fff; padding: 15px; text-align: center; font-weight: bold; }
         #vault-panel { display:none; position:fixed; top:10%; left:0; width:100%; height:90%; background:#fff; color:#000; z-index:10000; padding:20px; overflow-y:auto; box-sizing:border-box; }
         .close-vault { background:var(--rd); color:#fff; padding:15px; text-align:center; font-weight:bold; border-radius:5px; margin-bottom:20px; }
-
         .gps-beacon { width: 20px; height: 20px; background: var(--bl); border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 25px var(--bl); animation: pulse 1s infinite; z-index: 9999 !important; }
         @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
-        .m-ico { font-size: 30px; text-shadow: 0 0 5px #000; }
-        h3 { border-bottom: 2px solid var(--og); color: #0044ff; margin-top: 20px; }
+        .m-ico { font-size: 30px; text-shadow: 0 0 5px #000; text-align: center; }
     </style>
 </head>
 <body>
 
 <div id="app-container">
-    <div class="hdr">ACSD K9 COMMAND • V115 SUPERVISOR BUILD</div>
-    
+    <div class="hdr">ACSD K9 COMMAND • V116</div>
     <div class="search-area">
-        <input type="text" id="addr-input" placeholder="ENTER SEARCH ADDRESS">
+        <input type="text" id="addr-input" placeholder="SEARCH ADDRESS">
         <button class="go-btn" onclick="searchAddr()">GO</button>
     </div>
-
     <div id="map"></div>
-    
     <div id="dist-hud">GAP LOG: PLACE 2+ OFFICERS</div>
-
     <div class="tool-bar">
         <div id="b-k9" class="t-btn" onclick="sm('k9')">🐕</div>
         <div id="b-leo" class="t-btn" onclick="sm('leo')">👮</div>
@@ -55,27 +43,22 @@
         <div id="b-sus" class="t-btn" onclick="sm('sus')">👤</div>
         <div class="t-btn" onclick="forceGPS()" style="background:#003366; color:white;">🛰️</div>
     </div>
-
     <div class="vault-trigger" onclick="toggleVault(true)">OPEN LAWS & MEDICAL</div>
 </div>
 
 <div id="vault-panel">
     <div class="close-vault" onclick="toggleVault(false)">BACK TO MAP</div>
     <h3>FEDERAL & VIRGINIA LAW</h3>
-    <p><b>Florida v. Harris:</b> Training records = Reliability. Field misses aren't fatal if training is solid.</p>
-    <p><b>Rodriguez v. U.S.:</b> Stop cannot be extended for a sniff without separate suspicion.</p>
-    <p><b>Virginia (Whitehead):</b> Alert on car does not automatically permit search of passengers. Airflow matters.</p>
-    
+    <p><b>Florida v. Harris:</b> Training records = Reliability.</p>
+    <p><b>Rodriguez v. U.S.:</b> Stop cannot be extended for a sniff without suspicion.</p>
     <h3>K9 EMERGENCY MEDICAL</h3>
-    <p><b>Bloat (GDV):</b> 10-43 Emergency. Swollen stomach/retching. Drive with sirens to surgery.</p>
-    <p><b>GSW/Trauma:</b> Tourniquet HIGH and TIGHT on legs. Pack body wounds with gauze.</p>
-    <p><b>Heat Stroke:</b> Cool paws and ears. Stop at 103.5. Do not ice the whole dog.</p>
+    <p><b>Bloat:</b> 10-43 Emergency. Surgery required.</p>
+    <p><b>GSW:</b> Tourniquet HIGH and TIGHT.</p>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     var map, mode, line, pts=[], userMarker, watchID, officerMarkers = [];
-    
     map = L.map('map',{zoomControl:false}).setView([37.584, -79.052], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     line = L.polyline([],{color:'red',weight:4,dashArray:'10,10'}).addTo(map);
@@ -84,11 +67,10 @@
         var val = document.getElementById('addr-input').value;
         if(!val) return;
         fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(val))
-            .then(r => r.json())
-            .then(d => {
+            .then(r => r.json()).then(d => {
                 if(d.length > 0) {
                     map.setView([d[0].lat, d[0].lon], 18);
-                    L.marker([d[0].lat, d[0].lon]).addTo(map).bindPopup("<b>SEARCH START</b>").openPopup();
+                    L.marker([d[0].lat, d[0].lon]).addTo(map).bindPopup("START").openPopup();
                 }
             });
     }
@@ -101,7 +83,7 @@
                     userMarker = L.marker(pos, {icon: L.divIcon({className: 'gps-beacon', iconSize:[20,20]}), zIndexOffset: 1000}).addTo(map);
                     map.setView(pos, 19);
                 } else { userMarker.setLatLng(pos); }
-            }, null, {enableHighAccuracy: true, maximumAge: 0});
+            }, null, {enableHighAccuracy: true});
         }
     }
 
