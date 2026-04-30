@@ -1,31 +1,31 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND - PIECE 1 (BASE)</title>
+    <title>ACSD COMMAND - V129 NIGHT STALKER</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --orange: #ff6600; --gold: #ffd700; --blue: #007bff; --live: #00ff00; }
-        body, html { margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; height: 100vh; overflow: hidden; }
-        #app-container { display: flex; flex-direction: column; height: 100vh; }
+        :root { --orange: #ff6600; --gold: #ffd700; --live: #00ff00; --blue: #007bff; --red: #ff0000; --bg: #000; --txt: #fff; }
+        body.night-mode { --orange: #440000; --gold: #660000; --live: #aa0000; --blue: #550000; --bg: #050000; --txt: #ff0000; }
         
-        /* SEARCH BAR SECTION */
-        .dash { background: #111; padding: 12px; display: flex; gap: 8px; border-bottom: 3px solid var(--orange); }
-        #addr-in { flex-grow: 1; padding: 14px; border-radius: 5px; border: none; background: #222; color: #fff; font-size: 16px; font-weight: bold; }
-        .go-btn { background: var(--live); color: #000; padding: 10px 20px; font-weight: bold; border: none; border-radius: 4px; font-size: 14px; }
-
-        /* MAP SECTION */
+        body, html { margin: 0; padding: 0; background: var(--bg); color: var(--txt); font-family: sans-serif; height: 100vh; overflow: hidden; }
+        #app-container { display: flex; flex-direction: column; height: 100vh; transition: background 0.5s; }
+        
+        .dash { background: #111; padding: 10px; display: flex; gap: 8px; border-bottom: 3px solid var(--orange); }
+        #addr-in { flex-grow: 1; padding: 14px; border-radius: 5px; border: none; background: #222; color: #fff; font-size: 16px; }
+        
+        /* HUD ELEMENTS */
         #map { flex-grow: 1; width: 100%; background: #222; }
-        #dist-hud { background: #000; color: var(--live); padding: 10px; text-align: center; font-family: monospace; border-top: 2px solid var(--orange); font-weight: bold; font-size: 14px; }
+        #tactical-hud { position: absolute; top: 80px; right: 10px; z-index: 1000; background: rgba(0,0,0,0.8); border: 2px solid var(--gold); padding: 10px; border-radius: 50%; width: 60px; height: 60px; text-align: center; }
+        #compass-arrow { font-size: 40px; transition: transform 0.1s; }
+        #wind-arrow { position: absolute; top: -5px; color: var(--live); font-size: 20px; }
 
-        /* TACTICAL TOOLS */
-        .tool-bar { background: #1a1a1a; display: grid; grid-template-columns: repeat(5, 1fr); padding: 10px; gap: 10px; }
-        .tool { text-align: center; padding: 15px 0; border: 1px solid #555; border-radius: 8px; background: #333; cursor: pointer; }
+        .tool-bar { background: #1a1a1a; display: grid; grid-template-columns: repeat(6, 1fr); padding: 8px; gap: 5px; }
+        .tool { text-align: center; padding: 12px 0; border: 1px solid #555; border-radius: 8px; background: #333; cursor: pointer; color: #fff; }
         .tool.active { border-color: var(--live); background: #002200; box-shadow: 0 0 10px var(--live); }
-        .tool span { font-size: 26px; display: block; }
-        .gps-btn { background: #003366; border-color: var(--blue); }
+        .tool span { font-size: 20px; display: block; }
+        .night-btn { background: var(--red); color: #fff; }
 
         .beacon { width: 22px; height: 22px; background: var(--blue); border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 20px var(--blue); }
     </style>
@@ -34,83 +34,76 @@
 
 <div id="app-container">
     <div class="dash">
-        <input type="text" id="addr-in" placeholder="ENTER SEARCH ADDRESS">
-        <button class="go-btn" onclick="searchAddr()">GO</button>
+        <input type="text" id="addr-in" placeholder="SEARCH ADDRESS">
+        <button onclick="searchAddr()" style="padding:10px; background:var(--live); border:none; font-weight:bold;">GO</button>
+    </div>
+
+    <div id="tactical-hud">
+        <div id="wind-arrow">↑</div>
+        <div id="compass-arrow">▲</div>
     </div>
 
     <div id="map"></div>
-    <div id="dist-hud">GPS: STANDBY (HIT 🛰️ TO LOCK SATELLITE)</div>
+    <div id="dist-hud" style="background:#000; color:var(--live); text-align:center; padding:5px; font-weight:bold; border-top:2px solid var(--orange);">GPS LOCK: STANDBY</div>
 
     <div class="tool-bar">
         <div id="b-k9" class="tool" onclick="sm('k9')"><span>🐕</span></div>
         <div id="b-leo" class="tool" onclick="sm('leo')"><span>👮</span></div>
         <div id="b-per" class="tool" onclick="sm('per')"><span>🔴</span></div>
         <div id="b-sus" class="tool" onclick="sm('sus')"><span>👤</span></div>
-        <div class="tool gps-btn" onclick="forceGPS()"><span>🛰️</span></div>
+        <div class="tool" onclick="forceGPS()" style="background:#003366;"><span>🛰️</span></div>
+        <div class="tool night-btn" onclick="toggleNight()"><span>🕶️</span></div>
     </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    var map, mode, userMarker, watchID;
-    
-    // START AT AMHERST COUNTY SHERIFF'S DEPT
+    var map, mode, userMarker, watchID, perimDots = [], perimLine;
     map = L.map('map',{zoomControl:false}).setView([37.584, -79.052], 14);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    function searchAddr() {
-        var val = document.getElementById('addr-in').value;
-        if(!val) return;
-        fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(val))
-            .then(r => r.json()).then(d => {
-                if(d.length > 0) {
-                    var loc = [d[0].lat, d[0].lon];
-                    map.setView(loc, 18);
-                    L.marker(loc).addTo(map).bindPopup("<b>SCENE START</b>").openPopup();
-                }
-            });
-    }
+    function toggleNight() { document.body.classList.toggle('night-mode'); }
+
+    window.addEventListener('deviceorientation', function(e) {
+        if(e.webkitCompassHeading) {
+            document.getElementById('compass-arrow').style.transform = `rotate(${e.webkitCompassHeading}deg)`;
+        }
+    });
 
     function forceGPS() {
         if (navigator.geolocation) {
-            document.getElementById('dist-hud').innerText = "FILTERING CELL TOWERS... SEEKING SKY";
-            if(watchID) navigator.geolocation.clearWatch(watchID);
-            
             watchID = navigator.geolocation.watchPosition(p => {
                 var acc = p.coords.accuracy;
-                // REJECT SIGNALS OVER 10 METERS (This stops the road-snapping)
-                if (acc > 10) {
-                    document.getElementById('dist-hud').innerText = "SIGNAL WEAK ("+Math.round(acc*3.28)+"ft) - KEEP SEARCHING";
-                    return;
-                }
+                if (acc > 10) return; // Ignore bad signals
                 var pos = [p.coords.latitude, p.coords.longitude];
                 if (!userMarker) {
                     userMarker = L.marker(pos, {icon: L.divIcon({className: 'beacon', iconSize:[22,22]})}).addTo(map);
                     map.setView(pos, 19);
                 } else { userMarker.setLatLng(pos); }
-                document.getElementById('dist-hud').innerText = "SATELLITE LOCK: ACTIVE ("+Math.round(acc*3.28)+"ft Accuracy)";
-            }, (err) => {
-                document.getElementById('dist-hud').innerText = "GPS ERROR: SEEK CLEAR SKY";
-            }, {enableHighAccuracy: true, maximumAge: 0, timeout: 10000});
+                document.getElementById('dist-hud').innerText = "SATELLITE LOCK: ACTIVE ("+Math.round(acc*3.28)+"ft)";
+            }, null, {enableHighAccuracy: true});
         }
-    }
-
-    function sm(m){ 
-        mode = m; 
-        document.querySelectorAll('.tool').forEach(t => t.classList.remove('active')); 
-        document.getElementById('b-'+m).classList.add('active'); 
     }
 
     map.on('click', function(e){
         if(!mode) return;
         var icons = {'k9':'🐕','leo':'👮','per':'🔴','sus':'👤'};
-        L.marker(e.latlng, {
-            icon: L.divIcon({
-                html: `<div style="font-size:30px;">${icons[mode]}</div>`, 
-                iconSize:[35,35]
-            })
-        }).addTo(map);
+        var m = L.marker(e.latlng, {icon: L.divIcon({html: `<div style="font-size:30px;">${icons[mode]}</div>`, iconSize:[35,35]})}).addTo(map);
+        
+        if(mode === 'per') {
+            perimDots.push(e.latlng);
+            if(perimLine) map.removeLayer(perimLine);
+            perimLine = L.polyline(perimDots, {color: 'red', weight: 4, dashArray: '10, 10'}).addTo(map);
+        }
     });
+
+    function sm(m){ mode = m; document.querySelectorAll('.tool').forEach(t => t.classList.remove('active')); if(document.getElementById('b-'+m)) document.getElementById('b-'+m).classList.add('active'); }
+    
+    function searchAddr() {
+        var val = document.getElementById('addr-in').value;
+        fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(val))
+            .then(r => r.json()).then(d => { if(d.length > 0) map.setView([d[0].lat, d[0].lon], 18); });
+    }
 </script>
 </body>
 </html>
