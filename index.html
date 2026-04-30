@@ -1,149 +1,83 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD K9 COMMAND - V109 DISTANCE</title>
+    <title>ACSD INTERCEPTOR - V110</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --og: #ff6600; --gd: #ffd700; --bl: #0044ff; --rd: #ff0000; --nv: #00ff44; }
+        :root { --og: #ff6600; --gd: #ffd700; --nv: #00ff44; }
         body, html { margin:0; padding:0; background:#000; color:#fff; font-family:sans-serif; height:100%; overflow:hidden; }
-        #nv-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,255,68,0.1); pointer-events:none; z-index:8000; }
-        .nv-active { filter: brightness(1.2) sepia(1) hue-rotate(80deg); }
-        #gatekeeper { position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:10000; display:flex; justify-content:center; align-items:center; }
-        .gate-box { border:2px solid var(--og); padding:30px; border-radius:15px; text-align:center; background:#111; width:85%; }
-        #app-content { display:none; height:100%; flex-direction:column; }
-        .hdr { background:#001a00; border-bottom:2px solid var(--og); padding:8px; text-align:center; color:var(--gd); font-weight:bold; font-size:10px; }
-        #map { flex-grow:1; width:100%; }
-        
-        /* DISTANCE HUD */
-        #dist-hud { background: rgba(0,0,0,0.8); color: var(--nv); padding: 5px; font-size: 11px; text-align: center; border-top: 1px solid var(--og); font-family: monospace; }
-        
-        .srch-bar { display:flex; padding:5px; background:#111; gap:4px; }
-        .tool-bar { background:#1a1a1a; display:grid; grid-template-columns:repeat(6,1fr); padding:5px; gap:2px; border-top:1px solid #444; }
-        .t-btn { background:#333; padding:12px 0; text-align:center; border-radius:4px; font-size:20px; border:1px solid #555; }
+        #map { flex-grow:1; width:100%; height: 80vh; }
+        .hdr { background:#001a00; border-bottom:2px solid var(--og); padding:10px; text-align:center; color:var(--gd); font-weight:bold; font-size:12px; }
+        #dist-hud { background: #111; color: var(--nv); padding: 8px; font-size: 14px; text-align: center; border-top: 1px solid var(--og); font-family: monospace; font-weight:bold; }
+        .tool-bar { background:#1a1a1a; display:grid; grid-template-columns:repeat(5,1fr); padding:10px; gap:5px; }
+        .t-btn { background:#333; padding:15px 0; text-align:center; border-radius:4px; font-size:24px; border:1px solid #555; }
         .t-btn.active { background: #002200; border-color: var(--nv); }
-        .cmd-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:6px; padding:8px; background:#000; }
-        .i-btn { padding:15px 2px; border-radius:6px; text-align:center; font-weight:bold; font-size:10px; border:1px solid #444; color:#fff; text-transform:uppercase; }
-        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#fff; color:#000; z-index:9999; padding:20px; overflow-y:auto; box-sizing:border-box; }
-        .cls { background:var(--rd); color:#fff; padding:15px; text-align:center; font-weight:bold; border-radius:5px; margin-bottom:15px; position:sticky; top:0; }
-        
-        .gps-beacon { width: 12px; height: 12px; background: #007bff; border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 15px #007bff; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
-        .m-ico { font-size:24px; text-align:center; text-shadow: 0 0 3px #000; }
+        .nav-btn { background:var(--og); color:#fff; padding:15px; text-align:center; font-weight:bold; text-decoration:none; display:block; margin:5px; border-radius:5px; }
+        .gps-beacon { width: 14px; height: 14px; background: #007bff; border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 20px #007bff; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.4); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
-<div id="nv-overlay"></div>
-<div id="gatekeeper">
-    <div class="gate-box">
-        <h2 style="color:var(--gd); margin-bottom:5px;">ACSD K9 COMMAND</h2>
-        <p style="color:#aaa; font-size:10px; margin-bottom:20px;">DEVELOPER: EARL WOOD (RET. DEPUTY)</p>
-        <input type="text" id="u-id" style="width:100%; padding:15px; margin-bottom:15px; box-sizing:border-box; text-align:center;" placeholder="UNIT ID">
-        <button onclick="checkAccess()" style="width:100%; padding:15px; background:var(--og); font-weight:bold; border:none; border-radius:5px;">AUTHORIZE</button>
-    </div>
-</div>
-
-<div id="app-content">
-    <div class="hdr">DEVELOPER: EARL WOOD • V109 TACTICAL DISTANCE</div>
-    <div class="srch-bar">
-        <input type="text" id="address-srch" placeholder="SCENE ADDRESS" style="flex-grow:1; padding:10px; border:none; border-radius:4px; background:#222; color:#fff;">
-        <button onclick="startLiveTrack()" id="gps-btn" style="background:var(--nv); color:#000; padding:10px 15px; font-weight:bold; border:none; border-radius:4px;">LOCATE</button>
-    </div>
+    <div class="hdr">ACSD INTERCEPTOR • FIELD GPS MODULE</div>
     <div id="map"></div>
-    <div id="dist-hud">WAITING FOR GPS / LEO POSITIONS...</div>
+    <div id="dist-hud">GPS STATUS: STANDBY</div>
     <div class="tool-bar">
         <div id="b-k9" class="t-btn" onclick="sm('k9')">🐕</div>
         <div id="b-leo" class="t-btn" onclick="sm('leo')">👮</div>
         <div id="b-per" class="t-btn" onclick="sm('per')">🔴</div>
-        <div id="b-clu" class="t-btn" onclick="sm('clu')">🚩</div>
         <div id="b-sus" class="t-btn" onclick="sm('sus')">👤</div>
-        <div class="t-btn" onclick="toggleNV()">👁️</div>
+        <div class="t-btn" onclick="startLiveTrack()">🛰️</div>
     </div>
-    <div class="cmd-grid">
-        <div class="i-btn" style="background:#001a44;" onclick="om('law')">⚖️ LAW BIBLE</div>
-        <div class="i-btn" style="background:#440000;" onclick="om('med')">🚑 K9 MEDICAL</div>
-        <div class="i-btn" style="background:#222;" onclick="om('vets')">🏥 VETS</div>
-        <div class="i-btn" style="background:#332200;" onclick="om('mis')">📋 MISSION / TRN</div>
-    </div>
-</div>
-
-<div id="law" class="modal">
-    <div class="cls" onclick="cm('law')">CLOSE</div>
-    <h3>LAW BIBLE (FED/VA)</h3>
-    <p><b>Harris:</b> Training records = Probable Cause. 3-para details restored.</p>
-    <p><b>Rodriguez:</b> Don't extend the stop. Log the clock.</p>
-    <p><b>Whitehead (VA):</b> Vehicle alert != Person search. Explain airflow.</p>
-</div>
-
-<div id="med" class="modal">
-    <div class="cls" onclick="cm('med')">CLOSE</div>
-    <h3>K9 MEDICAL</h3>
-    <p><b>CPR:</b> 100-120 BPM. Right side. Mouth-to-snout.</p>
-    <p><b>Bloat:</b> 10-43 Emergency. Twisted stomach. No field fix.</p>
-    <p><b>GSW:</b> High & Tight tourniquet. QuikClot pack.</p>
-</div>
-
-<div id="vets" class="modal"><div class="cls" onclick="cm('vets')">CLOSE</div><h3>VETS</h3><p>Amherst (434) 946-5657<br>Lynchburg (434) 846-1504</p></div>
-<div id="mis" class="modal"><div class="cls" onclick="cm('mis')">CLOSE</div><h2>MISSION LOG</h2><textarea style="width:100%;height:300px;"></textarea></div>
+    <a href="vault.html" class="nav-btn">OPEN THE VAULT (LEGAL/MED/REPORTS)</a>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    var map, mode, line, pts=[], nv=false, userMarker, watchID, officerMarkers = [];
-
-    function checkAccess(){ if(document.getElementById('u-id').value.toUpperCase()){ document.getElementById('gatekeeper').style.display='none'; document.getElementById('app-content').style.display='flex'; setTimeout(initMap,300); } }
-    
-    function initMap(){
-        if(map)return;
-        map = L.map('map',{zoomControl:false, attributionControl:false}).setView([37.584, -79.052], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        line = L.polyline([],{color:'red',weight:4,dashArray:'10,10'}).addTo(map);
-        
-        map.on('click', function(e){
-            if(!mode)return;
-            if(mode==='per'){ 
-                pts.push(e.latlng); line.setLatLngs(pts); 
-                L.circleMarker(e.latlng,{radius:5,color:'red',fillColor:'red',fillOpacity:1}).addTo(map); 
-            } else {
-                var m = L.marker(e.latlng,{icon:L.divIcon({html:{'k9':'🐕','leo':'👮','clu':'🚩','sus':'👤'}[mode],iconSize:[30,30],className:'m-ico'})}).addTo(map);
-                if(mode === 'leo') officerMarkers.push(m);
-            }
-            calcDist();
-        });
-    }
+    var map, mode, line, pts=[], userMarker, watchID, officerMarkers = [];
+    map = L.map('map',{zoomControl:false}).setView([37.584, -79.052], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    line = L.polyline([],{color:'red',weight:4,dashArray:'10,10'}).addTo(map);
 
     function startLiveTrack(){
         if(navigator.geolocation){
+            navigator.geolocation.getCurrentPosition(p=>{
+                var pos = [p.coords.latitude, p.coords.longitude];
+                map.setView(pos, 18);
+            });
             watchID = navigator.geolocation.watchPosition(p => {
                 var pos = [p.coords.latitude, p.coords.longitude];
                 if(!userMarker){
-                    userMarker = L.marker(pos, {icon: L.divIcon({className: 'gps-beacon', iconSize:[12,12]})}).addTo(map);
-                    map.setView(pos, 17);
+                    userMarker = L.marker(pos, {icon: L.divIcon({className: 'gps-beacon', iconSize:[14,14]})}).addTo(map);
                 } else { userMarker.setLatLng(pos); }
                 calcDist();
-            }, null, {enableHighAccuracy:true});
-            document.getElementById('gps-btn').innerText = 'TRACKING...';
+            }, null, {enableHighAccuracy:true, maximumAge:0});
+            document.getElementById('dist-hud').innerText = "GPS ACTIVE - TRACKING";
         }
     }
+
+    map.on('click', function(e){
+        if(!mode) return;
+        if(mode==='per'){ pts.push(e.latlng); line.setLatLngs(pts); L.circleMarker(e.latlng,{radius:5,color:'red'}).addTo(map); }
+        else { 
+            var m = L.marker(e.latlng,{icon:L.divIcon({html:{'k9':'🐕','leo':'👮','sus':'👤'}[mode],iconSize:[30,30],className:'m-ico'})}).addTo(map);
+            if(mode === 'leo') officerMarkers.push(m);
+        }
+        calcDist();
+    });
 
     function calcDist(){
         if(!userMarker || officerMarkers.length === 0) return;
         var uPos = userMarker.getLatLng();
-        var hud = document.getElementById('dist-hud');
         var text = "";
-        
         officerMarkers.forEach((m, i) => {
-            var d = uPos.distanceTo(m.getLatLng()) * 1.09361; // Meters to Yards
-            var color = d < 30 ? "#00ff44" : (d < 100 ? "#ffd700" : "#ff4444");
-            text += `<span style="color:${color}">LEO ${i+1}: ${Math.round(d)}yd</span> | `;
+            var d = uPos.distanceTo(m.getLatLng()) * 1.09361;
+            text += `LEO ${i+1}: ${Math.round(d)}yd | `;
         });
-        hud.innerHTML = text.slice(0, -3);
+        document.getElementById('dist-hud').innerHTML = text.slice(0, -3);
     }
-
-    function sm(m){ mode=m; document.querySelectorAll('.t-btn').forEach(b=>b.classList.remove('active')); if(m) document.getElementById('b-'+m).classList.add('active'); }
-    function om(id){ document.getElementById(id).style.display='block'; }
-    function cm(id){ document.getElementById(id).style.display='none'; }
-    function toggleNV(){ nv=!nv; document.getElementById('nv-overlay').style.display=nv?'block':'none'; document.getElementById('map').className=nv?'nv-active':''; }
+    function sm(m){ mode=m; document.querySelectorAll('.t-btn').forEach(b=>b.classList.remove('active')); document.getElementById('b-'+m).classList.add('active'); }
 </script>
 </body>
 </html>
