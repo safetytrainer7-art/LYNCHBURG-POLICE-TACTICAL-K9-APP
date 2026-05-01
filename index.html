@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,111 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>ACSD K9 COMMAND</title>
     <style>
-        :root { 
-            --gold: #d4af37; 
-            --acsd-light-green: #2e5a44; 
-        }
-        
-        body { 
-            margin: 0; 
-            background-color: #1a1a1a;
-            font-family: 'Times New Roman', serif;
+        /* Forces the app to fill the entire iPhone screen */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1a3a2a; /* Matches your background green */
+            overflow: hidden;
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
         }
-        
+
         .app-container {
             width: 100%;
-            max-width: 430px;
-            height: 98vh;
-            border: 4px double var(--gold);
-            border-radius: 15px;
+            height: 100vh;
+            max-width: 430px; /* Optimized for iPhone 15 Pro */
+            background: url('homepage.jpg') no-repeat center top;
+            background-size: cover;
             position: relative;
-            box-sizing: border-box;
-            background-color: var(--acsd-light-green);
-            box-shadow: inset 0 0 60px rgba(0,0,0,0.5);
         }
 
-        .header { text-align: center; padding-top: 20px; }
-        .motto-row { 
-            display: flex; justify-content: center; align-items: center; 
-            gap: 15px; font-weight: bold; color: var(--gold); 
-            text-transform: uppercase; font-size: 13px;
-        }
-        
-        .badge-img { width: 95px; height: auto; }
-        .k9-photo { 
-            width: 190px; 
-            height: 190px; 
-            margin: 10px auto; 
-            display: block; 
-            border-radius: 50%; 
-            border: 2px solid var(--gold);
-            object-fit: cover;
+        /* This area creates the 6 invisible touch zones over your icons */
+        .touch-grid {
+            position: absolute;
+            top: 57%; /* Positions the buttons over your red-boxed area */
+            left: 10%;
+            right: 10%;
+            height: 30%;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 10px;
         }
 
-        .title { color: var(--gold); font-size: 22px; margin: 10px 0; text-shadow: 1px 1px 2px #000; }
-
-        .ui-grid { display: flex; justify-content: space-between; padding: 0 15px; margin-top: 10px; }
-        .ui-column { display: flex; flex-direction: column; gap: 20px; width: 32%; align-items: center; }
-        
-        .icon-circle { 
-            width: 65px; height: 65px; border: 2px solid var(--gold); border-radius: 50%; 
-            background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; 
-            font-size: 28px; margin-bottom: 4px;
-        }
-        .icon-label { font-size: 10px; font-weight: bold; color: #f1e5ac; text-align: center; line-height: 1.2; }
-
-        .footer { 
-            position: absolute; bottom: 15px; width: 100%; text-align: center; 
-            font-size: 11px; color: var(--gold); font-weight: bold;
+        .icon-btn {
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0); /* Invisible */
+            cursor: pointer;
+            -webkit-tap-highlight-color: rgba(212, 175, 55, 0.3); /* Slight gold flash when tapped */
         }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <div class="header">
-        <div class="motto-row">
-            <span>To Protect</span>
-            <!-- PASTE THE BADGE CODE BETWEEN THE QUOTES BELOW -->
-            <img src="PASTE_BADGE_BASE64_HERE" class="badge-img">
-            <span>To Serve</span>
-        </div>
-        <h1 class="title">CANINE SEARCH & RESCUE</h1>
-    </div>
-
-    <!-- PASTE THE DOG PHOTO CODE BETWEEN THE QUOTES BELOW -->
-    <img src="PASTE_K9_PHOTO_BASE64_HERE" class="k9-photo">
-
-    <div class="ui-grid">
-        <div class="ui-column">
-            <div class="icon-circle" style="border-color: #b22222;">🏥</div>
-            <div class="icon-label">Emergency SOS</div>
-            <div class="icon-circle">⚖️</div>
-            <div class="icon-label">Legal Shield</div>
-        </div>
-
-        <div class="ui-column">
-            <div class="icon-circle">🗺️</div>
-            <div class="icon-label">Live GPS Map</div>
-            <div class="icon-circle">📝</div>
-            <div class="icon-label">Training Logs</div>
-        </div>
-
-        <div class="ui-column">
-            <div class="icon-circle">🔍</div>
-            <div class="icon-label">Narcotics Aids</div>
-            <div class="icon-circle">🏛️</div>
-            <div class="icon-label">VA Code</div>
-        </div>
-    </div>
-
-    <div class="footer">
-        RETIRED DEPUTY SHERIFF EARL WOOD
+    <!-- These 6 'icon-btn' divs sit directly over your design's icons -->
+    <div class="touch-grid">
+        <div class="icon-btn" onclick="alert('Opening Emergency SOS...')"></div>
+        <div class="icon-btn" onclick="alert('Opening Live GPS Map...')"></div>
+        <div class="icon-btn" onclick="alert('Opening Narcotics Aids...')"></div>
+        <div class="icon-btn" onclick="alert('Opening Legal Shield...')"></div>
+        <div class="icon-btn" onclick="alert('Opening Training Logs...')"></div>
+        <div class="icon-btn" onclick="alert('Opening VA Code...')"></div>
     </div>
 </div>
 
