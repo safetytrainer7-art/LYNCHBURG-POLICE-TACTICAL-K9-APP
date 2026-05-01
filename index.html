@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,19 +14,19 @@
             background-size: contain;
             position: relative;
         }
-        /* This grid creates larger touch zones that cover BOTH the icon and the text */
+        /* This grid starts higher (top: 5%) to catch those top icons */
         .button-grid {
             position: absolute;
-            top: 15%; /* Moves the grid down to align with your icons */
+            top: 5%; 
             left: 0;
             width: 100%;
-            height: 75%; /* Focuses the buttons on the middle of the screen */
+            height: 85%; 
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            grid-template-rows: 1fr 1fr 1fr;
+            grid-template-rows: repeat(4, 1fr); /* 4 rows gives us more precision */
         }
         .btn {
-            border: 1px solid rgba(255, 255, 255, 0.05); /* Very faint guide */
+            border: 1px solid rgba(255, 255, 255, 0.05);
             cursor: pointer;
         }
     </style>
@@ -34,20 +35,25 @@
 
 <div class="app-screen">
     <div class="button-grid">
-        <!-- TOP ROW -->
+        <!-- TOP ROW: Legal, Narcotics, Training -->
         <div class="btn" onclick="window.location.href='legal.html'"></div>
         <div class="btn" onclick="window.location.href='narcotics.html'"></div>
         <div class="btn" onclick="window.location.href='training.html'"></div>
         
-        <!-- MIDDLE ROW -->
+        <!-- MIDDLE ROW: Emergency, GPS, Tactical -->
         <div class="btn" onclick="window.location.href='emergency.html'"></div>
         <div class="btn" onclick="alert('GPS Tracking: Coming Soon')"></div>
         <div class="btn" onclick="alert('Tactical Tracking: Coming Soon')"></div>
 
-        <!-- BOTTOM ROW (Reserved for additional features) -->
-        <div class="btn" onclick="alert('Feature Coming Soon')"></div>
-        <div class="btn" onclick="alert('Feature Coming Soon')"></div>
-        <div class="btn" onclick="alert('Feature Coming Soon')"></div>
+        <!-- LOWER MIDDLE: Catching any stray text clicks -->
+        <div class="btn" onclick="window.location.href='emergency.html'"></div>
+        <div class="btn" onclick="alert('GPS Tracking: Coming Soon')"></div>
+        <div class="btn" onclick="alert('Tactical Tracking: Coming Soon')"></div>
+
+        <!-- BOTTOM ROW -->
+        <div class="btn" onclick="alert('Additional Tools Coming')"></div>
+        <div class="btn" onclick="alert('Additional Tools Coming')"></div>
+        <div class="btn" onclick="alert('Additional Tools Coming')"></div>
     </div>
 </div>
 
