@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,19 +13,18 @@
             background-size: contain;
             position: relative;
         }
-        /* This grid starts higher (top: 5%) to catch those top icons */
         .button-grid {
             position: absolute;
-            top: 5%; 
+            top: 0;
             left: 0;
             width: 100%;
-            height: 85%; 
+            height: 100%;
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            grid-template-rows: repeat(4, 1fr); /* 4 rows gives us more precision */
+            grid-template-rows: 1fr 1fr 1fr;
         }
         .btn {
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2); /* You will see these boxes clearly now */
             cursor: pointer;
         }
     </style>
@@ -35,25 +33,18 @@
 
 <div class="app-screen">
     <div class="button-grid">
-        <!-- TOP ROW: Legal, Narcotics, Training -->
+        <!-- If you click these, they MUST open the files -->
         <div class="btn" onclick="window.location.href='legal.html'"></div>
         <div class="btn" onclick="window.location.href='narcotics.html'"></div>
         <div class="btn" onclick="window.location.href='training.html'"></div>
         
-        <!-- MIDDLE ROW: Emergency, GPS, Tactical -->
         <div class="btn" onclick="window.location.href='emergency.html'"></div>
-        <div class="btn" onclick="alert('GPS Tracking: Coming Soon')"></div>
-        <div class="btn" onclick="alert('Tactical Tracking: Coming Soon')"></div>
+        <div class="btn" onclick="alert('GPS')"></div>
+        <div class="btn" onclick="alert('Tactical')"></div>
 
-        <!-- LOWER MIDDLE: Catching any stray text clicks -->
-        <div class="btn" onclick="window.location.href='emergency.html'"></div>
-        <div class="btn" onclick="alert('GPS Tracking: Coming Soon')"></div>
-        <div class="btn" onclick="alert('Tactical Tracking: Coming Soon')"></div>
-
-        <!-- BOTTOM ROW -->
-        <div class="btn" onclick="alert('Additional Tools Coming')"></div>
-        <div class="btn" onclick="alert('Additional Tools Coming')"></div>
-        <div class="btn" onclick="alert('Additional Tools Coming')"></div>
+        <div class="btn" onclick="alert('Row 3 Left')"></div>
+        <div class="btn" onclick="alert('Row 3 Center')"></div>
+        <div class="btn" onclick="alert('Row 3 Right')"></div>
     </div>
 </div>
 
