@@ -1,12 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>ACSD K9 COMMAND</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         :root { 
             --gold: #d4af37; 
@@ -17,11 +14,11 @@
             margin: 0; 
             background-color: #000;
             font-family: 'Times New Roman', serif;
-            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            overflow: hidden;
         }
         
         .app-container {
@@ -33,10 +30,11 @@
             position: relative;
             box-sizing: border-box;
             
-            /* HIGH-VISIBILITY PARCHMENT TEXTURE */
+            /* BUILT-IN PARCHMENT (No external link needed) */
             background-color: var(--acsd-green);
-            background-image: url("https://www.transparenttextures.com/patterns/p6-for-air.png");
-            background-blend-mode: overlay;
+            background-image: 
+                radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0);
+            background-size: 4px 4px;
             box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
         }
 
@@ -45,22 +43,23 @@
             display: flex; justify-content: center; align-items: center; 
             gap: 12px; font-weight: bold; color: var(--gold); 
             text-transform: uppercase; font-size: 13px;
-            text-shadow: 1px 1px 3px #000;
         }
         
-        /* Fixed Badge Size */
-        .badge-img { width: 90px; height: 90px; object-fit: contain; filter: drop-shadow(0 4px 10px #000); }
+        /* Forces the image to show a border if it fails to load so we can troubleshoot */
+        .badge-img { 
+            width: 90px; height: 90px; 
+            object-fit: contain; 
+            border: 1px solid rgba(212, 175, 55, 0.3); 
+        }
         
-        .title { color: var(--gold); font-size: 22px; margin: 10px 0; text-shadow: 2px 2px 4px #000; letter-spacing: 1px; }
+        .title { color: var(--gold); font-size: 22px; margin: 10px 0; text-shadow: 2px 2px 4px #000; }
 
-        /* K9 PHOTO FIX */
         .k9-photo { 
-            width: 200px; 
-            height: 200px; 
+            width: 200px; height: 200px; 
             margin: 5px auto 15px auto; 
             display: block; 
-            filter: drop-shadow(0 8px 15px #000);
             object-fit: contain;
+            border: 1px solid rgba(212, 175, 55, 0.3);
         }
 
         .ui-grid { display: flex; justify-content: space-between; padding: 0 15px; }
@@ -68,12 +67,10 @@
         
         .icon-circle { 
             width: 65px; height: 65px; border: 2px solid var(--gold); border-radius: 50%; 
-            background: radial-gradient(circle, rgba(0,0,0,0.7) 0%, rgba(0,0,0,1) 100%);
-            display: flex; align-items: center; justify-content: center; 
-            font-size: 28px; margin-bottom: 4px; box-shadow: 0 5px 10px #000;
+            background: #000; display: flex; align-items: center; justify-content: center; 
+            font-size: 28px; margin-bottom: 4px;
         }
-        .sos-alert { border: 3px solid #b22222 !important; }
-        .icon-label { font-size: 10px; font-weight: bold; color: #f1e5ac; text-shadow: 1px 1px 3px #000; line-height: 1.2; text-align: center; }
+        .icon-label { font-size: 10px; font-weight: bold; color: #f1e5ac; text-align: center; }
 
         .footer { 
             position: absolute; bottom: 12px; width: 100%; text-align: center; 
@@ -87,34 +84,34 @@
     <div class="header">
         <div class="motto-row">
             <span>To Protect</span>
-            <img src="acsdbadge.jpg" class="badge-img" alt="Badge">
+            <img src="./acsdbadge.jpg" class="badge-img" alt="Badge">
             <span>To Serve</span>
         </div>
         <h1 class="title">CANINE SEARCH & RESCUE</h1>
     </div>
 
-    <img src="gshep_2.jpg" class="k9-photo" alt="K9 Unit">
+    <img src="./gshep_2.jpg" class="k9-photo" alt="K9 Unit">
 
     <div class="ui-grid">
         <div class="ui-column">
-            <div class="icon-circle sos-alert">🏥</div>
-            <div class="icon-label">Emergency SOS /<br>K9 First Aid</div>
+            <div class="icon-circle" style="border-color: #b22222;">🏥</div>
+            <div class="icon-label">SOS / First Aid</div>
             <div class="icon-circle">⚖️</div>
-            <div class="icon-label">Graham v. Connor<br>Legal Shield</div>
+            <div class="icon-label">Legal Shield</div>
         </div>
 
         <div class="ui-column">
             <div class="icon-circle">🗺️</div>
-            <div class="icon-label">Live GPS Map</div>
+            <div class="icon-label">GPS Map</div>
             <div class="icon-circle">📝</div>
-            <div class="icon-label">Daily Training Logs</div>
+            <div class="icon-label">Training Logs</div>
         </div>
 
         <div class="ui-column">
             <div class="icon-circle">🔍</div>
-            <div class="icon-label">Narcotics Aids</div>
+            <div class="icon-label">Narcotics</div>
             <div class="icon-circle">🏛️</div>
-            <div class="icon-label">VA Code 18.2</div>
+            <div class="icon-label">VA Code</div>
         </div>
     </div>
 
