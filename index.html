@@ -13,19 +13,19 @@
             background-size: contain;
             position: relative;
         }
+        /* This grid creates larger touch zones that cover BOTH the icon and the text */
         .button-grid {
             position: absolute;
-            top: 0;
+            top: 15%; /* Moves the grid down to align with your icons */
             left: 0;
             width: 100%;
-            height: 100%;
+            height: 75%; /* Focuses the buttons on the middle of the screen */
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             grid-template-rows: 1fr 1fr 1fr;
         }
         .btn {
-            border: 1px solid rgba(212, 175, 55, 0.1); /* Very faint outline */
-            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.05); /* Very faint guide */
             cursor: pointer;
         }
     </style>
@@ -41,13 +41,13 @@
         
         <!-- MIDDLE ROW -->
         <div class="btn" onclick="window.location.href='emergency.html'"></div>
-        <div class="btn" onclick="alert('GPS coming soon')"></div>
-        <div class="btn" onclick="alert('Tactical coming soon')"></div>
+        <div class="btn" onclick="alert('GPS Tracking: Coming Soon')"></div>
+        <div class="btn" onclick="alert('Tactical Tracking: Coming Soon')"></div>
 
-        <!-- BOTTOM ROW -->
-        <div class="btn" onclick="alert('Bottom Left')"></div>
-        <div class="btn" onclick="alert('Bottom Center')"></div>
-        <div class="btn" onclick="alert('Bottom Right')"></div>
+        <!-- BOTTOM ROW (Reserved for additional features) -->
+        <div class="btn" onclick="alert('Feature Coming Soon')"></div>
+        <div class="btn" onclick="alert('Feature Coming Soon')"></div>
+        <div class="btn" onclick="alert('Feature Coming Soon')"></div>
     </div>
 </div>
 
