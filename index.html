@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,90 +8,78 @@
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; font-family: 'Times New Roman', serif; color: white; overflow: hidden; }
         .app-screen { width: 100vw; height: 100vh; background: url('homepage.jpg') no-repeat center center; background-size: contain; position: relative; }
         
-        /* Large Touch Zones to ensure every icon works */
+        /* This grid is now locked to the bottom area where your icons are */
         .button-grid { 
             position: absolute; 
-            top: 5%; 
-            left: 0; 
-            width: 100%; 
-            height: 90%; 
+            bottom: 15%; /* Starts right above your name plate */
+            left: 10%; 
+            width: 80%; 
+            height: 25%; /* Covers the height of the two rows of icons */
             display: grid; 
             grid-template-columns: 1fr 1fr 1fr; 
-            grid-template-rows: repeat(3, 1fr); 
+            grid-template-rows: 1fr 1fr; 
         }
-        .btn { cursor: pointer; border: 1px solid rgba(255,255,255,0.05); }
+        .btn { cursor: pointer; border: 1px solid rgba(255,255,255,0.01); }
         
-        /* Section Styling */
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000c1a; z-index: 100; overflow-y: auto; padding: 25px; box-sizing: border-box; border: 2px solid #d4af37; }
+        /* Professional Overlay Styling */
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #001a11; z-index: 100; overflow-y: auto; padding: 25px; box-sizing: border-box; border: 3px solid #d4af37; }
         .active { display: block; }
         .close-btn { background: #d4af37; color: black; padding: 12px 20px; font-weight: bold; cursor: pointer; display: inline-block; margin-bottom: 25px; border-radius: 5px; }
-        h1, h2 { color: #d4af37; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .legal-box { background: #001a33; border-left: 5px solid #d4af37; padding: 20px; margin-bottom: 30px; border-radius: 4px; }
+        h1, h2 { color: #d4af37; text-transform: uppercase; border-bottom: 1px solid #d4af37; padding-bottom: 10px; }
+        .content-box { background: rgba(255,255,255,0.05); padding: 15px; margin-bottom: 20px; border-left: 4px solid #d4af37; }
     </style>
 </head>
 <body>
 
-<div class="app-screen" id="mainScreen">
+<div class="app-screen">
     <div class="button-grid">
-        <!-- TOP ROW -->
-        <div class="btn" id="legalBtn" onclick="openSection('legalSection')"></div>
-        <div class="btn" id="narcBtn" onclick="openSection('narcSection')"></div>
-        <div class="btn" id="trainBtn" onclick="openSection('trainSection')"></div>
+        <!-- ROW 1 (TOP OF YOUR RED BOX) -->
+        <div class="btn" onclick="openSection('emergencySection')"></div> <!-- Emergency SOS -->
+        <div class="btn" onclick="alert('GPS Map Coming Soon')"></div>     <!-- Live GPS -->
+        <div class="btn" onclick="openSection('narcSection')"></div>      <!-- Narcotics -->
         
-        <!-- MIDDLE ROW -->
-        <div class="btn" id="sosBtn" onclick="openSection('emergencySection')"></div>
-        <div class="btn" id="gpsBtn" onclick="alert('GPS Tracking Coming Soon')"></div>
-        <div class="btn" id="tacBtn" onclick="alert('Tactical Search Coming Soon')"></div>
+        <!-- ROW 2 (BOTTOM OF YOUR RED BOX) -->
+        <div class="btn" onclick="openSection('legalSection')"></div>     <!-- Legal Shield -->
+        <div class="btn" onclick="openSection('trainSection')"></div>     <!-- Training Logs -->
+        <div class="btn" onclick="openSection('vaSection')"></div>        <!-- VA Code -->
     </div>
 </div>
 
-<!-- 1. LEGAL SHIELD SECTION -->
+<!-- SECTION: LEGAL SHIELD -->
 <div id="legalSection" class="overlay">
-    <div class="close-btn" onclick="closeSections()">← BACK TO COMMAND</div>
+    <div class="close-btn" onclick="closeSections()">← BACK</div>
     <h1>LEGAL SHIELD: CASE LAW</h1>
-    <div class="legal-box">
-        <h2>Rodriguez v. United States (Federal)</h2>
-        <p>A traffic stop cannot be prolonged beyond the time needed to handle the initial mission (checking license/registration) just to wait for a K9.</p>
+    <div class="content-box">
+        <h2>Rodriguez v. United States</h2>
+        <p>A stop may not be prolonged for a K9 sniff without independent reasonable suspicion.</p>
     </div>
 </div>
 
-<!-- 2. EMERGENCY SOS SECTION -->
+<!-- SECTION: EMERGENCY SOS -->
 <div id="emergencySection" class="overlay">
-    <div class="close-btn" onclick="closeSections()">← BACK TO COMMAND</div>
+    <div class="close-btn" onclick="closeSections()">← BACK</div>
     <h1>K9 TRAUMA & FIRST AID</h1>
-    <div class="legal-box">
-        <h2>Post-Apprehension Medical Care</h2>
-        <p>Officers have a constitutional duty to provide medical aid immediately after a K9 bite suspect is secured.</p>
+    <div class="content-box">
+        <h2>Post-Apprehension Care</h2>
+        <p>Officers have a constitutional duty to provide medical aid immediately after a K9 bite is secured.</p>
     </div>
 </div>
 
-<!-- 3. NARCOTICS SECTION -->
-<div id="narcSection" class="overlay">
-    <div class="close-btn" onclick="closeSections()">← BACK TO COMMAND</div>
-    <h1>NARCOTICS DETECTION</h1>
-    <div class="legal-box">
-        <h2>Search Protocols</h2>
-        <p>Detailed narcotics detection and vehicle search procedures will be listed here.</p>
-    </div>
-</div>
-
-<!-- 4. TRAINING SECTION -->
-<div id="trainSection" class="overlay">
-    <div class="close-btn" onclick="closeSections()">← BACK TO COMMAND</div>
-    <h1>TRAINING RECORDS</h1>
-    <div class="legal-box">
-        <h2>K9 Certification</h2>
-        <p>Current certification logs and training hours for the Amherst County K9 units.</p>
+<!-- SECTION: VA CODE -->
+<div id="vaSection" class="overlay">
+    <div class="close-btn" onclick="closeSections()">← BACK</div>
+    <h1>VIRGINIA STATE CODE</h1>
+    <div class="content-box">
+        <h2>VA Code § 3.2-6500</h2>
+        <p>Defines law enforcement K9 authorities and tracking protocols in the Commonwealth.</p>
     </div>
 </div>
 
 <script>
     function openSection(id) { document.getElementById(id).classList.add('active'); }
     function closeSections() { 
-        document.getElementById('legalSection').classList.remove('active');
-        document.getElementById('emergencySection').classList.remove('active');
-        document.getElementById('narcSection').classList.remove('active');
-        document.getElementById('trainSection').classList.remove('active');
+        var sections = document.getElementsByClassName('overlay');
+        for(var i=0; i<sections.length; i++) { sections[i].classList.remove('active'); }
     }
 </script>
 
