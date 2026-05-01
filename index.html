@@ -1,51 +1,61 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>K9 Command Center</title>
+    <title>K9 Command</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #0b1a12; }
-        .app-container {
-            width: 100%;
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; overflow: hidden; }
+        
+        /* This container holds your background image */
+        .app-screen {
+            width: 100vw;
             height: 100vh;
-            max-width: 430px; 
-            background: url('homepage.jpg') no-repeat center top;
-            background-size: cover;
+            background: url('homepage.jpg') no-repeat center center;
+            background-size: contain; /* Ensures the whole photo fits the screen */
             position: relative;
             margin: 0 auto;
         }
-        /* These are the invisible touch zones for your icons */
-        .icon-grid {
+
+        /* This creates a 3x3 grid over the entire screen */
+        .button-grid {
             position: absolute;
-            top: 25%; /* Adjusts where the buttons start over your photo */
+            top: 0;
+            left: 0;
             width: 100%;
+            height: 100%;
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            padding: 20px;
-            box-sizing: border-box;
+            grid-template-columns: 1fr 1fr 1fr; /* 3 Columns */
+            grid-template-rows: 1fr 1fr 1fr;    /* 3 Rows */
         }
-        .icon-btn {
-            height: 80px;
+
+        /* This makes the buttons slightly visible so you can see them for testing */
+        .btn {
+            border: 1px solid rgba(212, 175, 55, 0.3); /* Thin gold outline */
+            background: rgba(255, 255, 255, 0.05);   /* Very faint tint */
             cursor: pointer;
-            background: rgba(255, 255, 255, 0); /* Invisible but clickable */
         }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="icon-grid">
+<div class="app-screen">
+    <div class="button-grid">
         <!-- Row 1 -->
-        <div class="icon-btn" onclick="window.location.href='legal.html'"></div>
-        <div class="icon-btn" onclick="window.location.href='narcotics.html'"></div>
-        <div class="icon-btn" onclick="window.location.href='training.html'"></div>
+        <div class="btn" onclick="window.location.href='legal.html'"></div>
+        <div class="btn" onclick="window.location.href='narcotics.html'"></div>
+        <div class="btn" onclick="window.location.href='training.html'"></div>
         
         <!-- Row 2 -->
-        <div class="icon-btn" onclick="alert('Emergency SOS/CPR Coming Soon')"></div>
-        <div class="icon-btn" onclick="alert('GPS Tracking Coming Soon')"></div>
-        <div class="icon-btn" onclick="alert('Tactical Tracking Coming Soon')"></div>
+        <div class="btn" onclick="alert('SOS coming soon')"></div>
+        <div class="btn" onclick="alert('GPS coming soon')"></div>
+        <div class="btn" onclick="alert('Tactical coming soon')"></div>
+
+        <!-- Row 3 -->
+        <div class="btn" onclick="alert('Bottom Left')"></div>
+        <div class="btn" onclick="alert('Bottom Center')"></div>
+        <div class="btn" onclick="alert('Bottom Right')"></div>
     </div>
 </div>
 
