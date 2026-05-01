@@ -2,76 +2,54 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K9 EMERGENCY MEDICAL</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>K9 Command</title>
     <style>
-        body { background-color: #1a0000; color: #ffffff; font-family: sans-serif; padding: 20px; line-height: 1.6; }
-        .header { border-bottom: 4px solid #ff0000; padding-bottom: 15px; margin-bottom: 30px; text-align: center; }
-        .emergency-card { background: #2d0000; border: 2px solid #ff4444; border-radius: 12px; padding: 20px; margin-bottom: 25px; }
-        h2 { color: #ff4444; text-transform: uppercase; display: flex; align-items: center; justify-content: space-between; font-size: 1.2rem; }
-        .audio-btn { background: #ff4444; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .back-btn { display: inline-block; padding: 12px; background: #ffffff; color: #1a0000; text-decoration: none; border-radius: 5px; margin-bottom: 20px; font-weight: bold; }
-        .vet-list { background: #000; padding: 20px; border-radius: 8px; border: 1px solid #d4af37; }
-        strong { color: #ffbbbb; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; overflow: hidden; }
+        .app-screen {
+            width: 100vw;
+            height: 100vh;
+            background: url('homepage.jpg') no-repeat center center;
+            background-size: contain;
+            position: relative;
+        }
+        .button-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr 1fr;
+        }
+        .btn {
+            border: 1px solid rgba(212, 175, 55, 0.1); /* Very faint outline */
+            background: rgba(255, 255, 255, 0.01);
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
-    <a href="index.html" class="back-btn">← RETURN TO COMMAND</a>
+<div class="app-screen">
+    <div class="button-grid">
+        <!-- TOP ROW -->
+        <div class="btn" onclick="window.location.href='legal.html'"></div>
+        <div class="btn" onclick="window.location.href='narcotics.html'"></div>
+        <div class="btn" onclick="window.location.href='training.html'"></div>
+        
+        <!-- MIDDLE ROW -->
+        <div class="btn" onclick="window.location.href='emergency.html'"></div>
+        <div class="btn" onclick="alert('GPS coming soon')"></div>
+        <div class="btn" onclick="alert('Tactical coming soon')"></div>
 
-    <div class="header">
-        <h1>K9 FIELD TRAUMA MEDIC</h1>
-        <p>AMHERST COUNTY SHERIFF'S OFFICE K9 UNIT</p>
+        <!-- BOTTOM ROW -->
+        <div class="btn" onclick="alert('Bottom Left')"></div>
+        <div class="btn" onclick="alert('Bottom Center')"></div>
+        <div class="btn" onclick="alert('Bottom Right')"></div>
     </div>
-
-    <!-- 1. CPR & RESUSCITATION -->
-    <div class="emergency-card">
-        <h2>1. K9 CPR / RESUSCITATION <button class="audio-btn" onclick="speak('cpr')">LISTEN</button></h2>
-        <p><strong>Protocol:</strong> Confirm the K9 is unresponsive and not breathing. Lay the K9 on their right side on a firm surface. For medium to large dogs, place your hands over the widest part of the rib cage. For deep-chested dogs like GSDs, place hands directly over the heart. Compress the chest 1.5 to 2 inches at a rate of 100-120 beats per minute. Ensure full chest recoil between compressions to allow the heart to refill with blood.</p>
-        <p><strong>Breathing:</strong> Close the K9's mouth tightly with your hands and exhale directly into the nose until you see the chest rise. The ratio is 30 compressions to 2 breaths. Continue this cycle without interruption until the K9 regains consciousness or you reach a veterinary facility. Do not stop for more than 5 seconds. If a second officer is available, rotate every 2 minutes to prevent fatigue.</p>
-    </div>
-
-    <!-- 2. GUNSHOTS & CHEST WOUNDS -->
-    <div class="emergency-card">
-        <h2>2. GUNSHOTS & CHEST WOUNDS <button class="audio-btn" onclick="speak('gunshot')">LISTEN</button></h2>
-        <p><strong>Trauma:</strong> Locate entry and exit wounds immediately. For extremity hits, apply a K9-specific tourniquet or high-pressure dressing above the wound. If the wound is in the torso or "junctional" area like the shoulder or hip, apply immediate direct pressure with sterile gauze and pack the wound tightly. Never remove the initial dressing if it soaks through; simply add more layers on top to maintain the clot.</p>
-        <p><strong>Sucking Chest Wound:</strong> If you hear a hissing sound or see bubbling blood near the ribs, it is a sucking chest wound. Apply an air-tight (occlusive) dressing immediately—use a chest seal or plastic wrap taped on three sides. This allows trapped air to escape but prevents air from entering the chest cavity, which stops a collapsed lung. Monitor the K9 for blue gums or extreme labor in breathing.</p>
-    </div>
-
-    <!-- 3. SNAKE BITES & HEAT STROKE -->
-    <div class="emergency-card">
-        <h2>3. SNAKE BITE & HEAT STROKE <button class="audio-btn" onclick="speak('snake')">LISTEN</button></h2>
-        <p><strong>Snake Bite:</strong> Identify the snake if possible but do not delay treatment. Keep the K9 calm and restrict movement to slow the spread of venom. Do NOT apply ice, do NOT use a tourniquet, and do NOT attempt to "suck out" the venom. Immobilize the bitten limb below the level of the heart if possible and transport immediately. Most K9 bites occur on the face or front legs; monitor for rapid swelling that may block the airway.</p>
-        <p><strong>Heat Stroke:</strong> If the K9 is staggering, vomiting, or has dark red gums, move them to shade immediately. Use cool (not ice cold) water to soak the K9's coat and paws, and use a fan or AC if available. Do not submerge the dog in ice water as this can cause blood vessels to constrict and trap heat. Stop cooling efforts once the body temperature reaches 103 degrees to prevent hypothermia and get to a vet immediately.</p>
-    </div>
-
-    <!-- 4. EYE & PAW INJURIES -->
-    <div class="emergency-card">
-        <h2>4. EYE, PAW & BROKEN BONES <button class="audio-btn" onclick="speak('bones')">LISTEN</button></h2>
-        <p><strong>Eye/Paw:</strong> For eye injuries, do not allow the K9 to rub the eye. Flush gently with saline or clean water if chemicals or debris are present. For paw injuries or heavy bleeding, apply a pressure bandage. If an object is impaled in the paw, do not remove it; stabilize the object with bandages and let a vet remove it to prevent a massive bleed-out.</p>
-        <p><strong>Fractures:</strong> If a limb appears deformed or the K9 cannot bear weight, assume a fracture. Do not attempt to "set" the bone. Muzzle the K9 for safety, as even the gentlest dog may bite when in extreme pain. Use a flat board or a heavy blanket as a stretcher to minimize movement of the spine or broken limbs during transport to the emergency facility.</p>
-    </div>
-
-    <!-- VET DIRECTORY -->
-    <div class="vet-list">
-        <h3 style="color:#d4af37; margin:0 0 10px 0;">EMERGENCY VETERINARY DIRECTORY</h3>
-        <p><strong>Amherst/Lynchburg:</strong> Animal Emergency & Critical Care - (434) 846-1504</p>
-        <p><strong>Appomattox:</strong> Appomattox Veterinary Clinic - (434) 352-7108</p>
-        <p><strong>Campbell County:</strong> Peaks View Animal Hospital - (434) 237-5904</p>
-    </div>
-
-    <script>
-        function speak(type) {
-            let text = "";
-            if(type === 'cpr') text = "K9 C P R. Lay dog on right side. 100 to 120 compressions per minute. 30 compressions to 2 breaths in the nose.";
-            if(type === 'gunshot') text = "Gunshot Trauma. Pack junctional wounds. For chest wounds, apply an air tight seal immediately to stop a collapsed lung.";
-            if(type === 'snake') text = "Snake Bite or Heat Stroke. Keep dog calm. Do not use ice on bites. For heat stroke, use cool water on paws and fur.";
-            if(type === 'bones') text = "Fractures and Eye injuries. Muzzle the dog for safety. Do not remove impaled objects. Use a flat board as a stretcher.";
-            
-            const msg = new SpeechSynthesisUtterance(text);
-            window.speechSynthesis.speak(msg);
-        }
-    </script>
+</div>
 
 </body>
 </html>
