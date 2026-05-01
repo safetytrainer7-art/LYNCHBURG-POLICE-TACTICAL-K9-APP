@@ -2,104 +2,174 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD OFFICIAL COMMAND</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>ACSD CANINE SEARCH & RESCUE</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        body, html { margin: 0; padding: 0; height: 100vh; width: 100vw; background: #000; overflow: hidden; }
-
-        /* THE LIVE PHOTO LAYER - EMBEDDED DATA */
-        #home-screen {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            /* Your actual image is now hard-coded here */
-            background-image: url('homepage.png.png'), url('homepage.png'), url('IMG_2908.png');
-            background-repeat: no-repeat;
-            background-position: center center;
-            background-size: contain;
-            z-index: 5000;
+        :root { --gold: #d4af37; --acsd-green: #1a3a2a; --text: #f1e5ac; }
+        
+        body { 
+            background-color: var(--acsd-green);
+            /* TEXTURED LEATHER FINISH */
+            background-image: url('https://www.transparenttextures.com/patterns/dark-leather.png'); 
+            color: var(--text); 
+            font-family: 'Times New Roman', serif; 
+            margin: 0; 
+            overflow: hidden; 
+            touch-action: manipulation;
         }
+        
+        .app-border { 
+            border: 5px double var(--gold); 
+            height: 98vh; 
+            margin: 1vh; 
+            position: relative; 
+            box-sizing: border-box; 
+            border-radius: 12px;
+            background: rgba(26, 58, 42, 0.85);
+            box-shadow: inset 0 0 50px #000;
+        }
+        
+        /* HEADER SECTION */
+        .header-box { text-align: center; padding-top: 10px; }
+        .motto-row { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 15px; 
+            font-weight: bold; 
+            letter-spacing: 2px; 
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+        .acsd-badge { width: 85px; height: auto; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.8)); }
+        .main-title { color: var(--gold); font-size: 22px; text-shadow: 2px 2px 3px #000; margin: 8px 0; letter-spacing: 1px; }
 
-        .hotspot { position: absolute; cursor: pointer; z-index: 5001; }
+        /* K9 CENTERPIECE */
+        .k9-frame { 
+            width: 170px; height: 170px; 
+            margin: 10px auto; 
+            position: relative;
+        }
+        .k9-image { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 15px rgba(0,0,0,1)); }
 
-        /* MAPPING THE BUTTONS TO YOUR PHOTO */
-        #spot-map { top: 10%; right: 5%; width: 25%; height: 40%; }
-        #spot-med { top: 10%; left: 5%; width: 25%; height: 40%; }
-        #spot-law { top: 50%; left: 5%; width: 25%; height: 40%; }
-        #spot-logs { top: 50%; right: 5%; width: 25%; height: 40%; }
+        /* ICON NAVIGATION GRID */
+        .grid-container { display: flex; justify-content: space-between; padding: 0 15px; position: relative; z-index: 10; }
+        .column { display: flex; flex-direction: column; gap: 20px; width: 30%; align-items: center; }
+        
+        .btn-unit { text-align: center; cursor: pointer; transition: transform 0.1s; }
+        .btn-unit:active { transform: scale(0.95); }
+        
+        .icon-border { 
+            width: 65px; height: 65px; 
+            border: 2px solid var(--gold); 
+            border-radius: 50%; 
+            background: radial-gradient(circle, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.9) 100%);
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 30px; margin-bottom: 4px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .sos-alert { border: 3px solid #b22222 !important; box-shadow: 0 0 15px rgba(178,34,34,0.6); }
+        .icon-text { font-size: 10px; font-weight: bold; line-height: 1.1; color: var(--text); text-shadow: 1px 1px 2px #000; }
 
-        #map-module { display: none; height: 100vh; flex-direction: column; background: #000; }
-        #map { flex-grow: 1; width: 100%; }
-        .map-tools { background: #111; display: grid; grid-template-columns: repeat(6, 1fr); padding: 12px; border-top: 3px solid #c5a059; }
-        .m-btn { text-align: center; font-size: 26px; cursor: pointer; color: #fff; }
+        /* FOOTER SIGNATURE */
+        .footer-credit { 
+            position: absolute; bottom: 8px; width: 100%; text-align: center; 
+            font-size: 11px; color: var(--gold); font-weight: bold; letter-spacing: 0.5px;
+        }
+        
+        /* PAGE ENGINE */
+        .page { display: none; height: 100%; padding: 20px; box-sizing: border-box; background: var(--acsd-green); overflow-y: auto; }
+        .page-active { display: block !important; }
+        .return-btn { background: var(--gold); color: #000; border: none; padding: 12px; font-weight: bold; width: 100%; border-radius: 4px; margin-bottom: 15px; }
+        #map-display { height: 75%; border: 2px solid var(--gold); border-radius: 8px; }
     </style>
 </head>
 <body>
 
-<div id="home-screen">
-    <div id="spot-map" class="hotspot" onclick="openMap()"></div>
-    <div id="spot-med" class="hotspot" onclick="alert('Medical Protocols Active')"></div>
-    <div id="spot-law" class="hotspot" onclick="alert('Legal Bible Active')"></div>
-    <div id="spot-logs" class="hotspot" onclick="alert('Training Records Active')"></div>
+<div class="app-border">
+    <!-- HOMEPAGE -->
+    <div id="home-page" class="page page-active">
+        <div class="header-box">
+            <div class="motto-row">
+                <span>To Protect</span>
+                <img src="https://i.ibb.co/60ZpB5L9/badge.png" class="acsd-badge" alt="ACSD Badge">
+                <span>To Serve</span>
+            </div>
+            <h1 class="main-title">CANINE SEARCH & RESCUE</h1>
+        </div>
+
+        <div class="k9-frame">
+            <img src="https://i.ibb.co/3ykXW60L/k9-center.png" class="k9-image" alt="K9 Unit">
+        </div>
+
+        <div class="grid-container">
+            <!-- LEFT COLUMN -->
+            <div class="column">
+                <div class="btn-unit" onclick="show('sos')">
+                    <div class="icon-border sos-alert">🏥</div>
+                    <div class="icon-text">Emergency SOS /<br>K9 First Aid</div>
+                </div>
+                <div class="btn-unit" onclick="show('legal')">
+                    <div class="icon-border">⚖️</div>
+                    <div class="icon-text">Graham v. Connor<br>Legal Shield</div>
+                </div>
+                <div class="btn-unit" onclick="show('narc')">
+                    <div class="icon-border">🔍</div>
+                    <div class="icon-text">Narcotics/Ordnance Aids</div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN -->
+            <div class="column">
+                <div class="btn-unit" onclick="show('map-view')">
+                    <div class="icon-border">🛰️</div>
+                    <div class="icon-text">Live GPS Map</div>
+                </div>
+                <div class="btn-unit" onclick="show('logs')">
+                    <div class="icon-border">📝</div>
+                    <div class="icon-text">Daily Training Logs</div>
+                </div>
+                <div class="btn-unit" onclick="show('code')">
+                    <div class="icon-border">🏛️</div>
+                    <div class="icon-text">Virginia Criminal Code Title 18.2</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-credit">
+            All Rights Reserved. App Created by Retired Deputy Sheriff Earl Wood.
+        </div>
+    </div>
+
+    <!-- GPS INTERFACE -->
+    <div id="map-view" class="page">
+        <button class="return-btn" onclick="show('home-page')">⬅ RETURN TO COMMAND</button>
+        <div id="map-display"></div>
+        <button class="return-btn" style="margin-top:10px;" onclick="trackPos()">PING UNIT LOCATION</button>
+    </div>
 </div>
 
-<div id="map-module">
-    <div style="background:#051a05; padding:10px; display:flex; gap:10px; border-bottom: 2px solid #c5a059;">
-        <button onclick="closeMap()" style="background:#c5a059; border:none; padding:10px 20px; font-weight:bold; border-radius:5px;">BACK TO COMMAND</button>
-        <input type="text" id="addr" placeholder="MISSION ADDRESS" style="flex-grow:1; padding:12px; border-radius:5px;">
-    </div>
-    <div id="map"></div>
-    <div class="map-tools">
-        <div class="m-btn" onclick="sm('k9')">🐕</div>
-        <div class="m-btn" onclick="sm('leo')">👮</div>
-        <div class="m-btn" onclick="sm('per')">🔴</div>
-        <div class="m-btn" onclick="sm('sus')">👤</div>
-        <div class="m-btn" onclick="forceGPS()" style="color:#007bff;">🛰️</div>
-        <div class="m-btn" onclick="location.reload()" style="color:red;">🔄</div>
-    </div>
-</div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    var map, mode, userMarker, perimDots = [], perimLine;
-
-    function openMap() {
-        document.getElementById('home-screen').style.display = 'none';
-        document.getElementById('map-module').style.display = 'flex';
-        if(!map) {
-            map = L.map('map',{zoomControl:false}).setView([37.584, -79.052], 14);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            map.on('click', function(e){
-                if(!mode) return;
-                var icons = {'k9':'🐕','leo':'👮','per':'🔴','sus':'👤'};
-                L.marker(e.latlng, {icon: L.divIcon({html: `<div style="font-size:30px;">${icons[mode]}</div>`, iconSize:[35,35]})}).addTo(map);
-                if(mode === 'per') {
-                    perimDots.push(e.latlng);
-                    if(perimLine) map.removeLayer(perimLine);
-                    perimLine = L.polyline(perimDots, {color: 'red', weight: 4, dashArray: '10, 10'}).addTo(map);
-                }
-            });
-        }
+    function show(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('page-active'));
+        document.getElementById(id).classList.add('page-active');
+        if(id === 'map-view') { setTimeout(() => mapObj.invalidateSize(), 300); }
     }
 
-    function closeMap() {
-        document.getElementById('map-module').style.display = 'none';
-        document.getElementById('home-screen').style.display = 'block';
-    }
+    // Map Setup
+    var mapObj = L.map('map-display').setView([37.58, -79.05], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{y}/{x}.png').addTo(mapObj);
 
-    function forceGPS() {
-        navigator.geolocation.watchPosition(p => {
-            if (p.coords.accuracy > 15) return;
-            var pos = [p.coords.latitude, p.coords.longitude];
-            if (!userMarker) {
-                userMarker = L.circleMarker(pos, {radius:10, color:'#fff', fillColor:'#007bff', fillOpacity:1}).addTo(map);
-                map.setView(pos, 19);
-            } else { userMarker.setLatLng(pos); }
-        }, null, {enableHighAccuracy: true});
+    function trackPos() {
+        navigator.geolocation.getCurrentPosition(p => {
+            const coords = [p.coords.latitude, p.coords.longitude];
+            L.marker(coords).addTo(mapObj).bindPopup("K9 UNIT POSITION").openPopup();
+            mapObj.setView(coords, 16);
+        });
     }
-
-    function sm(m){ mode = m; }
 </script>
+
 </body>
 </html>
