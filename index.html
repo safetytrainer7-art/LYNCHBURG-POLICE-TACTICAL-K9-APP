@@ -1,63 +1,64 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>K9 Command</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K9 EMERGENCY MEDICAL</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; overflow: hidden; }
-        
-        /* This container holds your background image */
-        .app-screen {
-            width: 100vw;
-            height: 100vh;
-            background: url('homepage.jpg') no-repeat center center;
-            background-size: contain; /* Ensures the whole photo fits the screen */
-            position: relative;
-            margin: 0 auto;
-        }
-
-        /* This creates a 3x3 grid over the entire screen */
-        .button-grid {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr; /* 3 Columns */
-            grid-template-rows: 1fr 1fr 1fr;    /* 3 Rows */
-        }
-
-        /* This makes the buttons slightly visible so you can see them for testing */
-        .btn {
-            border: 1px solid rgba(212, 175, 55, 0.3); /* Thin gold outline */
-            background: rgba(255, 255, 255, 0.05);   /* Very faint tint */
-            cursor: pointer;
-        }
+        body { background-color: #1a0000; color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; line-height: 1.6; }
+        .header { border-bottom: 4px solid #ff0000; padding-bottom: 15px; margin-bottom: 30px; text-align: center; }
+        .emergency-card { background: #2d0000; border: 2px solid #ff4444; border-radius: 12px; padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        h2 { color: #ff4444; text-transform: uppercase; letter-spacing: 2px; margin-top: 0; display: flex; align-items: center; justify-content: space-between; }
+        .audio-btn { background: #ff4444; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
+        .diagram-box { width: 100%; height: 200px; background: #444; margin: 15px 0; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px dashed #ff4444; }
+        .back-btn { display: inline-block; padding: 12px 20px; background: #ffffff; color: #1a0000; text-decoration: none; border-radius: 5px; margin-bottom: 20px; font-weight: bold; border: 2px solid #ff4444; }
+        .vet-list { background: #000; padding: 15px; border-radius: 8px; border: 1px solid #d4af37; font-size: 0.9rem; }
+        strong { color: #ffbbbb; }
     </style>
 </head>
 <body>
 
-<div class="app-screen">
-    <div class="button-grid">
-        <!-- Row 1 -->
-        <div class="btn" onclick="window.location.href='legal.html'"></div>
-        <div class="btn" onclick="window.location.href='narcotics.html'"></div>
-        <div class="btn" onclick="window.location.href='training.html'"></div>
-        
-        <!-- Row 2 -->
-        <div class="btn" onclick="alert('SOS coming soon')"></div>
-        <div class="btn" onclick="alert('GPS coming soon')"></div>
-        <div class="btn" onclick="alert('Tactical coming soon')"></div>
+    <a href="index.html" class="back-btn">← RETURN TO COMMAND</a>
 
-        <!-- Row 3 -->
-        <div class="btn" onclick="alert('Bottom Left')"></div>
-        <div class="btn" onclick="alert('Bottom Center')"></div>
-        <div class="btn" onclick="alert('Bottom Right')"></div>
+    <div class="header">
+        <h1>K9 FIELD TRAUMA MEDIC</h1>
+        <p>OFFICER SAFETY & K9 LIFE SUPPORT</p>
     </div>
-</div>
+
+    <!-- K9 CPR: THE #1 PRIORITY -->
+    <div class="emergency-card" id="cpr-section">
+        <h2>1. K9 CPR & RESUSCITATION <button class="audio-btn" onclick="speakCPR()">PLAY AUDIO</button></h2>
+        <div class="diagram-box">Full Color Diagram: Cardiac Compression Zone</div>
+        <p><strong>Immediate Action:</strong> Confirm the K9 is unresponsive and not breathing. Lay the K9 on their right side on a firm surface. For medium to large dogs, place your hands over the widest part of the rib cage. For deep-chested dogs like GSDs, place hands directly over the heart. Compress the chest 1.5 to 2 inches at a rate of 100-120 beats per minute. Ensure full chest recoil between compressions to allow the heart to refill with blood.</p>
+        <p><strong>Ventilation:</strong> Close the K9's mouth tightly with your hands and exhale directly into the nose until you see the chest rise. The ratio is 30 compressions to 2 breaths. Continue this cycle without interruption until the K9 regains consciousness or you reach a veterinary facility. Do not stop for more than 5 seconds. If a second officer is available, rotate every 2 minutes to prevent fatigue and maintain high-quality compressions.</p>
+    </div>
+
+    <!-- GUNSHOTS & CHEST WOUNDS -->
+    <div class="emergency-card">
+        <h2>2. GUNSHOTS / SUCKING CHEST WOUNDS <button class="audio-btn" onclick="speakGunshot()">PLAY AUDIO</button></h2>
+        <div class="diagram-box">Full Color Diagram: Occlusive Dressing Placement</div>
+        <p><strong>Gunshot Trauma:</strong> Immediately locate entry and exit wounds. For extremity hits, apply a K9-specific tourniquet or high-pressure dressing above the wound. If the wound is in the torso, apply immediate direct pressure with sterile gauze or the cleanest cloth available. Pack the wound if it is in a "junctional" area like the shoulder or hip where a tourniquet cannot be used.</p>
+        <p><strong>Sucking Chest Wound:</strong> If you hear a "hissing" sound from the chest, it is an immediate life threat. Apply an occlusive (air-tight) dressing immediately—use a chest seal or plastic wrap taped on three sides. This allows air to escape the chest cavity but prevents it from entering, stopping a collapsed lung (pneumothorax). Monitor for labored breathing and transport at high priority.</p>
+    </div>
+
+    <!-- EMERGENCY VETS -->
+    <div class="vet-list">
+        <h3 style="color:#d4af37; margin-top:0;">EMERGENCY VETERINARY CONTACTS</h3>
+        <p><strong>Amherst/Lynchburg:</strong> Animal Emergency & Critical Care of Lynchburg - (434) 846-1504</p>
+        <p><strong>Appomattox:</strong> Appomattox Veterinary Clinic - (434) 352-7108</p>
+        <p><strong>Campbell County:</strong> Peaks View Animal Hospital - (434) 237-5904</p>
+    </div>
+
+    <script>
+        function speakCPR() {
+            var msg = new SpeechSynthesisUtterance("K9 C P R. Lay dog on right side. Compress chest 2 inches at 100 beats per minute. 30 compressions to 2 breaths into the nose.");
+            window.speechSynthesis.speak(msg);
+        }
+        function speakGunshot() {
+            var msg = new SpeechSynthesisUtterance("Gunshot Trauma. Pack wounds in shoulders or hips. For chest wounds, apply an air tight seal immediately.");
+            window.speechSynthesis.speak(msg);
+        }
+    </script>
 
 </body>
 </html>
