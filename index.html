@@ -1,114 +1,61 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD CANINE SEARCH & RESCUE</title>
+    <title>ACSD OFFICIAL COMMAND</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --gold: #d4af37; --dark-green: #003314; }
-        body, html { margin: 0; padding: 0; background: #000; font-family: 'Georgia', serif; height: 100vh; overflow: hidden; }
+        body, html { margin: 0; padding: 0; height: 100vh; width: 100vw; background: #000; overflow: hidden; }
 
-        /* OFFICIAL HOMEPAGE REPLICA */
-        #home-screen { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background: var(--dark-green); z-index: 5000; 
-            display: flex; flex-direction: column; align-items: center;
-            border: 12px double var(--gold); box-sizing: border-box;
+        /* THE LIVE PHOTO LAYER */
+        #home-screen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url('homepage.png') no-repeat center center;
+            background-size: contain; /* Keeps your photo's proportions perfect */
+            z-index: 5000;
         }
 
-        /* TOP BANNER ROCKER TEXT */
-        .top-banner { 
-            display: flex; justify-content: center; align-items: center; gap: 15px;
-            color: var(--gold); text-align: center; margin-top: 35px; 
-            font-weight: bold; letter-spacing: 1px; font-size: 14px; 
+        /* INVISIBLE TACTICAL HOTSPOTS */
+        /* These sit directly over your photo's icons */
+        .hotspot {
+            position: absolute;
+            cursor: pointer;
+            /* border: 1px solid red; /* Uncomment this line to see the boxes for alignment */
         }
 
-        /* CUSTOM GOLD PRECISION STAR */
-        .badge-container { position: relative; width: 100px; height: 100px; margin: 10px 0; display: flex; align-items: center; justify-content: center; }
-        .star-shape { 
-            position: absolute; width: 100%; height: 100%; background: var(--gold);
-            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-            box-shadow: inset 0 0 10px #000;
-        }
-        .star-center { 
-            position: relative; width: 40px; height: 40px; background: var(--gold); 
-            border: 2px solid #5c4033; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            color: #5c4033; font-weight: bold; font-size: 10px; z-index: 2;
-        }
-
-        .main-title { color: var(--gold); font-size: 22px; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; text-align: center; }
-        
-        .k9-frame { 
-            width: 170px; height: 170px; border-radius: 50%; 
-            border: 5px solid var(--gold); margin: 5px 0;
-            background: url('https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?q=80&w=500') no-repeat center; 
-            background-size: cover; box-shadow: 0 0 20px rgba(0,0,0,0.7);
-        }
-
-        /* 2x2 ICON GRID */
-        .icon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 85%; margin-top: 15px; }
-        .nav-item { text-align: center; cursor: pointer; }
-        .nav-icon { width: 65px; height: 65px; margin: 0 auto 5px; }
-        .nav-label { color: var(--gold); font-size: 10px; font-weight: bold; text-transform: uppercase; line-height: 1.2; }
-
-        .footer { 
-            position: absolute; bottom: 15px; width: 100%; text-align: center; 
-            color: #7ab37a; font-size: 10px; font-style: italic; font-weight: bold;
-        }
+        /* Adjust these % values if they don't line up perfectly on your specific screen */
+        #spot-map { top: 18%; right: 10%; width: 22%; height: 25%; }
+        #spot-med { top: 18%; left: 10%; width: 22%; height: 25%; }
+        #spot-law { top: 45%; left: 10%; width: 22%; height: 25%; }
+        #spot-logs { top: 45%; right: 10%; width: 22%; height: 25%; }
 
         /* TACTICAL MAP MODULE */
         #map-module { display: none; height: 100vh; flex-direction: column; background: #000; }
         #map { flex-grow: 1; width: 100%; }
-        .map-tools { background: #111; display: grid; grid-template-columns: repeat(6, 1fr); padding: 12px; border-top: 3px solid var(--gold); }
+        .map-tools { background: #111; display: grid; grid-template-columns: repeat(6, 1fr); padding: 12px; border-top: 3px solid #c5a059; }
         .m-btn { text-align: center; font-size: 26px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div id="home-screen">
-    <div class="top-banner">
-        <span>TO PROTECT</span>
-        <div class="badge-container">
-            <div class="star-shape"></div>
-            <div class="star-center">ACSD</div>
-        </div>
-        <span>TO SERVE</span>
-    </div>
-
-    <div class="main-title">CANINE SEARCH & RESCUE</div>
-    
-    <div class="k9-frame"></div> 
-
-    <div class="icon-grid">
-        <div class="nav-item" onclick="openMap()">
-            <img src="https://img.icons8.com/color/144/map-marker.png" class="nav-icon">
-            <div class="nav-label">Live GPS Map</div>
-        </div>
-        <div class="nav-item">
-            <img src="https://img.icons8.com/color/144/plus--v1.png" class="nav-icon">
-            <div class="nav-label">Emergency SOS /<br>K9 First Aid</div>
-        </div>
-        <div class="nav-item">
-            <img src="https://img.icons8.com/color/144/scales.png" class="nav-icon">
-            <div class="nav-label">Graham v. Connor<br>Legal Shield</div>
-        </div>
-        <div class="nav-item">
-            <img src="https://img.icons8.com/color/144/edit-property.png" class="nav-icon">
-            <div class="nav-label">Daily Training<br>Logs</div>
-        </div>
-    </div>
-
-    <div class="footer">All Rights Reserved. App Created by Retired Deputy Sheriff Earl Wood.</div>
+    <div id="spot-map" class="hotspot" onclick="openMap()"></div>
+    <div id="spot-med" class="hotspot" onclick="alert('Opening Medical Protocols...')"></div>
+    <div id="spot-law" class="hotspot" onclick="alert('Opening Legal Shield...')"></div>
+    <div id="spot-logs" class="hotspot" onclick="alert('Opening Training Logs...')"></div>
 </div>
 
 <div id="map-module">
-    <div style="background:#051a05; padding:10px; display:flex; gap:10px; border-bottom: 2px solid var(--gold);">
-        <button onclick="closeMap()" style="background:var(--gold); border:none; padding:10px 20px; font-weight:bold; border-radius:5px;">BACK</button>
+    <div style="background:#051a05; padding:10px; display:flex; gap:10px; border-bottom: 2px solid #c5a059;">
+        <button onclick="closeMap()" style="background:#c5a059; border:none; padding:10px 20px; font-weight:bold; border-radius:5px;">BACK TO COMMAND</button>
         <input type="text" id="addr" placeholder="MISSION ADDRESS" style="flex-grow:1; padding:12px; border-radius:5px;">
     </div>
     <div id="map"></div>
+    <div id="gps-hud" style="background:#000; color:#0f0; text-align:center; padding:5px; font-family:monospace; font-weight:bold;">SATELLITE STANDBY</div>
     <div class="map-tools">
         <div class="m-btn" onclick="sm('k9')">🐕</div>
         <div class="m-btn" onclick="sm('leo')">👮</div>
@@ -121,7 +68,7 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    var map, mode, userMarker, watchID, perimDots = [], perimLine;
+    var map, mode, userMarker, perimDots = [], perimLine;
 
     function openMap() {
         document.getElementById('home-screen').style.display = 'none';
@@ -144,7 +91,7 @@
 
     function closeMap() {
         document.getElementById('map-module').style.display = 'none';
-        document.getElementById('home-screen').style.display = 'flex';
+        document.getElementById('home-screen').style.display = 'block';
     }
 
     function forceGPS() {
@@ -155,6 +102,7 @@
                 userMarker = L.circleMarker(pos, {radius:10, color:'#fff', fillColor:'#007bff', fillOpacity:1}).addTo(map);
                 map.setView(pos, 19);
             } else { userMarker.setLatLng(pos); }
+            document.getElementById('gps-hud').innerText = "LOCK: " + Math.round(p.coords.accuracy*3.28) + " FT";
         }, null, {enableHighAccuracy: true});
     }
 
