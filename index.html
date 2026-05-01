@@ -6,10 +6,10 @@
     <title>ACSD CANINE SEARCH & RESCUE</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --gold: #c5a059; --dark-green: #003314; }
+        :root { --gold: #d4af37; --dark-green: #003314; }
         body, html { margin: 0; padding: 0; background: #000; font-family: 'Georgia', serif; height: 100vh; overflow: hidden; }
 
-        /* THE OFFICIAL HOMEPAGE REPLICA */
+        /* OFFICIAL HOMEPAGE REPLICA */
         #home-screen { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             background: var(--dark-green); z-index: 5000; 
@@ -17,27 +17,40 @@
             border: 12px double var(--gold); box-sizing: border-box;
         }
 
-        .top-banner { color: var(--gold); text-align: center; margin-top: 30px; font-weight: bold; letter-spacing: 2px; font-size: 12px; }
-        .official-star { width: 70px; margin: 10px 0; filter: drop-shadow(0 0 5px rgba(0,0,0,0.5)); }
-        .main-title { color: var(--gold); font-size: 20px; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; text-align: center; }
+        /* TOP BANNER ROCKER TEXT */
+        .top-banner { 
+            display: flex; justify-content: center; align-items: center; gap: 15px;
+            color: var(--gold); text-align: center; margin-top: 35px; 
+            font-weight: bold; letter-spacing: 1px; font-size: 14px; 
+        }
+
+        /* CUSTOM GOLD PRECISION STAR */
+        .badge-container { position: relative; width: 100px; height: 100px; margin: 10px 0; display: flex; align-items: center; justify-content: center; }
+        .star-shape { 
+            position: absolute; width: 100%; height: 100%; background: var(--gold);
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            box-shadow: inset 0 0 10px #000;
+        }
+        .star-center { 
+            position: relative; width: 40px; height: 40px; background: var(--gold); 
+            border: 2px solid #5c4033; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: #5c4033; font-weight: bold; font-size: 10px; z-index: 2;
+        }
+
+        .main-title { color: var(--gold); font-size: 22px; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; text-align: center; }
         
-        /* CENTER K9 PHOTO - LINKED TO A GERMAN SHEPHERD */
         .k9-frame { 
             width: 170px; height: 170px; border-radius: 50%; 
             border: 5px solid var(--gold); margin: 5px 0;
             background: url('https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?q=80&w=500') no-repeat center; 
-            background-size: cover;
-            box-shadow: 0 0 20px rgba(0,0,0,0.7);
+            background-size: cover; box-shadow: 0 0 20px rgba(0,0,0,0.7);
         }
 
-        /* 2x2 ICON GRID WITH WEB-LINKED GOLD ICONS */
-        .icon-grid { 
-            display: grid; grid-template-columns: 1fr 1fr; 
-            gap: 20px; width: 85%; margin-top: 15px; 
-        }
-        .nav-item { text-align: center; cursor: pointer; transition: transform 0.2s; }
-        .nav-item:active { transform: scale(0.9); }
-        .nav-icon { width: 65px; height: 65px; margin: 0 auto 5px; filter: drop-shadow(0 0 5px #000); }
+        /* 2x2 ICON GRID */
+        .icon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 85%; margin-top: 15px; }
+        .nav-item { text-align: center; cursor: pointer; }
+        .nav-icon { width: 65px; height: 65px; margin: 0 auto 5px; }
         .nav-label { color: var(--gold); font-size: 10px; font-weight: bold; text-transform: uppercase; line-height: 1.2; }
 
         .footer { 
@@ -55,8 +68,15 @@
 <body>
 
 <div id="home-screen">
-    <div class="top-banner">TO PROTECT &nbsp;&nbsp;&nbsp; ★ ACSD ★ &nbsp;&nbsp;&nbsp; TO SERVE</div>
-    <img src="https://img.icons8.com/color/144/sheriff-badge.png" class="official-star">
+    <div class="top-banner">
+        <span>TO PROTECT</span>
+        <div class="badge-container">
+            <div class="star-shape"></div>
+            <div class="star-center">ACSD</div>
+        </div>
+        <span>TO SERVE</span>
+    </div>
+
     <div class="main-title">CANINE SEARCH & RESCUE</div>
     
     <div class="k9-frame"></div> 
@@ -86,10 +106,9 @@
 <div id="map-module">
     <div style="background:#051a05; padding:10px; display:flex; gap:10px; border-bottom: 2px solid var(--gold);">
         <button onclick="closeMap()" style="background:var(--gold); border:none; padding:10px 20px; font-weight:bold; border-radius:5px;">BACK</button>
-        <input type="text" id="addr" placeholder="ENTER MISSION ADDRESS" style="flex-grow:1; padding:12px; border-radius:5px; border:none;">
+        <input type="text" id="addr" placeholder="MISSION ADDRESS" style="flex-grow:1; padding:12px; border-radius:5px;">
     </div>
     <div id="map"></div>
-    <div id="gps-hud" style="background:#000; color:#00ff00; text-align:center; padding:5px; font-family:monospace; font-weight:bold;">SATELLITE: STANDBY</div>
     <div class="map-tools">
         <div class="m-btn" onclick="sm('k9')">🐕</div>
         <div class="m-btn" onclick="sm('leo')">👮</div>
@@ -110,7 +129,6 @@
         if(!map) {
             map = L.map('map',{zoomControl:false}).setView([37.584, -79.052], 14);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            
             map.on('click', function(e){
                 if(!mode) return;
                 var icons = {'k9':'🐕','leo':'👮','per':'🔴','sus':'👤'};
@@ -130,18 +148,14 @@
     }
 
     function forceGPS() {
-        if (navigator.geolocation) {
-            document.getElementById('gps-hud').innerText = "LOCKING SATELLITE...";
-            watchID = navigator.geolocation.watchPosition(p => {
-                if (p.coords.accuracy > 15) return;
-                var pos = [p.coords.latitude, p.coords.longitude];
-                if (!userMarker) {
-                    userMarker = L.circleMarker(pos, {radius:10, color:'#fff', fillColor:'#007bff', fillOpacity:1}).addTo(map);
-                    map.setView(pos, 19);
-                } else { userMarker.setLatLng(pos); }
-                document.getElementById('gps-hud').innerText = "LOCK ACTIVE (" + Math.round(p.coords.accuracy*3.28) + " FT)";
-            }, null, {enableHighAccuracy: true});
-        }
+        navigator.geolocation.watchPosition(p => {
+            if (p.coords.accuracy > 15) return;
+            var pos = [p.coords.latitude, p.coords.longitude];
+            if (!userMarker) {
+                userMarker = L.circleMarker(pos, {radius:10, color:'#fff', fillColor:'#007bff', fillOpacity:1}).addTo(map);
+                map.setView(pos, 19);
+            } else { userMarker.setLatLng(pos); }
+        }, null, {enableHighAccuracy: true});
     }
 
     function sm(m){ mode = m; }
