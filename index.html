@@ -2,62 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>ACSD K9 COMMAND</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Narcotics Aids</title>
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #1a3a2a; 
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-        }
-
-        .app-container {
-            width: 100%;
-            height: 100vh;
-            max-width: 430px; 
-            background: url('./homepage.jpg') no-repeat center top;
-            background-size: cover;
-            position: relative;
-        }
-
-        .touch-grid {
-            position: absolute;
-            top: 57%; 
-            left: 10%;
-            right: 10%;
-            height: 30%;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .icon-btn {
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0); 
-            cursor: pointer;
-            -webkit-tap-highlight-color: rgba(212, 175, 55, 0.3); 
-        }
+        body { background-color: #0b1a12; color: #e0e0e0; font-family: sans-serif; padding: 20px; }
+        .header { border-bottom: 2px solid #d4af37; padding-bottom: 10px; margin-bottom: 20px; }
+        .aid-section { background: #152b1e; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #d4af37; }
+        h2 { color: #d4af37; margin-top: 0; font-size: 1.2rem; }
+        .back-btn { display: inline-block; padding: 10px; background: #d4af37; color: black; text-decoration: none; border-radius: 5px; margin-bottom: 20px; font-weight: bold; }
+        .color-code { font-weight: bold; padding: 2px 6px; border-radius: 4px; color: black; }
     </style>
 </head>
 <body>
-
-<div class="app-container">
-    <div class="touch-grid">
-        <div class="icon-btn" onclick="alert('Opening Emergency SOS...')"></div>
-        <div class="icon-btn" onclick="alert('Opening Live GPS Map...')"></div>
-        <div class="icon-btn" onclick="alert('Opening Narcotics Aids...')"></div>
-       <div class="icon-btn" onclick="window.location.href='legal.html'"></div>
-        <div class="icon-btn" onclick="alert('Opening Training Logs...')"></div>
-        <div class="icon-btn" onclick="alert('Opening VA Code...')"></div>
+    <a href="index.html" class="back-btn">← BACK TO COMMAND</a>
+    <div class="header">
+        <h1>NARCOTICS AIDS</h1>
+        <p>Presumptive Field ID & Reagents</p>
     </div>
-</div>
 
+    <div class="aid-section">
+        <h2>Common Reagent Color Results</h2>
+        <p><strong>Marquis Reagent:</strong> <span class="color-code" style="background: #800080; color: white;">PURPLE</span> (Heroin/Opiates) | <span class="color-code" style="background: #8B4513; color: white;">ORANGE/BROWN</span> (Meth/Amphetamine)</p>
+        <p><strong>Cobalt Thiocyanate:</strong> <span class="color-code" style="background: #0000FF; color: white;">BLUE</span> (Cocaine)</p>
+    </div>
+
+    <div class="aid-section">
+        <h2>Field Safety Protocol</h2>
+        <ul>
+            <li>Minimize exposure risks by using trace/residue detection when possible.</li>
+            <li>Always use gloves and eye protection; assume unknown powders contain Fentanyl.</li>
+        </ul>
+    </div>
 </body>
 </html>
