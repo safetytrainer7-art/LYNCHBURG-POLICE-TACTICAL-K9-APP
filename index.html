@@ -4,173 +4,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>ACSD CANINE SEARCH & RESCUE</title>
+    <title>ACSD K9 COMMAND</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        :root { --gold: #d4af37; --acsd-green: #1a3a2a; --text: #f1e5ac; }
+        :root { 
+            --gold: #d4af37; 
+            --acsd-green: #1a3a2a; 
+        }
         
         body { 
-            background-color: var(--acsd-green);
-            /* TEXTURED LEATHER FINISH */
-            background-image: url('https://www.transparenttextures.com/patterns/dark-leather.png'); 
-            color: var(--text); 
-            font-family: 'Times New Roman', serif; 
             margin: 0; 
-            overflow: hidden; 
-            touch-action: manipulation;
+            padding: 0;
+            background-color: var(--acsd-green);
+            font-family: 'Times New Roman', serif;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
         
-        .app-border { 
-            border: 5px double var(--gold); 
-            height: 98vh; 
-            margin: 1vh; 
-            position: relative; 
-            box-sizing: border-box; 
-            border-radius: 12px;
-            background: rgba(26, 58, 42, 0.85);
-            box-shadow: inset 0 0 50px #000;
-        }
-        
-        /* HEADER SECTION */
-        .header-box { text-align: center; padding-top: 10px; }
-        .motto-row { 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            gap: 15px; 
-            font-weight: bold; 
-            letter-spacing: 2px; 
-            font-size: 14px;
-            text-transform: uppercase;
-        }
-        .acsd-badge { width: 85px; height: auto; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.8)); }
-        .main-title { color: var(--gold); font-size: 22px; text-shadow: 2px 2px 3px #000; margin: 8px 0; letter-spacing: 1px; }
-
-        /* K9 CENTERPIECE */
-        .k9-frame { 
-            width: 170px; height: 170px; 
-            margin: 10px auto; 
+        .app-container {
+            width: 100%;
+            max-width: 430px; /* iPhone 15 Pro Width */
+            height: 98vh;
+            border: 5px double var(--gold);
+            border-radius: 15px;
             position: relative;
+            box-sizing: border-box;
+            /* PARCHMENT + GREEN TEXTURE */
+            background: 
+                linear-gradient(rgba(26, 58, 42, 0.85), rgba(26, 58, 42, 0.85)),
+                url('https://www.transparenttextures.com/patterns/parchment.png');
+            box-shadow: inset 0 0 80px rgba(0,0,0,0.6);
         }
-        .k9-image { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 15px rgba(0,0,0,1)); }
 
-        /* ICON NAVIGATION GRID */
-        .grid-container { display: flex; justify-content: space-between; padding: 0 15px; position: relative; z-index: 10; }
-        .column { display: flex; flex-direction: column; gap: 20px; width: 30%; align-items: center; }
+        /* HEADER AREA */
+        .header { text-align: center; padding-top: 15px; }
+        .motto-row { 
+            display: flex; justify-content: center; align-items: center; 
+            gap: 15px; font-weight: bold; color: var(--gold); 
+            text-transform: uppercase; font-size: 13px;
+            text-shadow: 1px 1px 2px #000;
+        }
+        .badge-img { width: 85px; height: auto; filter: drop-shadow(0 4px 6px #000); }
+        .title { color: var(--gold); font-size: 22px; margin: 8px 0; text-shadow: 2px 2px 3px #000; letter-spacing: 1px; }
+
+        /* CENTER DOG IMAGE (G SHEP) */
+        .k9-center { 
+            width: 180px; 
+            height: 180px; 
+            margin: 5px auto 15px auto; 
+            display: block; 
+            filter: drop-shadow(0 0 12px #000);
+            border-radius: 50%; /* Ensures the gold ring from your photo stays circular */
+        }
+
+        /* BUTTON LAYOUT */
+        .ui-grid { display: flex; justify-content: space-between; padding: 0 15px; }
+        .ui-column { display: flex; flex-direction: column; gap: 20px; width: 32%; align-items: center; }
         
-        .btn-unit { text-align: center; cursor: pointer; transition: transform 0.1s; }
-        .btn-unit:active { transform: scale(0.95); }
-        
-        .icon-border { 
-            width: 65px; height: 65px; 
-            border: 2px solid var(--gold); 
-            border-radius: 50%; 
-            background: radial-gradient(circle, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.9) 100%);
+        .nav-btn { text-align: center; cursor: pointer; text-decoration: none; }
+        .icon-circle { 
+            width: 65px; height: 65px; border: 2px solid var(--gold); border-radius: 50%; 
+            background: radial-gradient(circle, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.8) 100%);
             display: flex; align-items: center; justify-content: center; 
-            font-size: 30px; margin-bottom: 4px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            font-size: 28px; margin-bottom: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.4);
         }
-        .sos-alert { border: 3px solid #b22222 !important; box-shadow: 0 0 15px rgba(178,34,34,0.6); }
-        .icon-text { font-size: 10px; font-weight: bold; line-height: 1.1; color: var(--text); text-shadow: 1px 1px 2px #000; }
+        .sos-border { border: 3px solid #b22222 !important; box-shadow: 0 0 10px rgba(178,34,34,0.5); }
+        .icon-label { font-size: 10px; font-weight: bold; color: var(--text); color: #f1e5ac; text-shadow: 1px 1px 2px #000; line-height: 1.2; }
 
-        /* FOOTER SIGNATURE */
-        .footer-credit { 
-            position: absolute; bottom: 8px; width: 100%; text-align: center; 
-            font-size: 11px; color: var(--gold); font-weight: bold; letter-spacing: 0.5px;
+        .footer { 
+            position: absolute; bottom: 12px; width: 100%; text-align: center; 
+            font-size: 11px; color: var(--gold); font-weight: bold;
         }
-        
-        /* PAGE ENGINE */
-        .page { display: none; height: 100%; padding: 20px; box-sizing: border-box; background: var(--acsd-green); overflow-y: auto; }
-        .page-active { display: block !important; }
-        .return-btn { background: var(--gold); color: #000; border: none; padding: 12px; font-weight: bold; width: 100%; border-radius: 4px; margin-bottom: 15px; }
-        #map-display { height: 75%; border: 2px solid var(--gold); border-radius: 8px; }
     </style>
 </head>
 <body>
 
-<div class="app-border">
-    <!-- HOMEPAGE -->
-    <div id="home-page" class="page page-active">
-        <div class="header-box">
-            <div class="motto-row">
-                <span>To Protect</span>
-                <img src="https://i.ibb.co/60ZpB5L9/badge.png" class="acsd-badge" alt="ACSD Badge">
-                <span>To Serve</span>
-            </div>
-            <h1 class="main-title">CANINE SEARCH & RESCUE</h1>
+<div class="app-container">
+    <div class="header">
+        <div class="motto-row">
+            <span>To Protect</span>
+            <img src="acsd badge.jpg" class="badge-img" alt="ACSD Badge">
+            <span>To Serve</span>
         </div>
+        <h1 class="title">CANINE SEARCH & RESCUE</h1>
+    </div>
 
-        <div class="k9-frame">
-            <img src="https://i.ibb.co/3ykXW60L/k9-center.png" class="k9-image" alt="K9 Unit">
-        </div>
+    <!-- MAIN K9 PHOTO -->
+    <img src="gshep.jpg" class="k9-center" alt="K9 Unit">
 
-        <div class="grid-container">
-            <!-- LEFT COLUMN -->
-            <div class="column">
-                <div class="btn-unit" onclick="show('sos')">
-                    <div class="icon-border sos-alert">🏥</div>
-                    <div class="icon-text">Emergency SOS /<br>K9 First Aid</div>
-                </div>
-                <div class="btn-unit" onclick="show('legal')">
-                    <div class="icon-border">⚖️</div>
-                    <div class="icon-text">Graham v. Connor<br>Legal Shield</div>
-                </div>
-                <div class="btn-unit" onclick="show('narc')">
-                    <div class="icon-border">🔍</div>
-                    <div class="icon-text">Narcotics/Ordnance Aids</div>
-                </div>
+    <div class="ui-grid">
+        <!-- LEFT SIDE -->
+        <div class="ui-column">
+            <div class="nav-btn">
+                <div class="icon-circle sos-border">➕</div>
+                <div class="icon-label">Emergency SOS /<br>K9 First Aid</div>
             </div>
-
-            <!-- RIGHT COLUMN -->
-            <div class="column">
-                <div class="btn-unit" onclick="show('map-view')">
-                    <div class="icon-border">🛰️</div>
-                    <div class="icon-text">Live GPS Map</div>
-                </div>
-                <div class="btn-unit" onclick="show('logs')">
-                    <div class="icon-border">📝</div>
-                    <div class="icon-text">Daily Training Logs</div>
-                </div>
-                <div class="btn-unit" onclick="show('code')">
-                    <div class="icon-border">🏛️</div>
-                    <div class="icon-text">Virginia Criminal Code Title 18.2</div>
-                </div>
+            <div class="nav-btn">
+                <div class="icon-circle">⚖️</div>
+                <div class="icon-label">Graham v. Connor<br>Legal Shield</div>
+            </div>
+            <div class="nav-btn">
+                <div class="icon-circle">🔍</div>
+                <div class="icon-label">Narcotics/Ordnance Aids</div>
             </div>
         </div>
 
-        <div class="footer-credit">
-            All Rights Reserved. App Created by Retired Deputy Sheriff Earl Wood.
+        <!-- RIGHT SIDE -->
+        <div class="ui-column">
+            <div class="nav-btn">
+                <div class="icon-circle">🗺️</div>
+                <div class="icon-label">Live GPS Map</div>
+            </div>
+            <div class="nav-btn">
+                <div class="icon-circle">📝</div>
+                <div class="icon-label">Daily Training Logs</div>
+            </div>
+            <div class="nav-btn">
+                <div class="icon-circle">🏛️</div>
+                <div class="icon-label">Virginia Criminal Code Title 18.2</div>
+            </div>
         </div>
     </div>
 
-    <!-- GPS INTERFACE -->
-    <div id="map-view" class="page">
-        <button class="return-btn" onclick="show('home-page')">⬅ RETURN TO COMMAND</button>
-        <div id="map-display"></div>
-        <button class="return-btn" style="margin-top:10px;" onclick="trackPos()">PING UNIT LOCATION</button>
+    <div class="footer">
+        All Rights Reserved. App Created by Retired Deputy Sheriff Earl Wood.
     </div>
 </div>
-
-<script>
-    function show(id) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('page-active'));
-        document.getElementById(id).classList.add('page-active');
-        if(id === 'map-view') { setTimeout(() => mapObj.invalidateSize(), 300); }
-    }
-
-    // Map Setup
-    var mapObj = L.map('map-display').setView([37.58, -79.05], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{y}/{x}.png').addTo(mapObj);
-
-    function trackPos() {
-        navigator.geolocation.getCurrentPosition(p => {
-            const coords = [p.coords.latitude, p.coords.longitude];
-            L.marker(coords).addTo(mapObj).bindPopup("K9 UNIT POSITION").openPopup();
-            mapObj.setView(coords, 16);
-        });
-    }
-</script>
 
 </body>
 </html>
