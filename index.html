@@ -1,109 +1,135 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND - V129 NIGHT STALKER</title>
+    <title>ACSD COMMAND - V130 OFFICIAL</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --orange: #ff6600; --gold: #ffd700; --live: #00ff00; --blue: #007bff; --red: #ff0000; --bg: #000; --txt: #fff; }
-        body.night-mode { --orange: #440000; --gold: #660000; --live: #aa0000; --blue: #550000; --bg: #050000; --txt: #ff0000; }
+        :root { --orange: #ff6600; --gold: #ffd700; --live: #00ff00; --blue: #0044ff; --red: #ff0000; --dark: #0a0a0a; }
+        body, html { margin: 0; padding: 0; background: var(--dark); color: #fff; font-family: sans-serif; overflow: hidden; }
         
-        body, html { margin: 0; padding: 0; background: var(--bg); color: var(--txt); font-family: sans-serif; height: 100vh; overflow: hidden; }
-        #app-container { display: flex; flex-direction: column; height: 100vh; transition: background 0.5s; }
+        /* OFFICIAL HOME SCREEN OVERLAY */
+        #home-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #002200; z-index: 5000; display: flex; flex-direction: column; align-items: center; padding-top: 40px; }
+        .logo-area { text-align: center; margin-bottom: 20px; }
+        .official-star { width: 120px; margin-bottom: 10px; }
+        .title-text { color: var(--gold); font-weight: bold; font-size: 20px; letter-spacing: 2px; }
         
+        .icon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px; width: 90%; }
+        .nav-card { background: rgba(0,0,0,0.6); border: 2px solid var(--gold); border-radius: 15px; padding: 20px; text-align: center; cursor: pointer; }
+        .nav-card span { font-size: 40px; display: block; margin-bottom: 10px; }
+        .nav-card label { color: var(--gold); font-weight: bold; font-size: 12px; text-transform: uppercase; }
+
+        /* TACTICAL INTERFACE */
+        #tactical-base { display: none; height: 100vh; flex-direction: column; }
         .dash { background: #111; padding: 10px; display: flex; gap: 8px; border-bottom: 3px solid var(--orange); }
-        #addr-in { flex-grow: 1; padding: 14px; border-radius: 5px; border: none; background: #222; color: #fff; font-size: 16px; }
-        
-        /* HUD ELEMENTS */
+        #addr-in { flex-grow: 1; padding: 12px; border-radius: 5px; border: none; background: #222; color: #fff; font-size: 16px; }
         #map { flex-grow: 1; width: 100%; background: #222; }
-        #tactical-hud { position: absolute; top: 80px; right: 10px; z-index: 1000; background: rgba(0,0,0,0.8); border: 2px solid var(--gold); padding: 10px; border-radius: 50%; width: 60px; height: 60px; text-align: center; }
-        #compass-arrow { font-size: 40px; transition: transform 0.1s; }
-        #wind-arrow { position: absolute; top: -5px; color: var(--live); font-size: 20px; }
-
+        
         .tool-bar { background: #1a1a1a; display: grid; grid-template-columns: repeat(6, 1fr); padding: 8px; gap: 5px; }
-        .tool { text-align: center; padding: 12px 0; border: 1px solid #555; border-radius: 8px; background: #333; cursor: pointer; color: #fff; }
-        .tool.active { border-color: var(--live); background: #002200; box-shadow: 0 0 10px var(--live); }
-        .tool span { font-size: 20px; display: block; }
-        .night-btn { background: var(--red); color: #fff; }
-
-        .beacon { width: 22px; height: 22px; background: var(--blue); border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 20px var(--blue); }
+        .tool { text-align: center; padding: 12px 0; border: 1px solid #555; border-radius: 8px; background: #333; cursor: pointer; }
+        .tool.active { border-color: var(--live); background: #002200; }
+        
+        .modal { display: none; position: fixed; top: 5%; left: 5%; width: 90%; height: 85%; background: #fff; color: #000; z-index: 6000; border-radius: 15px; padding: 20px; overflow-y: auto; }
+        .close-btn { background: var(--red); color: #fff; padding: 15px; text-align: center; font-weight: bold; border-radius: 8px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
-<div id="app-container">
+<div id="home-screen">
+    <div class="logo-area">
+        <div style="font-size: 50px;">⭐</div>
+        <div class="title-text">CANINE SEARCH & RESCUE</div>
+        <div style="font-size: 10px; color: #aaa;">AMHERST COUNTY SHERIFF'S DEPT</div>
+    </div>
+    <div class="icon-grid">
+        <div class="nav-card" onclick="launchMap()"><span>🗺️</span><label>Live GPS Map</label></div>
+        <div class="nav-card" onclick="openModal('med-p')"><span>🚑</span><label>K9 First Aid</label></div>
+        <div class="nav-card" onclick="openModal('law-p')"><span>⚖️</span><label>Legal Bible</label></div>
+        <div class="nav-card" onclick="openModal('rpt-p')"><span>📋</span><label>Mission Rpts</label></div>
+    </div>
+    <button onclick="toggleNight()" style="margin-top: 20px; padding: 10px 30px; border-radius: 20px; background: var(--red); color: #fff; border: none; font-weight: bold;">NIGHT OPS MODE</button>
+</div>
+
+<div id="tactical-base">
     <div class="dash">
+        <button onclick="backHome()" style="background: #444; border: none; color: #fff; border-radius: 5px;">BACK</button>
         <input type="text" id="addr-in" placeholder="SEARCH ADDRESS">
-        <button onclick="searchAddr()" style="padding:10px; background:var(--live); border:none; font-weight:bold;">GO</button>
+        <button onclick="searchAddr()" style="background: var(--live); border: none; padding: 10px; border-radius: 5px; font-weight: bold;">GO</button>
     </div>
-
-    <div id="tactical-hud">
-        <div id="wind-arrow">↑</div>
-        <div id="compass-arrow">▲</div>
-    </div>
-
     <div id="map"></div>
-    <div id="dist-hud" style="background:#000; color:var(--live); text-align:center; padding:5px; font-weight:bold; border-top:2px solid var(--orange);">GPS LOCK: STANDBY</div>
-
+    <div id="status-bar" style="background:#000; color:var(--live); text-align:center; padding:5px; font-weight:bold; font-size:12px;">SATELLITE LOCK: STANDBY</div>
     <div class="tool-bar">
         <div id="b-k9" class="tool" onclick="sm('k9')"><span>🐕</span></div>
-        <div id="b-leo" class="tool" onclick="sm('leo')"><span>👮</span></div>
+        <div id="b-leo" class="tool" onclick="sm('leo')"><span>🔵</span></div>
         <div id="b-per" class="tool" onclick="sm('per')"><span>🔴</span></div>
         <div id="b-sus" class="tool" onclick="sm('sus')"><span>👤</span></div>
         <div class="tool" onclick="forceGPS()" style="background:#003366;"><span>🛰️</span></div>
-        <div class="tool night-btn" onclick="toggleNight()"><span>🕶️</span></div>
+        <div class="tool" onclick="clearMap()" style="background:#440000;"><span>🗑️</span></div>
     </div>
+</div>
+
+<div id="law-p" class="modal">
+    <div class="close-btn" onclick="closeModal('law-p')">CLOSE LEGAL BIBLE</div>
+    <h3>FEDERAL & VIRGINIA CASE LAW</h3>
+    <p><b>1. FL v. HARRIS:</b> Training logs establish K9 reliability.</p>
+    <p><b>2. FL v. JARDINES:</b> Porch sniff requires warrant.</p>
+    <p><b>11. VA § 18.2-144.1:</b> Felony to injure LEO K9.</p>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     var map, mode, userMarker, watchID, perimDots = [], perimLine;
-    map = L.map('map',{zoomControl:false}).setView([37.584, -79.052], 14);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    
+    function launchMap() { 
+        document.getElementById('home-screen').style.display = 'none';
+        document.getElementById('tactical-base').style.display = 'flex';
+        if(!map) initMap();
+    }
+    
+    function backHome() {
+        document.getElementById('home-screen').style.display = 'flex';
+        document.getElementById('tactical-base').style.display = 'none';
+    }
 
-    function toggleNight() { document.body.classList.toggle('night-mode'); }
-
-    window.addEventListener('deviceorientation', function(e) {
-        if(e.webkitCompassHeading) {
-            document.getElementById('compass-arrow').style.transform = `rotate(${e.webkitCompassHeading}deg)`;
-        }
-    });
+    function initMap() {
+        map = L.map('map',{zoomControl:false}).setView([37.584, -79.052], 14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        
+        map.on('click', function(e){
+            if(!mode) return;
+            var icons = {'k9':'🐕','leo':'🔵','per':'🔴','sus':'👤'};
+            var m = L.marker(e.latlng, {icon: L.divIcon({html: `<div style="font-size:30px;">${icons[mode]}</div>`, iconSize:[35,35]})}).addTo(map);
+            
+            if(mode === 'per') {
+                perimDots.push(e.latlng);
+                if(perimLine) map.removeLayer(perimLine);
+                perimLine = L.polyline(perimDots, {color: 'red', weight: 4, dashArray: '10, 10'}).addTo(map);
+            }
+        });
+    }
 
     function forceGPS() {
         if (navigator.geolocation) {
             watchID = navigator.geolocation.watchPosition(p => {
                 var acc = p.coords.accuracy;
-                if (acc > 10) return; // Ignore bad signals
+                if (acc > 10) return; // Ignore low accuracy
                 var pos = [p.coords.latitude, p.coords.longitude];
                 if (!userMarker) {
-                    userMarker = L.marker(pos, {icon: L.divIcon({className: 'beacon', iconSize:[22,22]})}).addTo(map);
+                    userMarker = L.circleMarker(pos, {radius:10, color:'#fff', fillColor:'#0044ff', fillOpacity:1}).addTo(map);
                     map.setView(pos, 19);
                 } else { userMarker.setLatLng(pos); }
-                document.getElementById('dist-hud').innerText = "SATELLITE LOCK: ACTIVE ("+Math.round(acc*3.28)+"ft)";
+                document.getElementById('status-bar').innerText = "LOCK: ACTIVE ("+Math.round(acc*3.28)+"ft Accuracy)";
             }, null, {enableHighAccuracy: true});
         }
     }
 
-    map.on('click', function(e){
-        if(!mode) return;
-        var icons = {'k9':'🐕','leo':'👮','per':'🔴','sus':'👤'};
-        var m = L.marker(e.latlng, {icon: L.divIcon({html: `<div style="font-size:30px;">${icons[mode]}</div>`, iconSize:[35,35]})}).addTo(map);
-        
-        if(mode === 'per') {
-            perimDots.push(e.latlng);
-            if(perimLine) map.removeLayer(perimLine);
-            perimLine = L.polyline(perimDots, {color: 'red', weight: 4, dashArray: '10, 10'}).addTo(map);
-        }
-    });
-
-    function sm(m){ mode = m; document.querySelectorAll('.tool').forEach(t => t.classList.remove('active')); if(document.getElementById('b-'+m)) document.getElementById('b-'+m).classList.add('active'); }
-    
-    function searchAddr() {
-        var val = document.getElementById('addr-in').value;
-        fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(val))
-            .then(r => r.json()).then(d => { if(d.length > 0) map.setView([d[0].lat, d[0].lon], 18); });
-    }
+    function sm(m){ mode = m; document.querySelectorAll('.tool').forEach(t => t.classList.remove('active')); document.getElementById('b-'+m).classList.add('active'); }
+    function openModal(id){ document.getElementById(id).style.display = 'block'; }
+    function closeModal(id){ document.getElementById(id).style.display = 'none'; }
+    function clearMap(){ location.reload(); }
+    function toggleNight(){ document.body.style.filter = document.body.style.filter === 'invert(1) hue-rotate(180deg)' ? 'none' : 'invert(1) hue-rotate(180deg)'; }
 </script>
 </body>
 </html>
