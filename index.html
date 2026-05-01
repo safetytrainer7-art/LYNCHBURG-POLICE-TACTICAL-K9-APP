@@ -9,7 +9,7 @@
         :root { --gold: #c5a059; --dark-green: #003314; }
         body, html { margin: 0; padding: 0; background: #000; font-family: 'Georgia', serif; height: 100vh; overflow: hidden; }
 
-        /* THE OFFICIAL HOMEPAGE (EXACT REPLICA) */
+        /* THE OFFICIAL HOMEPAGE REPLICA */
         #home-screen { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             background: var(--dark-green); z-index: 5000; 
@@ -17,60 +17,65 @@
             border: 12px double var(--gold); box-sizing: border-box;
         }
 
-        .top-banner { color: var(--gold); text-align: center; margin-top: 30px; font-weight: bold; letter-spacing: 2px; font-size: 14px; }
-        .official-star { width: 80px; margin: 10px 0; }
-        .main-title { color: var(--gold); font-size: 24px; font-weight: bold; text-transform: uppercase; margin-bottom: 15px; }
+        .top-banner { color: var(--gold); text-align: center; margin-top: 30px; font-weight: bold; letter-spacing: 2px; font-size: 12px; }
+        .official-star { width: 70px; margin: 10px 0; filter: drop-shadow(0 0 5px rgba(0,0,0,0.5)); }
+        .main-title { color: var(--gold); font-size: 20px; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; text-align: center; }
         
-        /* CENTER K9 PHOTO */
+        /* CENTER K9 PHOTO - LINKED TO A GERMAN SHEPHERD */
         .k9-frame { 
-            width: 180px; height: 180px; border-radius: 50%; 
+            width: 170px; height: 170px; border-radius: 50%; 
             border: 5px solid var(--gold); margin: 5px 0;
-            background: url('k9_photo.jpg') no-repeat center; background-size: cover;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            background: url('https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?q=80&w=500') no-repeat center; 
+            background-size: cover;
+            box-shadow: 0 0 20px rgba(0,0,0,0.7);
         }
 
-        /* 2x2 ICON GRID */
+        /* 2x2 ICON GRID WITH WEB-LINKED GOLD ICONS */
         .icon-grid { 
             display: grid; grid-template-columns: 1fr 1fr; 
-            gap: 20px; width: 85%; margin-top: 20px; 
+            gap: 20px; width: 85%; margin-top: 15px; 
         }
-        .nav-item { text-align: center; cursor: pointer; }
-        .nav-icon { width: 60px; height: 60px; margin: 0 auto 5px; }
-        .nav-label { color: var(--gold); font-size: 11px; font-weight: bold; text-transform: uppercase; line-height: 1.2; }
+        .nav-item { text-align: center; cursor: pointer; transition: transform 0.2s; }
+        .nav-item:active { transform: scale(0.9); }
+        .nav-icon { width: 65px; height: 65px; margin: 0 auto 5px; filter: drop-shadow(0 0 5px #000); }
+        .nav-label { color: var(--gold); font-size: 10px; font-weight: bold; text-transform: uppercase; line-height: 1.2; }
 
         .footer { 
             position: absolute; bottom: 15px; width: 100%; text-align: center; 
-            color: #7ab37a; font-size: 10px; font-style: italic;
+            color: #7ab37a; font-size: 10px; font-style: italic; font-weight: bold;
         }
 
-        /* TACTICAL MAP MODULE (HIDDEN UNTIL TAPPED) */
-        #map-module { display: none; height: 100vh; flex-direction: column; }
+        /* TACTICAL MAP MODULE */
+        #map-module { display: none; height: 100vh; flex-direction: column; background: #000; }
         #map { flex-grow: 1; width: 100%; }
-        .map-tools { background: #111; display: grid; grid-template-columns: repeat(6, 1fr); padding: 10px; border-top: 3px solid #ff6600; }
-        .btn { text-align: center; font-size: 24px; cursor: pointer; }
+        .map-tools { background: #111; display: grid; grid-template-columns: repeat(6, 1fr); padding: 12px; border-top: 3px solid var(--gold); }
+        .m-btn { text-align: center; font-size: 26px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div id="home-screen">
     <div class="top-banner">TO PROTECT &nbsp;&nbsp;&nbsp; ★ ACSD ★ &nbsp;&nbsp;&nbsp; TO SERVE</div>
-    <img src="acsd_star.png" class="official-star"> <div class="main-title">CANINE SEARCH & RESCUE</div>
+    <img src="https://img.icons8.com/color/144/sheriff-badge.png" class="official-star">
+    <div class="main-title">CANINE SEARCH & RESCUE</div>
     
-    <div class="k9-frame"></div> <div class="icon-grid">
+    <div class="k9-frame"></div> 
+
+    <div class="icon-grid">
         <div class="nav-item" onclick="openMap()">
-            <img src="icon_map.png" class="nav-icon">
+            <img src="https://img.icons8.com/color/144/map-marker.png" class="nav-icon">
             <div class="nav-label">Live GPS Map</div>
         </div>
         <div class="nav-item">
-            <img src="icon_med.png" class="nav-icon">
+            <img src="https://img.icons8.com/color/144/plus--v1.png" class="nav-icon">
             <div class="nav-label">Emergency SOS /<br>K9 First Aid</div>
         </div>
         <div class="nav-item">
-            <img src="icon_law.png" class="nav-icon">
+            <img src="https://img.icons8.com/color/144/scales.png" class="nav-icon">
             <div class="nav-label">Graham v. Connor<br>Legal Shield</div>
         </div>
         <div class="nav-item">
-            <img src="icon_logs.png" class="nav-icon">
+            <img src="https://img.icons8.com/color/144/edit-property.png" class="nav-icon">
             <div class="nav-label">Daily Training<br>Logs</div>
         </div>
     </div>
@@ -79,18 +84,19 @@
 </div>
 
 <div id="map-module">
-    <div style="background:#000; padding:10px; display:flex; gap:10px;">
-        <button onclick="closeMap()" style="background:var(--gold); border:none; padding:8px 15px; font-weight:bold;">BACK</button>
-        <input type="text" id="addr" placeholder="SEARCH ADDRESS" style="flex-grow:1; padding:10px;">
+    <div style="background:#051a05; padding:10px; display:flex; gap:10px; border-bottom: 2px solid var(--gold);">
+        <button onclick="closeMap()" style="background:var(--gold); border:none; padding:10px 20px; font-weight:bold; border-radius:5px;">BACK</button>
+        <input type="text" id="addr" placeholder="ENTER MISSION ADDRESS" style="flex-grow:1; padding:12px; border-radius:5px; border:none;">
     </div>
     <div id="map"></div>
+    <div id="gps-hud" style="background:#000; color:#00ff00; text-align:center; padding:5px; font-family:monospace; font-weight:bold;">SATELLITE: STANDBY</div>
     <div class="map-tools">
-        <div onclick="sm('k9')">🐕</div>
-        <div onclick="sm('leo')">👮</div>
-        <div onclick="sm('per')">🔴</div>
-        <div onclick="sm('sus')">👤</div>
-        <div onclick="forceGPS()" style="color:#007bff;">🛰️</div>
-        <div onclick="location.reload()" style="color:red;">🔄</div>
+        <div class="m-btn" onclick="sm('k9')">🐕</div>
+        <div class="m-btn" onclick="sm('leo')">👮</div>
+        <div class="m-btn" onclick="sm('per')">🔴</div>
+        <div class="m-btn" onclick="sm('sus')">👤</div>
+        <div class="m-btn" onclick="forceGPS()" style="color:#007bff;">🛰️</div>
+        <div class="m-btn" onclick="location.reload()" style="color:red;">🔄</div>
     </div>
 </div>
 
@@ -124,14 +130,18 @@
     }
 
     function forceGPS() {
-        navigator.geolocation.watchPosition(p => {
-            if (p.coords.accuracy > 10) return;
-            var pos = [p.coords.latitude, p.coords.longitude];
-            if (!userMarker) {
-                userMarker = L.circleMarker(pos, {radius:8, color:'#fff', fillColor:'#007bff', fillOpacity:1}).addTo(map);
-                map.setView(pos, 19);
-            } else { userMarker.setLatLng(pos); }
-        }, null, {enableHighAccuracy: true});
+        if (navigator.geolocation) {
+            document.getElementById('gps-hud').innerText = "LOCKING SATELLITE...";
+            watchID = navigator.geolocation.watchPosition(p => {
+                if (p.coords.accuracy > 15) return;
+                var pos = [p.coords.latitude, p.coords.longitude];
+                if (!userMarker) {
+                    userMarker = L.circleMarker(pos, {radius:10, color:'#fff', fillColor:'#007bff', fillOpacity:1}).addTo(map);
+                    map.setView(pos, 19);
+                } else { userMarker.setLatLng(pos); }
+                document.getElementById('gps-hud').innerText = "LOCK ACTIVE (" + Math.round(p.coords.accuracy*3.28) + " FT)";
+            }, null, {enableHighAccuracy: true});
+        }
     }
 
     function sm(m){ mode = m; }
