@@ -7,14 +7,15 @@
     <style>
         :root { 
             --gold: #d4af37; 
-            --acsd-green: #1a3a2a; 
+            --bolo-green: #2ecc71; /* Vibrant green from the photo */
         }
         
         body { 
             margin: 0; 
-            background-color: #000;
-            background-image: linear-gradient(135deg, #0a1a12 0%, #1a3a2a 100%);
-            font-family: 'Times New Roman', serif;
+            background-color: #0d1a14;
+            /* Luminous Green Glow effect */
+            background: radial-gradient(circle at 50% 40%, #1e4d3a 0%, #0d1a14 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -22,115 +23,138 @@
             overflow: hidden;
         }
         
-        /* THE GLASS PANEL EFFECT */
         .app-container {
             width: 95%;
             max-width: 410px;
             height: 96vh;
-            border: 2px solid rgba(212, 175, 55, 0.4);
-            border-radius: 25px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 35px;
             position: relative;
             box-sizing: border-box;
-            
-            /* TRANSLUCENT GLASS OVERLAY */
-            background: rgba(26, 58, 42, 0.6);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+            /* GLASS LAYER */
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(25px) brightness(1.1);
+            -webkit-backdrop-filter: blur(25px) brightness(1.1);
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        /* TACTICAL CORNER BRACKETS (Like the BOLO image) */
-        .app-container::before {
-            content: "";
+        /* TACTICAL HUD ELEMENTS */
+        .hud-corner {
             position: absolute;
-            top: 10px; left: 10px; right: 10px; bottom: 10px;
-            border: 1px solid rgba(0, 255, 127, 0.1);
-            border-radius: 20px;
-            pointer-events: none;
+            width: 20px; height: 20px;
+            border: 2px solid var(--bolo-green);
+            opacity: 0.5;
+        }
+        .top-left { top: 20px; left: 20px; border-right: 0; border-bottom: 0; }
+        .top-right { top: 20px; right: 20px; border-left: 0; border-bottom: 0; }
+
+        .header { text-align: center; margin-top: 30px; z-index: 5; }
+        
+        /* IMAGE PLACEHOLDERS (Now ready for your Base64 strings) */
+        .badge-img { 
+            width: 80px; height: 80px; 
+            object-fit: contain;
+            filter: drop-shadow(0 0 10px rgba(212,175,55,0.4));
         }
 
-        .header { text-align: center; padding-top: 20px; }
-        .motto-row { 
-            display: flex; justify-content: center; align-items: center; 
-            gap: 12px; font-weight: bold; color: var(--gold); 
-            text-transform: uppercase; font-size: 12px; letter-spacing: 2px;
+        .title { 
+            color: var(--gold); 
+            font-size: 22px; 
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin: 10px 0;
+            text-shadow: 0 0 10px rgba(0,0,0,0.8);
         }
-        
-        /* IMAGE LOADING FIX */
-        .badge-img { width: 85px; height: 85px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(212,175,55,0.5)); }
-        .k9-photo { 
-            width: 180px; height: 180px; 
-            margin: 15px auto; 
-            display: block; 
-            object-fit: contain;
+
+        /* FLOATING K9 PHOTO */
+        .k9-wrapper {
+            width: 180px; height: 180px;
+            margin: 10px auto;
             border-radius: 50%;
             border: 2px solid var(--gold);
             padding: 5px;
-            background: rgba(0,0,0,0.3);
+            background: rgba(0,0,0,0.2);
+            box-shadow: 0 0 30px rgba(46, 204, 113, 0.3);
+            z-index: 5;
+        }
+        .k9-photo { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+
+        /* FLOATING ICON GRID */
+        .ui-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr 1fr; 
+            gap: 15px; 
+            padding: 20px;
+            width: 90%;
         }
 
-        .title { color: var(--gold); font-size: 20px; margin: 10px 0; text-shadow: 0 0 10px rgba(0,0,0,1); }
-
-        .ui-grid { display: flex; justify-content: space-between; padding: 0 20px; margin-top: 10px; }
-        .ui-column { display: flex; flex-direction: column; gap: 25px; width: 32%; align-items: center; }
-        
-        /* GLASS BUTTONS */
-        .icon-circle { 
-            width: 60px; height: 60px; 
-            border: 1px solid var(--gold); 
-            border-radius: 12px; 
-            background: rgba(0, 0, 0, 0.5);
-            display: flex; align-items: center; justify-content: center; 
-            font-size: 26px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        .nav-card {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            padding: 15px 5px;
+            text-align: center;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
         }
-        .icon-label { font-size: 10px; font-weight: bold; color: #fff; margin-top: 5px; text-align: center; text-transform: uppercase; }
+
+        .icon-glyph { font-size: 24px; margin-bottom: 8px; display: block; }
+        .icon-text { font-size: 9px; color: #fff; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
 
         .footer { 
-            position: absolute; bottom: 15px; width: 100%; text-align: center; 
-            font-size: 10px; color: var(--gold); letter-spacing: 1px;
+            position: absolute; bottom: 20px; 
+            color: var(--gold); font-size: 10px; 
+            letter-spacing: 2px; opacity: 0.8;
         }
     </style>
 </head>
 <body>
 
 <div class="app-container">
+    <div class="hud-corner top-left"></div>
+    <div class="hud-corner top-right"></div>
+    
     <div class="header">
-        <div class="motto-row">
-            <span>To Protect</span>
-            <img src="acsdbadge.jpg" class="badge-img" alt="Badge">
-            <span>To Serve</span>
-        </div>
-        <h1 class="title">K9 SEARCH & RESCUE</h1>
+        <!-- REPLACE THE SRC BELOW WITH YOUR BASE64 DATA FOR THE BADGE -->
+        <img src="acsdbadge.jpg" class="badge-img" alt="Badge">
+        <div class="title">K9 COMMAND</div>
     </div>
 
-    <img src="gshep_2.jpg" class="k9-photo" alt="K9 Unit">
+    <div class="k9-wrapper">
+        <!-- REPLACE THE SRC BELOW WITH YOUR BASE64 DATA FOR THE DOG -->
+        <img src="gshep_2.jpg" class="k9-photo" alt="K9 Unit">
+    </div>
 
     <div class="ui-grid">
-        <div class="ui-column">
-            <div class="icon-circle" style="border-color: #ff4d4d;">🏥</div>
-            <div class="icon-label">SOS</div>
-            <div class="icon-circle">⚖️</div>
-            <div class="icon-label">Legal</div>
+        <div class="nav-card" style="border-top: 2px solid #ff4d4d;">
+            <span class="icon-glyph">🏥</span>
+            <span class="icon-text">SOS</span>
         </div>
-
-        <div class="ui-column">
-            <div class="icon-circle">🗺️</div>
-            <div class="icon-label">GPS Map</div>
-            <div class="icon-circle">📝</div>
-            <div class="icon-label">Logs</div>
+        <div class="nav-card">
+            <span class="icon-glyph">🗺️</span>
+            <span class="icon-text">GPS</span>
         </div>
-
-        <div class="ui-column">
-            <div class="icon-circle">🔍</div>
-            <div class="icon-label">Narcotics</div>
-            <div class="icon-circle">🏛️</div>
-            <div class="icon-label">VA Code</div>
+        <div class="nav-card">
+            <span class="icon-glyph">🔍</span>
+            <span class="icon-text">FIND</span>
+        </div>
+        <div class="nav-card">
+            <span class="icon-glyph">⚖️</span>
+            <span class="icon-text">LEGAL</span>
+        </div>
+        <div class="nav-card">
+            <span class="icon-glyph">📝</span>
+            <span class="icon-text">LOGS</span>
+        </div>
+        <div class="nav-card">
+            <span class="icon-glyph">🏛️</span>
+            <span class="icon-text">CODE</span>
         </div>
     </div>
 
-    <div class="footer">
-        RETIRED DEPUTY SHERIFF EARL WOOD
-    </div>
+    <div class="footer">RETIRED DEPUTY EARL WOOD</div>
 </div>
 
 </body>
