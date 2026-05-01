@@ -13,6 +13,7 @@
         body { 
             margin: 0; 
             background-color: #000;
+            background-image: linear-gradient(135deg, #0a1a12 0%, #1a3a2a 100%);
             font-family: 'Times New Roman', serif;
             display: flex;
             justify-content: center;
@@ -21,60 +22,72 @@
             overflow: hidden;
         }
         
+        /* THE GLASS PANEL EFFECT */
         .app-container {
-            width: 100%;
-            max-width: 430px;
-            height: 98vh;
-            border: 5px double var(--gold);
-            border-radius: 15px;
+            width: 95%;
+            max-width: 410px;
+            height: 96vh;
+            border: 2px solid rgba(212, 175, 55, 0.4);
+            border-radius: 25px;
             position: relative;
             box-sizing: border-box;
             
-            /* BUILT-IN PARCHMENT (No external link needed) */
-            background-color: var(--acsd-green);
-            background-image: 
-                radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0);
-            background-size: 4px 4px;
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
+            /* TRANSLUCENT GLASS OVERLAY */
+            background: rgba(26, 58, 42, 0.6);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
         }
 
-        .header { text-align: center; padding-top: 15px; }
+        /* TACTICAL CORNER BRACKETS (Like the BOLO image) */
+        .app-container::before {
+            content: "";
+            position: absolute;
+            top: 10px; left: 10px; right: 10px; bottom: 10px;
+            border: 1px solid rgba(0, 255, 127, 0.1);
+            border-radius: 20px;
+            pointer-events: none;
+        }
+
+        .header { text-align: center; padding-top: 20px; }
         .motto-row { 
             display: flex; justify-content: center; align-items: center; 
             gap: 12px; font-weight: bold; color: var(--gold); 
-            text-transform: uppercase; font-size: 13px;
+            text-transform: uppercase; font-size: 12px; letter-spacing: 2px;
         }
         
-        /* Forces the image to show a border if it fails to load so we can troubleshoot */
-        .badge-img { 
-            width: 90px; height: 90px; 
-            object-fit: contain; 
-            border: 1px solid rgba(212, 175, 55, 0.3); 
-        }
-        
-        .title { color: var(--gold); font-size: 22px; margin: 10px 0; text-shadow: 2px 2px 4px #000; }
-
+        /* IMAGE LOADING FIX */
+        .badge-img { width: 85px; height: 85px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(212,175,55,0.5)); }
         .k9-photo { 
-            width: 200px; height: 200px; 
-            margin: 5px auto 15px auto; 
+            width: 180px; height: 180px; 
+            margin: 15px auto; 
             display: block; 
             object-fit: contain;
-            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 50%;
+            border: 2px solid var(--gold);
+            padding: 5px;
+            background: rgba(0,0,0,0.3);
         }
 
-        .ui-grid { display: flex; justify-content: space-between; padding: 0 15px; }
-        .ui-column { display: flex; flex-direction: column; gap: 20px; width: 32%; align-items: center; }
+        .title { color: var(--gold); font-size: 20px; margin: 10px 0; text-shadow: 0 0 10px rgba(0,0,0,1); }
+
+        .ui-grid { display: flex; justify-content: space-between; padding: 0 20px; margin-top: 10px; }
+        .ui-column { display: flex; flex-direction: column; gap: 25px; width: 32%; align-items: center; }
         
+        /* GLASS BUTTONS */
         .icon-circle { 
-            width: 65px; height: 65px; border: 2px solid var(--gold); border-radius: 50%; 
-            background: #000; display: flex; align-items: center; justify-content: center; 
-            font-size: 28px; margin-bottom: 4px;
+            width: 60px; height: 60px; 
+            border: 1px solid var(--gold); 
+            border-radius: 12px; 
+            background: rgba(0, 0, 0, 0.5);
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 26px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
-        .icon-label { font-size: 10px; font-weight: bold; color: #f1e5ac; text-align: center; }
+        .icon-label { font-size: 10px; font-weight: bold; color: #fff; margin-top: 5px; text-align: center; text-transform: uppercase; }
 
         .footer { 
-            position: absolute; bottom: 12px; width: 100%; text-align: center; 
-            font-size: 11px; color: var(--gold); font-weight: bold;
+            position: absolute; bottom: 15px; width: 100%; text-align: center; 
+            font-size: 10px; color: var(--gold); letter-spacing: 1px;
         }
     </style>
 </head>
@@ -84,27 +97,27 @@
     <div class="header">
         <div class="motto-row">
             <span>To Protect</span>
-            <img src="./acsdbadge.jpg" class="badge-img" alt="Badge">
+            <img src="acsdbadge.jpg" class="badge-img" alt="Badge">
             <span>To Serve</span>
         </div>
-        <h1 class="title">CANINE SEARCH & RESCUE</h1>
+        <h1 class="title">K9 SEARCH & RESCUE</h1>
     </div>
 
-    <img src="./gshep_2.jpg" class="k9-photo" alt="K9 Unit">
+    <img src="gshep_2.jpg" class="k9-photo" alt="K9 Unit">
 
     <div class="ui-grid">
         <div class="ui-column">
-            <div class="icon-circle" style="border-color: #b22222;">🏥</div>
-            <div class="icon-label">SOS / First Aid</div>
+            <div class="icon-circle" style="border-color: #ff4d4d;">🏥</div>
+            <div class="icon-label">SOS</div>
             <div class="icon-circle">⚖️</div>
-            <div class="icon-label">Legal Shield</div>
+            <div class="icon-label">Legal</div>
         </div>
 
         <div class="ui-column">
             <div class="icon-circle">🗺️</div>
             <div class="icon-label">GPS Map</div>
             <div class="icon-circle">📝</div>
-            <div class="icon-label">Training Logs</div>
+            <div class="icon-label">Logs</div>
         </div>
 
         <div class="ui-column">
@@ -116,7 +129,7 @@
     </div>
 
     <div class="footer">
-        App Created by Retired Deputy Sheriff Earl Wood.
+        RETIRED DEPUTY SHERIFF EARL WOOD
     </div>
 </div>
 
