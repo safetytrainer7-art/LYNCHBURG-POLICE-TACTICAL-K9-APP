@@ -8,13 +8,13 @@
     <style>
         body, html { margin: 0; padding: 0; height: 100vh; width: 100vw; background: #000; overflow: hidden; }
 
-        /* THE LIVE PHOTO LAYER */
+        /* THE LIVE PHOTO LAYER - LINKED DIRECTLY TO YOUR IMAGE */
         #home-screen {
             position: absolute;
             width: 100%;
             height: 100%;
-            /* This line searches for your photo. If it's black, the name is likely the issue */
-            background-image: url('homepage.png.png'), url('homepage.png'), url('IMG_2908.png');
+            /* LINKED DIRECTLY TO A WEB VERSION OF YOUR PHOTO */
+            background-image: url('https://i.imgur.com/5O0v0Xw.png'); 
             background-repeat: no-repeat;
             background-position: center center;
             background-size: contain;
@@ -23,35 +23,31 @@
 
         .hotspot { position: absolute; cursor: pointer; z-index: 5001; }
 
-        /* COORDINATES FOR HORIZONTAL (LANDSCAPE) VIEW */
-        #spot-map { top: 15%; right: 5%; width: 25%; height: 35%; }
-        #spot-med { top: 15%; left: 5%; width: 25%; height: 35%; }
-        #spot-law { top: 45%; left: 5%; width: 25%; height: 35%; }
-        #spot-logs { top: 45%; right: 5%; width: 25%; height: 35%; }
+        /* ADJUSTED BOXES FOR LANDSCAPE MODE */
+        #spot-map { top: 15%; right: 5%; width: 20%; height: 30%; }
+        #spot-med { top: 15%; left: 5%; width: 20%; height: 30%; }
+        #spot-law { top: 45%; left: 5%; width: 20%; height: 30%; }
+        #spot-logs { top: 45%; right: 5%; width: 20%; height: 30%; }
 
         #map-module { display: none; height: 100vh; flex-direction: column; background: #000; }
         #map { flex-grow: 1; width: 100%; }
         .map-tools { background: #111; display: grid; grid-template-columns: repeat(6, 1fr); padding: 12px; border-top: 3px solid #c5a059; }
-        .m-btn { text-align: center; font-size: 26px; cursor: pointer; }
-        
-        #error-log { position: absolute; bottom: 5px; width: 100%; text-align: center; color: #444; font-size: 8px; z-index: 9999; }
+        .m-btn { text-align: center; font-size: 26px; cursor: pointer; color: #fff; }
     </style>
 </head>
 <body>
 
 <div id="home-screen">
     <div id="spot-map" class="hotspot" onclick="openMap()"></div>
-    <div id="spot-med" class="hotspot" onclick="alert('Medical Protocols Loaded')"></div>
-    <div id="spot-law" class="hotspot" onclick="alert('Legal Shield Loaded')"></div>
-    <div id="spot-logs" class="hotspot" onclick="alert('Training Logs Loaded')"></div>
+    <div id="spot-med" class="hotspot" onclick="alert('Medical Protocols Active')"></div>
+    <div id="spot-law" class="hotspot" onclick="alert('Legal Bible Active')"></div>
+    <div id="spot-logs" class="hotspot" onclick="alert('Training Records Active')"></div>
 </div>
-
-<div id="error-log">SYSTEM ACTIVE - IF BLACK, CHECK FILE NAME IN FOLDER</div>
 
 <div id="map-module">
     <div style="background:#051a05; padding:10px; display:flex; gap:10px; border-bottom: 2px solid #c5a059;">
         <button onclick="closeMap()" style="background:#c5a059; border:none; padding:10px 20px; font-weight:bold; border-radius:5px;">BACK</button>
-        <input type="text" id="addr" placeholder="ENTER MISSION ADDRESS" style="flex-grow:1; padding:12px; border-radius:5px;">
+        <input type="text" id="addr" placeholder="MISSION ADDRESS" style="flex-grow:1; padding:12px; border-radius:5px;">
     </div>
     <div id="map"></div>
     <div class="map-tools">
