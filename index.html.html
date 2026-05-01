@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>ACSD K9 COMMAND</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1a3a2a; 
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+        }
+
+        .app-container {
+            width: 100%;
+            height: 100vh;
+            max-width: 430px; 
+            background: url('homepage.jpg') no-repeat center top;
+            background-size: cover;
+            position: relative;
+        }
+
+        .touch-grid {
+            position: absolute;
+            top: 57%; 
+            left: 10%;
+            right: 10%;
+            height: 30%;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0); 
+            cursor: pointer;
+            -webkit-tap-highlight-color: rgba(212, 175, 55, 0.3); 
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="touch-grid">
+        <div class="icon-btn" onclick="alert('Opening Emergency SOS...')"></div>
+        <div class="icon-btn" onclick="alert('Opening Live GPS Map...')"></div>
+        <div class="icon-btn" onclick="alert('Opening Narcotics Aids...')"></div>
+        <div class="icon-btn" onclick="alert('Opening Legal Shield...')"></div>
+        <div class="icon-btn" onclick="alert('Opening Training Logs...')"></div>
+        <div class="icon-btn" onclick="alert('Opening VA Code...')"></div>
+    </div>
+</div>
+
+</body>
+</html>
