@@ -1,52 +1,75 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>K9 Command</title>
+    <title>K9 Command - ACSO</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; overflow: hidden; }
-        .app-screen {
-            width: 100vw;
-            height: 100vh;
-            background: url('homepage.jpg') no-repeat center center;
-            background-size: contain;
-            position: relative;
-        }
-        .button-grid {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            grid-template-rows: 1fr 1fr 1fr;
-        }
-        .btn {
-            border: 1px solid rgba(255, 255, 255, 0.2); /* You will see these boxes clearly now */
-            cursor: pointer;
-        }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; font-family: 'Times New Roman', serif; color: white; overflow-x: hidden; }
+        .app-screen { width: 100vw; height: 100vh; background: url('homepage.jpg') no-repeat center center; background-size: contain; position: relative; }
+        .button-grid { position: absolute; top: 10%; left: 0; width: 100%; height: 80%; display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; }
+        .btn { cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
+        
+        /* Hidden Sections that pop up when you click an icon */
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000c1a; z-index: 100; overflow-y: auto; padding: 20px; box-sizing: border-box; }
+        .active { display: block; }
+        .close-btn { background: #d4af37; color: black; padding: 10px; font-weight: bold; cursor: pointer; display: inline-block; margin-bottom: 20px; border-radius: 5px; }
+        h1, h2 { color: #d4af37; text-transform: uppercase; }
+        .legal-box { background: #001a33; border-left: 5px solid #d4af37; padding: 15px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
-<div class="app-screen">
+<div class="app-screen" id="mainScreen">
     <div class="button-grid">
-        <!-- If you click these, they MUST open the files -->
-        <div class="btn" onclick="window.location.href='legal.html'"></div>
-        <div class="btn" onclick="window.location.href='narcotics.html'"></div>
-        <div class="btn" onclick="window.location.href='training.html'"></div>
+        <!-- TOP ROW -->
+        <div class="btn" onclick="openSection('legalSection')"></div>
+        <div class="btn" onclick="alert('Narcotics coming soon')"></div>
+        <div class="btn" onclick="alert('Training coming soon')"></div>
         
-        <div class="btn" onclick="window.location.href='emergency.html'"></div>
-        <div class="btn" onclick="alert('GPS')"></div>
-        <div class="btn" onclick="alert('Tactical')"></div>
-
-        <div class="btn" onclick="alert('Row 3 Left')"></div>
-        <div class="btn" onclick="alert('Row 3 Center')"></div>
-        <div class="btn" onclick="alert('Row 3 Right')"></div>
+        <!-- MIDDLE ROW -->
+        <div class="btn" onclick="openSection('emergencySection')"></div>
+        <div class="btn" onclick="alert('GPS coming soon')"></div>
+        <div class="btn" onclick="alert('Tactical coming soon')"></div>
     </div>
 </div>
+
+<!-- EMERGENCY SECTION (Built-in) -->
+<div id="emergencySection" class="overlay">
+    <div class="close-btn" onclick="closeSections()">← BACK TO COMMAND</div>
+    <h1>K9 TRAUMA & FIRST AID</h1>
+    <div class="legal-box">
+        <h2>Post-Apprehension Care</h2>
+        <p>Once a suspect is secured, the officer has a constitutional duty to provide medical aid for K9 bites. Failure to act can result in 'deliberate indifference' claims. Document the time aid was rendered and call EMS immediately.</p>
+    </div>
+</div>
+
+<!-- LEGAL SECTION (Built-in) -->
+<div id="legalSection" class="overlay">
+    <div class="close-btn" onclick="closeSections()">← BACK TO COMMAND</div>
+    <h1>LEGAL SHIELD: CASE LAW</h1>
+    
+    <div class="legal-box">
+        <h2>1. Rodriguez v. United States (Federal)</h2>
+        <p><strong>The Law:</strong> A traffic stop cannot be prolonged beyond the time necessary to complete the initial mission (checking license/registration) just to wait for a K9.</p>
+        <p><strong>Application:</strong> Conduct your K9 sniff while the second officer is writing the citation to avoid an illegal seizure.</p>
+    </div>
+
+    <div class="legal-box">
+        <h2>2. Virginia v. Robertson (State)</h2>
+        <p><strong>The Law:</strong> A certified K9's alert provides full probable cause for a warrantless search of a vehicle in Virginia.</p>
+        <p><strong>Application:</strong> Document the dog’s training and the specific 'final response' (sitting or staring) to protect the probable cause in court.</p>
+    </div>
+</div>
+
+<script>
+    function openSection(id) { document.getElementById(id).classList.add('active'); }
+    function closeSections() { 
+        document.getElementById('emergencySection').classList.remove('active');
+        document.getElementById('legalSection').classList.remove('active');
+    }
+</script>
 
 </body>
 </html>
