@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,80 +6,87 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>K9 Command - ACSO</title>
     <style>
-        /* General App Styling */
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; font-family: 'Times New Roman', serif; color: white; overflow-x: hidden; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; font-family: 'Times New Roman', serif; color: white; overflow: hidden; }
         .app-screen { width: 100vw; height: 100vh; background: url('homepage.jpg') no-repeat center center; background-size: contain; position: relative; }
         
-        /* The Invisible Button Grid */
-        .button-grid { position: absolute; top: 10%; left: 0; width: 100%; height: 80%; display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; }
+        /* Expanded Grid for iPhone 15 Pro */
+        .button-grid { 
+            position: absolute; 
+            top: 5%; 
+            left: 0; 
+            width: 100%; 
+            height: 90%; 
+            display: grid; 
+            grid-template-columns: 1fr 1fr 1fr; 
+            grid-template-rows: repeat(4, 1fr); /* 4 rows to better cover icons + text */
+        }
         .btn { cursor: pointer; border: 1px solid rgba(255,255,255,0.05); }
         
-        /* Pop-up Windows (Overlays) */
+        /* Overlays */
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000c1a; z-index: 100; overflow-y: auto; padding: 25px; box-sizing: border-box; border: 2px solid #d4af37; }
         .active { display: block; }
-        .close-btn { background: #d4af37; color: black; padding: 12px 20px; font-weight: bold; cursor: pointer; display: inline-block; margin-bottom: 25px; border-radius: 5px; text-transform: uppercase; }
-        
-        /* Content Styling */
+        .close-btn { background: #d4af37; color: black; padding: 12px 20px; font-weight: bold; cursor: pointer; display: inline-block; margin-bottom: 25px; border-radius: 5px; }
         h1, h2 { color: #d4af37; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .legal-section { background: #001a33; border-left: 5px solid #d4af37; padding: 20px; margin-bottom: 30px; border-radius: 4px; line-height: 1.6; }
-        strong { color: #fff; }
+        .legal-section { background: #001a33; border-left: 5px solid #d4af37; padding: 20px; margin-bottom: 30px; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-<!-- MAIN HOMEPAGE SCREEN -->
 <div class="app-screen" id="mainScreen">
     <div class="button-grid">
-        <!-- TOP ROW: Legal, Narcotics, Training -->
+        <!-- ROW 1: Legal, Narcotics, Training -->
         <div class="btn" onclick="openSection('legalSection')"></div>
-        <div class="btn" onclick="alert('Narcotics Section: Under Construction')"></div>
-        <div class="btn" onclick="alert('Training Section: Under Construction')"></div>
+        <div class="btn" onclick="alert('Narcotics coming soon')"></div>
+        <div class="btn" onclick="openSection('trainingSection')"></div>
         
-        <!-- MIDDLE ROW: Emergency SOS, GPS, Tactical -->
+        <!-- ROW 2: Emergency SOS, GPS, Tactical -->
         <div class="btn" onclick="openSection('emergencySection')"></div>
-        <div class="btn" onclick="alert('GPS Tracking: Finalizing Code')"></div>
-        <div class="btn" onclick="alert('Tactical Tracking: Coming Soon')"></div>
+        <div class="btn" onclick="alert('GPS coming soon')"></div>
+        <div class="btn" onclick="alert('Tactical coming soon')"></div>
+
+        <!-- ROW 3 & 4: Catching stray taps on text or bottom icons -->
+        <div class="btn" onclick="openSection('legalSection')"></div>
+        <div class="btn" onclick="alert('Additional Tools Coming')"></div>
+        <div class="btn" onclick="alert('Additional Tools Coming')"></div>
+        <div class="btn" onclick="openSection('emergencySection')"></div>
+        <div class="btn" onclick="alert('Additional Tools Coming')"></div>
+        <div class="btn" onclick="alert('Additional Tools Coming')"></div>
     </div>
 </div>
 
-<!-- BUILT-IN LEGAL SHIELD SECTION -->
+<!-- SECTIONS -->
 <div id="legalSection" class="overlay">
     <div class="close-btn" onclick="closeSections()">← RETURN TO COMMAND</div>
     <h1>LEGAL SHIELD: K9 CASE LAW</h1>
-
     <div class="legal-section">
-        <h2>1. Rodriguez v. United States (Federal)</h2>
-        <p><strong>The Constitutional Standard:</strong> A police stop may last no longer than is necessary to address the 'mission' of the stop (checking license, warrants, and insurance). Prolonging a stop for a K9 sniff without independent reasonable suspicion is an illegal seizure.</p>
-        <p><strong>Field Application:</strong> Handlers must work efficiently. Conduct the K9 sniff while a second officer handles administrative duties to ensure the search remains within the lawful timeframe of the initial stop.</p>
-    </div>
-
-    <div class="legal-section">
-        <h2>2. Virginia v. Robertson (State)</h2>
-        <p><strong>The Virginia Standard:</strong> The Virginia Court of Appeals has ruled that an alert by a certified narcotics-detection K9 provides full probable cause for a warrantless search of a vehicle under the automobile exception.</p>
-        <p><strong>Field Application:</strong> Explicitly document the K9’s training, certification, and the specific 'final response' observed (e.g., a sit or stare) to ensure the search is legally defensible in a Virginia court.</p>
+        <h2>Rodriguez v. United States</h2>
+        <p>A stop may not be prolonged for a K9 sniff without independent reasonable suspicion.</p>
     </div>
 </div>
 
-<!-- BUILT-IN EMERGENCY SOS SECTION -->
 <div id="emergencySection" class="overlay">
     <div class="close-btn" onclick="closeSections()">← RETURN TO COMMAND</div>
     <h1>K9 TRAUMA & FIRST AID</h1>
-    
     <div class="legal-section">
-        <h2>Post-Apprehension Medical Duty</h2>
-        <p><strong>Duty of Care:</strong> Once a suspect is in custody, officers have a constitutional duty to provide or summon medical aid for injuries, including K9 bites. Failure to act can lead to claims of 'deliberate indifference.'</p>
-        <p><strong>Field Protocol:</strong> Immediately after the 'out' command and handcuffing, evaluate the bite site and apply pressure to bleeding. Document the exact time aid was provided and the arrival of EMS.</p>
+        <h2>Post-Apprehension Care</h2>
+        <p>Officers have a duty to provide medical aid immediately after a K9 bite is secured.</p>
+    </div>
+</div>
+
+<div id="trainingSection" class="overlay">
+    <div class="close-btn" onclick="closeSections()">← RETURN TO COMMAND</div>
+    <h1>K9 TRAINING RECORDS</h1>
+    <div class="legal-section">
+        <p>Training logs and certification status will be displayed here.</p>
     </div>
 </div>
 
 <script>
-    // These functions control the pop-up windows
-    function openSection(id) { 
-        document.getElementById(id).classList.add('active'); 
-    }
+    function openSection(id) { document.getElementById(id).classList.add('active'); }
     function closeSections() { 
         document.getElementById('emergencySection').classList.remove('active');
         document.getElementById('legalSection').classList.remove('active');
+        document.getElementById('trainingSection').classList.remove('active');
     }
 </script>
 
