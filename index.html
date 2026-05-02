@@ -10,122 +10,112 @@
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; color: #fff; font-family: 'Times New Roman', serif; overflow: hidden; }
         
-        /* 1. THE MAP - OCCUPIES TOP HALF */
-        #map { width: 100%; height: 55%; border-bottom: 5px solid #d4af37; background: #111; }
+        #map { width: 100%; height: 60%; border-bottom: 5px solid #d4af37; background: #111; cursor: crosshair; }
 
-        /* 2. THE COMMAND PANEL - BOTTOM HALF */
         .command-panel { 
-            width: 100%; height: 45%; background: #001a11; 
-            padding: 20px; box-sizing: border-box; overflow-y: auto;
+            width: 100%; height: 40%; background: #001a11; 
+            padding: 15px; box-sizing: border-box; overflow-y: auto;
             border-top: 2px solid #d4af37;
         }
 
-        .search-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .instruction-banner { background: #d4af37; color: #000; padding: 8px; text-align: center; font-weight: bold; text-transform: uppercase; font-size: 0.9em; }
+
+        .btn-row { display: flex; gap: 10px; margin-bottom: 15px; }
         
-        .address-input { 
-            width: 100%; padding: 18px; font-size: 1.3em; background: #000; 
-            color: #d4af37; border: 2px solid #d4af37; border-radius: 5px;
-        }
+        .go-btn { flex: 2; background: #28a745; color: white; padding: 15px; font-weight: bold; text-transform: uppercase; border: none; border-radius: 5px; }
+        .perim-btn { flex: 1; background: #ff8c00; color: white; padding: 15px; font-weight: bold; border: none; border-radius: 5px; }
 
-        /* THE "GO" BUTTON - IMPOSSIBLE TO MISS */
-        .go-btn { 
-            background: #28a745; color: white; padding: 20px; font-size: 1.5em; 
-            font-weight: bold; text-transform: uppercase; border: none; 
-            border-radius: 10px; cursor: pointer; box-shadow: 0 5px #19692c;
-        }
-        .go-btn:active { transform: translateY(4px); box-shadow: 0 2px #19692c; }
+        .asset-selector { display: flex; justify-content: space-around; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px; border: 1px solid #d4af37; }
+        .mode-btn { padding: 10px; border-radius: 5px; cursor: pointer; border: 2px solid transparent; font-weight: bold; font-size: 0.8em; }
+        .active-mode { border-color: #fff; box-shadow: 0 0 10px #fff; }
 
-        .secondary-btn { 
-            background: #0044cc; color: white; padding: 12px; 
-            border: none; border-radius: 5px; font-weight: bold;
-        }
-
-        .asset-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin: 15px 0; }
-        .dot-btn { padding: 15px 5px; font-size: 0.8em; font-weight: bold; color: white; border-radius: 5px; text-align: center; cursor: pointer; border: 1px solid #fff; }
-
-        /* NIGHT VISION OVERLAY */
-        .nv-mode { filter: sepia(100%) hue-rotate(90deg) brightness(1.2) contrast(1.2); }
+        .address-input { width: 100%; padding: 12px; margin-bottom: 10px; background: #000; color: #d4af37; border: 1px solid #d4af37; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
+<div id="map-status" class="instruction-banner">Select an Asset below, then TAP MAP to place</div>
 <div id="map"></div>
 
-<div class="command-panel" id="ui">
-    <div class="search-container">
-        <input type="text" id="targetAddr" class="address-input" placeholder="ENTER ADDRESS OR TOWN...">
-        <button class="go-btn" onclick="executeSearch()">Execute & Start Search</button>
-        <button class="secondary-btn" onclick="useMyLocation()">Use My Current GPS Location</button>
+<div class="command-panel">
+    <input type="text" id="targetAddr" class="address-input" placeholder="ENTER SEARCH ADDRESS...">
+    
+    <div class="btn-row">
+        <button class="go-btn" onclick="executeSearch()">Initialize Area</button>
+        <button class="perim-btn" onclick="setMode('perimeter')">DRAW PERIMETER</button>
     </div>
 
-    <div class="asset-grid">
-        <div class="dot-btn" style="background: blue;" onclick="dropDot('blue', 'Officer')">OFFICER</div>
-        <div class="dot-btn" style="background: red;" onclick="dropDot('red', 'SAR')">SAR</div>
-        <div class="dot-btn" style="background: green;" onclick="dropDot('green', 'CIV')">CIVILIAN</div>
-        <div class="dot-btn" style="background: purple;" onclick="dropDot('purple', 'SUB')">SUBJECT</div>
+    <div class="asset-selector">
+        <div id="btn-blue" class="mode-btn" style="background:blue;" onclick="setMode('blue')">OFFICER</div>
+        <div id="btn-red" class="mode-btn" style="background:red;" onclick="setMode('red')">SAR</div>
+        <div id="btn-green" class="mode-btn" style="background:green;" onclick="setMode('green')">CIVILIAN</div>
+        <div id="btn-purple" class="mode-btn" style="background:purple;" onclick="setMode('purple')">SUBJECT</div>
     </div>
-
-    <button class="secondary-btn" style="width:100%; background:#333; color:#00ff00; border:1px solid #00ff00;" onclick="toggleNV()">TOGGLE NIGHT VISION</button>
+    
+    <button onclick="location.reload()" style="width:100%; margin-top:15px; background:transparent; color:#aaa; border:none; text-decoration:underline;">Clear All & Reset Map</button>
 </div>
 
 <script>
-    // Initialize map focused on Amherst, VA area
-    var map = L.map('map').setView([37.58, -79.05], 12);
-    
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19
-    }).addTo(map);
+    var map = L.map('map').setView([37.58, -79.05], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    // THE START SEARCH LOGIC
+    var currentMode = 'blue';
+    var perimeterPoints = [];
+    var activePerimeter = null;
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active-mode'));
+        if(mode !== 'perimeter') {
+            document.getElementById('btn-' + mode).classList.add('active-mode');
+            document.getElementById('map-status').innerText = "TAP MAP TO PLACE " + mode.toUpperCase();
+        } else {
+            document.getElementById('map-status').innerText = "TAP 3+ POINTS ON MAP TO DRAW PERIMETER";
+            perimeterPoints = []; // Reset points for new drawing
+        }
+    }
+
+    // MAP CLICK LOGIC - This fixes the stacking issue
+    map.on('click', function(e) {
+        if (currentMode === 'perimeter') {
+            drawPerimeter(e.latlng);
+        } else {
+            dropMarker(e.latlng, currentMode);
+        }
+    });
+
+    function dropMarker(latlng, color) {
+        L.circleMarker(latlng, {
+            radius: 12, fillColor: color, color: "#fff", weight: 2, fillOpacity: 0.9
+        }).addTo(map).bindPopup("<b>" + color.toUpperCase() + " Asset</b><br>Stationed").openPopup();
+    }
+
+    function drawPerimeter(latlng) {
+        perimeterPoints.push([latlng.lat, latlng.lng]);
+        if (activePerimeter) map.removeLayer(activePerimeter);
+        
+        if (perimeterPoints.length >= 3) {
+            activePerimeter = L.polygon(perimeterPoints, {
+                color: '#ff8c00', fillColor: '#ff8c00', fillOpacity: 0.2, weight: 3
+            }).addTo(map);
+            activePerimeter.bindPopup("<b>SEARCH PERIMETER SET</b>");
+        }
+        L.circleMarker(latlng, {radius: 4, color: '#ff8c00'}).addTo(map);
+    }
+
     async function executeSearch() {
         var val = document.getElementById('targetAddr').value;
-        if(!val) {
-            alert("Sir, please enter an address or town first.");
-            return;
-        }
-
-        // Visual feedback that the system is working
-        document.querySelector('.go-btn').innerText = "Locating Assets...";
-        
-        try {
-            const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${val}`);
-            const results = await resp.json();
-
-            if(results.length > 0) {
-                var loc = results[0];
-                map.setView([loc.lat, loc.lon], 16);
-                L.marker([loc.lat, loc.lon]).addTo(map).bindPopup("<b>Incident Command Post</b>").openPopup();
-                document.querySelector('.go-btn').innerText = "SEARCH ACTIVE";
-            } else {
-                alert("Location not found. Try adding 'Virginia' to the search.");
-                document.querySelector('.go-btn').innerText = "EXECUTE & START SEARCH";
-            }
-        } catch (e) {
-            alert("Connection error. Check data signal.");
-            document.querySelector('.go-btn').innerText = "EXECUTE & START SEARCH";
+        if(!val) return;
+        const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${val}`);
+        const results = await resp.json();
+        if(results.length > 0) {
+            map.setView([results[0].lat, results[0].lon], 16);
+            L.marker([results[0].lat, results[0].lon]).addTo(map).bindPopup("<b>Command Post</b>").openPopup();
         }
     }
-
-    function useMyLocation() {
-        map.locate({setView: true, maxZoom: 16});
-    }
-
-    function dropDot(color, label) {
-        var pos = map.getCenter();
-        L.circleMarker(pos, {
-            radius: 12, fillColor: color, color: "#fff", weight: 2, fillOpacity: 0.9
-        }).addTo(map).bindPopup("<b>" + label + "</b><br>Real-Time Active").openPopup();
-    }
-
-    function toggleNV() {
-        document.getElementById('map').classList.toggle('nv-mode');
-        document.getElementById('ui').classList.toggle('nv-mode');
-    }
-
-    map.on('locationfound', function(e) {
-        L.circle(e.latlng, e.accuracy).addTo(map);
-        L.marker(e.latlng).addTo(map).bindPopup("Your Position").openPopup();
-    });
+    
+    // Default mode on start
+    setMode('blue');
 </script>
 
 </body>
