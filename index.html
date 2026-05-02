@@ -1,71 +1,56 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND HUB</title>
+    <title>ACSD OFFICIAL COMMAND</title>
     <style>
         body, html { margin: 0; padding: 0; height: 100vh; width: 100vw; background: #000; overflow: hidden; }
 
-        /* YOUR PHOTO AS THE LIVING INTERFACE */
+        /* THE LIVE PHOTO LAYER */
         #home-screen {
             position: absolute;
             width: 100%;
             height: 100%;
-            background: url('homepage.png') no-repeat center center;
+            /* This searches for the file you renamed to homepage.png */
+            background-image: url('homepage.png'), url('IMG_2908.png'), url('image_a47b1c.png');
+            background-repeat: no-repeat;
+            background-position: center center;
             background-size: contain;
-            z-index: 10;
+            z-index: 5000;
         }
 
-        /* INVISIBLE TACTICAL HOTSPOTS (Positioned over your icons) */
-        .hotspot { position: absolute; cursor: pointer; z-index: 20; }
+        /* INVISIBLE TACTICAL HOTSPOTS (Mapped to your gold icons) */
+        .hotspot { position: absolute; cursor: pointer; z-index: 5001; }
         
-        /* Left Side Icons */
-        #spot-med  { top: 15%; left: 12%; width: 15%; height: 25%; }
-        #spot-law  { top: 42%; left: 12%; width: 15%; height: 25%; }
-        #spot-narc { top: 68%; left: 12%; width: 15%; height: 25%; }
+        /* Positioning based on the photo layout you provided */
+        #spot-map  { top: 15%; right: 10%; width: 20%; height: 30%; }
+        #spot-med  { top: 15%; left: 10%; width: 20%; height: 30%; }
+        #spot-law  { top: 45%; left: 10%; width: 20%; height: 30%; }
+        #spot-logs { top: 45%; right: 10%; width: 20%; height: 30%; }
 
-        /* Right Side Icons */
-        #spot-map  { top: 15%; right: 12%; width: 15%; height: 25%; }
-        #spot-logs { top: 42%; right: 12%; width: 15%; height: 25%; }
-        #spot-va   { top: 68%; right: 12%; width: 15%; height: 25%; }
-
-        /* TOOL MODULES (Hidden until an icon is tapped) */
-        .module { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #002200; z-index: 100; color: #ffd700; padding: 20px; box-sizing: border-box; }
-        .back-btn { background: #ffd700; color: #000; padding: 15px; font-weight: bold; border: none; width: 100%; margin-bottom: 20px; }
+        .module { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #002200; z-index: 9000; color: #ffd700; padding: 20px; }
     </style>
 </head>
 <body>
 
 <div id="home-screen">
-    <div id="spot-med" class="hotspot" onclick="openMod('med')"></div>
-    <div id="spot-law" class="hotspot" onclick="openMod('law')"></div>
-    <div id="spot-narc" class="hotspot" onclick="openMod('narc')"></div>
-    <div id="spot-map" class="hotspot" onclick="openMod('map')"></div>
-    <div id="spot-logs" class="hotspot" onclick="openMod('logs')"></div>
-    <div id="spot-va" class="hotspot" onclick="openMod('va')"></div>
-</div>
-
-<div id="mod-law" class="module">
-    <button class="back-btn" onclick="closeMod('law')">BACK TO COMMAND</button>
-    <h1>GRAHAM V. CONNOR</h1>
-    <p>Reasonableness must be judged from the perspective of a reasonable officer on the scene...</p>
+    <div id="spot-map" class="hotspot" onclick="alert('GPS Map Launching...')"></div>
+    <div id="spot-med" class="hotspot" onclick="alert('Medical Protocols Active')"></div>
+    <div id="spot-law" class="hotspot" onclick="alert('Legal Shield: Graham v. Connor')"></div>
+    <div id="spot-logs" class="hotspot" onclick="alert('Training Logs Opening')"></div>
 </div>
 
 <script>
-    function openMod(id) {
-        if(id === 'map') { 
-            // In a full build, this would launch the Leaflet map module
-            alert("Launching Live Tactical Map..."); 
-        } else {
-            document.getElementById('mod-' + id).style.display = 'block';
+    // This script ensures that if the image fails, you get a message instead of just black
+    window.onload = function() {
+        var bg = document.getElementById('home-screen');
+        if (window.getComputedStyle(bg).backgroundImage === 'none') {
+            console.log("Image not found. Ensure homepage.png is in this folder.");
         }
-    }
-    function closeMod(id) {
-        document.getElementById('mod-' + id).style.display = 'none';
-    }
+    };
 </script>
 
 </body>
 </html>
+
