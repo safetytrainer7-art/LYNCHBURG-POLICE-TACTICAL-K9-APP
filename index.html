@@ -4,129 +4,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND HUB V170</title>
+    <title>ACSD RESTORED HUB</title>
     <style>
-        :root {
-            --gold: #c5a059;
-            --deep-green: #001a00;
-        }
-
         body, html { 
             margin: 0; padding: 0; height: 100vh; width: 100vw; 
-            background: #000000 !important; 
-            overflow: hidden; 
+            background: #000; overflow: hidden; 
             font-family: 'Georgia', serif;
         }
 
-        /* Tactical Container */
         #container {
             width: 100vw; height: 100vh;
-            background: radial-gradient(circle, #002200 0%, #000000 100%);
-            display: flex; flex-direction: column; align-items: center;
+            background: #000;
+            display: flex; justify-content: center; align-items: center;
             position: relative;
         }
 
-        /* --- THE ANCHORED OFFICIAL STAR (1" x 1") --- */
-        #official-badge {
+        /* 1. THE NEW BADGE - TOP CENTER */
+        #top-badge {
             position: absolute;
-            top: 15px;
-            width: 90px; height: 90px; 
-            /* Looking for every possible name for your badge */
-            background-image: url('badge.jpg'), url('badge.png'), url('badge.png.jpg');
+            top: 10px;
+            width: 75px; height: 75px; 
+            background-image: url('badge.jpg');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            z-index: 500;
-            filter: drop-shadow(0 0 10px rgba(197, 160, 89, 0.6));
+            z-index: 100;
         }
 
-        /* Background Watermark */
-        #watermark {
-            position: absolute;
-            top: 55%; left: 50%; transform: translate(-50%, -50%);
-            width: 70%; height: 70%;
-            background-image: url('homepage.jpg'), url('homepage.png');
-            background-size: contain; background-repeat: no-repeat; background-position: center;
-            opacity: 0.12; z-index: 1;
+        /* 2. THE CENTER APP IMAGE - RESTORED TO FULL STRENGTH */
+        #center-image {
+            width: 60%; height: 60%;
+            background-image: url('homepage.jpg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 1.0; /* Full brightness restored */
+            z-index: 5;
         }
 
-        /* Tactical Column Layout */
+        /* 3. THE BUTTONS - SIDE COLUMNS */
         .side-col { 
-            position: absolute; width: 28%; height: 70%; top: 20%; 
-            display: flex; flex-direction: column; justify-content: space-around; z-index: 10; 
+            position: absolute; width: 20%; height: 70%; top: 15%; 
+            display: flex; flex-direction: column; justify-content: space-around; z-index: 50; 
         }
-        .left { left: 4%; }
-        .right { right: 4%; }
+        .left { left: 5%; }
+        .right { right: 5%; }
 
-        /* Tactical Buttons */
-        .tile {
-            background: rgba(0, 20, 0, 0.9);
-            border: 2px solid var(--gold);
-            color: var(--gold);
-            padding: 22px 10px;
-            text-align: center;
-            font-weight: bold;
-            border-radius: 4px;
-            cursor: pointer;
+        .btn {
+            background: rgba(0, 40, 0, 0.9);
+            border: 2px solid #c5a059;
+            color: #c5a059;
+            padding: 15px 5px;
+            text-align: center; font-weight: bold; font-size: 14px;
+            border-radius: 5px; cursor: pointer;
             text-transform: uppercase;
-            font-size: 15px;
-            letter-spacing: 1px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.8);
         }
-        .tile:active { background: var(--gold); color: #000; }
 
-        /* Content Overlay */
-        .overlay { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #000d00; z-index: 1000; overflow-y: auto; color: #fff;
-        }
-        .header { background: #000; padding: 20px; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; }
-        .content { padding: 30px; font-size: 19px; line-height: 1.6; }
-        .back-btn { background: var(--gold); color: #000; padding: 12px 25px; font-weight: bold; cursor: pointer; }
-        h2 { color: var(--gold); border-bottom: 1px solid var(--gold); padding-bottom: 10px; margin-top: 0; }
+        /* Content Pages */
+        .page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #001a00; z-index: 200; overflow-y: auto; padding: 30px; color: #fff; }
+        .header { border-bottom: 2px solid #c5a059; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; }
+        .back-btn { background: #c5a059; color: #000; border: none; padding: 10px 20px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div id="container">
-    <div id="official-badge"></div>
-    
-    <div id="watermark"></div>
+    <div id="top-badge"></div>
+
+    <div id="center-image"></div>
 
     <div class="side-col left">
-        <div class="tile" onclick="openMod('m-sos')">K9 SOS</div>
-        <div class="tile" onclick="openMod('m-law')">Legal Bible</div>
-        <div class="tile">Narcotics</div>
+        <div class="btn" onclick="openP('sos')">K9 SOS</div>
+        <div class="btn" onclick="openP('law')">Legal Bible</div>
+        <div class="btn">Narcotics</div>
     </div>
 
     <div class="side-col right">
-        <div class="tile">Tactical Map</div>
-        <div class="tile">Training Logs</div>
-        <div class="tile">VA Code</div>
+        <div class="btn">Tactical Map</div>
+        <div class="btn">Training Logs</div>
+        <div class="btn">VA Code</div>
     </div>
 </div>
 
-<div id="m-law" class="overlay">
-    <div class="header"><span>LEGAL SHIELD BIBLE</span><button class="back-btn" onclick="closeMod('m-law')">BACK</button></div>
-    <div class="content">
-        <h2>FEDERAL CASE LAW</h2>
-        <p><strong>Rodriguez v. US (2015):</strong> Stop duration cannot be extended for K9 sniff without independent RS.</p>
-        <p><strong>Florida v. Jardines (2013):</strong> Porch/Curtilage is protected; warrant required for K9 sniff of home.</p>
-    </div>
+<div id="sos" class="page">
+    <div class="header"><h2>K9 EMERGENCY SOS</h2><button class="back-btn" onclick="closeP('sos')">BACK</button></div>
+    <p><strong>HEAT STRESS:</strong> Seek shade. Cool water on pads/ears.</p>
 </div>
 
-<div id="m-sos" class="overlay">
-    <div class="header"><span>K9 EMERGENCY SOS</span><button class="back-btn" onclick="closeMod('m-sos')">BACK</button></div>
-    <div class="content">
-        <h2>TRAUMA PROTOCOLS</h2>
-        <p><strong>HEAT STRESS:</strong> Shade, cool water on pads/ears. NO ICE.</p>
-        <p><strong>BLOAT:</strong> Immediate emergency transport required.</p>
-    </div>
+<div id="law" class="page">
+    <div class="header"><h2>LEGAL SHIELD BIBLE</h2><button class="back-btn" onclick="closeP('law')">BACK</button></div>
+    <h3>Case Law & Statutes</h3>
+    <p><strong>Rodriguez v. US:</strong> Do not prolong the stop.</p>
 </div>
 
 <script>
-    function openMod(id) { document.getElementById(id).style.display = 'block'; }
-    function closeMod(id) { document.getElementById(id).style.display = 'none'; }
+    function openP(id) { document.getElementById(id).style.display = 'block'; }
+    function closeP(id) { document.getElementById(id).style.display = 'none'; }
 </script>
 
 </body>
