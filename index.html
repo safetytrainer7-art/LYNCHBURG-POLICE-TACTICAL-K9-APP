@@ -1,39 +1,34 @@
 <div id="m-map" class="page">
     <div class="header">
         <button class="back-btn" onclick="closePage('m-map')">← BACK</button>
-        <h2 style="color:#c5a059; margin:0;">TACTICAL MAP HUB</h2>
+        <h2 style="color:#c5a059; margin:0;">TACTICAL COMMAND MAP</h2>
     </div>
 
     <div style="background: #000; padding: 10px; border-bottom: 2px solid #c5a059;">
         <div style="display: flex; gap: 5px; margin-bottom: 10px;">
-            <input type="text" id="map-search" placeholder="ENTER SEARCH ADDRESS..." 
-                   style="flex-grow: 1; padding: 12px; background: #111; color: #fff; border: 1px solid #c5a059; font-weight: bold;">
-            <button onclick="searchAddr()" style="background: #c5a059; color: #000; border: none; padding: 10px; font-weight: bold;">GO</button>
+            <input type="text" id="map-search" placeholder="STREET, CITY..." 
+                   style="flex-grow: 1; padding: 12px; background: #111; color: #fff; border: 1px solid #c5a059; font-size: 16px;">
+            <button onclick="searchAddr()" style="background: #c5a059; color: #000; border: none; padding: 10px 20px; font-weight: bold;">GO</button>
         </div>
 
         <div style="display: flex; justify-content: space-around; margin-bottom: 10px;">
-            <button class="tool-btn" onclick="setRole('le')">BLUE (LE)</button>
-            <button class="tool-btn" onclick="setRole('k9')">LT BLUE (K9)</button>
-            <button class="tool-btn" onclick="setRole('sar')">RED (SAR)</button>
-            <button class="tool-btn" onclick="setRole('sub')">PURPLE (SUB)</button>
+            <button class="tool-btn le-btn" onclick="setRole('le')">BLUE (LE)</button>
+            <button class="tool-btn k9-btn" onclick="setRole('k9')">LT BLUE (K9)</button>
+            <button class="tool-btn sar-btn" onclick="setRole('sar')">RED (SAR)</button>
+            <button class="tool-btn sub-btn" onclick="setRole('sub')">PURPLE (SUB)</button>
         </div>
 
         <button id="start-btn" onclick="startGps()" 
-                style="width: 100%; background: #004400; color: #fff; border: 2px solid #00ff00; padding: 15px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;">
-            ▶ START LIVE TRACKING
+                style="width: 100%; background: #004400; color: #fff; border: 2px solid #00ff00; padding: 15px; font-weight: bold; text-transform: uppercase;">
+            ▶ START LIVE GPS TRACKING
         </button>
     </div>
 
-    <div id="live-map" style="width: 100%; height: 50vh; background: #111; border-bottom: 2px solid #c5a059;"></div>
+    <div id="live-map" style="width: 100%; height: 55vh; background: #111; border-bottom: 2px solid #c5a059;"></div>
 
-    <div style="display: flex; justify-content: space-between; padding: 15px; background: #000; color: #c5a059; font-family: monospace;">
+    <div style="display: flex; justify-content: space-between; padding: 12px; background: #000; color: #c5a059; font-family: monospace; font-size: 13px;">
         <div id="wind-dir">🚩 WIND: NORTH 8MPH</div>
-        <div id="dist-check">DIST TO NEAREST: -- FT</div>
-    </div>
-    
-    <div style="padding: 10px; display: flex; gap: 10px;">
-        <button class="tool-btn" style="background: #444;" onclick="toggleNight()">NIGHT VISION</button>
-        <button class="tool-btn" style="background: #600; color: white;" onclick="resetPerimeter()">RESET PERIMETER</button>
+        <div id="dist-check">OFFICER DIST: -- FT</div>
     </div>
 </div>
 
@@ -41,39 +36,63 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
-    .tool-btn { flex: 1; background: #1a1a1a; color: #c5a059; border: 1px solid #c5a059; padding: 10px 2px; font-size: 11px; font-weight: bold; border-radius: 4px; }
-    .night-vision-map { filter: invert(100%) hue-rotate(180deg) brightness(0.6) contrast(1.2); }
+    .tool-btn { flex: 1; background: #1a1a1a; color: #c5a059; border: 1px solid #c5a059; padding: 10px 2px; font-size: 11px; font-weight: bold; border-radius: 4px; margin: 0 2px; }
+    .le-btn { border-left: 5px solid blue; }
+    .k9-btn { border-left: 5px solid lightblue; }
+    .sar-btn { border-left: 5px solid red; }
+    .sub-btn { border-left: 5px solid purple; }
+    
+    /* Live Pulse Effect for Officer Location */
+    .pulse {
+        width: 15px; height: 15px;
+        background: #007bff; border: 3px solid white;
+        border-radius: 50%; box-shadow: 0 0 0 rgba(0, 123, 255, 0.4);
+        animation: pulse-blue 2s infinite;
+    }
+    @keyframes pulse-blue {
+        0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); }
+        70% { box-shadow: 0 0 0 15px rgba(0, 123, 255, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+    }
 </style>
 
 <script>
     let map;
     let userMarker;
-    
-    // Initialize the map when the page opens
+
     function initMap() {
         if (!map) {
-            map = L.map('live-map').setView([37.525, -79.15], 13); // Centered near Amherst
+            // Defaulting to general VA coordinates until GPS kicks in
+            map = L.map('live-map').setView([37.525, -79.15], 13); 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '© OpenStreetMap'
+                maxZoom: 19
             }).addTo(map);
         }
     }
 
-    // Override the openPage function to load the map
-    const oldOpen = openPage;
-    openPage = function(id) {
-        oldOpen(id);
-        if(id === 'm-map') {
-            setTimeout(initMap, 300); // Give it a second to show the page first
+    // New Geocoding Function (The "GO" button logic)
+    async function searchAddr() {
+        let addr = document.getElementById('map-search').value;
+        if(!addr) return;
+        
+        try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr)}`);
+            const data = await response.json();
+            
+            if (data.length > 0) {
+                const lat = data[0].lat;
+                const lon = data[0].lon;
+                map.setView([lat, lon], 17); // Zoom in close to the address
+                L.marker([lat, lon]).addTo(map).bindPopup("<b>SEARCH START POINT</b><br>" + addr).openPopup();
+            } else {
+                alert("Address not found. Please try adding City and State.");
+            }
+        } catch (error) {
+            alert("Search service error. Check internet connection.");
         }
     }
 
     function startGps() {
-        const btn = document.getElementById('start-btn');
-        btn.innerHTML = "📡 TRACKING ACTIVE";
-        btn.style.background = "#440000"; // Glow red when hot
-        
         if (navigator.geolocation) {
             navigator.geolocation.watchPosition(pos => {
                 const lat = pos.coords.latitude;
@@ -82,29 +101,18 @@
                 if (userMarker) {
                     userMarker.setLatLng([lat, lng]);
                 } else {
-                    userMarker = L.circleMarker([lat, lng], { color: 'blue', radius: 10, fillOpacity: 0.8 }).addTo(map);
+                    const icon = L.divIcon({ className: 'pulse', iconSize: [15, 15] });
+                    userMarker = L.marker([lat, lng], { icon: icon }).addTo(map);
                 }
-                map.setView([lat, lng], 16);
-            });
+                map.panTo([lat, lng]);
+            }, err => alert("Please allow GPS access in your settings."), { enableHighAccuracy: true });
         }
     }
 
-    function searchAddr() {
-        let addr = document.getElementById('map-search').value;
-        if(addr) {
-            // Simple logic: In the real world, this calls a geocoder. 
-            // For now, it alerts the team.
-            alert("SEARCHING FOR: " + addr);
+    // Attach map trigger to your existing openPage function
+    window.addEventListener('click', function(e) {
+        if (e.target.innerText === "TACTICAL MAP") {
+            setTimeout(initMap, 200);
         }
-    }
-
-    function toggleNight() {
-        document.getElementById('live-map').classList.toggle('night-vision-map');
-    }
-    
-    function resetPerimeter() {
-        if(confirm("CLEAR ALL TRACKING DATA?")) {
-            location.reload();
-        }
-    }
+    });
 </script>
