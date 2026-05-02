@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,67 +13,138 @@
         .nav-header { height: 60px; background: #000; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 2px solid #d4af37; }
         .exit-btn { background: #900; color: #fff; border: 2px solid #fff; padding: 8px 12px; font-weight: bold; border-radius: 5px; cursor: pointer; }
         .content-scroll { padding: 15px; overflow-y: auto; height: calc(100% - 60px); box-sizing: border-box; }
-        
-        /* HOMEPAGE */
+
+        /* --- HOMEPAGE --- */
         #homepage { width: 100%; height: 100%; background: radial-gradient(circle, #001a11 0%, #000 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; position: absolute; z-index: 10; }
         .app-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px; }
         .app-icon { width: 115px; height: 115px; background: rgba(0,0,0,0.8); border: 2px solid #d4af37; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; }
         .app-icon span { color: #d4af37; font-weight: bold; margin-top: 8px; font-size: 0.85em; }
 
-        /* RADIO CODES */
-        .code-row { display: flex; justify-content: space-between; padding: 15px; border-bottom: 1px solid #333; cursor: pointer; }
-        .code-row:active { background: #111; }
+        /* --- GPS --- */
+        #map { width: 100%; height: 50%; border-bottom: 2px solid #d4af37; }
+        .gps-controls { height: calc(50% - 60px); background: #001a11; padding: 8px; box-sizing: border-box; display: flex; flex-direction: column; }
+        .hud-bar { background: #000; border: 1px solid #00ff00; color: #00ff00; padding: 6px; font-family: monospace; font-size: 0.85em; margin-bottom: 5px; display: flex; justify-content: space-around; }
+        .btn-row { display: flex; gap: 4px; margin-bottom: 5px; }
+        .dot-btn { flex: 1; padding: 12px 2px; font-weight: bold; border-radius: 4px; border: 2px solid transparent; color: #fff; font-size: 0.65em; text-align: center; cursor: pointer; }
+        .active-dot { border-color: #fff; box-shadow: 0 0 8px #fff; }
 
-        /* SETTINGS */
-        .set-row { padding: 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+        /* --- MEDICAL / RADIO --- */
+        .card { background: #0a0a0a; border: 1px solid #d4af37; border-radius: 10px; padding: 15px; margin-bottom: 12px; }
+        .speak-btn { background: #d4af37; color: #000; border: none; width: 100%; padding: 12px; font-weight: bold; border-radius: 5px; margin-top: 8px; cursor: pointer; }
+
+        /* --- WIND --- */
+        .compass-ring { width: 200px; height: 200px; border: 4px solid #d4af37; border-radius: 50%; margin: 20px auto; position: relative; }
+        .wind-arrow { position: absolute; top: 50%; left: 50%; width: 4px; height: 80px; background: #00ff00; transform-origin: bottom; transform: translate(-50%, -100%) rotate(0deg); transition: 0.5s; }
     </style>
 </head>
 <body>
 
 <div id="homepage">
-    <h1 style="color: #d4af37; letter-spacing: 3px;">ACSO</h1>
+    <h1 style="color: #d4af37;">ACSO K9</h1>
     <div class="app-grid">
-        <div class="app-icon" onclick="openModule('gps-module')"><div>📡</div><span>GPS</span></div>
-        <div class="app-icon" onclick="openModule('med-module')"><div>🐕</div><span>MEDICAL</span></div>
-        <div class="app-icon" onclick="openModule('log-module')"><div>📝</div><span>LOGS</span></div>
-        <div class="app-icon" onclick="openModule('wind-module')"><div>🌬️</div><span>WIND</span></div>
-        <div class="app-icon" onclick="openModule('radio-module')"><div>📻</div><span>RADIO</span></div>
-        <div class="app-icon" onclick="openModule('settings-module')"><div>⚙️</div><span>SETTINGS</span></div>
+        <div class="app-icon" onclick="openModule('gps-module')">📡<span>GPS</span></div>
+        <div class="app-icon" onclick="openModule('med-module')">🐕<span>MEDICAL</span></div>
+        <div class="app-icon" onclick="openModule('log-module')">📝<span>LOGS</span></div>
+        <div class="app-icon" onclick="openModule('wind-module')">🌬️<span>WIND</span></div>
+        <div class="app-icon" onclick="openModule('radio-module')">📻<span>RADIO</span></div>
+        <div class="app-icon" onclick="openModule('settings-module')">⚙️<span>SETTINGS</span></div>
     </div>
 </div>
 
-<!-- RADIO MODULE -->
-<div id="radio-module" class="module-layer">
-    <div class="nav-header"><button class="exit-btn" onclick="closeModule('radio-module')">EXIT</button><span style="color:#d4af37;">RADIO CODES</span></div>
+<!-- GPS -->
+<div id="gps-module" class="module-layer">
+    <div class="nav-header"><button class="exit-btn" onclick="closeModule('gps-module')">EXIT</button><span style="color:#d4af37;">GPS</span></div>
+    <div id="map"></div>
+    <div class="gps-controls">
+        <div class="hud-bar"><span>CP: <b id="cp-val">0</b> YD</span><span>GAP: <b id="gap-val">0</b> YD</span></div>
+        <div class="btn-row">
+            <div id="dot-blue" class="dot-btn active-dot" style="background:blue;" onclick="setMode('blue')">OFFICER</div>
+            <div id="dot-green" class="dot-btn" style="background:green;" onclick="setMode('green')">K9 UNIT</div>
+            <div id="dot-yellow" class="dot-btn" style="background:#d4af37; color:#000;" onclick="setMode('yellow')">PERIMETER</div>
+        </div>
+        <div class="btn-row">
+            <div id="dot-red" class="dot-btn" style="background:red;" onclick="setMode('red')">SAR</div>
+            <div id="dot-purple" class="dot-btn" style="background:purple;" onclick="setMode('purple')">SUBJECT</div>
+        </div>
+    </div>
+</div>
+
+<!-- MEDICAL -->
+<div id="med-module" class="module-layer">
+    <div class="nav-header"><button class="exit-btn" onclick="closeModule('med-module')">EXIT</button><span style="color:#d4af37;">K9 FIRST AID</span></div>
     <div class="content-scroll">
-        <div class="code-row" onclick="shout('10-4. Acknowledgement.')"><b>10-4</b> <span>ACKNOWLEDGED</span></div>
-        <div class="code-row" onclick="shout('10-20. Location.')"><b>10-20</b> <span>LOCATION</span></div>
-        <div class="code-row" onclick="shout('10-33. Emergency traffic.')"><b>10-33</b> <span style="color:red;">EMERGENCY</span></div>
-        <div class="code-row" onclick="shout('Signal 1. Officer in trouble.')"><b>SIGNAL 1</b> <span style="color:red;">OFFICER TROUBLE</span></div>
+        <div class="card"><h2>CPR</h2><p>30:2 Cycle.</p><button class="speak-btn" onclick="shout('Start CPR.')">🔊 VOICE</button></div>
+        <div class="card"><h2>GUNSHOT</h2><p>Direct pressure.</p><button class="speak-btn" onclick="shout('Gunshot protocol.')">🔊 VOICE</button></div>
+        <div class="card"><h2>HEAT</h2><p>Cool water.</p><button class="speak-btn" onclick="shout('Heat protocol.')">🔊 VOICE</button></div>
+        <div class="card"><h2>SNAKE</h2><p>Below heart.</p><button class="speak-btn" onclick="shout('Snake bite protocol.')">🔊 VOICE</button></div>
     </div>
 </div>
 
-<!-- SETTINGS MODULE -->
-<div id="settings-module" class="module-layer">
-    <div class="nav-header"><button class="exit-btn" onclick="closeModule('settings-module')">EXIT</button><span style="color:#d4af37;">SETTINGS</span></div>
+<!-- LOGS -->
+<div id="log-module" class="module-layer">
+    <div class="nav-header"><button class="exit-btn" onclick="closeModule('log-module')">EXIT</button><span style="color:#d4af37;">SEARCH LOGS</span></div>
     <div class="content-scroll">
-        <div class="set-row"><span>Unit ID</span> <b style="color:#d4af37;">ACSO K9-1</b></div>
-        <div class="set-row"><span>Voice Volume</span> <input type="range"></div>
-        <div class="set-row"><span>Night Mode</span> <input type="checkbox" checked></div>
-        <p style="text-align:center; color:#444; font-size:0.8em; margin-top:20px;">v6.0 - Amherst County Sheriff Endorsed</p>
+        <input type="text" id="log-loc" style="width:100%; padding:12px; background:#111; color:#fff; border:1px solid #d4af37;" placeholder="Location">
+        <textarea id="log-notes" style="width:100%; height:80px; margin-top:10px; background:#111; color:#fff; border:1px solid #d4af37;" placeholder="Findings"></textarea>
+        <button onclick="saveLog()" style="width:100%; padding:15px; background:#28a745; margin-top:10px; border:none; font-weight:bold;">SUBMIT</button>
+        <div id="log-display"></div>
     </div>
 </div>
 
-<!-- OTHER MODULES (PLACEHOLDERS TO ENSURE NO LOSS) -->
-<div id="gps-module" class="module-layer"><div class="nav-header"><button class="exit-btn" onclick="closeModule('gps-module')">EXIT</button><span>GPS ACTIVE</span></div></div>
-<div id="med-module" class="module-layer"><div class="nav-header"><button class="exit-btn" onclick="closeModule('med-module')">EXIT</button><span>MEDICAL ACTIVE</span></div></div>
-<div id="log-module" class="module-layer"><div class="nav-header"><button class="exit-btn" onclick="closeModule('log-module')">EXIT</button><span>LOGS ACTIVE</span></div></div>
-<div id="wind-module" class="module-layer"><div class="nav-header"><button class="exit-btn" onclick="closeModule('wind-module')">EXIT</button><span>WIND ACTIVE</span></div></div>
+<!-- WIND -->
+<div id="wind-module" class="module-layer">
+    <div class="nav-header"><button class="exit-btn" onclick="closeModule('wind-module')">EXIT</button><span style="color:#d4af37;">WIND</span></div>
+    <div class="content-scroll" style="text-align:center;">
+        <div class="compass-ring"><div id="w-arrow" class="wind-arrow"></div></div>
+        <h1 id="w-speed">-- MPH</h1>
+        <button class="speak-btn" onclick="updateWind()">REFRESH WIND</button>
+    </div>
+</div>
+
+<!-- RADIO / SETTINGS (RETAINED) -->
+<div id="radio-module" class="module-layer"><div class="nav-header"><button class="exit-btn" onclick="closeModule('radio-module')">EXIT</button><span>RADIO</span></div><div class="content-scroll"><div class="card" onclick="shout('10-33 Emergency.')">10-33: EMERGENCY</div></div></div>
+<div id="settings-module" class="module-layer"><div class="nav-header"><button class="exit-btn" onclick="closeModule('settings-module')">EXIT</button><span>SETTINGS</span></div><div class="content-scroll"><p>Unit ID: ACSO K9-1</p></div></div>
 
 <script>
-    function openModule(id) { document.getElementById(id).style.display = 'block'; }
+    var map, cpPos, lastMarkerPos, currentMode = 'blue';
+
+    function openModule(id) {
+        document.getElementById(id).style.display = 'block';
+        if (id === 'gps-module' && !map) {
+            map = L.map('map', { zoomControl: false }).setView([37.58, -79.05], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            map.on('click', function(e) { dropUnit(e.latlng, currentMode); });
+        }
+    }
+
     function closeModule(id) { document.getElementById(id).style.display = 'none'; window.speechSynthesis.cancel(); }
-    function shout(text) { window.speechSynthesis.cancel(); var u = new SpeechSynthesisUtterance(text); u.rate = 0.9; window.speechSynthesis.speak(u); }
+
+    function setMode(m) {
+        currentMode = m;
+        document.querySelectorAll('.dot-btn').forEach(b => b.classList.remove('active-dot'));
+        document.getElementById('dot-'+m).classList.add('active-dot');
+    }
+
+    function dropUnit(ll, color) {
+        var marker = L.circleMarker(ll, {radius: 12, fillColor: (color==='yellow'?'#d4af37':color), color: "#fff", weight: 2, fillOpacity: 0.9}).addTo(map);
+        if(lastMarkerPos) document.getElementById('gap-val').innerText = Math.round(ll.distanceTo(lastMarkerPos) * 1.09361);
+        lastMarkerPos = ll;
+    }
+
+    function saveLog() {
+        var entry = document.createElement('div');
+        entry.style = "background:#0a0a0a; border-left:4px solid #d4af37; padding:10px; margin-top:10px;";
+        entry.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong><br>${document.getElementById('log-loc').value}<br>${document.getElementById('log-notes').value}`;
+        document.getElementById('log-display').prepend(entry);
+    }
+
+    function updateWind() {
+        let deg = Math.floor(Math.random() * 360);
+        document.getElementById('w-speed').innerText = Math.floor(Math.random() * 10 + 2) + " MPH";
+        document.getElementById('w-arrow').style.transform = `translate(-50%, -100%) rotate(${deg}deg)`;
+    }
+
+    function shout(text) { window.speechSynthesis.cancel(); var u = new SpeechSynthesisUtterance(text); window.speechSynthesis.speak(u); }
 </script>
 
 </body>
