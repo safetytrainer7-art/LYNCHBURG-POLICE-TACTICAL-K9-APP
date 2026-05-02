@@ -1,15 +1,16 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSO K9 Command System</title>
+    <title>ACSO K9 Command Center</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Times New Roman', serif; overflow: hidden; }
 
-        /* --- THE 6-ICON HOMEPAGE --- */
+        /* --- HOMEPAGE --- */
         #homepage {
             width: 100%; height: 100%;
             background: radial-gradient(circle, #001a11 0%, #000 100%);
@@ -18,13 +19,13 @@
         }
         .app-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px; }
         .app-icon {
-            width: 110px; height: 110px; background: rgba(0,0,0,0.8); border: 2px solid #d4af37;
+            width: 115px; height: 115px; background: rgba(0,0,0,0.8); border: 2px solid #d4af37;
             border-radius: 15px; display: flex; flex-direction: column; align-items: center;
             justify-content: center; cursor: pointer; text-align: center;
         }
-        .app-icon span { color: #d4af37; font-weight: bold; margin-top: 8px; font-size: 0.8em; }
+        .app-icon span { color: #d4af37; font-weight: bold; margin-top: 8px; font-size: 0.85em; }
 
-        /* --- SHARED MODULE STYLING --- */
+        /* --- MODULE LAYERS --- */
         .module-layer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 2000; display: none;
@@ -33,27 +34,34 @@
             height: 60px; background: #000; display: flex; align-items: center; 
             justify-content: space-between; padding: 0 15px; border-bottom: 2px solid #d4af37;
         }
-        .exit-btn { background: #cc0000; color: #fff; border: 2px solid #fff; padding: 8px 12px; font-weight: bold; border-radius: 5px; }
+        .exit-btn { background: #900; color: #fff; border: 2px solid #fff; padding: 8px 12px; font-weight: bold; border-radius: 5px; }
 
-        /* --- K9 MEDICAL STYLING --- */
-        .medical-content { padding: 20px; overflow-y: auto; height: calc(100% - 80px); }
-        .protocol-card { 
-            background: #111; border: 1px solid #444; border-radius: 10px; 
-            padding: 15px; margin-bottom: 15px; cursor: pointer;
+        /* --- MEDICAL CONTENT --- */
+        .med-scroll { padding: 15px; overflow-y: auto; height: calc(100% - 80px); }
+        .med-card { 
+            background: #0a0a0a; border: 1px solid #d4af37; border-radius: 10px; 
+            padding: 20px; margin-bottom: 15px;
         }
-        .protocol-card h3 { color: #d4af37; margin: 0 0 10px 0; }
-        .voice-btn { background: #d4af37; color: #000; border: none; padding: 10px; font-weight: bold; width: 100%; border-radius: 5px; }
+        .med-card h2 { color: #d4af37; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .med-card p { color: #00ff00; font-family: monospace; font-size: 1.1em; line-height: 1.4; }
+        .speak-btn { 
+            background: #d4af37; color: #000; border: none; width: 100%; 
+            padding: 15px; font-weight: bold; border-radius: 5px; margin-top: 10px; font-size: 1em;
+        }
 
-        /* --- GPS STYLING --- */
-        #map { width: 100%; height: 50%; border-bottom: 3px solid #d4af37; }
-        .control-deck { height: calc(50% - 60px); background: #001a11; padding: 12px; box-sizing: border-box; }
+        /* --- GPS CONTENT --- */
+        #map { width: 100%; height: 50%; border-bottom: 2px solid #d4af37; }
+        .gps-controls { height: calc(50% - 60px); background: #001a11; padding: 15px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
-<!-- 1. HOMEPAGE -->
+<!-- HOMEPAGE -->
 <div id="homepage">
-    <h2 style="color: #d4af37; margin-bottom: 20px;">ACSO K9 COMMAND</h2>
+    <div style="text-align:center; margin-bottom: 30px;">
+        <h1 style="color: #d4af37; margin: 0; letter-spacing: 3px;">ACSO</h1>
+        <p style="color: #666; margin: 5px 0;">K9 COMMAND INTERFACE</p>
+    </div>
     <div class="app-grid">
         <div class="app-icon" onclick="openModule('gps-module')">
             <div style="font-size: 2.5em;">📡</div><span>TACTICAL GPS</span>
@@ -61,55 +69,56 @@
         <div class="app-icon" onclick="openModule('med-module')">
             <div style="font-size: 2.5em;">🐕</div><span>K9 MEDICAL</span>
         </div>
-        <div class="app-icon" onclick="alert('Logs Locked')">
+        <div class="app-icon" onclick="alert('Module Locked')">
             <div style="font-size: 2.5em;">📝</div><span>SEARCH LOGS</span>
         </div>
-        <div class="app-icon" onclick="alert('Wind Data Locked')">
+        <div class="app-icon" onclick="alert('Module Locked')">
             <div style="font-size: 2.5em;">🌬️</div><span>WIND/WX</span>
         </div>
-        <div class="app-icon" onclick="alert('Radio Locked')">
+        <div class="app-icon" onclick="alert('Module Locked')">
             <div style="font-size: 2.5em;">📻</div><span>RADIO CODES</span>
         </div>
-        <div class="app-icon" onclick="alert('Settings Locked')">
+        <div class="app-icon" onclick="alert('Module Locked')">
             <div style="font-size: 2.5em;">⚙️</div><span>SETTINGS</span>
         </div>
     </div>
 </div>
 
-<!-- 2. K9 MEDICAL MODULE -->
+<!-- K9 MEDICAL MODULE -->
 <div id="med-module" class="module-layer">
     <div class="nav-header">
-        <button class="exit-btn" onclick="closeModule('med-module')">EXIT TO HOME</button>
-        <span style="color: #d4af37; font-weight: bold;">MEDICAL PROTOCOLS</span>
+        <button class="exit-btn" onclick="closeModule('med-module')">SHUT DOWN MED</button>
+        <span style="color: #d4af37; font-weight: bold;">K9 FIRST AID</span>
     </div>
-    <div class="medical-content">
-        <div class="protocol-card" onclick="speak('K9 Trauma protocol. Check for gunshot wounds. Apply direct pressure. Clear airway.')">
-            <h3>GUNSHOT WOUND</h3>
-            <p style="font-size: 0.9em; color: #ccc;">Immediate steps for field stabilization.</p>
-            <button class="voice-btn">🔊 READ ALOUD</button>
+    <div class="med-scroll">
+        <div class="med-card">
+            <h2>K9 CPR</h2>
+            <p>1. Lay dog on right side.<br>2. 100-120 compressions per minute.<br>3. 30 compressions to 2 breaths.</p>
+            <button class="speak-btn" onclick="shout('K9 CPR Protocol. Lay the dog on its right side. Perform 100 to 120 compressions per minute. Cycle 30 compressions to 2 breaths.')">🔊 START VOICE GUIDE</button>
         </div>
-        <div class="protocol-card" onclick="speak('Heat exhaustion protocol. Move dog to shade. Apply cool water to paws and ears. Do not use ice.')">
-            <h3>HEAT EXHAUSTION</h3>
-            <p style="font-size: 0.9em; color: #ccc;">Cooling procedures for working dogs.</p>
-            <button class="voice-btn">🔊 READ ALOUD</button>
+        <div class="med-card">
+            <h2>GUNSHOT / BLEED</h2>
+            <p>1. Apply direct pressure.<br>2. Use hemostatic gauze if available.<br>3. Pack wound; do not remove soaked bandages.</p>
+            <button class="speak-btn" onclick="shout('Trauma Bleeding Protocol. Apply immediate direct pressure. Use hemostatic gauze. Pack the wound. Do not remove bandages once soaked.')">🔊 START VOICE GUIDE</button>
         </div>
-        <div class="protocol-card" onclick="speak('Snake bite protocol. Identify snake if possible. Keep the K-9 calm and immobilized. Transport to nearest vet.')">
-            <h3>SNAKE BITE</h3>
-            <p style="font-size: 0.9em; color: #ccc;">Venomous snake encounter protocols.</p>
-            <button class="voice-btn">🔊 READ ALOUD</button>
+        <div class="med-card">
+            <h2>SNAKE BITE</h2>
+            <p>1. Keep K9 calm & immobilized.<br>2. Keep bite site below heart level.<br>3. Immediate transport to emergency vet.</p>
+            <button class="speak-btn" onclick="shout('Snake Bite Protocol. Keep the dog calm and still. Keep the bite site below heart level. Transport immediately to the emergency vet.')">🔊 START VOICE GUIDE</button>
         </div>
     </div>
 </div>
 
-<!-- 3. GPS MODULE (Same as before) -->
+<!-- GPS MODULE -->
 <div id="gps-module" class="module-layer">
     <div class="nav-header">
-        <button class="exit-btn" onclick="closeModule('gps-module')">EXIT TO HOME</button>
-        <span style="color: #d4af37; font-weight: bold;">FIELD MAP</span>
+        <button class="exit-btn" onclick="closeModule('gps-module')">SHUT DOWN GPS</button>
+        <span style="color: #d4af37; font-weight: bold;">FIELD GPS</span>
     </div>
     <div id="map"></div>
-    <div class="control-deck">
-        <p style="text-align:center; color:#d4af37;">GPS TRACKING ENGINE ACTIVE</p>
+    <div class="gps-controls">
+        <p style="text-align:center; color:#00ff00; font-family:monospace;">ENGINE STATUS: ACTIVE</p>
+        <p style="text-align:center; color:#777; font-size:0.8em;">Map rendering active for Amherst County operations.</p>
     </div>
 </div>
 
@@ -126,14 +135,15 @@
 
     function closeModule(id) {
         document.getElementById(id).style.display = 'none';
+        window.speechSynthesis.cancel();
     }
 
-    // VOICE ENGINE - This uses the device's built-in voice
-    function speak(text) {
-        window.speechSynthesis.cancel(); // Stop current speech
-        var msg = new SpeechSynthesisUtterance(text);
-        msg.rate = 0.9; // Slightly slower for clarity
-        window.speechSynthesis.speak(msg);
+    function shout(text) {
+        window.speechSynthesis.cancel();
+        var utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.85; // Clear, professional pace
+        utterance.pitch = 1.0;
+        window.speechSynthesis.speak(utterance);
     }
 </script>
 
