@@ -1,79 +1,93 @@
+
 <div id="m-map" class="page">
     <div class="header">
         <button class="back-btn" onclick="closePage('m-map')">← BACK</button>
-        <h2 style="color:#c5a059; margin:0;">TACTICAL COMMAND MAP</h2>
+        <h2 style="color:#c5a059; margin:0; font-size: 18px;">TACTICAL COMMAND</h2>
     </div>
 
     <div style="background: #000; padding: 10px; border-bottom: 2px solid #c5a059;">
-        <div style="display: flex; gap: 5px; margin-bottom: 10px;">
-            <input type="text" id="map-search" placeholder="ADDRESS, CITY..." 
-                   style="flex-grow: 1; padding: 12px; background: #111; color: #fff; border: 1px solid #c5a059;">
-            <button onclick="searchAddr()" style="background: #c5a059; color: #000; border: none; padding: 10px 20px; font-weight: bold;">GO</button>
+        <div style="display: flex; gap: 5px; margin-bottom: 8px;">
+            <input type="text" id="map-search" placeholder="ADDRESS..." 
+                   style="flex-grow: 1; padding: 12px; background: #111; color: #fff; border: 1px solid #c5a059; font-size: 16px;">
+            <button onclick="searchAddr()" style="background: #c5a059; color: #000; border: none; padding: 0 15px; font-weight: bold;">GO</button>
         </div>
-
         <button id="start-btn" onclick="startGps()" 
-                style="width: 100%; background: #004400; color: #fff; border: 2px solid #00ff00; padding: 15px; font-weight: bold; margin-bottom:10px;">
-            ▶ START LIVE GPS TRACKING
+                style="width: 100%; background: #004400; color: #fff; border: 2px solid #00ff00; padding: 12px; font-weight: bold; border-radius: 4px;">
+            ▶ START LIVE GPS
         </button>
+    </div>
 
-        <div style="display: flex; justify-content: space-around;">
-            <button class="tool-btn" onclick="setRole('le')">LE (BLUE)</button>
-            <button class="tool-btn" onclick="setRole('k9')">K9 (LT BLUE)</button>
-            <button class="tool-btn" onclick="setRole('sar')">SAR (RED)</button>
-            <button class="tool-btn" onclick="setRole('sub')">SUB (PURPLE)</button>
+    <div id="live-map" style="width: 100%; height: 40vh; background: #111; border-bottom: 2px solid #c5a059;"></div>
+
+    <div style="background: #000; padding: 10px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; gap: 4px;">
+            <button class="role-btn" style="border-top: 4px solid blue;" onclick="setRole('le')">LE</button>
+            <button class="role-btn" style="border-top: 4px solid lightblue;" onclick="setRole('k9')">K9</button>
+            <button class="role-btn" style="border-top: 4px solid red;" onclick="setRole('sar')">SAR</button>
+            <button class="role-btn" style="border-top: 4px solid purple;" onclick="setRole('sub')">SUB</button>
+            <button class="role-btn" style="border-top: 4px solid green;" onclick="setRole('civ')">CIV</button>
+        </div>
+
+        <div style="display: flex; gap: 5px;">
+            <button class="act-btn" style="background: #600; color: white;" onclick="togglePerimeter()">📍 PERIMETER</button>
+            <button class="act-btn" onclick="dropFlag()">🚩 FOUND PROP</button>
+            <button class="act-btn" onclick="toggleNight()">🌙 NIGHT</button>
         </div>
     </div>
 
-    <div id="live-map" style="width: 100%; height: 50vh; background: #222; border-bottom: 2px solid #c5a059; position: relative;">
-        <div id="map-fallback" style="position:absolute; top:40%; width:100%; text-align:center; color:#c5a059;">
-            <p>SATELLITE LINK STANDBY</p>
-            <button onclick="initMap()" style="background:#c5a059; color:#000; padding:10px; border:none; font-weight:bold;">FORCE LOAD MAP</button>
-        </div>
-    </div>
-
-    <div style="padding: 12px; background: #000; color: #c5a059; font-family: monospace; font-size: 13px; display: flex; justify-content: space-between;">
-        <div id="wind-dir">🚩 WIND: NORTH 8MPH</div>
-        <div id="dist-check">DIST: -- FT</div>
+    <div style="display: flex; justify-content: space-between; padding: 10px; background: #111; color: #c5a059; font-family: monospace; font-size: 12px; border-top: 1px solid #333;">
+        <div>🚩 WIND: NW 12MPH</div>
+        <div>DIST: -- FT</div>
     </div>
 </div>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 <style>
-    .tool-btn { flex: 1; background: #1a1a1a; color: #c5a059; border: 1px solid #c5a059; padding: 10px 2px; font-size: 10px; font-weight: bold; border-radius: 4px; margin: 0 2px; }
-    .pulse { width: 16px; height: 16px; background: #007bff; border: 3px solid white; border-radius: 50%; animation: pulse-blue 2s infinite; }
+    /* Prevent iOS zoom/scroll issues */
+    html, body { touch-action: manipulation; }
+    
+    .role-btn { flex: 1; background: #1a1a1a; color: #fff; border: 1px solid #444; padding: 10px 0; font-size: 12px; font-weight: bold; border-radius: 4px; }
+    .act-btn { flex: 1; background: #c5a059; color: #000; border: none; padding: 15px 0; font-size: 11px; font-weight: bold; border-radius: 4px; text-transform: uppercase; }
+    
+    /* Marker Styles */
+    .pulse { width: 18px; height: 18px; background: #007bff; border: 3px solid white; border-radius: 50%; animation: pulse-blue 2s infinite; }
     @keyframes pulse-blue { 0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(0, 123, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); } }
+    .night-vision-map { filter: invert(100%) hue-rotate(180deg) brightness(0.6) contrast(1.2); }
 </style>
 
 <script>
     let map;
     let userMarker;
+    let perimeterMode = false;
 
     function initMap() {
         if (!map) {
-            // Force it to show Amherst County coordinates immediately
-            map = L.map('live-map').setView([37.525, -79.15], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            document.getElementById('map-fallback').style.display = 'none';
-        } else {
-            map.invalidateSize();
+            map = L.map('live-map', { zoomControl: false }).setView([37.525, -79.15], 13);
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            L.control.zoom({ position: 'bottomright' }).addTo(map);
         }
     }
 
-    async function searchAddr() {
-        let addr = document.getElementById('map-search').value;
-        if(!addr) return;
-        initMap(); // Ensure map is live
-        
-        try {
-            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr)}`);
-            const data = await res.json();
-            if (data.length > 0) {
-                map.setView([data[0].lat, data[0].lon], 17);
-                L.marker([data[0].lat, data[0].lon]).addTo(map).bindPopup("<b>SEARCH LOCATION</b>").openPopup();
-            }
-        } catch (e) { console.log("Search blocked by browser firewall."); }
+    function togglePerimeter() {
+        perimeterMode = !perimeterMode;
+        if(perimeterMode) {
+            alert("PERIMETER ACTIVE: Tap map to drop RED DOTS.");
+            map.on('click', function(e) {
+                L.circleMarker(e.latlng, { color: 'red', radius: 8, fillOpacity: 0.9, weight: 2 }).addTo(map);
+            });
+        } else {
+            alert("PERIMETER OFF.");
+            map.off('click');
+        }
+    }
+
+    function dropFlag() {
+        if (userMarker) {
+            L.marker(userMarker.getLatLng(), { 
+                icon: L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-gold.png', iconSize: [25, 41] }) 
+            }).addTo(map).bindPopup("<b>EVIDENCE LOCATED</b>").openPopup();
+        } else {
+            alert("Start GPS first.");
+        }
     }
 
     function startGps() {
@@ -84,7 +98,7 @@
                 const lng = pos.coords.longitude;
                 if (userMarker) { userMarker.setLatLng([lat, lng]); } 
                 else {
-                    const icon = L.divIcon({ className: 'pulse', iconSize: [16, 16] });
+                    const icon = L.divIcon({ className: 'pulse', iconSize: [18, 18] });
                     userMarker = L.marker([lat, lng], { icon: icon }).addTo(map);
                 }
                 map.panTo([lat, lng]);
@@ -92,10 +106,23 @@
         }
     }
 
-    // Connect to your main app buttons
     function openPage(id) { 
         document.getElementById(id).style.display = 'block'; 
-        if(id === 'm-map') setTimeout(initMap, 300); 
+        if(id === 'm-map') setTimeout(function(){ initMap(); map.invalidateSize(); }, 400); 
     }
     function closePage(id) { document.getElementById(id).style.display = 'none'; }
+    function toggleNight() { document.getElementById('live-map').classList.toggle('night-vision-map'); }
+
+    async function searchAddr() {
+        let addr = document.getElementById('map-search').value;
+        if(!addr) return;
+        try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr)}`);
+            const data = await res.json();
+            if (data.length > 0) {
+                map.setView([data[0].lat, data[0].lon], 17);
+                L.marker([data[0].lat, data[0].lon]).addTo(map).bindPopup("SEARCH POINT").openPopup();
+            }
+        } catch (e) { console.log("Search error."); }
+    }
 </script>
