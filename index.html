@@ -1,133 +1,122 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD TACTICAL HUB</title>
+    <title>ACSD COMMAND HUB</title>
     <style>
         :root {
             --gold-main: #c5a059;
             --gold-dim: rgba(197, 160, 89, 0.5);
-            --tactical-bg: radial-gradient(circle, #001a00 0%, #000000 100%);
+            /* Tactical brushed texture background */
+            --tactical-bg: radial-gradient(circle, #012001 0%, #000000 100%), 
+                           url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEUAAAAsKywzMzMzMzM7OzszMzM0NDQ0NDQ4ODg0NDQ0NDQ0NDQ0NDQ4ODg0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ4ODg0NDQ0NDQ0NDQ0NDQ0NDR/dE4WAAAAGXRSTlMAAwUGBwgJCgsMDQ4PEBESExQVFhcYGRoaGyD91P4AAAChSURBVDjL7ZJbDsMgDAQ7CSG0vf+V7X7VTZpI5UuJ7Z8ABy45OIn9B3Xv06M7zT5j1zF4A4XfE4P3HjV6H7H7mD1C/H4U+D0S9b5Zp5R0WkqnpXRaSqeVdFpKp5V0WkqnpXRaSqeVdFpKp5V0WkqnpXRaSqeVdFpKp5V0WkqnpXRaSqeXdLqK5X9AEvsP6t6nR3eafU6H7jV7H7E6P7T7I8YvVvU+PbqzGvUee4fYL8TvE4O3H8X+AXN/WqY8/S6NAAAAAElFTkSuQmCC');
         }
 
-        body, html { 
-            margin: 0; padding: 0; height: 100vh; width: 100vw; 
-            background: #000; overflow: hidden; 
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        }
+        body, html { margin: 0; padding: 0; height: 100vh; width: 100vw; background: #000; overflow: hidden; font-family: 'Georgia', serif; }
 
-        /* Tactical Background Layer */
+        /* Tactical Command Container */
         #container {
             width: 100vw; height: 100vh;
             background: var(--tactical-bg);
-            display: flex; justify-content: center; align-items: center;
-            border: 5px solid #111; box-sizing: border-box;
+            background-blend-mode: color-burn, overlay;
+            display: flex; flex-direction: column; align-items: center;
         }
 
-        /* Central Anchor */
-        .center-hub {
+        /* --- THE ANCHORED OFFICIAL STAR --- */
+        #official-star {
             position: absolute;
+            top: 2%; /* Absolute distance from the top */
+            width: 50px; height: 50px; /* Approximately 1 inch x 1 inch on most mobile screens */
+            background-image: url('badge.png'), url('badge.jpg'), url('badge.gif'); /* Looks for your specific file */
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 100; /* Stays on top of everything */
+            filter: drop-shadow(0 0 10px rgba(197, 160, 89, 0.8)); /* Official Gold Glow */
+        }
+
+        /* The background "Watermark" Star (The original image you provided) */
+        .watermark-star {
+            position: absolute;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 50%; max-width: 450px;
+            background-image: url('homepage.jpg'); /* The first K9 picture you sent */
+            background-size: contain; background-repeat: no-repeat; background-position: center;
+            opacity: 0.1; /* Very faint background watermark */
             z-index: 1;
-            width: 40%; max-width: 400px;
-            filter: drop-shadow(0 0 30px rgba(197, 160, 89, 0.3));
-            opacity: 0.8;
         }
 
-        /* Glass Tile Buttons */
-        .glass-tile {
-            position: absolute;
-            width: 22%; height: 26%;
-            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.4) 100%);
-            border: 1px solid var(--gold-dim);
-            backdrop-filter: blur(10px); /* Creates the "Glass" effect */
+        /* The 6 Tool Blocks (Now organized around the anchored top star) */
+        .tool-col { position: absolute; width: 25%; height: 80%; top: 12%; display: flex; flex-direction: column; justify-content: space-around; z-index: 10; }
+        .left { left: 3%; }
+        .right { right: 3%; }
+
+        /* Tactical Tool Styling */
+        .tactical-btn {
+            background: rgba(0, 15, 0, 0.9);
+            border: 2px solid var(--gold-main);
             color: var(--gold-main);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            text-align: center; border-radius: 8px;
-            cursor: pointer; z-index: 10;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transition: 0.2s;
+            padding: 20px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.7);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 14px;
         }
+        .tactical-btn:active { background: var(--gold-main); color: #000; transform: scale(0.98); }
 
-        .glass-tile:active {
-            border-color: var(--gold-main);
-            background: rgba(197, 160, 89, 0.1);
-            transform: scale(0.98);
-        }
-
-        .btn-label { font-size: 18px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
-        .btn-sub { font-size: 10px; opacity: 0.6; margin-top: 5px; }
-
-        /* Left Column Placement */
-        #sos  { top: 5%;  left: 3%; border-left: 4px solid #8b0000; } /* Red accent for SOS */
-        #law  { top: 37%; left: 3%; }
-        #narc { top: 69%; left: 3%; }
-
-        /* Right Column Placement */
-        #map  { top: 5%;  right: 3%; }
-        #logs { top: 37%; right: 3%; }
-        #code { top: 69%; right: 3%; }
-
-        /* Content Overlay */
-        .overlay { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #000d00; z-index: 1000; overflow-y: auto;
-        }
-        .header { padding: 25px; border-bottom: 2px solid var(--gold-main); display: flex; justify-content: space-between; align-items: center; background: #000; }
-        .content { padding: 40px; color: #eee; font-size: 22px; line-height: 1.6; }
-        .back-btn { background: var(--gold-main); color: #000; padding: 10px 25px; border: none; font-weight: bold; border-radius: 4px; }
+        /* Modules */
+        .module { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #001200; z-index: 1000; color: #eee; flex-direction: column; overflow-y: auto; }
+        .mod-header { background: #000; padding: 25px; border-bottom: 2px solid var(--gold-main); display: flex; justify-content: space-between; align-items: center; }
+        .back { background: var(--gold-main); color: #000; border: none; padding: 10px 25px; font-weight: bold; border-radius: 4px; }
+        .content { padding: 40px; font-size: 20px; line-height: 1.6; }
+        h2 { color: var(--gold-main); border-bottom: 1px solid var(--gold-main); padding-bottom: 10px; }
     </style>
 </head>
 <body>
 
 <div id="container">
-    <img src="homepage.jpg" class="center-hub" alt="ACSD Star">
+    <div id="official-star"></div>
 
-    <div class="glass-tile" id="sos" onclick="openMod('m-sos')">
-        <span class="btn-label">K9 SOS</span>
-        <span class="btn-sub">EMERGENCY TRIAGE</span>
-    </div>
-    <div class="glass-tile" id="law" onclick="openMod('m-law')">
-        <span class="btn-label">LEGAL BIBLE</span>
-        <span class="btn-sub">CASE LAW / 4TH AMEND</span>
-    </div>
-    <div class="glass-tile" id="narc" onclick="alert('Narcotics Detection Standards Ready')">
-        <span class="btn-label">NARCOTICS</span>
-        <span class="btn-sub">SOP / CERTIFICATIONS</span>
+    <div class="watermark-star"></div>
+
+    <div class="tool-col left">
+        <div class="tactical-btn" onclick="openMod('m-sos')">K9 SOS</div>
+        <div class="tactical-btn" onclick="openMod('m-law')">Legal Bible</div>
+        <div class="tactical-btn">Narcotics</div>
     </div>
 
-    <div class="glass-tile" id="map" onclick="alert('GPS Tactical Mapping Ready')">
-        <span class="btn-label">TACTICAL MAP</span>
-        <span class="btn-sub">GPS / PERIMETERS</span>
-    </div>
-    <div class="glass-tile" id="logs" onclick="alert('Training & Maintenance Logs Ready')">
-        <span class="btn-label">TRAINING LOGS</span>
-        <span class="btn-sub">K9 PROFICIENCY</span>
-    </div>
-    <div class="glass-tile" id="code" onclick="alert('Virginia Criminal Code Title 18.2 Ready')">
-        <span class="btn-label">VA CODE</span>
-        <span class="btn-sub">CRIMINAL STATUTES</span>
+    <div class="tool-col right">
+        <div class="tactical-btn">Tactical Map</div>
+        <div class="tactical-btn">Training Logs</div>
+        <div class="tactical-btn">VA Code</div>
     </div>
 </div>
 
-<div id="m-sos" class="overlay">
-    <div class="header"><span style="color:var(--gold-main); font-weight:bold;">FIELD TRAUMA PROTOCOLS</span><button class="back-btn" onclick="closeMod('m-sos')">HUB</button></div>
+<div id="m-law" class="module">
+    <div class="mod-header"><span>LEGAL SHIELD BIBLE</span><button class="back" onclick="closeMod('m-law')">HUB</button></div>
     <div class="content">
-        <h2 style="color:var(--gold-main)">K9 IMMEDIATE ACTION</h2>
-        <p><strong>HEAT STRESS:</strong> Seek shade immediately. Cool water on pads and groin. Do not use ice water.</p>
+        <h2>FOURTH AMENDMENT / K9 LAW</h2>
+        <p><strong>Graham v. Connor (1989):</strong> Standard of objective reasonableness.</p>
+        <p><strong>Rodriguez v. US (2015):</strong> Extension of traffic stop.</p>
     </div>
 </div>
 
-<div id="m-law" class="overlay">
-    <div class="header"><span style="color:var(--gold-main); font-weight:bold;">LEGAL SHIELD BIBLE</span><button class="back-btn" onclick="closeMod('m-law')">HUB</button></div>
+<div id="m-sos" class="module">
+    <div class="mod-header"><span>K9 EMERGENCY SOS</span><button class="back" onclick="closeMod('m-sos')">HUB</button></div>
     <div class="content">
-        <h2 style="color:var(--gold-main)">FEDERAL CASE LAW</h2>
-        <p><strong>RODRIGUEZ v. UNITED STATES:</strong> Stop duration cannot be extended for a K9 sniff without independent reasonable suspicion.</p>
+        <h2>FIELD TRAUMA</h2>
+        <p>Immediate steps for heat stress and trauma protocols.</p>
     </div>
 </div>
 
 <script>
-    function openMod(id) { document.getElementById(id).style.display = 'block'; }
+    function openMod(id) { document.getElementById(id).style.display = 'flex'; }
     function closeMod(id) { document.getElementById(id).style.display = 'none'; }
 </script>
 
