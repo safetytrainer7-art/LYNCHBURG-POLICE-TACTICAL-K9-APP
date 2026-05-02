@@ -6,16 +6,16 @@
 
     <div style="background: #000; padding: 10px; border-bottom: 2px solid #c5a059;">
         <div style="display: flex; gap: 5px; margin-bottom: 10px;">
-            <input type="text" id="map-search" placeholder="STREET, CITY..." 
+            <input type="text" id="map-search" placeholder="ADDRESS, CITY, VA..." 
                    style="flex-grow: 1; padding: 12px; background: #111; color: #fff; border: 1px solid #c5a059; font-size: 16px;">
             <button onclick="searchAddr()" style="background: #c5a059; color: #000; border: none; padding: 10px 20px; font-weight: bold;">GO</button>
         </div>
 
         <div style="display: flex; justify-content: space-around; margin-bottom: 10px;">
-            <button class="tool-btn le-btn" onclick="setRole('le')">BLUE (LE)</button>
-            <button class="tool-btn k9-btn" onclick="setRole('k9')">LT BLUE (K9)</button>
-            <button class="tool-btn sar-btn" onclick="setRole('sar')">RED (SAR)</button>
-            <button class="tool-btn sub-btn" onclick="setRole('sub')">PURPLE (SUB)</button>
+            <button class="tool-btn" style="border-left: 4px solid blue;" onclick="setRole('le')">LE</button>
+            <button class="tool-btn" style="border-left: 4px solid lightblue;" onclick="setRole('k9')">K9</button>
+            <button class="tool-btn" style="border-left: 4px solid red;" onclick="setRole('sar')">SAR</button>
+            <button class="tool-btn" style="border-left: 4px solid purple;" onclick="setRole('sub')">SUB</button>
         </div>
 
         <button id="start-btn" onclick="startGps()" 
@@ -24,53 +24,42 @@
         </button>
     </div>
 
-    <div id="live-map" style="width: 100%; height: 55vh; background: #111; border-bottom: 2px solid #c5a059;"></div>
+    <div id="live-map" style="width: 100%; height: 50vh; background: #222; border-bottom: 2px solid #c5a059;">
+        <p id="map-status" style="color: #c5a059; text-align: center; padding-top: 20vh;">INITIALIZING SATELLITE LINK...</p>
+    </div>
 
-    <div style="display: flex; justify-content: space-between; padding: 12px; background: #000; color: #c5a059; font-family: monospace; font-size: 13px;">
+    <div style="padding: 12px; background: #000; color: #c5a059; font-family: monospace; font-size: 13px;">
         <div id="wind-dir">🚩 WIND: NORTH 8MPH</div>
         <div id="dist-check">OFFICER DIST: -- FT</div>
     </div>
 </div>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
     .tool-btn { flex: 1; background: #1a1a1a; color: #c5a059; border: 1px solid #c5a059; padding: 10px 2px; font-size: 11px; font-weight: bold; border-radius: 4px; margin: 0 2px; }
-    .le-btn { border-left: 5px solid blue; }
-    .k9-btn { border-left: 5px solid lightblue; }
-    .sar-btn { border-left: 5px solid red; }
-    .sub-btn { border-left: 5px solid purple; }
-    
-    /* Live Pulse Effect for Officer Location */
-    .pulse {
-        width: 15px; height: 15px;
-        background: #007bff; border: 3px solid white;
-        border-radius: 50%; box-shadow: 0 0 0 rgba(0, 123, 255, 0.4);
-        animation: pulse-blue 2s infinite;
-    }
-    @keyframes pulse-blue {
-        0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); }
-        70% { box-shadow: 0 0 0 15px rgba(0, 123, 255, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
-    }
+    .pulse { width: 15px; height: 15px; background: #007bff; border: 3px solid white; border-radius: 50%; animation: pulse-blue 2s infinite; }
+    @keyframes pulse-blue { 0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(0, 123, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); } }
 </style>
 
 <script>
     let map;
     let userMarker;
 
-    function initMap() {
+    // Load the map engine as soon as the window loads
+    window.onload = function() {
         if (!map) {
-            // Defaulting to general VA coordinates until GPS kicks in
-            map = L.map('live-map').setView([37.525, -79.15], 13); 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            map = L.map('live-map', { zoomControl: false }).setView([37.525, -79.15], 13); 
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19
+            }).on('tileload', function() {
+                document.getElementById('map-status').style.display = 'none';
             }).addTo(map);
+            L.control.zoom({ position: 'bottomright' }).addTo(map);
         }
-    }
+    };
 
-    // New Geocoding Function (The "GO" button logic)
     async function searchAddr() {
         let addr = document.getElementById('map-search').value;
         if(!addr) return;
@@ -82,13 +71,13 @@
             if (data.length > 0) {
                 const lat = data[0].lat;
                 const lon = data[0].lon;
-                map.setView([lat, lon], 17); // Zoom in close to the address
-                L.marker([lat, lon]).addTo(map).bindPopup("<b>SEARCH START POINT</b><br>" + addr).openPopup();
+                map.setView([lat, lon], 17);
+                L.marker([lat, lon]).addTo(map).bindPopup("<b>POINT OF INTEREST</b>").openPopup();
             } else {
-                alert("Address not found. Please try adding City and State.");
+                alert("Location not found. Try adding 'Virginia' to the end.");
             }
         } catch (error) {
-            alert("Search service error. Check internet connection.");
+            alert("Connection error. Ensure data is active.");
         }
     }
 
@@ -97,22 +86,17 @@
             navigator.geolocation.watchPosition(pos => {
                 const lat = pos.coords.latitude;
                 const lng = pos.coords.longitude;
-                
-                if (userMarker) {
-                    userMarker.setLatLng([lat, lng]);
-                } else {
+                if (userMarker) { userMarker.setLatLng([lat, lng]); } 
+                else {
                     const icon = L.divIcon({ className: 'pulse', iconSize: [15, 15] });
                     userMarker = L.marker([lat, lng], { icon: icon }).addTo(map);
                 }
                 map.panTo([lat, lng]);
-            }, err => alert("Please allow GPS access in your settings."), { enableHighAccuracy: true });
+            }, err => alert("GPS Denied. Check Phone Permissions."), { enableHighAccuracy: true });
         }
     }
 
-    // Attach map trigger to your existing openPage function
-    window.addEventListener('click', function(e) {
-        if (e.target.innerText === "TACTICAL MAP") {
-            setTimeout(initMap, 200);
-        }
-    });
+    // Keep your original open/close functions operational
+    function openPage(id) { document.getElementById(id).style.display = 'block'; if(id==='m-map') map.invalidateSize(); }
+    function closePage(id) { document.getElementById(id).style.display = 'none'; }
 </script>
