@@ -4,131 +4,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>K9 Command - ACSO GPS LIVE</title>
-    <!-- Leaflet Map Engine - Required for Live GPS -->
+    <title>K9 Command - ACSO TACTICAL</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; font-family: 'Times New Roman', serif; color: #fff; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; color: #fff; font-family: 'Times New Roman', serif; overflow: hidden; }
         
-        .app-screen { width: 100vw; height: 100vh; background: #000; position: relative; }
+        /* 1. THE MAP - OCCUPIES TOP HALF */
+        #map { width: 100%; height: 55%; border-bottom: 5px solid #d4af37; background: #111; }
 
-        /* THE LIVE MAP CONTAINER */
-        #map { width: 100%; height: 50vh; border-bottom: 4px solid #d4af37; background: #111; }
-
-        .controls { padding: 20px; background: #001a11; height: 50vh; overflow-y: auto; border: 8px solid #d4af37; box-sizing: border-box; }
-
-        .search-box { width: 100%; padding: 15px; font-size: 1.2em; margin-bottom: 10px; background: #000; color: #d4af37; border: 2px solid #d4af37; }
-        
-        .action-btn { 
-            width: 100%; padding: 15px; margin-bottom: 10px; font-weight: bold; 
-            text-transform: uppercase; border: none; border-radius: 5px; cursor: pointer; font-size: 1.1em;
+        /* 2. THE COMMAND PANEL - BOTTOM HALF */
+        .command-panel { 
+            width: 100%; height: 45%; background: #001a11; 
+            padding: 20px; box-sizing: border-box; overflow-y: auto;
+            border-top: 2px solid #d4af37;
         }
-        .start-btn { background: #0044cc; color: white; }
-        .voice-btn { background: #ff0000; color: white; }
-        .night-btn { background: #333; color: #00ff00; border: 1px solid #00ff00; }
 
-        .asset-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .dot-btn { padding: 10px; color: white; font-weight: bold; border-radius: 5px; border: 1px solid #fff; cursor: pointer; text-align: center; }
+        .search-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        
+        .address-input { 
+            width: 100%; padding: 18px; font-size: 1.3em; background: #000; 
+            color: #d4af37; border: 2px solid #d4af37; border-radius: 5px;
+        }
 
-        /* TACTICAL NIGHT VISION */
-        .night-vision { filter: invert(1) hue-rotate(90deg) brightness(0.8); }
+        /* THE "GO" BUTTON - IMPOSSIBLE TO MISS */
+        .go-btn { 
+            background: #28a745; color: white; padding: 20px; font-size: 1.5em; 
+            font-weight: bold; text-transform: uppercase; border: none; 
+            border-radius: 10px; cursor: pointer; box-shadow: 0 5px #19692c;
+        }
+        .go-btn:active { transform: translateY(4px); box-shadow: 0 2px #19692c; }
 
-        h2 { color: #d4af37; font-size: 1.3em; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid #d4af37; }
+        .secondary-btn { 
+            background: #0044cc; color: white; padding: 12px; 
+            border: none; border-radius: 5px; font-weight: bold;
+        }
+
+        .asset-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin: 15px 0; }
+        .dot-btn { padding: 15px 5px; font-size: 0.8em; font-weight: bold; color: white; border-radius: 5px; text-align: center; cursor: pointer; border: 1px solid #fff; }
+
+        /* NIGHT VISION OVERLAY */
+        .nv-mode { filter: sepia(100%) hue-rotate(90deg) brightness(1.2) contrast(1.2); }
     </style>
 </head>
 <body>
 
-<div class="app-screen">
-    <!-- THE LIVE SATELLITE MAP -->
-    <div id="map"></div>
+<div id="map"></div>
 
-    <div class="controls" id="controlPanel">
-        <h2>Tactical GPS Command</h2>
-        
-        <input type="text" id="addressInput" class="search-box" placeholder="Enter Address (e.g. Amherst, VA)...">
-        <button class="action-btn start-btn" onclick="locateAddress()">Initialize Search Area</button>
-        <button class="action-btn night-btn" onclick="toggleNightVision()">Toggle Night Vision Desktop</button>
-
-        <div class="asset-menu">
-            <div class="dot-btn" style="background: blue;" onclick="addMarker('blue', 'Officer')">+ Officer</div>
-            <div class="dot-btn" style="background: red;" onclick="addMarker('red', 'SAR')">+ SAR</div>
-            <div class="dot-btn" style="background: green;" onclick="addMarker('green', 'Civilian')">+ Civilian</div>
-            <div class="dot-btn" style="background: purple;" onclick="addMarker('purple', 'Suspect')">+ Suspect</div>
-        </div>
-
-        <div style="margin-top: 20px;">
-            <button class="action-btn voice-btn" onclick="speakProtocol()">Voice Protocol Assistant</button>
-            <p id="protocolText" style="font-size: 1.1em; line-height: 1.5;">
-                <b>Operational Status:</b> Map initialized. Use the buttons above to place assets on the perimeter. Every dot is tracked in real-time for officer safety and search saturation.
-            </p>
-        </div>
+<div class="command-panel" id="ui">
+    <div class="search-container">
+        <input type="text" id="targetAddr" class="address-input" placeholder="ENTER ADDRESS OR TOWN...">
+        <button class="go-btn" onclick="executeSearch()">Execute & Start Search</button>
+        <button class="secondary-btn" onclick="useMyLocation()">Use My Current GPS Location</button>
     </div>
+
+    <div class="asset-grid">
+        <div class="dot-btn" style="background: blue;" onclick="dropDot('blue', 'Officer')">OFFICER</div>
+        <div class="dot-btn" style="background: red;" onclick="dropDot('red', 'SAR')">SAR</div>
+        <div class="dot-btn" style="background: green;" onclick="dropDot('green', 'CIV')">CIVILIAN</div>
+        <div class="dot-btn" style="background: purple;" onclick="dropDot('purple', 'SUB')">SUBJECT</div>
+    </div>
+
+    <button class="secondary-btn" style="width:100%; background:#333; color:#00ff00; border:1px solid #00ff00;" onclick="toggleNV()">TOGGLE NIGHT VISION</button>
 </div>
 
 <script>
-    // 1. Initialize the Map centered on Amherst County
-    var map = L.map('map').setView([37.5857, -79.0517], 13);
-
-    // 2. Load the Visual Map Layer
+    // Initialize map focused on Amherst, VA area
+    var map = L.map('map').setView([37.58, -79.05], 12);
+    
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap'
+        maxZoom: 19
     }).addTo(map);
 
-    // 3. Function to Search for Address
-    async function locateAddress() {
-        var addr = document.getElementById('addressInput').value;
-        if(!addr) return alert("Please enter an address");
+    // THE START SEARCH LOGIC
+    async function executeSearch() {
+        var val = document.getElementById('targetAddr').value;
+        if(!val) {
+            alert("Sir, please enter an address or town first.");
+            return;
+        }
 
-        // Using a free geocoder to find the location
-        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${addr}`);
-        const data = await response.json();
+        // Visual feedback that the system is working
+        document.querySelector('.go-btn').innerText = "Locating Assets...";
+        
+        try {
+            const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${val}`);
+            const results = await resp.json();
 
-        if(data.length > 0) {
-            var lat = data[0].lat;
-            var lon = data[0].lon;
-            map.setView([lat, lon], 16);
-            L.marker([lat, lon]).addTo(map).bindPopup("<b>Command Post</b><br>" + addr).openPopup();
-        } else {
-            alert("Location not found. Try adding city and state.");
+            if(results.length > 0) {
+                var loc = results[0];
+                map.setView([loc.lat, loc.lon], 16);
+                L.marker([loc.lat, loc.lon]).addTo(map).bindPopup("<b>Incident Command Post</b>").openPopup();
+                document.querySelector('.go-btn').innerText = "SEARCH ACTIVE";
+            } else {
+                alert("Location not found. Try adding 'Virginia' to the search.");
+                document.querySelector('.go-btn').innerText = "EXECUTE & START SEARCH";
+            }
+        } catch (e) {
+            alert("Connection error. Check data signal.");
+            document.querySelector('.go-btn').innerText = "EXECUTE & START SEARCH";
         }
     }
 
-    // 4. Function to Add Tactical Dots
-    function addMarker(color, label) {
-        var center = map.getCenter();
-        // Offset slightly so markers don't stack
-        var lat = center.lat + (Math.random() - 0.5) * 0.005;
-        var lon = center.lng + (Math.random() - 0.5) * 0.005;
-
-        var circle = L.circleMarker([lat, lon], {
-            radius: 12,
-            fillColor: color,
-            color: "#fff",
-            weight: 2,
-            opacity: 1,
-            fillOpacity: 0.9
-        }).addTo(map);
-
-        circle.bindPopup("<b>" + label + "</b><br>Live Tracking Active").openPopup();
+    function useMyLocation() {
+        map.locate({setView: true, maxZoom: 16});
     }
 
-    // 5. Night Vision Toggle
-    function toggleNightVision() {
-        document.getElementById('map').classList.toggle('night-vision');
-        document.getElementById('controlPanel').classList.toggle('night-vision');
+    function dropDot(color, label) {
+        var pos = map.getCenter();
+        L.circleMarker(pos, {
+            radius: 12, fillColor: color, color: "#fff", weight: 2, fillOpacity: 0.9
+        }).addTo(map).bindPopup("<b>" + label + "</b><br>Real-Time Active").openPopup();
     }
 
-    // 6. Voice Assistant
-    function speakProtocol() {
-        window.speechSynthesis.cancel();
-        var text = document.getElementById('protocolText').innerText;
-        var msg = new SpeechSynthesisUtterance(text);
-        msg.rate = 0.9;
-        window.speechSynthesis.speak(msg);
+    function toggleNV() {
+        document.getElementById('map').classList.toggle('nv-mode');
+        document.getElementById('ui').classList.toggle('nv-mode');
     }
+
+    map.on('locationfound', function(e) {
+        L.circle(e.latlng, e.accuracy).addTo(map);
+        L.marker(e.latlng).addTo(map).bindPopup("Your Position").openPopup();
+    });
 </script>
 
 </body>
