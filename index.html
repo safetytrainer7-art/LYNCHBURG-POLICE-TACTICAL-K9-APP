@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND V188</title>
+    <title>ACSD COMMAND V189</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --gold: #c5a059; --bg: #000; }
@@ -14,10 +15,9 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
         
-        /* Main Container - Locked to Screen Width */
         #container { width: 100%; height: 100%; position: relative; overflow: hidden; }
         
-        /* Tactical Buttons Row */
+        /* Main Navigation Buttons */
         .side-col { 
             position: absolute; width: 22%; height: 60%; top: 20%; 
             display: flex; flex-direction: column; justify-content: space-around; z-index: 100; 
@@ -27,9 +27,10 @@
             background: rgba(0, 20, 0, 0.9); border: 2px solid var(--gold); 
             color: var(--gold); padding: 12px 2px; text-align: center; 
             font-size: 11px; font-weight: bold; border-radius: 6px; text-transform: uppercase;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.8);
         }
 
-        /* Map Page Layout */
+        /* Page Transitions */
         .page { 
             display: none; position: fixed; top: 0; left: 0; 
             width: 100%; height: 100%; background: #000; z-index: 500; 
@@ -46,7 +47,7 @@
         #map-controls { background: #111; padding: 8px; width: 100%; }
         #live-map { width: 100%; height: 45vh; background: #222; }
 
-        /* Bottom Tactical Toolbar - Sized for Mobile */
+        /* Tactical Grid */
         .tool-grid { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px; background: #000; }
         .role-btn { 
             flex: 1 1 18%; background: #222; color: #fff; border: 1px solid #444; 
@@ -58,17 +59,16 @@
             text-transform: uppercase; margin-top: 5px;
         }
 
-        /* Marker Styles */
         .pulse { width: 18px; height: 18px; background: #007bff; border: 3px solid white; border-radius: 50%; animation: pulse-blue 2s infinite; }
         @keyframes pulse-blue { 0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(0, 123, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); } }
+        .night-vision-map { filter: invert(100%) hue-rotate(180deg) brightness(0.6) contrast(1.2); }
     </style>
 </head>
 <body>
 
 <div id="container">
     <div style="width:100%; height:100%; background: radial-gradient(circle, #001a00 0%, #000 100%); display:flex; justify-content:center; align-items:center;">
-        <img src="badge.jpg" style="position:absolute; top:20px; width:80px; z-index:10;">
-        <img src="homepage.jpg" style="width:95%; opacity:0.6;">
+        <img src="homepage.jpg" style="width:100%; height: auto; max-height: 100%; object-fit: contain; opacity:0.9;">
         
         <div class="side-col left">
             <div class="main-btn" onclick="openPage('sos')">K9 SOS</div>
@@ -83,6 +83,20 @@
     </div>
 </div>
 
+<div id="sos" class="page" style="overflow-y: auto; color: white; padding-bottom: 50px;">
+    <div class="header">
+        <button class="back-btn" onclick="closePage('sos')">← BACK</button>
+        <span style="color:var(--gold); margin-left:15px; font-weight:bold;">K9 FIRST AID</span>
+    </div>
+    <div style="padding: 15px;">
+        <p style="color: var(--gold); border-bottom: 1px solid #333; padding-bottom: 5px;">K9 SOS MODULES ACTIVE</p>
+        <div style="background:#111; border:1px solid var(--gold); padding:10px; margin-bottom:10px; border-radius:4px;">
+            <h3 style="color:var(--gold); margin:0;">HEAT EXHAUSTION</h3>
+            <p style="font-size: 14px;">Move K9 to shade. Douse with cool water (pads, groin, pits). Stop at 103°F.</p>
+        </div>
+        </div>
+</div>
+
 <div id="m-map" class="page">
     <div class="header">
         <button class="back-btn" onclick="closePage('m-map')">← BACK</button>
@@ -91,7 +105,7 @@
 
     <div id="map-controls">
         <div style="display:flex; gap:4px; margin-bottom:8px;">
-            <input type="text" id="map-search" placeholder="ADDRESS..." style="flex:1; padding:12px; border-radius:4px; border:1px solid var(--gold); background:#000; color:#fff;">
+            <input type="text" id="map-search" placeholder="ADDRESS..." style="flex:1; padding:12px; border-radius:4px; border:1px solid var(--gold); background:#000; color:#fff; font-size:16px;">
             <button onclick="searchAddr()" style="background:var(--gold); border:none; padding:0 15px; border-radius:4px; font-weight:bold;">GO</button>
         </div>
         <button id="start-btn" onclick="startGps()" style="width:100%; background:#004400; color:#fff; border:1px solid #00ff00; padding:12px; font-weight:bold; border-radius:4px;">▶ START LIVE TRACKING</button>
@@ -169,10 +183,6 @@
     function toggleNight() { document.getElementById('live-map').classList.toggle('night-vision-map'); }
     function dropFlag() { if(userMarker) L.marker(userMarker.getLatLng()).addTo(map).bindPopup("PROPERTY FOUND").openPopup(); }
 </script>
-
-<style>
-    .night-vision-map { filter: invert(100%) hue-rotate(180deg) brightness(0.6) contrast(1.2); }
-</style>
 
 </body>
 </html>
