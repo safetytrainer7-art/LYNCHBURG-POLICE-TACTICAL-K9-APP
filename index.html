@@ -8,31 +8,31 @@
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; font-family: 'Times New Roman', serif; overflow: hidden; }
         
-        /* ELEVATION FIX: Pushing the image up to 20% from the top so the bottom is wide open */
+        /* THE ELEVATION: Pushing the image much higher so the name is clearly visible in the middle-bottom area */
         .app-screen { 
             width: 100vw; 
             height: 100vh; 
-            background: url('homepage.jpg') no-repeat center 20%; 
+            background: url('homepage.jpg') no-repeat center 15%; 
             background-size: contain; 
             position: fixed;
             top: 0; left: 0;
             z-index: 1;
         }
 
-        /* GRID ELEVATION: Anchored higher (40% from bottom) to stay away from the iPhone home bar */
+        /* THE GRID: Shifted UP to 50% from bottom to ensure clearance and alignment with icons */
         .button-grid { 
             position: absolute; 
-            bottom: 40%; 
+            bottom: 45%; 
             left: 5%; 
             width: 90%; 
-            height: 22%; 
+            height: 25%; 
             display: grid; 
             grid-template-columns: 1fr 1fr 1fr; 
             grid-template-rows: 1fr 1fr; 
             z-index: 10; 
         }
         
-        .btn { cursor: pointer; background: rgba(255,255,255,0.01); }
+        .btn { cursor: pointer; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.05); }
         
         .overlay { 
             display: none; 
@@ -41,75 +41,110 @@
             width: 100%; height: 100%; 
             background: #001a11; 
             z-index: 100; 
-            padding: 30px; 
+            padding: 35px; 
             box-sizing: border-box; 
-            border: 5px solid #d4af37;
+            border: 6px solid #d4af37;
             overflow-y: auto;
         }
         
         .active { display: block !important; }
-        .close-btn { background: #d4af37; color: black; padding: 15px 25px; font-weight: bold; cursor: pointer; display: inline-block; margin-bottom: 25px; border-radius: 5px; }
+        .close-btn { background: #d4af37; color: black; padding: 15px 25px; font-weight: bold; cursor: pointer; display: inline-block; margin-bottom: 25px; border-radius: 5px; text-transform: uppercase; }
         
-        h1 { color: #d4af37; text-transform: uppercase; border-bottom: 3px solid #d4af37; padding-bottom: 10px; }
-        h2 { color: #d4af37; font-size: 1.2em; margin-top: 25px; border-left: 5px solid #d4af37; padding-left: 10px; }
-        .content-box { background: rgba(255,255,255,0.1); padding: 20px; margin-bottom: 25px; line-height: 1.6; color: #fff; border-radius: 5px; }
+        h1 { color: #d4af37; text-transform: uppercase; border-bottom: 3px solid #d4af37; padding-bottom: 10px; font-size: 1.6em; }
+        h2 { color: #d4af37; font-size: 1.3em; margin-top: 30px; border-left: 5px solid #d4af37; padding-left: 12px; }
+        .content-box { background: rgba(255,255,255,0.1); padding: 25px; margin-bottom: 30px; line-height: 1.8; color: #fff; border-radius: 5px; font-size: 1.1em; }
+        
+        .form-wrap { background: rgba(212,175,55,0.1); padding: 20px; border: 1px solid #d4af37; margin-bottom: 30px; }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #d4af37; color: white; border-radius: 4px; }
+        .submit-btn { background: #d4af37; color: black; padding: 18px; width: 100%; font-weight: bold; border: none; cursor: pointer; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
 <div class="app-screen">
     <div class="button-grid">
-        <div class="btn" onclick="openSection('emergencySection')"></div>
-        <div class="btn" onclick="openSection('gpsSection')"></div>
-        <div class="btn" onclick="openSection('narcSection')"></div>
-        <div class="btn" onclick="openSection('legalSection')"></div>
-        <div class="btn" onclick="openSection('trainSection')"></div>
-        <div class="btn" onclick="openSection('vaSection')"></div>
+        <!-- TOP ROW -->
+        <div class="btn" title="Emergency" onclick="openSection('emergencySection')"></div>
+        <div class="btn" title="GPS" onclick="openSection('gpsSection')"></div>
+        <div class="btn" title="Narcotics" onclick="openSection('narcSection')"></div>
+        <!-- BOTTOM ROW -->
+        <div class="btn" title="Legal" onclick="openSection('legalSection')"></div>
+        <div class="btn" title="Training" onclick="openSection('trainSection')"></div>
+        <div class="btn" title="Virginia" onclick="openSection('vaSection')"></div>
     </div>
 </div>
 
-<!-- 1. EMERGENCY SOS (CPR & TRAUMA) -->
+<!-- 1. EMERGENCY (CPR & TRAUMA) -->
 <div id="emergencySection" class="overlay">
-    <div class="close-btn" onclick="closeSections()">← BACK TO HOME</div>
+    <div class="close-btn" onclick="closeSections()">← BACK TO COMMAND</div>
     <h1>K9 TACTICAL MEDIC & CPR</h1>
-    
     <div class="content-box">
-        <h2>K9 CPR: Life-Saving Baseline</h2>
-        <p><b>FIELD PROTOCOL:</b> If a K9 is non-responsive and pulseless, begin CPR immediately. Lay the K9 on their right side. For most working breeds, compressions should be delivered at the widest part of the chest at 100-120 BPM. Secure the muzzle and deliver 2 quick breaths through the nose for every 30 compressions. This maintains oxygen flow to the brain until advanced veterinary care can be reached.</p>
-        <p><b>VERBAL COMMANDS:</b> Maintain scene command by shouting clearly: "OFFICER DOWN—CODE 3 VETERINARY EMERGENCY!" and "ALL UNITS STAND BY—K9 MEDICAL EMERGENCY IN PROGRESS!" Clear verbalization ensures dispatch is aware of the priority and prevents civilian interference during the resuscitation attempt.</p>
+        <h2>K9 CPR: The Number One Priority</h2>
+        <p>If the K9 is unresponsive and you cannot detect a pulse, you must initiate CPR immediately. Position the K9 on their right side on a firm surface. For large working breeds like Shepherds or Malinois, place your hands over the widest part of the rib cage and perform compressions at a rate of 100 to 120 beats per minute, ensuring the chest fully recoils between each pump. Close the K9's mouth and deliver 2 steady breaths into the nostrils for every 30 compressions to maintain oxygenation.</p>
+        <p><b>VERBAL COMMANDS:</b> Use high-authority verbalization for scene control and documentation: "OFFICER DOWN—REQUESTING CODE-3 EMERGENCY VET!" and "SECURE THE AREA—MEDICAL IN PROGRESS!" Constant verbal communication ensures that nearby units and dispatch understand the life-threat status of the K9 asset immediately.</p>
     </div>
-
     <div class="content-box">
-        <h2>Penetrating Trauma & Blood Loss</h2>
-        <p><b>FIELD ACTION:</b> Check for entry and exit wounds from gunshots or impalements. Use hemostatic gauze for limb bleeding, applying continuous, heavy pressure for at least 3 minutes. For chest wounds, an occlusive seal must be applied to prevent air from entering the chest cavity and causing lung collapse. Keep the K9 warm and quiet to prevent the onset of shock.</p>
-        <p><b>VERBAL COMMANDS:</b> Command onlookers or other deputies: "GET THE K9 TRAUMA KIT NOW!" and "SECURE THE PERIMETER!" By vocalizing these orders, you establish a clear professional record of your immediate and decisive action to save the department's asset.</p>
+        <h2>Penetrating Trauma & Hemorrhage Control</h2>
+        <p>In the event of a gunshot or puncture, identify both entry and exit wounds. Apply immediate direct pressure using hemostatic gauze. For chest wounds, use an occlusive dressing (chest seal) to prevent a tension pneumothorax, which can lead to rapid lung collapse. Keep the K9 warm to prevent hypothermia, which is a leading cause of death in trauma victims, even in warm weather.</p>
+        <p><b>VERBAL COMMANDS:</b> "GET THE K9 TRAUMA KIT!" and "NOTIFY NEAREST EMERGENCY VET—ETA 5 MINUTES!" These commands create a record of your professional duty of care and keep bystanders back while you work to stabilize the dog.</p>
     </div>
 </div>
 
-<!-- OTHER SECTIONS (KEPT AS STUBS FOR SAFETY) -->
+<!-- 2. GPS COMMAND -->
+<div id="gpsSection" class="overlay">
+    <div class="close-btn" onclick="closeSections()">← BACK</div>
+    <h1>GPS SEARCH COMMAND</h1>
+    <div class="content-box">
+        <h2>Real-Time Tracking Protocols</h2>
+        <p>This system integrates live pings for the K9 handler, SAR teams, and civilian volunteers. Each unit is assigned a specific dot color: Green for K9, Blue for Law Enforcement, and Yellow for Civilians. Drones are integrated into the overhead view to provide real-time thermal overlays during night operations.</p>
+        <p><b>VERBAL COMMANDS:</b> "ESTABLISH SEARCH PERIMETER!" and "DRONE PING ACTIVE—CHECK COORDINATES!" These commands help coordinate large-scale searches in the Amherst County terrain.</p>
+    </div>
+</div>
+
+<!-- 3. NARCOTICS INTERDICTION -->
 <div id="narcSection" class="overlay">
     <div class="close-btn" onclick="closeSections()">← BACK</div>
     <h1>NARCOTICS INTERDICTION</h1>
     <div class="content-box">
-        <h2>Scent Pools and Indicators</h2>
-        <p><b>FIELD TACTICS:</b> Identify "Scent Pools" around vehicle seams. Watch for "Head Snaps" and changes in breathing patterns. A final alert gives you the probable cause required for a search under the Automobile Exception.</p>
-        <p><b>VERBAL COMMANDS:</b> "AMHERST COUNTY K9—STAY IN YOUR VEHICLE!" and "K9 ALERT—PROBABLE CAUSE!"</p>
+        <h2>Scent Pools and Scent Cones</h2>
+        <p>Begin your search from the down-wind side of the target vehicle or area. Allow the K9 to work the air naturally to find the "Scent Cone." Watch for a Change of Behavior (COB) such as head-snaps, increased respiration, or intense detailing of door seams or trunk seals. A final alert—typically a sit or down—provides the probable cause necessary for a search under the Automobile Exception.</p>
+        <p><b>VERBAL COMMANDS:</b> "AMHERST COUNTY SHERIFF'S OFFICE K9—STAY IN THE VEHICLE!" and "K9 ALERT—PROBABLE CAUSE ESTABLISHED!" This verbal trail is essential for body-worn camera evidence and later court testimony by the Commonwealth Attorney.</p>
     </div>
 </div>
 
+<!-- 5. K9 ADMINISTRATION (TRAINING) -->
 <div id="trainSection" class="overlay">
     <div class="close-btn" onclick="closeSections()">← BACK</div>
-    <h1>K9 ADMINISTRATION</h1>
-    <div class="content-box"><h2>Training Logs</h2><p>This section is ready for your PDF generation tools.</p></div>
+    <h1>K9 ADMINISTRATION & LOGS</h1>
+    <div class="form-wrap">
+        <h2>Daily Training Log</h2>
+        <input type="text" id="t_handler" placeholder="Handler Name">
+        <input type="text" id="t_k9" placeholder="K9 Name">
+        <textarea id="t_notes" placeholder="Describe Performance (Scent, Tracking, Obedience)..." rows="3"></textarea>
+        <button class="submit-btn" onclick="genPDF('Training')">Generate Training PDF</button>
+    </div>
+    <div class="content-box">
+        <h2>Professional Documentation</h2>
+        <p>Accurate record-keeping is the handler's best defense in court. Every training session should be documented to prove the K9's reliability and accuracy. Use the form above to generate a professional PDF that can be attached to your departmental monthly reports.</p>
+        <p><b>VERBAL COMMANDS:</b> "SEARCH ENDED—TRAINING COMPLETE!" and "REWARD THE K9!" Proper documentation includes the verbal cues used to start and stop the session.</p>
+    </div>
 </div>
 
-<div id="gpsSection" class="overlay"><div class="close-btn" onclick="closeSections()">← BACK</div><h1>GPS COMMAND</h1></div>
-<div id="legalSection" class="overlay"><div class="close-btn" onclick="closeSections()">← BACK</div><h1>FEDERAL LEGAL</h1></div>
-<div id="vaSection" class="overlay"><div class="close-btn" onclick="closeSections()">← BACK</div><h1>VA STATE CODE</h1></div>
+<!-- 4 & 6. LEGAL SECTIONS -->
+<div id="legalSection" class="overlay"><div class="close-btn" onclick="closeSections()">← BACK</div><h1>FEDERAL LEGAL CASE LAW</h1><div class="content-box"><h2>Rodriguez v. United States</h2><p>Case law regarding the duration of a traffic stop for a K9 sniff. Documentation must show the sniff did not unconstitutionally prolong the mission of the stop.</p></div></div>
+<div id="vaSection" class="overlay"><div class="close-btn" onclick="closeSections()">← BACK</div><h1>VIRGINIA STATE CODE</h1><div class="content-box"><h2>VA Code 3.2-6500</h2><p>Primary code governing the care and authority of working animals in the Commonwealth.</p></div></div>
 
 <script>
     function openSection(id) { closeSections(); document.getElementById(id).classList.add('active'); }
     function closeSections() { document.querySelectorAll('.overlay').forEach(o => o.classList.remove('active')); }
+
+    function genPDF(type) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.text("K9 UNIT REPORT", 10, 10);
+        doc.text("Handler: " + document.getElementById('t_handler').value, 10, 20);
+        doc.save("K9_Report.pdf");
+    }
 </script>
 
 </body>
