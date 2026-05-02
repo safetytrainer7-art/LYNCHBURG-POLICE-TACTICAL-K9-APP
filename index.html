@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,21 +13,21 @@
             font-family: 'Times New Roman', serif;
         }
         
-        /* THE BACKGROUND: Centers the green image perfectly */
+        /* THE BACKGROUND: Pushed UP to 5% from top to clear room for the name at the bottom */
         .app-screen { 
             width: 100vw; height: 100vh; 
-            background: url('homepage.jpg') no-repeat center center; 
+            background: url('homepage.jpg') no-repeat center 5%; 
             background-size: contain; 
             position: absolute; top: 0; left: 0; z-index: 1;
         }
 
-        /* THE GRID: Shrinking this to match the icon area in your photo */
+        /* THE GRID: Shifted up to stay on the icons now that the image moved up */
         .button-grid { 
             position: absolute; 
-            bottom: 12%; /* Pulls the grid down closer to your name */
+            bottom: 22%; /* Lifted significantly to match the new image height */
             left: 50%;
-            transform: translateX(-50%); /* Keeps it dead center */
-            width: 320px; /* Locked width to keep buttons on the icons, not the black space */
+            transform: translateX(-50%);
+            width: 320px; 
             height: 220px; 
             display: grid; 
             grid-template-columns: 1fr 1fr 1fr; 
@@ -34,11 +35,11 @@
             z-index: 50; 
         }
         
-        /* TOUCH ZONES: Red tint for verification */
+        /* TOUCH ZONES: Faint tint for one last check */
         .btn { 
             cursor: pointer; 
-            background: rgba(255, 0, 0, 0.1); 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
+            background: rgba(255, 0, 0, 0.05); 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
             -webkit-tap-highlight-color: transparent;
         }
         
@@ -46,47 +47,91 @@
         .overlay { 
             display: none; position: fixed; top: 0; left: 0; 
             width: 100%; height: 100%; background: #001a11; 
-            z-index: 100; padding: 30px; box-sizing: border-box; 
+            z-index: 100; padding: 35px; box-sizing: border-box; 
             border: 6px solid #d4af37; overflow-y: auto;
         }
         
         .active { display: block !important; }
         .close-btn { background: #d4af37; color: black; padding: 15px 25px; font-weight: bold; cursor: pointer; display: inline-block; margin-bottom: 25px; border-radius: 5px; text-transform: uppercase; }
         
-        h1 { color: #d4af37; text-transform: uppercase; border-bottom: 3px solid #d4af37; padding-bottom: 10px; }
-        .content-box { background: rgba(255,255,255,0.1); padding: 20px; margin-bottom: 25px; line-height: 1.7; color: #fff; border-radius: 5px; }
+        h1 { color: #d4af37; text-transform: uppercase; border-bottom: 3px solid #d4af37; padding-bottom: 10px; font-size: 1.6em; }
+        h2 { color: #d4af37; font-size: 1.3em; margin-top: 25px; border-left: 5px solid #d4af37; padding-left: 10px; }
+        .content-box { background: rgba(255,255,255,0.1); padding: 25px; margin-bottom: 25px; line-height: 1.8; color: #fff; border-radius: 5px; }
     </style>
 </head>
 <body>
 
 <div class="app-screen">
     <div class="button-grid">
-        <!-- ROW 1 -->
-        <div class="btn" onclick="openSection('emergencySection')"></div> <!-- SOS -->
-        <div class="btn" onclick="openSection('gpsSection')"></div>       <!-- GPS -->
-        <div class="btn" onclick="openSection('narcSection')"></div>      <!-- NARCOTICS -->
-        <!-- ROW 2 -->
-        <div class="btn" onclick="openSection('legalSection')"></div>     <!-- LEGAL -->
-        <div class="btn" onclick="openSection('trainSection')"></div>     <!-- ADMIN -->
-        <div class="btn" onclick="openSection('vaSection')"></div>        <!-- VA CODE -->
+        <div class="btn" onclick="openSection('emergencySection')"></div> 
+        <div class="btn" onclick="openSection('gpsSection')"></div>       
+        <div class="btn" onclick="openSection('narcSection')"></div>      
+        <div class="btn" onclick="openSection('legalSection')"></div>     
+        <div class="btn" onclick="openSection('trainSection')"></div>     
+        <div class="btn" onclick="openSection('vaSection')"></div>        
     </div>
 </div>
 
-<!-- POP-UP CONTENT -->
+<!-- POP-UP CONTENT (FULL TWO-PARAGRAPH DEPTH) -->
 <div id="emergencySection" class="overlay">
-    <div class="close-btn" onclick="closeSections()">← BACK</div>
+    <div class="close-btn" onclick="closeSections()">← BACK TO HOME</div>
     <h1>K9 TACTICAL MEDIC & CPR</h1>
     <div class="content-box">
-        <p><b>K9 CPR:</b> Lay the K9 on their right side. Perform 100-120 compressions per minute. Deliver 2 breaths for every 30 compressions.</p>
-        <p><b>COMMANDS:</b> "OFFICER DOWN—CODE 3 VET!" and "STAY BACK—MEDICAL IN PROGRESS!"</p>
+        <h2>K9 CPR: Life-Saving Baseline</h2>
+        <p>If a K9 is non-responsive and pulseless, begin CPR immediately. Lay the K9 on their right side. For most working breeds, compressions should be delivered at the widest part of the chest at 100-120 BPM. Secure the muzzle and deliver 2 quick breaths through the nose for every 30 compressions until professional veterinary care is reached.</p>
+        <p><b>VERBAL COMMANDS:</b> Maintain scene command by shouting clearly: "OFFICER DOWN—CODE 3 VETERINARY EMERGENCY!" and "ALL UNITS STAND BY—K9 MEDICAL EMERGENCY IN PROGRESS!"</p>
     </div>
 </div>
 
-<div id="gpsSection" class="overlay"><div class="close-btn" onclick="closeSections()">← BACK</div><h1>GPS SEARCH COMMAND</h1><div class="content-box"><p>Real-time tracking for K9, SAR, and Drones.</p></div></div>
-<div id="narcSection" class="overlay"><div class="close-btn" onclick="closeSections()">← BACK</div><h1>NARCOTICS AIDS</h1><div class="content-box"><p>Scent cone identification and probable cause protocols.</p></div></div>
-<div id="legalSection" class="overlay"><div class="close-btn" onclick="closeSections()">← BACK</div><h1>LEGAL SHIELD</h1><div class="content-box"><p>Federal case law: Rodriguez v. United States.</p></div></div>
-<div id="trainSection" class="overlay"><div class="close-btn" onclick="closeSections()">← BACK</div><h1>TRAINING LOGS</h1><div class="content-box"><p>Daily reliability documentation and report generation.</p></div></div>
-<div id="vaSection" class="overlay"><div class="close-btn" onclick="closeSections()">← BACK</div><h1>VA STATE CODE</h1><div class="content-box"><p>Statutory authority for law enforcement work dogs.</p></div></div>
+<div id="gpsSection" class="overlay">
+    <div class="close-btn" onclick="closeSections()">← BACK</div>
+    <h1>GPS SEARCH COMMAND</h1>
+    <div class="content-box">
+        <h2>Search Operations</h2>
+        <p>Track K9 teams, SAR volunteers, and drone assets simultaneously. The breadcrumb system ensures complete perimeter coverage and provides a permanent record of search saturation for legal or tactical review.</p>
+        <p><b>VERBAL COMMANDS:</b> "REPORT SEARCH COORDINATES!" and "ESTABLISH PERIMETER!"</p>
+    </div>
+</div>
+
+<div id="narcSection" class="overlay">
+    <div class="close-btn" onclick="closeSections()">← BACK</div>
+    <h1>NARCOTICS AIDS</h1>
+    <div class="content-box">
+        <h2>Scent Cones & Alerts</h2>
+        <p>Identify "Scent Pools" around vehicle seams. Watch for "Head Snaps" and changes in respiration. A final alert—typically a sit or down—provides the probable cause required for a search under the Automobile Exception.</p>
+        <p><b>VERBAL COMMANDS:</b> "AMHERST COUNTY K9—REMAIN IN THE VEHICLE!" and "K9 ALERT—PROBABLE CAUSE!"</p>
+    </div>
+</div>
+
+<div id="legalSection" class="overlay">
+    <div class="close-btn" onclick="closeSections()">← BACK</div>
+    <h1>LEGAL SHIELD</h1>
+    <div class="content-box">
+        <h2>Rodriguez v. United States</h2>
+        <p>Under Federal Case Law, a traffic stop cannot be unconstitutionally prolonged for a K9 sniff without independent reasonable suspicion. Documentation must show the sniff occurred during the time required to complete the mission of the stop.</p>
+        <p><b>VERBAL COMMANDS:</b> "TRAFFIC MISSION CONTINUING!" and "DEPLOYING K9!"</p>
+    </div>
+</div>
+
+<div id="trainSection" class="overlay">
+    <div class="close-btn" onclick="closeSections()">← BACK</div>
+    <h1>TRAINING LOGS</h1>
+    <div class="content-box">
+        <h2>Reliability Documentation</h2>
+        <p>A handler's best defense in court is a consistent training log. Document every session to prove the K9's accuracy and reliability. These records demonstrate the team's professional standards to the Commonwealth Attorney and the court.</p>
+        <p><b>VERBAL COMMANDS:</b> "TRAINING SESSION START!" and "SESSION COMPLETE—REWARD GIVEN!"</p>
+    </div>
+</div>
+
+<div id="vaSection" class="overlay">
+    <div class="close-btn" onclick="closeSections()">← BACK</div>
+    <h1>VA STATE CODE</h1>
+    <div class="content-box">
+        <h2>Virginia Statutory Authority</h2>
+        <p>VA Code § 3.2-6500 governs the care and authority of working animals. Handlers should be familiar with the legal protections and the "Duty of Care" requirements defined under the Code of Virginia.</p>
+        <p><b>VERBAL COMMANDS:</b> "ACTING UNDER VIRGINIA CODE!" and "OFFICIAL DEPLOYMENT RECORDED!"</p>
+    </div>
+</div>
 
 <script>
     function openSection(id) { closeSections(); document.getElementById(id).classList.add('active'); }
