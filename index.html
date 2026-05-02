@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD RESTORED HUB</title>
+    <title>ACSD COMMAND HUB V172</title>
     <style>
         body, html { 
             margin: 0; padding: 0; height: 100vh; width: 100vw; 
@@ -14,16 +13,16 @@
 
         #container {
             width: 100vw; height: 100vh;
-            background: #000;
+            background: radial-gradient(circle, #001a00 0%, #000000 100%);
             display: flex; justify-content: center; align-items: center;
             position: relative;
         }
 
-        /* 1. THE NEW BADGE - TOP CENTER */
+        /* 1. TOP BADGE */
         #top-badge {
             position: absolute;
             top: 10px;
-            width: 75px; height: 75px; 
+            width: 70px; height: 70px; 
             background-image: url('badge.jpg');
             background-size: contain;
             background-repeat: no-repeat;
@@ -31,70 +30,106 @@
             z-index: 100;
         }
 
-        /* 2. THE CENTER APP IMAGE - RESTORED TO FULL STRENGTH */
+        /* 2. BIGGER CENTER IMAGE */
         #center-image {
-            width: 60%; height: 60%;
+            width: 85%; height: 85%; /* Scaled up for better visibility */
             background-image: url('homepage.jpg');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            opacity: 1.0; /* Full brightness restored */
             z-index: 5;
         }
 
-        /* 3. THE BUTTONS - SIDE COLUMNS */
+        /* 3. SIDE BUTTONS */
         .side-col { 
-            position: absolute; width: 20%; height: 70%; top: 15%; 
+            position: absolute; width: 22%; height: 75%; top: 15%; 
             display: flex; flex-direction: column; justify-content: space-around; z-index: 50; 
         }
-        .left { left: 5%; }
-        .right { right: 5%; }
+        .left { left: 2%; }
+        .right { right: 2%; }
 
         .btn {
-            background: rgba(0, 40, 0, 0.9);
+            background: rgba(0, 30, 0, 0.9);
             border: 2px solid #c5a059;
             color: #c5a059;
-            padding: 15px 5px;
-            text-align: center; font-weight: bold; font-size: 14px;
-            border-radius: 5px; cursor: pointer;
+            padding: 18px 5px;
+            text-align: center; font-weight: bold; font-size: 13px;
+            border-radius: 6px; cursor: pointer;
             text-transform: uppercase;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.8);
         }
 
-        /* Content Pages */
-        .page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #001a00; z-index: 200; overflow-y: auto; padding: 30px; color: #fff; }
-        .header { border-bottom: 2px solid #c5a059; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; }
-        .back-btn { background: #c5a059; color: #000; border: none; padding: 10px 20px; font-weight: bold; }
+        /* 4. CONTENT PAGES & FIXED LEFT BACK BUTTON */
+        .page { 
+            display: none; position: fixed; top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: #000d00; z-index: 200; 
+            overflow-y: auto; color: #fff; 
+        }
+        
+        .header { 
+            background: #000;
+            border-bottom: 2px solid #c5a059; 
+            padding: 15px; 
+            display: flex; 
+            align-items: center; /* Aligns button and title */
+        }
+
+        /* The Fixed Back Button - Moved Left and padded */
+        .back-btn { 
+            background: #c5a059; 
+            color: #000; 
+            border: none; 
+            padding: 12px 20px; 
+            font-weight: bold; 
+            border-radius: 4px;
+            margin-right: 20px; /* Pushes the title away from the button */
+            cursor: pointer;
+        }
+
+        .content { padding: 25px; font-size: 20px; line-height: 1.6; }
+        h2 { color: #c5a059; margin: 0; font-size: 22px; }
     </style>
 </head>
 <body>
 
 <div id="container">
     <div id="top-badge"></div>
-
     <div id="center-image"></div>
 
     <div class="side-col left">
         <div class="btn" onclick="openP('sos')">K9 SOS</div>
         <div class="btn" onclick="openP('law')">Legal Bible</div>
-        <div class="btn">Narcotics</div>
+        <div class="btn" onclick="alert('Narcotics Section Ready')">Narcotics</div>
     </div>
 
     <div class="side-col right">
-        <div class="btn">Tactical Map</div>
-        <div class="btn">Training Logs</div>
-        <div class="btn">VA Code</div>
+        <div class="btn" onclick="alert('Map Section Ready')">Tactical Map</div>
+        <div class="btn" onclick="alert('Logs Section Ready')">Training Logs</div>
+        <div class="btn" onclick="alert('VA Code Section Ready')">VA Code</div>
     </div>
 </div>
 
 <div id="sos" class="page">
-    <div class="header"><h2>K9 EMERGENCY SOS</h2><button class="back-btn" onclick="closeP('sos')">BACK</button></div>
-    <p><strong>HEAT STRESS:</strong> Seek shade. Cool water on pads/ears.</p>
+    <div class="header">
+        <button class="back-btn" onclick="closeP('sos')">BACK</button>
+        <h2>K9 EMERGENCY SOS</h2>
+    </div>
+    <div class="content">
+        <p><strong>HEAT STRESS:</strong> Shade, cool water on pads/ears. NO ICE.</p>
+        <p><strong>BLOAT:</strong> Immediate emergency transport required.</p>
+    </div>
 </div>
 
 <div id="law" class="page">
-    <div class="header"><h2>LEGAL SHIELD BIBLE</h2><button class="back-btn" onclick="closeP('law')">BACK</button></div>
-    <h3>Case Law & Statutes</h3>
-    <p><strong>Rodriguez v. US:</strong> Do not prolong the stop.</p>
+    <div class="header">
+        <button class="back-btn" onclick="closeP('law')">BACK</button>
+        <h2>LEGAL SHIELD BIBLE</h2>
+    </div>
+    <div class="content">
+        <p><strong>Rodriguez v. US:</strong> Do not prolong the stop for a K9 sniff without independent reasonable suspicion.</p>
+        <p><strong>Florida v. Jardines:</strong> A K9 sniff at the front door of a home requires a warrant.</p>
+    </div>
 </div>
 
 <script>
