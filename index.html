@@ -6,138 +6,157 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>K9 Command - ACSO</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; color: #fff; font-family: 'Times New Roman', serif; }
-        .overlay { padding: 40px 20px; background: #001a11; border: 8px solid #d4af37; min-height: 100vh; box-sizing: border-box; }
+        /* MAIN SCREEN SETTINGS */
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; overflow-x: hidden; font-family: 'Times New Roman', serif; }
         
-        h1 { color: #d4af37; text-transform: uppercase; border-bottom: 3px solid #d4af37; font-size: 2em; text-align: center; }
-        h2 { color: #d4af37; font-size: 1.5em; border-left: 6px solid #d4af37; padding-left: 15px; margin-top: 40px; text-transform: uppercase; }
+        /* This is your homepage with the 6 icons */
+        .app-screen { 
+            width: 100vw; height: 100vh; 
+            background: url('homepage.jpg') no-repeat center 5%; 
+            background-size: contain; 
+            position: relative; z-index: 1;
+        }
+
+        .button-grid { 
+            position: absolute; bottom: 22%; left: 50%; 
+            transform: translateX(-50%); width: 340px; height: 240px; 
+            display: grid; grid-template-columns: 1fr 1fr 1fr; 
+            grid-template-rows: 1fr 1fr; z-index: 50; 
+        }
+        
+        .btn { cursor: pointer; background: rgba(255, 255, 255, 0.01); -webkit-tap-highlight-color: transparent; }
+
+        /* FIRST AID OVERLAY - STYLED FOR DEPTH */
+        .overlay { 
+            display: none; /* Hidden by default to prevent white screen */
+            position: fixed; top: 0; left: 0; 
+            width: 100%; height: 100%; background: #001a11; 
+            z-index: 1000; padding: 40px 20px; box-sizing: border-box; 
+            border: 8px solid #d4af37; overflow-y: auto; color: #fff;
+        }
+        
+        .active { display: block !important; }
+        
+        .close-btn { 
+            background: #d4af37; color: black; padding: 15px 25px; 
+            font-weight: bold; cursor: pointer; display: inline-block; 
+            margin-bottom: 25px; border-radius: 5px; text-transform: uppercase;
+            font-size: 1.2em;
+        }
+        
+        h1 { color: #d4af37; text-transform: uppercase; border-bottom: 3px solid #d4af37; font-size: 1.8em; text-align: center; }
+        h2 { color: #d4af37; font-size: 1.5em; border-left: 6px solid #d4af37; padding-left: 15px; margin-top: 40px; }
         
         .content-box { 
             background: rgba(255,255,255,0.08); padding: 30px; margin-bottom: 25px; 
-            line-height: 1.8; border-radius: 5px; font-size: 1.3em; border: 1px solid rgba(212,175,55,0.3); 
+            line-height: 1.8; border-radius: 5px; font-size: 1.35em; /* Large print */
+            border: 1px solid rgba(212,175,55,0.3); 
         }
 
-        /* VOICE ASSISTANT BUTTON */
         .voice-btn {
-            background: #ff0000; color: white; padding: 15px; width: 100%; 
+            background: #ff0000; color: white; padding: 18px; width: 100%; 
             font-weight: bold; text-transform: uppercase; border: none; 
-            border-radius: 5px; cursor: pointer; margin-bottom: 10px; font-size: 1.1em;
+            border-radius: 5px; cursor: pointer; margin-bottom: 15px; font-size: 1.2em;
+            box-shadow: 0 4px #990000;
         }
-        .voice-btn:active { background: #b30000; }
+        .voice-btn:active { background: #b30000; box-shadow: 0 2px #660000; transform: translateY(2px); }
 
-        .vet-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 1.1em; }
-        .vet-table th, .vet-table td { border: 1px solid #d4af37; padding: 12px; text-align: left; }
-        .vet-table th { background: rgba(212,175,55,0.2); color: #d4af37; }
+        .vet-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 1.2em; }
+        .vet-table th, .vet-table td { border: 1px solid #d4af37; padding: 15px; text-align: left; }
+        .vet-table th { background: rgba(212,175,55,0.2); }
     </style>
 </head>
 <body>
 
-<div class="overlay">
-    <h1>K9 Tactical First Aid</h1>
+<!-- HOME SCREEN -->
+<div class="app-screen">
+    <div class="button-grid">
+        <div class="btn" onclick="openFirstAid()"></div> <!-- SOS ICON -->
+        <div class="btn"></div> <!-- GPS -->
+        <div class="btn"></div> <!-- NARC -->
+        <div class="btn"></div> <!-- LEGAL -->
+        <div class="btn"></div> <!-- TRAIN -->
+        <div class="btn"></div> <!-- VA LAW -->
+    </div>
+</div>
 
-    <!-- 1. K9 CPR -->
+<!-- FIRST AID SECTION (ICON #1) -->
+<div id="firstAidOverlay" class="overlay">
+    <div class="close-btn" onclick="closeOverlay()">← EXIT FIRST AID</div>
+    
+    <h1>Tactical K9 First Aid</h1>
+
     <div class="content-box" id="cpr_text">
-        <h2>1. K9 CPR (Cardiopulmonary Resuscitation)</h2>
-        <button class="voice-btn" onclick="speakSection('cpr_text')">▶ Activate Voice Assistant</button>
-        <p><b>Step 1: Check for Pulse.</b> Feel for the femoral artery on the inner thigh. If no pulse is detected, lay the K9 on their right side on a firm surface.</p>
-        <p><b>Step 2: Compressions.</b> Place your hands over the widest part of the rib cage. Depress the chest 1.5 to 2 inches for 100 to 120 beats per minute. Ensure full chest recoil between compressions.</p>
-        <p><b>Step 3: Rescue Breaths.</b> Close the K9's mouth tightly with both hands. Deliver 2 breaths into the nostrils every 30 compressions. Continue until the K9 breathes on their own or you reach a vet.</p>
+        <h2>1. K9 CPR (Advanced Protocol)</h2>
+        <button class="voice-btn" onclick="speak('cpr_text')">LISTEN TO INSTRUCTIONS</button>
+        <p>Confirm the animal is in full arrest by checking for a femoral pulse in the groin area and observing for lack of chest rise. Lay the K9 on their right side on a hard surface to stabilize the heart. Place your hands directly over the heart (where the elbow meets the chest) and compress 1.5 to 2 inches deep.</p>
+        <p>Maintain a constant rhythm of 100 to 120 compressions per minute. For rescue breathing, hold the muzzle closed with both hands to create an airtight seal and breathe directly into the nostrils. Deliver 2 breaths for every 30 compressions. Do not stop this cycle until the K9 regains a pulse or you are relieved by veterinary staff.</p>
     </div>
 
-    <!-- 2. SNAKEBITES -->
     <div class="content-box" id="snake_text">
-        <h2>2. Snakebites (Pit Vipers/Copperheads)</h2>
-        <button class="voice-btn" onclick="speakSection('snake_text')">▶ Activate Voice Assistant</button>
-        <p>Immediately immobilize the K9 to slow venom circulation. Do not apply a tourniquet, do not cut the wound, and do not apply ice. Keep the bite site at or below heart level. Identify the snake species if possible from a safe distance and transport immediately for antivenin treatment.</p>
+        <h2>2. Snakebites (Pit Viper/Timber Rattler)</h2>
+        <button class="voice-btn" onclick="speak('snake_text')">LISTEN TO INSTRUCTIONS</button>
+        <p>In the Blue Ridge terrain, venomous bites are a high risk. Immediately restrict the K9's movement; do not let the dog walk, as muscle activity speeds up venom absorption. Keep the bite site below the level of the heart.</p>
+        <p>Do not apply ice, do not use a tourniquet, and do not attempt to "suck out" the venom. These actions cause more tissue damage. Monitor for rapid swelling and labored breathing. Transport to an emergency facility immediately for Antivenin; call ahead so they can prepare the dosage.</p>
     </div>
 
-    <!-- 3. EYE INJURIES -->
-    <div class="content-box" id="eye_text">
-        <h2>3. Eye Injuries (Brush/Debris)</h2>
-        <button class="voice-btn" onclick="speakSection('eye_text')">▶ Activate Voice Assistant</button>
-        <p>Flush the eye gently with sterile saline solution or clean water to remove debris. Do not allow the K9 to rub their face on the ground or with their paws. If an object is impaled in the eye, do not remove it; stabilize it with a protective cup or bandage and transport immediately.</p>
+    <div class="content-box" id="gs_text">
+        <h2>3. Gunshot Wounds & Penetrating Trauma</h2>
+        <button class="voice-btn" onclick="speak('gs_text')">LISTEN TO INSTRUCTIONS</button>
+        <p>Apply immediate direct pressure to the wound using sterile gauze or the cleanest cloth available. If the wound is on a limb and bleeding is arterial (bright red/spurting), apply a K9-specific tourniquet high and tight above the wound and lock it. Note the time of application.</p>
+        <p>If the wound is in the chest cavity, look for "bubbling" blood, which indicates a sucking chest wound. Seal this immediately with an airtight plastic dressing or chest seal to prevent a collapsed lung (Pneumothorax). Keep the K9 warm to combat shock during extraction.</p>
     </div>
 
-    <!-- 4. PAW INJURIES -->
-    <div class="content-box" id="paw_text">
-        <h2>4. Paw Injuries (Lacerations/Tears)</h2>
-        <button class="voice-btn" onclick="speakSection('paw_text')">▶ Activate Voice Assistant</button>
-        <p>Examine pads for glass, thorns, or debris. Clean the area with antiseptic. Apply a pressure bandage to control bleeding. In the rugged terrain of Amherst or Nelson, ensure the bandage is secure but not cutting off circulation. Use a boot or wrap to keep the wound clean during extraction.</p>
+    <div class="content-box" id="heat_text">
+        <h2>4. Heat Stroke & Exhaustion</h2>
+        <button class="voice-btn" onclick="speak('heat_text')">LISTEN TO INSTRUCTIONS</button>
+        <p>Heat stroke is a medical emergency that leads to organ failure. If the K9 has brick-red gums, thick ropey saliva, or a temp over 104°F, begin cooling immediately. Move to shade or an air-conditioned cruiser.</p>
+        <p>Apply cool water (not ice) to the groin, paws, and neck. Use a fan to create airflow for evaporative cooling. Stop cooling once the rectal temperature hits 103°F to prevent the dog from crashing into hypothermia. Continuous monitoring is required as internal damage can continue after the temp drops.</p>
     </div>
 
-    <!-- 5. HEAT EXHAUSTION -->
-    <div class="content-box" id="exhaust_text">
-        <h2>5. Heat Exhaustion</h2>
-        <button class="voice-btn" onclick="speakSection('exhaust_text')">▶ Activate Voice Assistant</button>
-        <p>Watch for heavy panting and "spatulate" tongue (tongue flattened out). Move the K9 to a shaded, air-conditioned area. Offer small amounts of water. Wipe down the belly and inner thighs with room-temperature water. Monitor closely to ensure it does not progress to heat stroke.</p>
-    </div>
-
-    <!-- 6. HEAT STROKE -->
-    <div class="content-box" id="stroke_text">
-        <h2>6. Heat Stroke (Critical)</h2>
-        <button class="voice-btn" onclick="speakSection('stroke_text')">▶ Activate Voice Assistant</button>
-        <p>Signs include brick-red gums, seizures, or collapse. Rectal temperature over 104 degrees is a crisis. Apply cool water to the paws, groin, and neck. Use a fan for evaporative cooling. Stop cooling once the temperature reaches 103 degrees to prevent hypothermia. Emergency vet transport is mandatory.</p>
-    </div>
-
-    <!-- 7. BROKEN BONES -->
     <div class="content-box" id="bone_text">
-        <h2>7. Broken Bones (Fractures)</h2>
-        <button class="voice-btn" onclick="speakSection('bone_text')">▶ Activate Voice Assistant</button>
-        <p>Minimize movement. Do not attempt to "set" the bone. If the fracture is open (bone showing), cover with sterile gauze. Splint the limb only if transport will be prolonged, ensuring the splint extends above and below the break. Use a muzzle if the K9 is in extreme pain to prevent accidental bites.</p>
+        <h2>5. Broken Bones & Orthopedic Injury</h2>
+        <button class="voice-btn" onclick="speak('bone_text')">LISTEN TO INSTRUCTIONS</button>
+        <p>Stabilize the limb exactly as it was found; do not attempt to straighten a deformity. If the bone has broken the skin, cover it with a clean, moist dressing to prevent infection. Use a field-expedient splint (like a folded magazine or stick) only if it can be done without causing more pain.</p>
+        <p>Muzzle the K9 before treating a fracture. Even the most loyal partner will bite when experiencing the intense pain of a broken bone. Keep the K9 calm and immobilized on a flat board or stretcher for transport to prevent further nerve damage.</p>
     </div>
 
-    <!-- 8. EXCESSIVE BLEEDING -->
-    <div class="content-box" id="bleed_text">
-        <h2>8. Excessive Bleeding (Hemorrhage)</h2>
-        <button class="voice-btn" onclick="speakSection('bleed_text')">▶ Activate Voice Assistant</button>
-        <p>Apply direct pressure with clean gauze. If bleeding through, add more gauze without removing the first layer. For life-threatening limb bleeds, apply a K9 tourniquet high and tight. Document the time of application. For torso wounds, pack the wound with hemostatic gauze and maintain pressure.</p>
+    <div class="content-box" id="eye_text">
+        <h2>6. Eye & Paw Injuries</h2>
+        <button class="voice-btn" onclick="speak('eye_text')">LISTEN TO INSTRUCTIONS</button>
+        <p>For eye injuries, flush gently with saline or clean water. Do not allow the dog to rub the eye. For paw injuries, check for glass or thorns. Apply a pressure wrap to control bleeding, but ensure it is not so tight that it cuts off blood flow to the rest of the limb.</p>
     </div>
 
-    <!-- 9. GUNSHOT WOUNDS -->
-    <div class="content-box" id="gun_text">
-        <h2>9. Gunshot Wounds</h2>
-        <button class="voice-btn" onclick="speakSection('gun_text')">▶ Activate Voice Assistant</button>
-        <p>Treat for hemorrhage first. If the wound is in the chest and you hear a "sucking" sound, seal it immediately with plastic wrap or a chest seal to prevent lung collapse. Keep the K9 warm to prevent shock and transport to a trauma center immediately. Monitor for labored breathing.</p>
-    </div>
-
-    <!-- 10. BITES & STINGS -->
-    <div class="content-box" id="sting_text">
-        <h2>10. Bites & Stings (Insects/Animals)</h2>
-        <button class="voice-btn" onclick="speakSection('sting_text')">▶ Activate Voice Assistant</button>
-        <p>Remove stingers by scraping with a card—do not use tweezers which may squeeze more venom. Monitor for allergic reactions (facial swelling, hives). If the K9 has difficulty breathing, it is an anaphylactic emergency. For animal bites, flush with water and bandage loosely; watch for infection.</p>
-    </div>
-
-    <!-- EMERGENCY VETS -->
-    <h1>Local Emergency Vets</h1>
+    <h1>Emergency Vet Contact</h1>
     <div class="content-box">
         <table class="vet-table">
-            <tr><th>County</th><th>Clinic Name</th><th>Phone</th></tr>
-            <tr><td>Amherst/Lynchburg</td><td>Animal ER of Lynchburg</td><td>(434) 846-1504</td></tr>
-            <tr><td>Campbell</td><td>Peaks View Animal Hospital</td><td>(434) 525-4122</td></tr>
-            <tr><td>Appomattox</td><td>Appomattox Veterinary Clinic</td><td>(434) 352-7104</td></tr>
-            <tr><td>Nelson</td><td>Wintergreen Animal Hospital</td><td>(434) 361-2400</td></tr>
+            <tr><th>Location</th><th>Facility</th><th>Phone</th></tr>
+            <tr><td>Lynchburg/Amherst</td><td>Animal ER</td><td>(434) 846-1504</td></tr>
+            <tr><td>Campbell</td><td>Peaks View</td><td>(434) 525-4122</td></tr>
+            <tr><td>Appomattox</td><td>Appomattox Vet</td><td>(434) 352-7104</td></tr>
+            <tr><td>Nelson</td><td>Wintergreen Animal</td><td>(434) 361-2400</td></tr>
         </table>
     </div>
 </div>
 
 <script>
-    function speakSection(containerId) {
-        // Stop any current speech
-        window.speechSynthesis.cancel();
+    function openFirstAid() {
+        document.getElementById('firstAidOverlay').classList.add('active');
+    }
+
+    function closeOverlay() {
+        document.getElementById('firstAidOverlay').classList.remove('active');
+        window.speechSynthesis.cancel(); // Stop talking when closing
+    }
+
+    function speak(id) {
+        window.speechSynthesis.cancel(); // Stop any current talking
+        var text = document.getElementById(id).innerText;
+        // Clean up the text so it doesn't read the button label
+        var cleanText = text.replace("LISTEN TO INSTRUCTIONS", "");
         
-        // Get the text from the specific box, excluding the button text
-        var div = document.getElementById(containerId);
-        var text = div.innerText.replace("▶ Activate Voice Assistant", "");
-        
-        var msg = new SpeechSynthesisUtterance();
-        msg.text = text;
-        msg.rate = 0.9; // Slightly slower for clarity
-        msg.pitch = 1;
-        
-        // Set to a professional-sounding voice if available
-        var voices = window.speechSynthesis.getVoices();
-        msg.voice = voices.find(v => v.name.includes("Google US English")) || voices[0];
-        
+        var msg = new SpeechSynthesisUtterance(cleanText);
+        msg.rate = 0.85; // Professional, clear pace
         window.speechSynthesis.speak(msg);
     }
 </script>
