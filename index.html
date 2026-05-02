@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,27 +6,26 @@
     <title>K9 Command - ACSO</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        /* STOPS THE EXPLOSION: Locks everything to the screen size */
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; font-family: 'Times New Roman', serif; overflow: hidden; }
         
-        /* LOCKS THE HOMEPAGE: Ensures your name and background never move */
+        /* ELEVATION FIX: Pushing the image up to 20% from the top so the bottom is wide open */
         .app-screen { 
             width: 100vw; 
             height: 100vh; 
-            background: url('homepage.jpg') no-repeat center 30%; 
+            background: url('homepage.jpg') no-repeat center 20%; 
             background-size: contain; 
-            position: fixed; /* Fixed prevents the "white screen" push */
+            position: fixed;
             top: 0; left: 0;
             z-index: 1;
         }
 
-        /* TACTICAL GRID: Positioned specifically for iPhone 15 Pro bottom clearance */
+        /* GRID ELEVATION: Anchored higher (40% from bottom) to stay away from the iPhone home bar */
         .button-grid { 
             position: absolute; 
-            bottom: 25%; 
+            bottom: 40%; 
             left: 5%; 
             width: 90%; 
-            height: 25%; 
+            height: 22%; 
             display: grid; 
             grid-template-columns: 1fr 1fr 1fr; 
             grid-template-rows: 1fr 1fr; 
@@ -36,7 +34,6 @@
         
         .btn { cursor: pointer; background: rgba(255,255,255,0.01); }
         
-        /* THE CONTENT VAULT: These only show up when you tap an icon */
         .overlay { 
             display: none; 
             position: fixed; 
@@ -44,23 +41,18 @@
             width: 100%; height: 100%; 
             background: #001a11; 
             z-index: 100; 
-            overflow-y: auto; 
             padding: 30px; 
             box-sizing: border-box; 
-            border: 5px solid #d4af37; 
+            border: 5px solid #d4af37;
+            overflow-y: auto;
         }
         
         .active { display: block !important; }
-        .close-btn { background: #d4af37; color: black; padding: 15px 25px; font-weight: bold; cursor: pointer; display: inline-block; margin-bottom: 25px; border-radius: 5px; text-transform: uppercase; }
+        .close-btn { background: #d4af37; color: black; padding: 15px 25px; font-weight: bold; cursor: pointer; display: inline-block; margin-bottom: 25px; border-radius: 5px; }
         
-        h1 { color: #d4af37; text-transform: uppercase; border-bottom: 3px solid #d4af37; padding-bottom: 10px; font-size: 1.5em; }
-        h2 { color: #d4af37; font-size: 1.2em; margin-top: 25px; border-left: 5px solid #d4af37; padding-left: 10px; text-transform: uppercase; }
+        h1 { color: #d4af37; text-transform: uppercase; border-bottom: 3px solid #d4af37; padding-bottom: 10px; }
+        h2 { color: #d4af37; font-size: 1.2em; margin-top: 25px; border-left: 5px solid #d4af37; padding-left: 10px; }
         .content-box { background: rgba(255,255,255,0.1); padding: 20px; margin-bottom: 25px; line-height: 1.6; color: #fff; border-radius: 5px; }
-        
-        /* FORMS */
-        .form-wrap { background: rgba(212,175,55,0.1); padding: 20px; border: 1px solid #d4af37; margin-bottom: 30px; }
-        input, textarea, select { width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #d4af37; color: white; border-radius: 4px; font-size: 16px; }
-        .submit-btn { background: #d4af37; color: black; padding: 18px; width: 100%; font-weight: bold; border: none; cursor: pointer; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -82,43 +74,35 @@
     <h1>K9 TACTICAL MEDIC & CPR</h1>
     
     <div class="content-box">
-        <h2>K9 CPR: The Number One Priority</h2>
-        <p><b>PROTOCOL:</b> If the K9 is unresponsive, initiate CPR immediately. Place the K9 on their right side. Compress the chest at 100-120 beats per minute. For Shepherds and Malinois, compress directly over the heart. Give 2 breaths into the nose for every 30 compressions.</p>
-        <p><b>VERBAL COMMANDS:</b> Use loud, clear verbalizations for your body cam: "OFFICER DOWN—REQUESTING EMERGENCY VET SECURE TRANSPORT!" and "STAY BACK—MEDICAL EMERGENCY!"</p>
+        <h2>K9 CPR: Life-Saving Baseline</h2>
+        <p><b>FIELD PROTOCOL:</b> If a K9 is non-responsive and pulseless, begin CPR immediately. Lay the K9 on their right side. For most working breeds, compressions should be delivered at the widest part of the chest at 100-120 BPM. Secure the muzzle and deliver 2 quick breaths through the nose for every 30 compressions. This maintains oxygen flow to the brain until advanced veterinary care can be reached.</p>
+        <p><b>VERBAL COMMANDS:</b> Maintain scene command by shouting clearly: "OFFICER DOWN—CODE 3 VETERINARY EMERGENCY!" and "ALL UNITS STAND BY—K9 MEDICAL EMERGENCY IN PROGRESS!" Clear verbalization ensures dispatch is aware of the priority and prevents civilian interference during the resuscitation attempt.</p>
     </div>
 
     <div class="content-box">
-        <h2>Snake Bites (Pit Vipers)</h2>
-        <p><b>VA PROTOCOL:</b> Identify if Copperhead or Timber Rattler. Keep the bite area BELOW heart level. DO NOT apply ice or suction. Transport immediately for antivenom. Document the time of the bite for the vet.</p>
-        <p><b>VERBAL COMMANDS:</b> "CLEAR THE TRAIL—K9 BITE EXPOSURE!" and "NOTIFY DISPATCH—TRANSPORTING TO EMERGENCY VET!"</p>
+        <h2>Penetrating Trauma & Blood Loss</h2>
+        <p><b>FIELD ACTION:</b> Check for entry and exit wounds from gunshots or impalements. Use hemostatic gauze for limb bleeding, applying continuous, heavy pressure for at least 3 minutes. For chest wounds, an occlusive seal must be applied to prevent air from entering the chest cavity and causing lung collapse. Keep the K9 warm and quiet to prevent the onset of shock.</p>
+        <p><b>VERBAL COMMANDS:</b> Command onlookers or other deputies: "GET THE K9 TRAUMA KIT NOW!" and "SECURE THE PERIMETER!" By vocalizing these orders, you establish a clear professional record of your immediate and decisive action to save the department's asset.</p>
     </div>
 </div>
 
-<!-- 3. NARCOTICS AIDS -->
+<!-- OTHER SECTIONS (KEPT AS STUBS FOR SAFETY) -->
 <div id="narcSection" class="overlay">
-    <div class="close-btn" onclick="closeSections()">← BACK TO HOME</div>
+    <div class="close-btn" onclick="closeSections()">← BACK</div>
     <h1>NARCOTICS INTERDICTION</h1>
     <div class="content-box">
-        <h2>The Search Pattern & COB</h2>
-        <p><b>METHODOLOGY:</b> Start down-wind. Watch for the Change of Behavior (COB): head-snaps or "detailing" seams. A final response (sit/down) establishes probable cause under the Automobile Exception.</p>
-        <p><b>VERBAL COMMANDS:</b> "AMHERST COUNTY SHERIFF'S OFFICE K9! REMAIN IN YOUR VEHICLE!" and "K9 ALERT—PROBABLE CAUSE ESTABLISHED!"</p>
+        <h2>Scent Pools and Indicators</h2>
+        <p><b>FIELD TACTICS:</b> Identify "Scent Pools" around vehicle seams. Watch for "Head Snaps" and changes in breathing patterns. A final alert gives you the probable cause required for a search under the Automobile Exception.</p>
+        <p><b>VERBAL COMMANDS:</b> "AMHERST COUNTY K9—STAY IN YOUR VEHICLE!" and "K9 ALERT—PROBABLE CAUSE!"</p>
     </div>
 </div>
 
-<!-- 5. TRAINING & REPORTS -->
 <div id="trainSection" class="overlay">
     <div class="close-btn" onclick="closeSections()">← BACK</div>
     <h1>K9 ADMINISTRATION</h1>
-    <div class="form-wrap">
-        <h2>Daily Training Log</h2>
-        <input type="text" id="t_handler" placeholder="Handler Name">
-        <input type="text" id="t_k9" placeholder="K9 Name">
-        <textarea id="t_notes" placeholder="Environment and Performance..." rows="3"></textarea>
-        <button class="submit-btn" onclick="genPDF('Training')">Generate Training PDF</button>
-    </div>
+    <div class="content-box"><h2>Training Logs</h2><p>This section is ready for your PDF generation tools.</p></div>
 </div>
 
-<!-- PLACEHOLDER ROOMS TO PREVENT EXPLOSIONS -->
 <div id="gpsSection" class="overlay"><div class="close-btn" onclick="closeSections()">← BACK</div><h1>GPS COMMAND</h1></div>
 <div id="legalSection" class="overlay"><div class="close-btn" onclick="closeSections()">← BACK</div><h1>FEDERAL LEGAL</h1></div>
 <div id="vaSection" class="overlay"><div class="close-btn" onclick="closeSections()">← BACK</div><h1>VA STATE CODE</h1></div>
@@ -126,16 +110,6 @@
 <script>
     function openSection(id) { closeSections(); document.getElementById(id).classList.add('active'); }
     function closeSections() { document.querySelectorAll('.overlay').forEach(o => o.classList.remove('active')); }
-
-    function genPDF(type) {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.text("AMHERST COUNTY SHERIFF'S OFFICE", 10, 10);
-        doc.text("K9 UNIT - " + type.toUpperCase(), 10, 20);
-        let val = document.getElementById('t_handler').value + " " + document.getElementById('t_notes').value;
-        doc.text(doc.splitTextToSize(val, 180), 10, 40);
-        doc.save(type + "_Report.pdf");
-    }
 </script>
 
 </body>
