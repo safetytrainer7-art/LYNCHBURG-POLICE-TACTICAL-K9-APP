@@ -1,89 +1,130 @@
-<div id="training" class="page">
-    <div class="header">
-        <button class="back-btn" onclick="goHome()">← BACK</button>
-        <span style="color:var(--gold); margin-left:15px; font-weight:bold;">K9 DAILY TRAINING LOG</span>
-    </div>
-    <div style="padding: 15px; background: #000; color: #fff; padding-bottom: 100px;">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ACSD COMMAND V197</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root { --gold: #c5a059; --bg: #000; }
+        * { box-sizing: border-box; }
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
         
-        <div style="border: 2px solid #00ffcc; padding: 15px; border-radius: 8px; background: #001a1a;">
-            <h3 style="color: #00ffcc; margin-top: 0;">TRAINING RECORD</h3>
-            
-            <label>DATE/TIME:</label>
-            <input type="datetime-local" id="t-date" class="f-input">
-            
-            <div style="display:flex; gap:5px;">
-                <div style="flex:1;"><label>TEMP:</label><input type="text" id="t-temp" placeholder="72°F" class="f-input"></div>
-                <div style="flex:1;"><label>WIND:</label><input type="text" id="t-wind" placeholder="NW 5mph" class="f-input"></div>
+        /* Master Container */
+        #main-wrapper { width: 100%; height: 100%; position: relative; }
+        .page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        
+        /* Home Screen */
+        #home { display: block; width: 100%; height: 100%; background: radial-gradient(circle, #001a00 0%, #000 100%); position: relative; }
+        .side-col { position: absolute; width: 22%; height: 60%; top: 20%; display: flex; flex-direction: column; justify-content: space-around; z-index: 100; }
+        .left { left: 2%; } .right { right: 2%; }
+        .main-btn { background: rgba(0, 20, 0, 0.9); border: 2px solid var(--gold); color: var(--gold); padding: 12px 2px; text-align: center; font-size: 11px; font-weight: bold; border-radius: 6px; text-transform: uppercase; box-shadow: 0 4px 8px #000; }
+
+        /* Global Header */
+        .header { background: #111; border-bottom: 2px solid var(--gold); padding: 12px; display: flex; align-items: center; position: sticky; top: 0; z-index: 1100; }
+        .back-btn { background: var(--gold); color: #000; border: none; padding: 12px 20px; font-weight: bold; border-radius: 4px; font-size: 14px; }
+
+        /* Form Styling */
+        .f-input { width: 100%; padding: 12px; margin: 8px 0 15px 0; background: #111; border: 1px solid #444; color: #fff; border-radius: 4px; font-size: 16px; }
+        label { color: var(--gold); font-size: 12px; font-weight: bold; text-transform: uppercase; }
+        
+        /* Boxes */
+        .box { padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #fff; }
+        .teal-box { border: 2px solid #00ffcc; background: #001a1a; }
+        .red-box { border: 2px solid #ff0055; background: #1a0005; }
+        .vet-card { background: #111; border: 1px solid #ff3333; padding: 15px; margin-bottom: 10px; border-radius: 4px; color: #fff; }
+    </style>
+</head>
+<body>
+
+<div id="main-wrapper">
+
+    <div id="home">
+        <img src="homepage.jpg" style="width:100%; height: auto; max-height: 100%; object-fit: contain;">
+        <div class="side-col left">
+            <div class="main-btn" onclick="show('sos')">K9 SOS / VETS</div>
+            <div class="main-btn" onclick="show('legal')">LEGAL BIBLE</div>
+            <div class="main-btn" onclick="show('drugs')">DRUGS / SAFETY</div>
+        </div>
+        <div class="side-col right">
+            <div class="main-btn" onclick="show('m-map')">TACTICAL MAP</div>
+            <div class="main-btn" onclick="show('incidents')">INCIDENTS</div>
+            <div class="main-btn" onclick="show('training')">K9 TRAINING</div>
+        </div>
+    </div>
+
+    <div id="training" class="page">
+        <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:var(--gold); margin-left:15px; font-weight:bold;">TRAINING LOG</span></div>
+        <div style="padding: 15px; padding-bottom: 80px;">
+            <div class="box teal-box">
+                <h3 style="color:#00ffcc; margin:0 0 10px 0;">DAILY RECORD</h3>
+                <label>Date/Time:</label><input type="datetime-local" class="f-input">
+                <div style="display:flex; gap:5px;">
+                    <div style="flex:1;"><label>Temp:</label><input type="text" placeholder="70°F" class="f-input"></div>
+                    <div style="flex:1;"><label>Wind:</label><input type="text" placeholder="NW 10" class="f-input"></div>
+                </div>
+                <label>Scent Type & Height:</label><input type="text" placeholder="Narcotic / 4ft Hide" class="f-input">
+                <label>Notes:</label><textarea class="f-input" style="height:100px;"></textarea>
+                <button onclick="alert('PDF Generated')" style="width:100%; background:#00ffcc; color:#000; padding:15px; font-weight:bold; border:none; border-radius:4px;">GENERATE PDF</button>
             </div>
-
-            <label>LOCATION/WEATHER:</label>
-            <input type="text" id="t-loc" placeholder="Amherst Warehouse / Clear" class="f-input">
-
-            <label>SEARCH TYPE:</label>
-            <select id="t-type" class="f-input">
-                <option>VEHICLE INTERIOR/EXTERIOR</option>
-                <option>WAREHOUSE / LARGE AREA</option>
-                <option>RESIDENTIAL / BUILDING</option>
-                <option>TRACKING / APPREHENSION</option>
-                <option>AGITATION / PATROL</option>
-            </select>
-
-            <label>TRAINING AID / SCENT CONE:</label>
-            <input type="text" id="t-aid" placeholder="Heroin 5g / High Hide / Left Cone" class="f-input">
-
-            <label>PERFORMANCE NOTES:</label>
-            <textarea id="t-notes" class="f-input" style="height:80px;" placeholder="Final response noted, scratch/sit alert..."></textarea>
-
-            <button onclick="genPDF('TRAINING')" style="width:100%; background:#00ffcc; color:#000; padding:15px; font-weight:bold; border:none; border-radius:4px; margin-top:10px;">💾 GENERATE PDF REPORT</button>
         </div>
     </div>
-</div>
 
-<div id="incidents" class="page">
-    <div class="header">
-        <button class="back-btn" onclick="goHome()">← BACK</button>
-        <span style="color:var(--gold); margin-left:15px; font-weight:bold;">K9 INCIDENT REPORT</span>
-    </div>
-    <div style="padding: 15px; background: #000; color: #fff; padding-bottom: 100px;">
-        <div style="border: 2px solid #ff0055; padding: 15px; border-radius: 8px; background: #1a0005;">
-            <h3 style="color: #ff0055; margin-top: 0;">CALL FOR SERVICE</h3>
-            
-            <label>OFFICER / DEPT:</label>
-            <input type="text" id="i-off" placeholder="Deputy Jones / ACSO" class="f-input">
-
-            <label>DISPOSITION / ARRESTS:</label>
-            <input type="text" id="i-disp" placeholder="Arrest Made / Evidence Seized" class="f-input">
-
-            <label>INJURIES / DIAGRAM NOTES:</label>
-            <textarea id="i-notes" class="f-input" style="height:80px;" placeholder="Suspect bit left calf / Tactical deployment..."></textarea>
-
-            <button onclick="genPDF('INCIDENT')" style="width:100%; background:#ff0055; color:#fff; padding:15px; font-weight:bold; border:none; border-radius:4px; margin-top:10px;">💾 GENERATE INCIDENT PDF</button>
+    <div id="incidents" class="page">
+        <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:var(--gold); margin-left:15px; font-weight:bold;">INCIDENT REPORT</span></div>
+        <div style="padding: 15px; padding-bottom: 80px;">
+            <div class="box red-box">
+                <h3 style="color:#ff0055; margin:0 0 10px 0;">CALL FOR SERVICE</h3>
+                <label>Officer/Dept:</label><input type="text" class="f-input">
+                <label>Classification:</label><input type="text" placeholder="Narcotic Search / Tracking" class="f-input">
+                <label>Injuries/Arrests:</label><textarea class="f-input" style="height:100px;"></textarea>
+                <button onclick="alert('Incident Logged')" style="width:100%; background:#ff0055; color:#fff; padding:15px; font-weight:bold; border:none; border-radius:4px;">GENERATE REPORT</button>
+            </div>
         </div>
     </div>
-</div>
 
-<div id="vets" class="page">
-    <div class="header">
-        <button class="back-btn" onclick="goHome()">← BACK</button>
-        <span style="color:#ff3333; margin-left:15px; font-weight:bold;">EMERGENCY VETS</span>
+    <div id="sos" class="page">
+        <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:var(--gold); margin-left:15px; font-weight:bold;">EMERGENCY / VETS</span></div>
+        <div style="padding: 15px; padding-bottom: 80px;">
+            <h2 style="color:red; text-align:center;">EMERGENCY VETS</h2>
+            <div class="vet-card"><b>LYNCHBURG:</b> Animal Emergency & Critical Care <br><a href="tel:4348461504" style="color:#00ff00;">(434) 846-1504</a></div>
+            <div class="vet-card"><b>CAMPBELL:</b> Peaks View Animal Hospital <br><a href="tel:4345254996" style="color:#00ff00;">(434) 525-4996</a></div>
+            <div class="vet-card"><b>NELSON/AMHERST:</b> Blue Ridge Animal Clinic <br><a href="tel:5404633774" style="color:#00ff00;">(540) 463-3774</a></div>
+        </div>
     </div>
-    <div style="padding: 15px; background: #000;">
-        <div class="vet-card"><b>LYNCHBURG:</b> Animal Emergency & Critical Care <br><a href="tel:4348461504" style="color:#00ff00;">(434) 846-1504</a></div>
-        <div class="vet-card"><b>CAMPBELL:</b> Peaks View Animal Hospital <br><a href="tel:4345254996" style="color:#00ff00;">(434) 525-4996</a></div>
-        <div class="vet-card"><b>NELSON/AMHERST:</b> Blue Ridge Animal Clinic <br><a href="tel:5404633774" style="color:#00ff00;">(540) 463-3774</a></div>
-    </div>
-</div>
 
-<style>
-    .f-input { width: 100%; padding: 12px; margin: 8px 0 15px 0; background: #111; border: 1px solid #444; color: #fff; border-radius: 4px; font-size: 14px; }
-    label { color: #aaa; font-size: 12px; font-weight: bold; text-transform: uppercase; }
-    .vet-card { background: #111; border: 1px solid #ff3333; padding: 15px; margin-bottom: 10px; border-radius: 4px; color: #fff; }
-</style>
+    </div>
 
 <script>
-    function genPDF(type) {
-        alert("CREATING " + type + " REPORT...\n\nIn a full build, this would trigger a Print-to-PDF. For now, all data is captured and ready for the Sheriff!");
+    // MASTER NAV RESET
+    const pageList = ['sos', 'legal', 'drugs', 'm-map', 'incidents', 'training'];
+
+    function show(id) {
+        // Hide Everything
+        pageList.forEach(pageId => {
+            const el = document.getElementById(pageId);
+            if(el) el.style.display = 'none';
+        });
+        document.getElementById('home').style.display = 'none';
+        
+        // Show Target
+        const target = document.getElementById(id);
+        if(target) {
+            target.style.display = 'block';
+            target.scrollTop = 0;
+        }
     }
-    
-    // Add show('training'), show('incidents'), and show('vets') to your nav logic.
+
+    function goHome() {
+        // Kill all active pages
+        pageList.forEach(pageId => {
+            const el = document.getElementById(pageId);
+            if(el) el.style.display = 'none';
+        });
+        // Bring back Home
+        document.getElementById('home').style.display = 'block';
+    }
 </script>
+
+</body>
+</html>
