@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,44 +8,44 @@
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; font-family: 'Times New Roman', serif; color: white; overflow: hidden; }
         
-        /* LIFTED LAYOUT: Moved the background up so the bottom isn't cut off */
+        /* BOX-MODEL FIX: Lifts the background and ensures icons are visible */
         .app-screen { 
             width: 100vw; 
             height: 100vh; 
-            background: url('homepage.jpg') no-repeat center 40%; /* Adjusted from center to 40% to lift it */
+            background: url('homepage.jpg') no-repeat center 30%; 
             background-size: contain; 
             position: relative; 
             z-index: 1; 
         }
 
-        /* Adjusted Grid: Lifted upward to ensure visibility of the bottom icons */
+        /* GRID POSITION: Lifted significantly to avoid the bottom of the phone */
         .button-grid { 
             position: absolute; 
-            bottom: 18%; /* Lifted from 15% to 18% */
+            bottom: 22%; /* Lifted higher to clear the iPhone bottom bar */
             left: 5%; 
             width: 90%; 
-            height: 28%; 
+            height: 25%; 
             display: grid; 
             grid-template-columns: 1fr 1fr 1fr; 
             grid-template-rows: 1fr 1fr; 
             z-index: 10; 
         }
         
-        .btn { cursor: pointer; background: rgba(255,255,255,0.01); }
+        .btn { cursor: pointer; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.05); }
         
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #001a11; z-index: 100; overflow-y: auto; padding: 25px; box-sizing: border-box; border: 3px solid #d4af37; }
+        /* MODAL OVERLAYS */
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #001a11; z-index: 100; overflow-y: auto; padding: 30px; box-sizing: border-box; border: 4px solid #d4af37; }
         .active { display: block !important; }
-        .close-btn { background: #d4af37; color: black; padding: 12px 20px; font-weight: bold; cursor: pointer; display: inline-block; margin-bottom: 25px; border-radius: 5px; text-transform: uppercase; }
+        .close-btn { background: #d4af37; color: black; padding: 15px 25px; font-weight: bold; cursor: pointer; display: inline-block; margin-bottom: 30px; border-radius: 5px; text-transform: uppercase; }
         
-        h1 { color: #d4af37; text-transform: uppercase; border-bottom: 2px solid #d4af37; padding-bottom: 10px; font-size: 1.4em; }
-        h2 { color: #d4af37; font-size: 1.1em; margin-top: 15px; text-decoration: underline; }
-        .content-box { background: rgba(255,255,255,0.05); padding: 15px; margin-bottom: 20px; border-left: 4px solid #d4af37; line-height: 1.5; }
-        .law-label { color: #d4af37; font-weight: bold; text-transform: uppercase; font-size: 0.8em; display: block; }
-
-        /* Form Styling */
-        .form-wrap { background: rgba(212,175,55,0.1); padding: 15px; border: 1px solid #d4af37; margin-bottom: 30px; }
-        input, textarea, select { width: 100%; padding: 10px; margin: 8px 0; background: #000; border: 1px solid #444; color: white; border-radius: 4px; font-size: 16px; }
-        .submit-btn { background: #d4af37; color: black; padding: 15px; width: 100%; font-weight: bold; border: none; cursor: pointer; text-transform: uppercase; }
+        h1 { color: #d4af37; text-transform: uppercase; border-bottom: 3px solid #d4af37; padding-bottom: 10px; font-size: 1.6em; margin-bottom: 20px; }
+        h2 { color: #d4af37; font-size: 1.2em; margin-top: 20px; border-left: 4px solid #d4af37; padding-left: 10px; }
+        .content-box { background: rgba(255,255,255,0.08); padding: 20px; margin-bottom: 25px; line-height: 1.6; border: 1px solid #222; }
+        
+        /* FORM ELEMENTS */
+        .form-wrap { background: rgba(212,175,55,0.05); padding: 20px; border: 1px solid #d4af37; margin-bottom: 40px; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #d4af37; color: white; border-radius: 4px; font-size: 16px; }
+        .submit-btn { background: #d4af37; color: black; padding: 18px; width: 100%; font-weight: bold; border: none; cursor: pointer; text-transform: uppercase; font-size: 1.1em; }
     </style>
 </head>
 <body>
@@ -62,96 +61,75 @@
     </div>
 </div>
 
-<!-- 1. EMERGENCY SOS (K9 TRAUMA - CORRECTED) -->
+<!-- 1. EMERGENCY SOS (TRUE FIRST AID) -->
 <div id="emergencySection" class="overlay">
-    <div class="close-btn" onclick="closeSections()">← BACK</div>
+    <div class="close-btn" onclick="closeSections()">← BACK TO HOME</div>
     <h1>K9 FIRST AID & TRAUMA</h1>
     <div class="content-box">
-        <h2>Gunshot Wounds / Penetrating Trauma</h2>
-        <p><span class="law-label">Immediate Action:</span> Identify entry/exit wounds. Apply occlusive dressing to chest wounds to prevent "sucking" chest injury. Apply direct pressure to extremities.</p>
+        <h2>Gunshot & Penetrating Trauma</h2>
+        <p><b>Assessment:</b> Check for entry/exit wounds. Apply direct pressure to control hemorrhage. Use occlusive dressings for chest/abdominal wounds.</p>
     </div>
     <div class="content-box">
-        <h2>Heat Exhaustion / Stroke</h2>
-        <p><span class="law-label">Immediate Action:</span> Move K9 to shade. Apply cool (not ice) water to paw pads, groin, and armpits. Do not force-water if K9 is semi-conscious.</p>
+        <h2>Snake Bites (Virginia Species)</h2>
+        <p><b>Protocol:</b> Identify the species if safe (Copperhead/Timber Rattler). Immobilize the affected limb at heart level. Do not apply ice or tourniquets. Transport immediately to a vet with antivenom.</p>
     </div>
 </div>
 
 <!-- 2. TACTICAL GPS MAP -->
 <div id="gpsSection" class="overlay">
-    <div class="close-btn" onclick="closeSections()">← BACK</div>
+    <div class="close-btn" onclick="closeSections()">← BACK TO HOME</div>
     <h1>GPS SEARCH COMMAND</h1>
     <div class="content-box">
-        <h2>Visual ID System</h2>
-        <p>• <b>Green Dots:</b> Law Enforcement / K9 Handlers.</p>
-        <p>• <b>Blue Dots:</b> Search & Rescue (Volunteer/Certified).</p>
-        <p>• <b>Yellow Dots:</b> Civilian Support / Perimeter Control.</p>
-    </div>
-    <div class="content-box">
-        <h2>Breadcrumb Saturation</h2>
-        <p>The system records path-of-travel every 5 seconds to provide a "Saturation Map," proving in court that a specific search area was cleared 100%.</p>
+        <h2>Real-Time Tracking Indicators</h2>
+        <p>• <b>Green Dots:</b> Law Enforcement / K9 Teams</p>
+        <p>• <b>Blue Dots:</b> Search & Rescue Teams</p>
+        <p>• <b>Yellow Dots:</b> Civilian Volunteers</p>
+        <p>• <b>Drones:</b> Integrated aerial pings for perimeter overhead.</p>
     </div>
 </div>
 
 <!-- 3. NARCOTICS AIDS -->
 <div id="narcSection" class="overlay">
-    <div class="close-btn" onclick="closeSections()">← BACK</div>
-    <h1>NARCOTICS DETECTION PROTOCOLS</h1>
+    <div class="close-btn" onclick="closeSections()">← BACK TO HOME</div>
+    <h1>NARCOTICS INTERDICTION</h1>
     <div class="content-box">
         <h2>Vehicle Exterior Sniff</h2>
-        <p><span class="law-label">Procedure:</span> Always start down-wind. Allow K9 to detail seams and door handles. Document "Change of Behavior" (COB) vs "Final Response."</p>
-    </div>
-    <div class="content-box">
-        <h2>Masking Agents</h2>
-        <p><span class="law-label">Documentation:</span> Explicitly note the presence of dryer sheets, coffee grounds, or heavy perfume. These are indicators of "Criminal Interdiction" behavior and support Reasonable Suspicion.</p>
-    </div>
-</div>
-
-<!-- 4. FEDERAL LEGAL SHIELD -->
-<div id="legalSection" class="overlay">
-    <div class="close-btn" onclick="closeSections()">← BACK</div>
-    <h1>FEDERAL LEGAL SHIELD</h1>
-    <div class="content-box">
-        <h2>Rodriguez v. United States (2015)</h2>
-        <p>The "Mission" of the stop cannot be detoured for a K9 sniff. If the ticket is written, the stop is over. Run the dog <i>during</i> the records check.</p>
+        <p><b>Strategy:</b> Start down-wind. Observe K9 Change of Behavior (COB). A final response (sit/down) provides probable cause for a warrantless vehicle search under the Automobile Exception.</p>
     </div>
 </div>
 
 <!-- 5. TRAINING LOGS & PDF GENERATOR -->
 <div id="trainSection" class="overlay">
-    <div class="close-btn" onclick="closeSections()">← BACK</div>
-    <h1>K9 ADMIN & REPORTING</h1>
+    <div class="close-btn" onclick="closeSections()">← BACK TO HOME</div>
+    <h1>REPORTS & TRAINING LOGS</h1>
 
-    <!-- FORM 1: DAILY TRAINING -->
     <div class="form-wrap">
-        <h2>Daily Training Log</h2>
+        <h2>Daily K9 Training Form</h2>
         <input type="text" id="t_handler" placeholder="Handler Name / ID">
         <input type="text" id="t_k9" placeholder="K9 Name">
-        <select id="t_type">
-            <option>Narcotics Detection</option>
-            <option>Tracking / SAR</option>
-            <option>Apprehension Work</option>
-        </select>
-        <textarea id="t_notes" placeholder="Training Environment & Performance..." rows="3"></textarea>
-        <button class="submit-btn" onclick="genPDF('Training')">Print Training Log</button>
+        <textarea id="t_notes" placeholder="Distractions, Weather, Performance..." rows="3"></textarea>
+        <button class="submit-btn" onclick="genPDF('Training')">Generate Training PDF</button>
     </div>
 
-    <!-- FORM 2: INCIDENT REPORT -->
     <div class="form-wrap">
         <h2>K9 Incident Report</h2>
         <input type="text" id="i_case" placeholder="Case Number / CFS #">
-        <textarea id="i_narrative" placeholder="Deployment Narrative..." rows="4"></textarea>
-        <button class="submit-btn" onclick="genPDF('Incident')">Print Court Report</button>
+        <textarea id="i_narrative" placeholder="Detailed Deployment Narrative..." rows="4"></textarea>
+        <button class="submit-btn" onclick="genPDF('Incident')">Generate Court Report</button>
     </div>
 </div>
 
-<!-- 6. VA CODE -->
+<!-- 4. LEGAL & 6. VA CODE -->
+<div id="legalSection" class="overlay">
+    <div class="close-btn" onclick="closeSections()">← BACK</div>
+    <h1>FEDERAL LEGAL SHIELD</h1>
+    <div class="content-box"><h2>Rodriguez v. U.S.</h2><p>Case law regarding the duration of traffic stops and K9 sniffs.</p></div>
+</div>
+
 <div id="vaSection" class="overlay">
     <div class="close-btn" onclick="closeSections()">← BACK</div>
     <h1>VIRGINIA STATE CODE</h1>
-    <div class="content-box">
-        <h2>VA Code § 3.2-6500</h2>
-        <p>Establishes the authority for K9 units in the Commonwealth. Review Fresh Pursuit and Curtilage entry laws here.</p>
-    </div>
+    <div class="content-box"><h2>VA Code § 3.2-6500</h2><p>Legal authorities for K9 units in the Commonwealth.</p></div>
 </div>
 
 <script>
@@ -163,21 +141,15 @@
         const doc = new jsPDF();
         doc.setFont("times", "bold");
         doc.text("AMHERST COUNTY SHERIFF'S OFFICE", 105, 20, { align: 'center' });
-        doc.text("K9 UNIT - " + type.toUpperCase() + " RECORD", 105, 30, { align: 'center' });
+        doc.text("K9 UNIT - " + type.toUpperCase(), 105, 30, { align: 'center' });
         doc.setFontSize(12);
         doc.setFont("times", "normal");
         
-        let content = "";
-        if(type === 'Training') {
-            content = "Handler: " + document.getElementById('t_handler').value + "\nK9: " + document.getElementById('t_k9').value + 
-                      "\nType: " + document.getElementById('t_type').value + "\nNotes: " + document.getElementById('t_notes').value;
-        } else {
-            content = "Case #: " + document.getElementById('i_case').value + "\nNarrative: " + document.getElementById('i_narrative').value;
-        }
+        let txt = (type === 'Training') ? 
+            "Handler: " + document.getElementById('t_handler').value + "\nK9: " + document.getElementById('t_k9').value + "\nNotes: " + document.getElementById('t_notes').value :
+            "Case #: " + document.getElementById('i_case').value + "\nNarrative: " + document.getElementById('i_narrative').value;
 
-        doc.text(doc.splitTextToSize(content, 180), 20, 50);
-        doc.text("__________________________", 20, 250);
-        doc.text("Certified Signature", 20, 260);
+        doc.text(doc.splitTextToSize(txt, 170), 20, 50);
         doc.save(type + "_Report.pdf");
     }
 </script>
