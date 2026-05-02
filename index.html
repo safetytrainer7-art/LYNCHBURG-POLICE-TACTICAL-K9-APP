@@ -1,70 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ACSD COMMAND HUB V175</title>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100vh; width: 100vw; background: #000; overflow: hidden; font-family: 'Georgia', serif; }
+        #container { width: 100vw; height: 100vh; background: radial-gradient(circle, #001a00 0%, #000000 100%); display: flex; justify-content: center; align-items: center; position: relative; }
+        #top-badge { position: absolute; top: 10px; width: 70px; height: 70px; background: url('badge.jpg') no-repeat center; background-size: contain; z-index: 100; }
+        #center-image { width: 98%; height: 90%; background: url('homepage.jpg') no-repeat center; background-size: contain; z-index: 5; margin-top: 20px; }
+        
+        /* SIDE NAVIGATION */
+        .side-col { position: absolute; width: 20%; height: 70%; top: 18%; display: flex; flex-direction: column; justify-content: space-around; z-index: 50; }
+        .left { left: 1%; } .right { right: 1%; }
+        .btn { background: rgba(0, 30, 0, 0.85); border: 2px solid #c5a059; color: #c5a059; padding: 15px 2px; text-align: center; font-weight: bold; font-size: 12px; border-radius: 4px; cursor: pointer; text-transform: uppercase; }
+
+        /* OVERLAY PAGES */
+        .page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000d00; z-index: 500; overflow-y: auto; color: #fff; padding-bottom: 50px; }
+        .header { background: #000; border-bottom: 2px solid #c5a059; padding: 15px; display: flex; align-items: center; position: sticky; top: 0; z-index: 600; }
+        .back-btn { background: #c5a059; color: #000; border: none; padding: 15px 25px; font-weight: bold; border-radius: 4px; margin-right: 15px; cursor: pointer; font-size: 16px; }
+        
+        /* MEDICAL BLOCKS */
+        .content { padding: 20px; }
+        .med-block { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #c5a059; }
+        .voice-btn { background: #c5a059; color: #000; border: none; padding: 12px; font-weight: bold; border-radius: 4px; margin-bottom: 10px; width: 100%; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        h3 { color: #c5a059; margin-top: 0; text-transform: uppercase; border-bottom: 1px solid #444; padding-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+<div id="container">
+    <div id="top-badge"></div>
+    <div id="center-image"></div>
+    <div class="side-col left">
+        <div class="btn" onclick="openPage('sos')">K9 SOS</div>
+        <div class="btn" onclick="openPage('law')">Legal Bible</div>
+        <div class="btn">Narcotics</div>
+    </div>
+    <div class="side-col right">
+        <div class="btn">Tactical Map</div>
+        <div class="btn">Training Logs</div>
+        <div class="btn">VA Code</div>
+    </div>
+</div>
+
 <div id="sos" class="page">
     <div class="header">
-        <button class="back-btn" onclick="closeP('sos')">BACK</button>
-        <h2>K9 TACTICAL FIRST AID</h2>
+        <button class="back-btn" onclick="closePage('sos')">← BACK</button>
+        <h2 style="color:#c5a059; margin:0;">K9 FIRST AID</h2>
     </div>
     <div class="content">
 
         <div class="med-block">
-            <h3>1. K9 CPR (Hands-Free Instruction)</h3>
-            <button class="voice-btn" onclick="speak('cpr-text')">🔊 LISTEN TO INSTRUCTIONS</button>
-            <div id="cpr-text">
-                <p>Lay the dog on their right side on a firm surface. For most dogs, place your hands over the widest part of the chest; for barrel-chested dogs like Labs, place hands directly over the heart. Compress the chest 1/3 to 1/2 of its width at a rate of 100-120 beats per minute, allowing full recoil between compressions.</p>
-                <p>Every 30 compressions, deliver 2 rescue breaths by closing the dog's mouth tightly and breathing directly into the nose until the chest rises. Continue this cycle without interruption until the dog regains consciousness or you reach a veterinary facility. Using a metronome or a steady rhythm is vital for effectiveness.</p>
-            </div>
-            
-        </div>
-
-        <div class="med-block">
-            <h3>2. GUNSHOT WOUNDS</h3>
-            <button class="voice-btn" onclick="speak('gsw-text')">🔊 LISTEN</button>
-            <div id="gsw-text">
-                <p>Immediately identify entry and potential exit wounds. If the wound is in the chest cavity (a sucking chest wound), seal it immediately with plastic or a vented chest seal to prevent lung collapse. For limb wounds, apply a tactical K9 tourniquet high and tight above the wound if life-threatening bleeding is present.</p>
-                <p>Keep the dog warm to prevent shock and maintain a clear airway. Do not attempt to probe the wound or remove bullet fragments in the field, as this can cause catastrophic secondary hemorrhaging. Rapid transport to a trauma-capable vet is the only priority after the bleeding is packed.</p>
+            <h3>1. K9 CPR</h3>
+            <button class="voice-btn" onclick="speak('cpr-txt')">🔊 LISTEN TO STEPS</button>
+            <div id="cpr-txt">
+                <p>Lay dog on right side. Place hands over the widest part of the chest. Compress 1/3 to 1/2 chest width at 100-120 BPM. Allow full recoil. </p>
+                <p>Deliver 2 rescue breaths every 30 compressions by breathing into the nose with the mouth held shut. Continue until help arrives or the dog resuscitates.</p>
             </div>
         </div>
 
         <div class="med-block">
-            <h3>3. EXCESSIVE BLEEDING (HEMORRHAGE)</h3>
-            <button class="voice-btn" onclick="speak('bleed-text')">🔊 LISTEN</button>
-            <div id="bleed-text">
-                <p>Apply firm, direct pressure to the source of the bleed using sterile gauze or the cleanest cloth available. If the blood soaks through, do not remove the original dressing, as you will tear away forming clots; simply add more layers on top and increase pressure. Use a pressure bandage to lock the dressing in place.</p>
-                <p>For arterial bleeds on the tail or limbs that cannot be controlled with pressure, use a K9-specific tourniquet. Monitor the dog's gum color; if gums turn pale or white, the dog is entering hypovolemic shock and requires immediate fluid resuscitation by a vet.</p>
-            </div>
-            
-        </div>
-
-        <div class="med-block">
-            <h3>4. HEAT EXHAUSTION</h3>
-            <button class="voice-btn" onclick="speak('heat-text')">🔊 LISTEN</button>
-            <div id="heat-text">
-                <p>Move the dog to a shaded area or air-conditioned patrol unit immediately. Douse the dog’s body with cool (not ice-cold) water, focusing specifically on the paw pads, groin, and underarms where heat exchange is most effective. Use a fan to provide evaporative cooling while monitoring the dog's responsiveness.</p>
-                <p>Stop active cooling once the dog's temperature reaches 103 degrees to avoid over-cooling and rebound hypothermia. Never force the dog to drink water if they are semi-conscious, as this can lead to aspiration pneumonia. Seek vet care even if the dog appears to recover, as internal organ damage can be delayed.</p>
+            <h3>2. POISON / TOXIN EXPOSURE</h3>
+            <button class="voice-btn" onclick="speak('psn-txt')">🔊 LISTEN TO STEPS</button>
+            <div id="psn-txt">
+                <p>Identify the substance immediately. If the toxin was skin-contact, flush the area with massive amounts of lukewarm water for 20 minutes. Do not induce vomiting unless specifically directed by a vet, especially if the substance was caustic (like bleach) or petroleum-based, as it will cause more damage coming back up.</p>
+                <p>If the dog is seizing or unconscious, ensure the airway is clear and do not put anything in the mouth. Collect a sample or photo of the toxin for the vet. Every second counts; contact a pet poison control hotline or the nearest emergency vet while en route.</p>
             </div>
         </div>
 
         <div class="med-block">
-            <h3>5. SNAKE BITES</h3>
-            <button class="voice-btn" onclick="speak('snake-text')">🔊 LISTEN</button>
-            <div id="snake-text">
-                <p>Keep the dog as calm and still as possible to slow the spread of venom through the lymphatic system. Identify the bite location and keep it at or below the level of the heart. Do not use a tourniquet, do not apply ice, and never attempt to "suck out" the venom, as these methods increase tissue necrosis.</p>
-                <p>Note the snake's appearance if possible for anti-venom selection, but do not risk a second bite to capture it. Swelling will be rapid and severe; remove the dog's collar or harness immediately before it restricts the airway. Get to a vet with antivenin stock immediately.</p>
+            <h3>3. EYE INJURIES</h3>
+            <button class="voice-btn" onclick="speak('eye-txt')">🔊 LISTEN TO STEPS</button>
+            <div id="eye-txt">
+                <p>Do not allow the dog to rub or paw at the eye, as this will quickly turn a minor scratch into a permanent rupture. If a foreign object is visible, do not attempt to remove it with tweezers. Instead, flush the eye gently with sterile saline solution to move the object toward the corner for removal.</p>
+                <p>If the eyeball is displaced from the socket (proptosis), keep the eye moist with saline and a clean cloth. Do not attempt to push it back in. This is a surgical emergency; cover the eye loosely with a damp dressing and transport immediately to save the dog's vision.</p>
             </div>
         </div>
 
+        <div class="med-block">
+            <h3>4. BROKEN BONES / FRACTURES</h3>
+            <button class="voice-btn" onclick="speak('bone-txt')">🔊 LISTEN TO STEPS</button>
+            <div id="bone-txt">
+                <p>Check for open wounds near the fracture site; if bone is protruding, cover it with a sterile dressing but do not try to "set" or move the bone. Use a muzzle if the dog is in high pain to prevent accidental bites to the handler. Minimize all movement of the affected limb to prevent further nerve or vascular damage.</p>
+                <p>Improvise a splint only if transport will be delayed, using rolled magazines or heavy cardboard secured with medical tape—ensuring the splint extends above and below the joint. Support the dog’s weight using a sling or towel under the belly when moving them into the vehicle. </p>
+            </div>
         </div>
+
+    </div>
 </div>
 
 <script>
-    function speak(divId) {
-        const text = document.getElementById(divId).innerText;
-        const msg = new SpeechSynthesisUtterance(text);
-        window.speechSynthesis.speak(msg);
+    function openPage(id) { document.getElementById(id).style.display = 'block'; }
+    function closePage(id) { 
+        window.speechSynthesis.cancel(); // Stops voice if user leaves page
+        document.getElementById(id).style.display = 'none'; 
+    }
+    function speak(id) {
+        window.speechSynthesis.cancel();
+        const text = document.getElementById(id).innerText;
+        const speech = new SpeechSynthesisUtterance(text);
+        speech.rate = 0.9; // Slightly slower for clarity in the field
+        window.speechSynthesis.speak(speech);
     }
 </script>
 
-<style>
-    .med-block { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #444; }
-    .voice-btn { background: #c5a059; color: #000; border: none; padding: 10px; font-weight: bold; border-radius: 4px; margin-bottom: 10px; width: 100%; cursor: pointer; }
-    h3 { color: #c5a059; margin-top: 0; text-transform: uppercase; border-bottom: 1px solid #c5a059; padding-bottom: 5px; }
-</style>
+</body>
+</html>
