@@ -4,169 +4,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>K9 Command - ACSO GPS</title>
+    <title>K9 Command - ACSO GPS LIVE</title>
+    <!-- Leaflet Map Engine - Required for Live GPS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
     <style>
-        /* MAIN INTERFACE SETTINGS */
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; overflow-x: hidden; font-family: 'Times New Roman', serif; color: #fff; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; font-family: 'Times New Roman', serif; color: #fff; }
         
-        .app-screen { 
-            width: 100vw; height: 100vh; 
-            background: url('homepage.jpg') no-repeat center 5%; 
-            background-size: contain; 
-            position: relative; z-index: 1;
-        }
+        .app-screen { width: 100vw; height: 100vh; background: #000; position: relative; }
 
-        .button-grid { 
-            position: absolute; bottom: 22%; left: 50%; 
-            transform: translateX(-50%); width: 340px; height: 240px; 
-            display: grid; grid-template-columns: 1fr 1fr 1fr; 
-            grid-template-rows: 1fr 1fr; z-index: 50; 
-        }
+        /* THE LIVE MAP CONTAINER */
+        #map { width: 100%; height: 50vh; border-bottom: 4px solid #d4af37; background: #111; }
+
+        .controls { padding: 20px; background: #001a11; height: 50vh; overflow-y: auto; border: 8px solid #d4af37; box-sizing: border-box; }
+
+        .search-box { width: 100%; padding: 15px; font-size: 1.2em; margin-bottom: 10px; background: #000; color: #d4af37; border: 2px solid #d4af37; }
         
-        .btn { cursor: pointer; background: rgba(255, 255, 255, 0.01); -webkit-tap-highlight-color: transparent; }
-
-        /* GPS OVERLAY STYLE */
-        .overlay { 
-            display: none; 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #001a11; border: 8px solid #d4af37; box-sizing: border-box; 
-            z-index: 2000; overflow-y: auto; padding: 30px;
+        .action-btn { 
+            width: 100%; padding: 15px; margin-bottom: 10px; font-weight: bold; 
+            text-transform: uppercase; border: none; border-radius: 5px; cursor: pointer; font-size: 1.1em;
         }
+        .start-btn { background: #0044cc; color: white; }
+        .voice-btn { background: #ff0000; color: white; }
+        .night-btn { background: #333; color: #00ff00; border: 1px solid #00ff00; }
 
-        .active { display: block !important; }
+        .asset-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .dot-btn { padding: 10px; color: white; font-weight: bold; border-radius: 5px; border: 1px solid #fff; cursor: pointer; text-align: center; }
 
-        /* NIGHT VISION MODE */
-        .night-vision { background: #002200 !important; color: #00ff00 !important; border: 8px solid #00ff00 !important; }
-        .night-vision .content-box { background: rgba(0, 255, 0, 0.1) !important; border: 1px solid #00ff00 !important; color: #00ff00 !important; }
-        .night-vision h1, .night-vision h2, .night-vision .widget { color: #00ff00 !important; border-color: #00ff00 !important; }
+        /* TACTICAL NIGHT VISION */
+        .night-vision { filter: invert(1) hue-rotate(90deg) brightness(0.8); }
 
-        .close-btn { 
-            background: #d4af37; color: black; padding: 15px 25px; 
-            font-weight: bold; cursor: pointer; display: inline-block; 
-            margin-bottom: 25px; border-radius: 5px; text-transform: uppercase;
-            font-size: 1.2em;
-        }
-
-        h1 { color: #d4af37; text-transform: uppercase; border-bottom: 3px solid #d4af37; font-size: 1.8em; text-align: center; }
-        h2 { color: #d4af37; font-size: 1.5em; border-left: 6px solid #d4af37; padding-left: 15px; margin-top: 40px; }
-        
-        .content-box { 
-            background: rgba(255,255,255,0.08); padding: 30px; margin-bottom: 25px; 
-            line-height: 1.8; border-radius: 5px; font-size: 1.35em; 
-            border: 1px solid rgba(212,175,55,0.3); 
-        }
-
-        .voice-btn {
-            background: #ff0000; color: white; padding: 18px; width: 100%; 
-            font-weight: bold; text-transform: uppercase; border: none; border-radius: 5px; cursor: pointer; margin-bottom: 15px; font-size: 1.2em;
-        }
-
-        /* TACTICAL TOOLS */
-        .search-box { width: 100%; padding: 20px; font-size: 1.3em; margin-bottom: 20px; background: #000; color: #d4af37; border: 2px solid #d4af37; box-sizing: border-box; }
-        
-        .tactical-bar { display: flex; justify-content: space-between; background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid #d4af37; margin-bottom: 25px; }
-        .widget { text-align: center; font-weight: bold; color: #d4af37; font-size: 1.1em; }
-        .wind-arrow { font-size: 2.2em; display: inline-block; transition: transform 0.5s; color: #ff0000; }
-
-        .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
-        .dot { display: inline-block; width: 20px; height: 20px; border-radius: 50%; vertical-align: middle; margin-right: 10px; border: 1px solid #fff; }
+        h2 { color: #d4af37; font-size: 1.3em; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid #d4af37; }
     </style>
 </head>
 <body>
 
-<!-- HOME SCREEN -->
 <div class="app-screen">
-    <div class="button-grid">
-        <div class="btn" onclick="openOverlay('sosOverlay')"></div> <!-- SOS -->
-        <div class="btn" onclick="openOverlay('gpsOverlay')"></div> <!-- GPS -->
-        <div class="btn"></div> <!-- NARC -->
-        <div class="btn"></div> <!-- LEGAL -->
-        <div class="btn"></div> <!-- TRAIN -->
-        <div class="btn"></div> <!-- VA LAW -->
-    </div>
-</div>
+    <!-- THE LIVE SATELLITE MAP -->
+    <div id="map"></div>
 
-<!-- GPS TACTICAL COMMAND OVERLAY -->
-<div id="gpsOverlay" class="overlay">
-    <div class="close-btn" onclick="closeAll()">← EXIT GPS COMMAND</div>
-    
-    <h1>Tactical GPS Command</h1>
+    <div class="controls" id="controlPanel">
+        <h2>Tactical GPS Command</h2>
+        
+        <input type="text" id="addressInput" class="search-box" placeholder="Enter Address (e.g. Amherst, VA)...">
+        <button class="action-btn start-btn" onclick="locateAddress()">Initialize Search Area</button>
+        <button class="action-btn night-btn" onclick="toggleNightVision()">Toggle Night Vision Desktop</button>
 
-    <input type="text" class="search-box" placeholder="ENTER SEARCH ADDRESS / LKP...">
-    
-    <button class="voice-btn" style="background:#0044cc; margin-bottom: 25px;" onclick="toggleNightVision()">TOGGLE NIGHT VISION MODE</button>
-
-    <!-- REAL TIME WIDGETS -->
-    <div class="tactical-bar">
-        <div class="widget">COMPASS<br>NW 315°</div>
-        <div class="widget">WIND<br><span id="windDir" class="wind-arrow">↑</span><br>12 MPH</div>
-        <div class="widget">UNIT SPACING<br>25 YDS</div>
-    </div>
-
-    <!-- ASSET LEGEND -->
-    <div class="content-box">
-        <h2>Tactical Asset Placement</h2>
-        <div class="legend">
-            <div><span class="dot" style="background:#0000ff;"></span> Law Enforcement</div>
-            <div><span class="dot" style="background:#ff0000;"></span> Search & Rescue</div>
-            <div><span class="dot" style="background:#00ff00;"></span> Civilian Volunteer</div>
-            <div><span class="dot" style="background:#a020f0;"></span> Suspect/Subject</div>
+        <div class="asset-menu">
+            <div class="dot-btn" style="background: blue;" onclick="addMarker('blue', 'Officer')">+ Officer</div>
+            <div class="dot-btn" style="background: red;" onclick="addMarker('red', 'SAR')">+ SAR</div>
+            <div class="dot-btn" style="background: green;" onclick="addMarker('green', 'Civilian')">+ Civilian</div>
+            <div class="dot-btn" style="background: purple;" onclick="addMarker('purple', 'Suspect')">+ Suspect</div>
         </div>
-    </div>
 
-    <!-- GPS CONTENT BOXES -->
-    <div class="content-box" id="gps_one">
-        <h2>1. Live Asset Synchronization</h2>
-        <button class="voice-btn" onclick="speak('gps_one')">ACTIVATE VOICE ASSISTANT</button>
-        <p>This "First in the Country" system provides a live, real-time visual of every asset in the search area. Law enforcement units (Blue), search and rescue (Red), and civilians (Green) are all tracked simultaneously to ensure total field awareness. By seeing every brother and sister on the screen, an officer can move with confidence, knowing exactly who is in the brush with them.</p>
-        <p>The Incident Commander has the authority to place or remove units from the map as the situation evolves. If a deputy moves to a new perimeter point, their dot follows them instantly. This real-time positioning is the ultimate tool for officer safety, eliminating the risk of accidental crossfire or units becoming lost in the deep terrain of the Blue Ridge.</p>
-    </div>
-
-    <div class="content-box" id="gps_two">
-        <h2>2. Evidence & Property Flags</h2>
-        <button class="voice-btn" onclick="speak('gps_two')">ACTIVATE VOICE ASSISTANT</button>
-        <p>When an officer locates a scent article or piece of evidence—such as a jacket, hat, or weapon—they can instantly drop a Property Flag at their current GPS coordinate. This flag is visible to every unit on the search, allowing K9 handlers to vector their dogs directly to the item without breaking radio silence or contaminating the area.</p>
-        <p>These markers create a digital evidence trail that can be used later in court to prove the suspect's path of travel. By correlating property flags with the K9's track and GPS timestamps, the department provides an airtight, scientific account of the pursuit, from the first discovery to the final apprehension.</p>
-    </div>
-
-    <div class="content-box" id="gps_three">
-        <h2>3. Scent Cone & Wind Integration</h2>
-        <button class="voice-btn" onclick="speak('gps_three')">ACTIVATE VOICE ASSISTANT</button>
-        <p>For the K9 handler, the wind is everything. This interface features a floating wind direction arrow that updates based on local weather data. By watching the red arrow, the handler can calculate the "Scent Cone" blowing off the suspect (Purple Dot). This allows the team to stay downwind, approaching with the element of surprise while maximizing the dog's ability to alert.</p>
-        <p>The system also calculates the live distance between searching officers. If units spread too far apart, a tactical alert sounds to close the gap. This ensures a thorough, 100% saturation search where nothing—and no one—can slip through the line unnoticed.</p>
+        <div style="margin-top: 20px;">
+            <button class="action-btn voice-btn" onclick="speakProtocol()">Voice Protocol Assistant</button>
+            <p id="protocolText" style="font-size: 1.1em; line-height: 1.5;">
+                <b>Operational Status:</b> Map initialized. Use the buttons above to place assets on the perimeter. Every dot is tracked in real-time for officer safety and search saturation.
+            </p>
+        </div>
     </div>
 </div>
 
 <script>
-    function openOverlay(id) {
-        document.getElementById(id).classList.add('active');
+    // 1. Initialize the Map centered on Amherst County
+    var map = L.map('map').setView([37.5857, -79.0517], 13);
+
+    // 2. Load the Visual Map Layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    // 3. Function to Search for Address
+    async function locateAddress() {
+        var addr = document.getElementById('addressInput').value;
+        if(!addr) return alert("Please enter an address");
+
+        // Using a free geocoder to find the location
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${addr}`);
+        const data = await response.json();
+
+        if(data.length > 0) {
+            var lat = data[0].lat;
+            var lon = data[0].lon;
+            map.setView([lat, lon], 16);
+            L.marker([lat, lon]).addTo(map).bindPopup("<b>Command Post</b><br>" + addr).openPopup();
+        } else {
+            alert("Location not found. Try adding city and state.");
+        }
     }
 
-    function closeAll() {
-        document.querySelectorAll('.overlay').forEach(o => o.classList.remove('active'));
-        window.speechSynthesis.cancel();
+    // 4. Function to Add Tactical Dots
+    function addMarker(color, label) {
+        var center = map.getCenter();
+        // Offset slightly so markers don't stack
+        var lat = center.lat + (Math.random() - 0.5) * 0.005;
+        var lon = center.lng + (Math.random() - 0.5) * 0.005;
+
+        var circle = L.circleMarker([lat, lon], {
+            radius: 12,
+            fillColor: color,
+            color: "#fff",
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.9
+        }).addTo(map);
+
+        circle.bindPopup("<b>" + label + "</b><br>Live Tracking Active").openPopup();
     }
 
+    // 5. Night Vision Toggle
     function toggleNightVision() {
-        document.getElementById('gpsOverlay').classList.toggle('night-vision');
+        document.getElementById('map').classList.toggle('night-vision');
+        document.getElementById('controlPanel').classList.toggle('night-vision');
     }
 
-    function speak(id) {
+    // 6. Voice Assistant
+    function speakProtocol() {
         window.speechSynthesis.cancel();
-        var text = document.getElementById(id).innerText.replace("ACTIVATE VOICE ASSISTANT", "");
+        var text = document.getElementById('protocolText').innerText;
         var msg = new SpeechSynthesisUtterance(text);
-        msg.rate = 0.85; 
+        msg.rate = 0.9;
         window.speechSynthesis.speak(msg);
     }
-    
-    // Simulating wind arrow movement
-    setInterval(function() {
-        var arrow = document.getElementById('windDir');
-        if(arrow) {
-            var rand = Math.floor(Math.random() * 20) - 10;
-            arrow.style.transform = "rotate(" + rand + "deg)";
-        }
-    }, 3000);
 </script>
 
 </body>
