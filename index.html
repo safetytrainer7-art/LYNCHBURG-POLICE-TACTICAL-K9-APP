@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,19 +34,19 @@
             height: 60px; background: #000; display: flex; align-items: center; 
             justify-content: space-between; padding: 0 15px; border-bottom: 2px solid #d4af37;
         }
-        .exit-btn { background: #900; color: #fff; border: 2px solid #fff; padding: 8px 12px; font-weight: bold; border-radius: 5px; }
+        .exit-btn { background: #900; color: #fff; border: 2px solid #fff; padding: 8px 12px; font-weight: bold; border-radius: 5px; cursor: pointer; }
 
         /* --- MEDICAL CONTENT --- */
-        .med-scroll { padding: 15px; overflow-y: auto; height: calc(100% - 80px); }
+        .med-scroll { padding: 15px; overflow-y: auto; height: calc(100% - 60px); padding-bottom: 50px; box-sizing: border-box; }
         .med-card { 
             background: #0a0a0a; border: 1px solid #d4af37; border-radius: 10px; 
             padding: 20px; margin-bottom: 15px;
         }
         .med-card h2 { color: #d4af37; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 5px; }
-        .med-card p { color: #00ff00; font-family: monospace; font-size: 1.1em; line-height: 1.4; }
+        .med-card p { color: #00ff00; font-family: monospace; font-size: 1em; line-height: 1.4; }
         .speak-btn { 
             background: #d4af37; color: #000; border: none; width: 100%; 
-            padding: 15px; font-weight: bold; border-radius: 5px; margin-top: 10px; font-size: 1em;
+            padding: 15px; font-weight: bold; border-radius: 5px; margin-top: 10px; font-size: 1em; cursor: pointer;
         }
 
         /* --- GPS CONTENT --- */
@@ -68,16 +69,16 @@
         <div class="app-icon" onclick="openModule('med-module')">
             <div style="font-size: 2.5em;">🐕</div><span>K9 MEDICAL</span>
         </div>
-        <div class="app-icon" onclick="alert('Module Locked')">
+        <div class="app-icon" onclick="alert('Search Logs Module coming soon')">
             <div style="font-size: 2.5em;">📝</div><span>SEARCH LOGS</span>
         </div>
-        <div class="app-icon" onclick="alert('Module Locked')">
+        <div class="app-icon" onclick="alert('Weather/Wind Module coming soon')">
             <div style="font-size: 2.5em;">🌬️</div><span>WIND/WX</span>
         </div>
-        <div class="app-icon" onclick="alert('Module Locked')">
+        <div class="app-icon" onclick="alert('Radio Codes coming soon')">
             <div style="font-size: 2.5em;">📻</div><span>RADIO CODES</span>
         </div>
-        <div class="app-icon" onclick="alert('Module Locked')">
+        <div class="app-icon" onclick="alert('System Settings locked')">
             <div style="font-size: 2.5em;">⚙️</div><span>SETTINGS</span>
         </div>
     </div>
@@ -95,15 +96,35 @@
             <p>1. Lay dog on right side.<br>2. 100-120 compressions per minute.<br>3. 30 compressions to 2 breaths.</p>
             <button class="speak-btn" onclick="shout('K9 CPR Protocol. Lay the dog on its right side. Perform 100 to 120 compressions per minute. Cycle 30 compressions to 2 breaths.')">🔊 START VOICE GUIDE</button>
         </div>
+        
         <div class="med-card">
             <h2>GUNSHOT / BLEED</h2>
-            <p>1. Apply direct pressure.<br>2. Use hemostatic gauze if available.<br>3. Pack wound; do not remove soaked bandages.</p>
-            <button class="speak-btn" onclick="shout('Trauma Bleeding Protocol. Apply immediate direct pressure. Use hemostatic gauze. Pack the wound. Do not remove bandages once soaked.')">🔊 START VOICE GUIDE</button>
+            <p>1. Apply direct pressure.<br>2. Use hemostatic gauze.<br>3. Pack wound; do not remove bandages.</p>
+            <button class="speak-btn" onclick="shout('Trauma Bleeding Protocol. Apply immediate direct pressure. Use hemostatic gauze. Pack the wound. Do not remove bandages.')">🔊 START VOICE GUIDE</button>
         </div>
+
+        <div class="med-card">
+            <h2>HEAT EXHAUSTION</h2>
+            <p>1. Move to shade.<br>2. Wet ears, belly, and paws with cool water.<br>3. DO NOT use ice or ice water.</p>
+            <button class="speak-btn" onclick="shout('Heat Exhaustion Protocol. Move to shade immediately. Wet the ears, belly, and paws with cool water. Do not use ice as it can cause shock.')">🔊 START VOICE GUIDE</button>
+        </div>
+
         <div class="med-card">
             <h2>SNAKE BITE</h2>
-            <p>1. Keep K9 calm & immobilized.<br>2. Keep bite site below heart level.<br>3. Immediate transport to emergency vet.</p>
-            <button class="speak-btn" onclick="shout('Snake Bite Protocol. Keep the dog calm and still. Keep the bite site below heart level. Transport immediately to the emergency vet.')">🔊 START VOICE GUIDE</button>
+            <p>1. Immobilize the K9.<br>2. Keep bite below heart level.<br>3. Immediate transport to emergency vet.</p>
+            <button class="speak-btn" onclick="shout('Snake Bite Protocol. Keep the dog calm and still. Keep the bite site below heart level. Transport immediately.')">🔊 START VOICE GUIDE</button>
+        </div>
+
+        <div class="med-card">
+            <h2>POISONING / TOXIN</h2>
+            <p>1. Identify the substance.<br>2. Do not induce vomiting unless instructed.<br>3. Call Vet/Poison Control immediately.</p>
+            <button class="speak-btn" onclick="shout('Poisoning Protocol. Identify the toxin. Do not induce vomiting unless directed by a vet. Call emergency services immediately.')">🔊 START VOICE GUIDE</button>
+        </div>
+
+        <div class="med-card">
+            <h2>FRACTURE / STABILIZE</h2>
+            <p>1. Muzzle for safety if needed.<br>2. Support injured limb; do not set.<br>3. Use board or blanket as a stretcher.</p>
+            <button class="speak-btn" onclick="shout('Fracture Protocol. Muzzle for safety. Support the limb but do not attempt to set it. Use a board or blanket as a stretcher for transport.')">🔊 START VOICE GUIDE</button>
         </div>
     </div>
 </div>
@@ -117,7 +138,7 @@
     <div id="map"></div>
     <div class="gps-controls">
         <p style="text-align:center; color:#00ff00; font-family:monospace;">ENGINE STATUS: ACTIVE</p>
-        <p style="text-align:center; color:#777; font-size:0.8em;">Map rendering active for Amherst County operations.</p>
+        <p style="text-align:center; color:#777; font-size:0.8em;">Amherst County Tactical Overlay Loaded.</p>
     </div>
 </div>
 
@@ -140,8 +161,7 @@
     function shout(text) {
         window.speechSynthesis.cancel();
         var utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 0.85; // Clear, professional pace
-        utterance.pitch = 1.0;
+        utterance.rate = 0.85; 
         window.speechSynthesis.speak(utterance);
     }
 </script>
