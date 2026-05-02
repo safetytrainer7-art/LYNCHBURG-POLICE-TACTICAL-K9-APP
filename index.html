@@ -1,132 +1,166 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSO Field Terminal</title>
+    <title>ACSO K9 - Earl Wood Edition</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Times New Roman', serif; overflow: hidden; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #0b2414; color: #fff; font-family: 'Georgia', serif; overflow: hidden; }
+        
+        /* --- MAIN HOMEPAGE --- */
+        #homepage {
+            width: 100%; height: 100%;
+            background-image: url('https://www.transparenttextures.com/patterns/dark-leather.png'); /* Textured Green Effect */
+            background-color: #0b2414;
+            display: flex; flex-direction: column; align-items: center;
+            position: absolute; z-index: 10;
+            overflow-y: auto;
+        }
+
+        .header-section { text-align: center; padding-top: 20px; }
+        .motto { color: #d4af37; font-weight: bold; font-size: 1.2em; display: inline-block; margin: 0 20px; }
+        .badge-placeholder { font-size: 80px; display: block; margin: 10px auto; }
+        
+        .title-banner { 
+            background: rgba(0,0,0,0.5); 
+            color: #d4af37; 
+            padding: 10px 40px; 
+            font-size: 1.5em; 
+            font-weight: bold; 
+            border: 1px solid #d4af37;
+            margin: 20px 0;
+        }
+
+        .k9-portrait {
+            width: 180px; height: 180px;
+            border-radius: 50%;
+            border: 5px solid #d4af37;
+            background: #000;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 100px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        /* --- THE RED BOX GRID --- */
+        .icon-container {
+            margin-top: 30px;
+            border: 4px solid #900; /* Strict Red Square */
+            background: rgba(18, 53, 36, 0.9);
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            width: 85%;
+            max-width: 400px;
+        }
+
+        .app-btn {
+            display: flex; flex-direction: column; align-items: center; cursor: pointer;
+        }
+        .icon-circle {
+            width: 60px; height: 60px;
+            border: 2px solid #d4af37;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8em;
+            background: rgba(0,0,0,0.3);
+            margin-bottom: 8px;
+        }
+        .app-btn span { font-size: 0.7em; color: #d4af37; text-align: center; font-weight: bold; }
+
+        .footer-credit {
+            background: #000;
+            color: #d4af37;
+            width: 100%;
+            text-align: center;
+            padding: 15px 0;
+            margin-top: auto;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        /* --- MODULES --- */
         .module-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; }
-        .nav-header { height: 60px; background: #000; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 2px solid #d4af37; }
-        .exit-btn { background: #900; color: #fff; border: 2px solid #fff; padding: 8px 12px; font-weight: bold; border-radius: 5px; cursor: pointer; }
-        .content-scroll { padding: 15px; overflow-y: auto; height: calc(100% - 60px); box-sizing: border-box; }
+        .nav-header { height: 60px; background: #0b2414; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 2px solid #d4af37; }
+        .exit-btn { background: #900; color: #fff; border: 1px solid #fff; padding: 8px 12px; font-weight: bold; cursor: pointer; }
+        #map { width: 100%; height: 60%; }
+        .gps-data { height: 40%; background: #000; padding: 15px; }
 
-        /* HOMEPAGE GRID */
-        #homepage { width: 100%; height: 100%; background: radial-gradient(circle, #001a11 0%, #000 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; position: absolute; z-index: 10; }
-        .app-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; width: 90%; }
-        .app-icon { height: 100px; background: rgba(0,0,0,0.9); border: 2px solid #d4af37; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; text-align: center; font-weight: bold; color: #d4af37; font-size: 0.8em; }
-
-        /* GPS HUD */
-        #map { width: 100%; height: 50%; border-bottom: 2px solid #d4af37; }
-        .gps-overlay { position: absolute; top: 70px; right: 10px; z-index: 3000; background: rgba(0,0,0,0.7); padding: 10px; border: 1px solid #00ff00; border-radius: 50%; }
-        .wind-arrow { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 1.5em; color: #00ff00; }
-
-        /* LEGAL & REPORTS */
-        .law-section { background: #0a0a0a; border-left: 4px solid #d4af37; padding: 15px; margin-bottom: 15px; }
-        .report-form { background: #111; border: 1px solid #333; padding: 15px; border-radius: 8px; }
-        .report-input { width: 100%; padding: 10px; margin: 8px 0; background: #000; color: #fff; border: 1px solid #d4af37; box-sizing: border-box; }
-        .print-btn { background: #d4af37; color: #000; width: 100%; padding: 15px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div id="homepage">
-    <h1 style="color: #d4af37; margin-bottom: 20px;">ACSO K9 COMMAND</h1>
-    <div class="app-grid">
-        <div class="app-icon" onclick="openModule('gps-module')">📡<br>TACTICAL GPS</div>
-        <div class="app-icon" onclick="openModule('med-module')">🐕<br>MEDICAL</div>
-        <div class="app-icon" onclick="openModule('report-module')">📝<br>REPORTS / LOGS</div>
-        <div class="app-icon" onclick="openModule('law-module')">⚖️<br>VIRGINIA LAW</div>
-        <div class="app-icon" onclick="openModule('case-law-module')">📚<br>CASE LAW</div>
-        <div class="app-icon" onclick="openModule('forms-module')">📋<br>K9 FORMS</div>
+    <div class="header-section">
+        <span class="badge-placeholder">⭐</span>
+        <div>
+            <span class="motto">TO PROTECT</span>
+            <span class="motto">TO SERVE</span>
+        </div>
     </div>
+
+    <div class="title-banner">CANINE SEARCH & RESCUE</div>
+
+    <div class="k9-portrait">🐕</div>
+
+    <div class="icon-container">
+        <div class="app-btn" onclick="openModule('med-module')"><div class="icon-circle" style="border-color:#900;">🏥</div><span>Emergency SOS</span></div>
+        <div class="app-btn" onclick="openModule('gps-module')"><div class="icon-circle">🗺️</div><span>Live GPS Map</span></div>
+        <div class="app-btn" onclick="openModule('med-module')"><div class="icon-circle">🔍</div><span>Narcotics Aids</span></div>
+        <div class="app-btn" onclick="openModule('law-module')"><div class="icon-circle">⚖️</div><span>Legal Shield</span></div>
+        <div class="app-btn" onclick="openModule('log-module')"><div class="icon-circle">📝</div><span>Training Logs</span></div>
+        <div class="app-icon" onclick="openModule('law-module')"><div class="icon-circle">🏛️</div><span>VA Code</span></div>
+    </div>
+
+    <div class="footer-credit">RETIRED DEPUTY SHERIFF EARL WOOD</div>
 </div>
 
-<!-- TACTICAL GPS (Integrated Wind) -->
+<!-- GPS MODULE -->
 <div id="gps-module" class="module-layer">
-    <div class="nav-header"><button class="exit-btn" onclick="closeModule('gps-module')">EXIT</button><span style="color:#d4af37;">GPS</span></div>
+    <div class="nav-header"><button class="exit-btn" onclick="closeModule('gps-module')">BACK</button><span>LIVE TACTICAL GPS</span></div>
     <div id="map"></div>
-    <div class="gps-overlay"><div id="wind-arrow" class="wind-arrow">↑</div></div>
-    <div style="height: calc(50% - 60px); background: #001a11; padding: 10px;">
-        <div style="display:flex; gap:5px; margin-bottom:10px;">
-            <div onclick="setMode('blue')" style="flex:1; background:blue; padding:15px; text-align:center; border-radius:5px;">OFFICER</div>
-            <div onclick="setMode('green')" style="flex:1; background:green; padding:15px; text-align:center; border-radius:5px;">K9</div>
-            <div onclick="setMode('yellow')" style="flex:1; background:#d4af37; color:#000; padding:15px; text-align:center; border-radius:5px;">PERIMETER</div>
+    <div class="gps-data">
+        <div style="color:#00ff00; font-family:monospace; border:1px solid #00ff00; padding:10px;">
+            CP DISTANCE: <span id="cp-val">0</span> YDS<br>
+            GAP DISTANCE: <span id="gap-val">0</span> YDS
         </div>
-        <div style="display:flex; gap:5px;">
-            <div onclick="setMode('red')" style="flex:1; background:red; padding:15px; text-align:center; border-radius:5px;">SAR</div>
-            <div onclick="setMode('purple')" style="flex:1; background:purple; padding:15px; text-align:center; border-radius:5px;">SUBJECT</div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
+            <button onclick="setMode('blue')" style="background:blue; color:white; padding:10px;">OFFICER</button>
+            <button onclick="setMode('green')" style="background:green; color:white; padding:10px;">K9</button>
         </div>
     </div>
 </div>
 
-<!-- REPORTS & LOGS (Merged) -->
-<div id="report-module" class="module-layer">
-    <div class="nav-header"><button class="exit-btn" onclick="closeModule('report-module')">EXIT</button><span style="color:#d4af37;">OFFICIAL REPORTS</span></div>
-    <div class="content-scroll">
-        <div class="report-form">
-            <select class="report-input"><option>Incident Report</option><option>Training Log</option><option>Bite/Deployment Report</option></select>
-            <input type="text" class="report-input" placeholder="Case Number / Sheriff ID">
-            <textarea class="report-input" style="height:150px;" placeholder="Full Narrative / Evidence / Deployment Details"></textarea>
-            <button class="print-btn" onclick="window.print()">AUTO-PRINT FOR COURT</button>
-        </div>
-    </div>
-</div>
-
-<!-- VIRGINIA LAW / CASE LAW (Placeholders for your specific text) -->
-<div id="law-module" class="module-layer">
-    <div class="nav-header"><button class="exit-btn" onclick="closeModule('law-module')">EXIT</button><span style="color:#d4af37;">VA CODE</span></div>
-    <div class="content-scroll">
-        <div class="law-section"><h3>Title 18.2: Crimes</h3><p>Searchable Virginia statutes...</p></div>
-    </div>
-</div>
-
-<!-- K9 MEDICAL (Expanded) -->
+<!-- MEDICAL/SOS MODULE -->
 <div id="med-module" class="module-layer">
-    <div class="nav-header"><button class="exit-btn" onclick="closeModule('med-module')">EXIT</button><span style="color:#d4af37;">K9 FIRST AID</span></div>
-    <div class="content-scroll">
-        <div class="law-section"><h2>CPR</h2><button class="print-btn" onclick="shout('Start CPR.')">VOICE GUIDE</button></div>
-        <div class="law-section"><h2>GUNSHOT</h2><button class="print-btn" onclick="shout('Gunshot/Trauma.')">VOICE GUIDE</button></div>
-        <div class="law-section"><h2>NARCAN K9</h2><button class="print-btn" onclick="shout('K9 Narcan protocol.')">VOICE GUIDE</button></div>
-        <div class="law-section"><h2>BLOAT</h2><button class="print-btn" onclick="shout('Gastric torsion protocol.')">VOICE GUIDE</button></div>
-    </div>
-</div>
-
-<!-- CASE LAW MODULE -->
-<div id="case-law-module" class="module-layer">
-    <div class="nav-header"><button class="exit-btn" onclick="closeModule('case-law-module')">EXIT</button><span style="color:#d4af37;">FEDERAL/STATE CASE LAW</span></div>
-    <div class="content-scroll">
-        <div class="law-section"><h3>Graham v. Connor</h3><p>Objective Reasonableness standard.</p></div>
-        <div class="law-section"><h3>US v. Place</h3><p>K9 Sniffs at public airports/areas.</p></div>
+    <div class="nav-header"><button class="exit-btn" onclick="closeModule('med-module')">BACK</button><span>EMERGENCY PROTOCOLS</span></div>
+    <div style="padding:20px;">
+        <div style="border:2px solid #d4af37; padding:20px; margin-bottom:10px;" onclick="shout('Commencing CPR. Thirty compressions to two breaths.')">K9 CPR GUIDE</div>
+        <div style="border:2px solid #d4af37; padding:20px; margin-bottom:10px;" onclick="shout('Gunshot wound. Apply pressure and tourni-ket if applicable.')">GUNSHOT / TRAUMA</div>
     </div>
 </div>
 
 <script>
-    var map, currentMode = 'blue';
+    var map, lastPos, currentMode = 'blue';
 
     function openModule(id) {
         document.getElementById(id).style.display = 'block';
         if (id === 'gps-module' && !map) {
-            map = L.map('map', { zoomControl: false }).setView([37.58, -79.05], 13);
+            map = L.map('map', {zoomControl: false}).setView([37.58, -79.05], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            map.on('click', function(e) { 
-                L.circleMarker(e.latlng, {radius: 12, fillColor: (currentMode==='yellow'?'#d4af37':currentMode), color: "#fff", weight: 2, fillOpacity: 0.9}).addTo(map);
+            map.on('click', function(e) {
+                L.circleMarker(e.latlng, {radius: 10, fillColor: currentMode, color: '#fff', weight: 2, fillOpacity: 0.8}).addTo(map);
+                if(lastPos) document.getElementById('gap-val').innerText = Math.round(e.latlng.distanceTo(lastPos) * 1.09361);
+                lastPos = e.latlng;
             });
         }
     }
 
     function closeModule(id) { document.getElementById(id).style.display = 'none'; window.speechSynthesis.cancel(); }
     function setMode(m) { currentMode = m; }
-    function shout(t) { window.speechSynthesis.cancel(); var u = new SpeechSynthesisUtterance(t); window.speechSynthesis.speak(u); }
-    
-    // Auto-Wind Rotation (Simulated)
-    setInterval(() => {
-        let deg = Math.floor(Math.random() * 360);
-        document.getElementById('wind-arrow').style.transform = `rotate(${deg}deg)`;
-    }, 5000);
+    function shout(t) { window.speechSynthesis.cancel(); window.speechSynthesis.speak(new SpeechSynthesisUtterance(t)); }
 </script>
 
 </body>
