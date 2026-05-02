@@ -1,142 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>K9 Command - ACSO</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; font-family: 'Times New Roman', serif; color: white; overflow: hidden; }
-        
-        /* THE ANCHOR: This forces the image to stay in the upper part of the phone */
-        .app-screen { 
-            width: 100vw; 
-            height: 85vh; /* Cuts off the bottom 15% of the screen to ensure clearance */
-            background: url('homepage.jpg') no-repeat center top; 
-            background-size: contain; 
-            position: relative; 
-            z-index: 1;
-            margin-top: 20px;
-        }
 
-        /* THE GRID: Centered vertically so it stays away from the bottom "Home Bar" */
-        .button-grid { 
-            position: absolute; 
-            top: 55%; /* Anchored to the top-middle instead of the bottom */
-            left: 5%; 
-            width: 90%; 
-            height: 25%; 
-            display: grid; 
-            grid-template-columns: 1fr 1fr 1fr; 
-            grid-template-rows: 1fr 1fr; 
-            z-index: 10; 
-        }
-        
-        .btn { cursor: pointer; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.1); }
-        
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #001a11; z-index: 100; overflow-y: auto; padding: 30px; box-sizing: border-box; border: 4px solid #d4af37; }
-        .active { display: block !important; }
-        .close-btn { background: #d4af37; color: black; padding: 15px 25px; font-weight: bold; cursor: pointer; display: inline-block; margin-bottom: 30px; border-radius: 5px; }
-        
-        h1 { color: #d4af37; text-transform: uppercase; border-bottom: 3px solid #d4af37; padding-bottom: 10px; }
-        h2 { color: #d4af37; font-size: 1.3em; margin-top: 25px; border-left: 5px solid #d4af37; padding-left: 12px; text-transform: uppercase; }
-        .content-box { background: rgba(255,255,255,0.08); padding: 20px; margin-bottom: 25px; line-height: 1.7; border: 1px solid #333; border-radius: 5px; }
-        
-        .form-wrap { background: rgba(212,175,55,0.05); padding: 20px; border: 1px solid #d4af37; margin-bottom: 40px; }
-        input, textarea, select { width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #d4af37; color: white; border-radius: 4px; font-size: 16px; }
-        .submit-btn { background: #d4af37; color: black; padding: 18px; width: 100%; font-weight: bold; border: none; cursor: pointer; text-transform: uppercase; }
-    </style>
-</head>
-<body>
-
-<div class="app-screen">
-    <div class="button-grid">
-        <div class="btn" onclick="openSection('emergencySection')"></div>
-        <div class="btn" onclick="openSection('gpsSection')"></div>
-        <div class="btn" onclick="openSection('narcSection')"></div>
-        <div class="btn" onclick="openSection('legalSection')"></div>
-        <div class="btn" onclick="openSection('trainSection')"></div>
-        <div class="btn" onclick="openSection('vaSection')"></div>
-    </div>
-</div>
-
-<!-- 1. EMERGENCY SOS (EXPANDED TRAUMA) -->
+<!-- 1. EMERGENCY SOS (CPR & VERBAL FOCUS) -->
 <div id="emergencySection" class="overlay">
     <div class="close-btn" onclick="closeSections()">← BACK TO COMMAND</div>
-    <h1>K9 FIRST AID & TRAUMA</h1>
+    <h1>K9 TACTICAL MEDIC & CPR</h1>
     
     <div class="content-box">
-        <h2>Penetrating Trauma / Gunshot</h2>
-        <p><b>TACTICAL CARE:</b> Secure the scene first. Identify entry and exit wounds. Use occlusive (chest seal) dressings for torso wounds to prevent lung collapse. For limb hemorrhage, use direct pressure with hemostatic gauze. Avoid tourniquets on K9s unless the limb is unsalvageable.</p>
+        <h2>K9 CPR: The Number One Priority</h2>
+        <p><b>PROTOCOL:</b> If the K9 is unresponsive with no detectable pulse, initiate CPR immediately. Place the K9 on their right side. For large dogs, compress the widest part of the rib cage; for tapered-chest dogs (like Shepherds), compress directly over the heart. Aim for 100-120 compressions per minute, allowing full chest recoil. Give 2 breaths for every 30 compressions by closing the K9's mouth and breathing directly into the nose.</p>
+        <p><b>VERBAL COMMANDS:</b> While performing CPR, the handler must maintain scene leadership. Use loud, clear verbalizations: "OFFICER DOWN—REQUESTING IMMEDIATE EMS AND VETERINARY SECURE TRANSPORT!" and "STAY BACK—K9 EMERGENCY IN PROGRESS!" Clear communication prevents civilian interference and ensures the department is notified of the severity of the K9's status immediately.</p>
     </div>
 
     <div class="content-box">
-        <h2>Snake Bites (Pit Vipers)</h2>
-        <p><b>VA PROTOCOL:</b> Identify if Copperhead or Timber Rattler. Keep the K9 calm and the bite area below heart level. <b>DO NOT</b> cut the wound or use suction. <b>DO NOT</b> apply ice. Rapid transport to a facility with antivenom is the only effective treatment.</p>
+        <h2>Penetrating Trauma & Hemorrhage Control</h2>
+        <p><b>FIELD TRIAGE:</b> Once the airway is clear and the heart is beating, address "M.A.R.C.H." (Massive Hemorrhage, Airway, Respirations, Circulation, Hypothermia). For gunshot wounds, identify entry and exit points. Apply occlusive dressings to torso wounds to prevent "sucking" chest injuries that lead to lung collapse. Use hemostatic gauze for limb bleeds and apply constant, heavy pressure for at least 3-5 minutes without checking the wound.</p>
+        <p><b>VERBAL COMMANDS:</b> During medical intervention, command bystanders or other deputies to assist: "SECURE THE PERIMETER—DO NOT LET ANYONE THROUGH!" and "GET THE K9 TRAUMA KIT NOW!" Constant verbalization documents your active "Duty of Care" for anyone recording the scene, proving the department acted with professional urgency and tactical precision.</p>
     </div>
 </div>
 
-<!-- 3. NARCOTICS AIDS (EXPANDED) -->
+<!-- 3. NARCOTICS AIDS (VERBAL & TACTICAL DEPTH) -->
 <div id="narcSection" class="overlay">
     <div class="close-btn" onclick="closeSections()">← BACK TO COMMAND</div>
     <h1>NARCOTICS INTERDICTION</h1>
 
     <div class="content-box">
-        <h2>Masking Agents & Indicators</h2>
-        <p><b>DOCUMENTATION:</b> Always document the presence of "masking odors" such as dryer sheets, mustard, coffee, or heavy air fresheners. While not PC alone, they are critical for building "Reasonable Suspicion" in your narrative for a K9 deployment.</p>
+        <h2>The Search Pattern & Change of Behavior</h2>
+        <p><b>METHODOLOGY:</b> Begin the vehicle exterior sniff from the down-wind side. Allow the K9 to work the "Scent Cone" naturally. Watch for the Change of Behavior (COB): a sudden head-snap, a change in tail carriage, or the K9 "detailing" a specific seam or handle with closed-mouth breathing. A final response (sit or down) establishes probable cause for a warrantless search under the Automobile Exception, provided the stop was not unconstitutionally prolonged.</p>
+        <p><b>VERBAL COMMANDS:</b> Before deploying, give the loud, formal announcement: "ATTENTION—AMHERST COUNTY SHERIFF'S OFFICE K9! REMAIN IN YOUR VEHICLE OR THE K9 WILL BE DEPLOYED!" Once the K9 alerts, verbalize the finding for your body camera: "K9 ALERT—PROBABLE CAUSE ESTABLISHED!" This verbal trail is vital for the Commonwealth Attorney to win the case in court, as it links the dog's physical alert to your immediate tactical decision.</p>
     </div>
 
     <div class="content-box">
-        <h2>The Search Pattern</h2>
-        <p><b>FIELD WORK:</b> Conduct a 360-degree exterior sniff. Focus on "Scent Pools" at the door seams and trunk seal. Document the specific Change of Behavior (COB) such as head-snaps, tail-flagging, or closed-mouth breathing prior to the final alert.</p>
+        <h2>Masking Agents & Criminal Indicators</h2>
+        <p><b>INTERDICTION:</b> Always document the presence of masking agents like heavy perfume, dryer sheets, or coffee grounds. While these are not probable cause alone, they are critical components of "Reasonable Suspicion" in a suppression hearing. Note the suspect's behavior during the sniff; "over-compliance" or extreme nervousness combined with masking agents often indicates a high-weight transport. Documenting these environmental factors shows the court the "Totality of Circumstances."</p>
+        <p><b>VERBAL COMMANDS:</b> During the vehicle search, maintain control: "STEP BACK FROM THE VEHICLE!" and "KEEP YOUR HANDS WHERE I CAN SEE THEM!" If the K9 is exposed to a masking agent or toxic substance, immediately command: "SEARCH CEASED—TOXIC EXPOSURE!" and move the K9 to clear air. This protects the asset and demonstrates your priority on K9 safety over the seizure, which looks excellent in a professional reference letter.</p>
     </div>
 </div>
-
-<!-- 5. TRAINING & DAILY LOGS (DUAL FORMS) -->
-<div id="trainSection" class="overlay">
-    <div class="close-btn" onclick="closeSections()">← BACK</div>
-    <h1>K9 ADMINISTRATION</h1>
-    
-    <div class="form-wrap">
-        <h2>Daily Training Log</h2>
-        <input type="text" id="t_handler" placeholder="Handler Name">
-        <input type="text" id="t_k9" placeholder="K9 Name">
-        <textarea id="t_notes" placeholder="Describe Training: Tracking, Narcotics, or Obedience..." rows="3"></textarea>
-        <button class="submit-btn" onclick="genPDF('Training')">Generate Training PDF</button>
-    </div>
-
-    <div class="form-wrap">
-        <h2>Incident / Deployment Report</h2>
-        <input type="text" id="i_case" placeholder="Case Number / CFS #">
-        <textarea id="i_narrative" placeholder="Detailed Narrative for Court..." rows="4"></textarea>
-        <button class="submit-btn" onclick="genPDF('Incident')">Generate Court PDF</button>
-    </div>
-</div>
-
-<!-- 2, 4, 6 (STUB SECTIONS FOR NOW) -->
-<div id="gpsSection" class="overlay"><div class="close-btn" onclick="closeSections()">← BACK</div><h1>GPS COMMAND</h1><div class="content-box"><h2>Tracking Dots</h2><p>Green (K9), Blue (SAR), Yellow (Civilian). Integrated drone pings active.</p></div></div>
-<div id="legalSection" class="overlay"><div class="close-btn" onclick="closeSections()">← BACK</div><h1>FEDERAL LEGAL</h1><div class="content-box"><h2>Rodriguez v. US</h2><p>Stop duration case law. Documentation must prove no detour from the mission.</p></div></div>
-<div id="vaSection" class="overlay"><div class="close-btn" onclick="closeSections()">← BACK</div><h1>VA STATE CODE</h1><div class="content-box"><h2>VA Code 3.2-6500</h2><p>Governing authority for K9s in Virginia.</p></div></div>
-
-<script>
-    function openSection(id) { closeSections(); document.getElementById(id).classList.add('active'); }
-    function closeSections() { document.querySelectorAll('.overlay').forEach(o => o.classList.remove('active')); }
-
-    function genPDF(type) {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.setFont("times", "bold");
-        doc.text("AMHERST COUNTY SHERIFF'S OFFICE", 105, 20, { align: 'center' });
-        doc.text("K9 UNIT - " + type.toUpperCase(), 105, 30, { align: 'center' });
-        doc.setFontSize(12);
-        doc.setFont("times", "normal");
-        let txt = (type === 'Training') ? 
-            "Handler: " + document.getElementById('t_handler').value + "\nK9: " + document.getElementById('t_k9').value + "\nNotes: " + document.getElementById('t_notes').value :
-            "Case #: " + document.getElementById('i_case').value + "\nNarrative: " + document.getElementById('i_narrative').value;
-        doc.text(doc.splitTextToSize(txt, 170), 20, 50);
-        doc.save(type + "_Report.pdf");
-    }
-</script>
-
-</body>
-</html>
