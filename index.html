@@ -4,159 +4,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>K9 Command - ACSO</title>
+    <title>K9 Command - ACSO GPS</title>
     <style>
-        /* MAIN SCREEN SETTINGS */
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; overflow-x: hidden; font-family: 'Times New Roman', serif; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; font-family: 'Times New Roman', serif; color: #fff; }
         
-        /* This is your homepage with the 6 icons */
-        .app-screen { 
-            width: 100vw; height: 100vh; 
-            background: url('homepage.jpg') no-repeat center 5%; 
-            background-size: contain; 
-            position: relative; z-index: 1;
-        }
-
-        .button-grid { 
-            position: absolute; bottom: 22%; left: 50%; 
-            transform: translateX(-50%); width: 340px; height: 240px; 
-            display: grid; grid-template-columns: 1fr 1fr 1fr; 
-            grid-template-rows: 1fr 1fr; z-index: 50; 
-        }
-        
-        .btn { cursor: pointer; background: rgba(255, 255, 255, 0.01); -webkit-tap-highlight-color: transparent; }
-
-        /* FIRST AID OVERLAY - STYLED FOR DEPTH */
         .overlay { 
-            display: none; /* Hidden by default to prevent white screen */
-            position: fixed; top: 0; left: 0; 
-            width: 100%; height: 100%; background: #001a11; 
-            z-index: 1000; padding: 40px 20px; box-sizing: border-box; 
-            border: 8px solid #d4af37; overflow-y: auto; color: #fff;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #001a11; border: 8px solid #d4af37; box-sizing: border-box; overflow-y: auto; padding: 30px;
         }
-        
-        .active { display: block !important; }
-        
-        .close-btn { 
-            background: #d4af37; color: black; padding: 15px 25px; 
-            font-weight: bold; cursor: pointer; display: inline-block; 
-            margin-bottom: 25px; border-radius: 5px; text-transform: uppercase;
-            font-size: 1.2em;
-        }
-        
+
+        /* NIGHT VISION MODE TOGGLE */
+        .night-vision { background: #00ff00 !important; color: #000 !important; border: 8px solid #00ff00 !important; }
+        .night-vision .content-box { background: rgba(0, 255, 0, 0.1) !important; border: 1px solid #00ff00 !important; color: #00ff00 !important; }
+        .night-vision h1, .night-vision h2 { color: #00ff00 !important; border-color: #00ff00 !important; }
+
         h1 { color: #d4af37; text-transform: uppercase; border-bottom: 3px solid #d4af37; font-size: 1.8em; text-align: center; }
-        h2 { color: #d4af37; font-size: 1.5em; border-left: 6px solid #d4af37; padding-left: 15px; margin-top: 40px; }
+        h2 { color: #d4af37; font-size: 1.4em; border-left: 6px solid #d4af37; padding-left: 15px; margin-top: 30px; }
         
         .content-box { 
-            background: rgba(255,255,255,0.08); padding: 30px; margin-bottom: 25px; 
-            line-height: 1.8; border-radius: 5px; font-size: 1.35em; /* Large print */
-            border: 1px solid rgba(212,175,55,0.3); 
+            background: rgba(255,255,255,0.08); padding: 25px; margin-bottom: 20px; 
+            line-height: 1.7; border-radius: 5px; font-size: 1.25em; border: 1px solid rgba(212,175,55,0.3); 
         }
 
         .voice-btn {
-            background: #ff0000; color: white; padding: 18px; width: 100%; 
-            font-weight: bold; text-transform: uppercase; border: none; 
-            border-radius: 5px; cursor: pointer; margin-bottom: 15px; font-size: 1.2em;
-            box-shadow: 0 4px #990000;
+            background: #ff0000; color: white; padding: 15px; width: 100%; 
+            font-weight: bold; text-transform: uppercase; border: none; border-radius: 5px; cursor: pointer; margin-bottom: 10px; font-size: 1.1em;
         }
-        .voice-btn:active { background: #b30000; box-shadow: 0 2px #660000; transform: translateY(2px); }
 
-        .vet-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 1.2em; }
-        .vet-table th, .vet-table td { border: 1px solid #d4af37; padding: 15px; text-align: left; }
-        .vet-table th { background: rgba(212,175,55,0.2); }
+        /* TACTICAL WIDGETS */
+        .tactical-bar { display: flex; justify-content: space-between; background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid #d4af37; margin-bottom: 20px; }
+        .widget { text-align: center; font-weight: bold; color: #d4af37; }
+        .wind-arrow { font-size: 2em; display: inline-block; transform: rotate(45deg); }
+
+        /* SEARCH INPUT */
+        .search-box { width: 100%; padding: 15px; font-size: 1.2em; margin-bottom: 20px; background: #000; color: #d4af37; border: 2px solid #d4af37; }
+
+        .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .dot { display: inline-block; width: 15px; height: 15px; border-radius: 50%; margin-right: 10px; }
     </style>
 </head>
 <body>
 
-<!-- HOME SCREEN -->
-<div class="app-screen">
-    <div class="button-grid">
-        <div class="btn" onclick="openFirstAid()"></div> <!-- SOS ICON -->
-        <div class="btn"></div> <!-- GPS -->
-        <div class="btn"></div> <!-- NARC -->
-        <div class="btn"></div> <!-- LEGAL -->
-        <div class="btn"></div> <!-- TRAIN -->
-        <div class="btn"></div> <!-- VA LAW -->
-    </div>
-</div>
+<div id="gpsMain" class="overlay">
+    <h1>Tactical GPS Command</h1>
 
-<!-- FIRST AID SECTION (ICON #1) -->
-<div id="firstAidOverlay" class="overlay">
-    <div class="close-btn" onclick="closeOverlay()">← EXIT FIRST AID</div>
-    
-    <h1>Tactical K9 First Aid</h1>
+    <!-- ADDRESS SEARCH & NIGHT VISION -->
+    <input type="text" class="search-box" placeholder="ENTER SEARCH ADDRESS / COORDINATES...">
+    <button class="voice-btn" style="background:#0044cc;" onclick="toggleNightVision()">TOGGLE NIGHT VISION DESKTOP</button>
 
-    <div class="content-box" id="cpr_text">
-        <h2>1. K9 CPR (Advanced Protocol)</h2>
-        <button class="voice-btn" onclick="speak('cpr_text')">LISTEN TO INSTRUCTIONS</button>
-        <p>Confirm the animal is in full arrest by checking for a femoral pulse in the groin area and observing for lack of chest rise. Lay the K9 on their right side on a hard surface to stabilize the heart. Place your hands directly over the heart (where the elbow meets the chest) and compress 1.5 to 2 inches deep.</p>
-        <p>Maintain a constant rhythm of 100 to 120 compressions per minute. For rescue breathing, hold the muzzle closed with both hands to create an airtight seal and breathe directly into the nostrils. Deliver 2 breaths for every 30 compressions. Do not stop this cycle until the K9 regains a pulse or you are relieved by veterinary staff.</p>
+    <!-- LIVE TACTICAL BAR -->
+    <div class="tactical-bar">
+        <div class="widget">COMPASS<br>045° NE</div>
+        <div class="widget">WIND METER<br><span class="wind-arrow">↑</span><br>8 MPH</div>
+        <div class="widget">DIST. TO NEAREST UNIT<br>42 YARDS</div>
     </div>
 
-    <div class="content-box" id="snake_text">
-        <h2>2. Snakebites (Pit Viper/Timber Rattler)</h2>
-        <button class="voice-btn" onclick="speak('snake_text')">LISTEN TO INSTRUCTIONS</button>
-        <p>In the Blue Ridge terrain, venomous bites are a high risk. Immediately restrict the K9's movement; do not let the dog walk, as muscle activity speeds up venom absorption. Keep the bite site below the level of the heart.</p>
-        <p>Do not apply ice, do not use a tourniquet, and do not attempt to "suck out" the venom. These actions cause more tissue damage. Monitor for rapid swelling and labored breathing. Transport to an emergency facility immediately for Antivenin; call ahead so they can prepare the dosage.</p>
-    </div>
-
-    <div class="content-box" id="gs_text">
-        <h2>3. Gunshot Wounds & Penetrating Trauma</h2>
-        <button class="voice-btn" onclick="speak('gs_text')">LISTEN TO INSTRUCTIONS</button>
-        <p>Apply immediate direct pressure to the wound using sterile gauze or the cleanest cloth available. If the wound is on a limb and bleeding is arterial (bright red/spurting), apply a K9-specific tourniquet high and tight above the wound and lock it. Note the time of application.</p>
-        <p>If the wound is in the chest cavity, look for "bubbling" blood, which indicates a sucking chest wound. Seal this immediately with an airtight plastic dressing or chest seal to prevent a collapsed lung (Pneumothorax). Keep the K9 warm to combat shock during extraction.</p>
-    </div>
-
-    <div class="content-box" id="heat_text">
-        <h2>4. Heat Stroke & Exhaustion</h2>
-        <button class="voice-btn" onclick="speak('heat_text')">LISTEN TO INSTRUCTIONS</button>
-        <p>Heat stroke is a medical emergency that leads to organ failure. If the K9 has brick-red gums, thick ropey saliva, or a temp over 104°F, begin cooling immediately. Move to shade or an air-conditioned cruiser.</p>
-        <p>Apply cool water (not ice) to the groin, paws, and neck. Use a fan to create airflow for evaporative cooling. Stop cooling once the rectal temperature hits 103°F to prevent the dog from crashing into hypothermia. Continuous monitoring is required as internal damage can continue after the temp drops.</p>
-    </div>
-
-    <div class="content-box" id="bone_text">
-        <h2>5. Broken Bones & Orthopedic Injury</h2>
-        <button class="voice-btn" onclick="speak('bone_text')">LISTEN TO INSTRUCTIONS</button>
-        <p>Stabilize the limb exactly as it was found; do not attempt to straighten a deformity. If the bone has broken the skin, cover it with a clean, moist dressing to prevent infection. Use a field-expedient splint (like a folded magazine or stick) only if it can be done without causing more pain.</p>
-        <p>Muzzle the K9 before treating a fracture. Even the most loyal partner will bite when experiencing the intense pain of a broken bone. Keep the K9 calm and immobilized on a flat board or stretcher for transport to prevent further nerve damage.</p>
-    </div>
-
-    <div class="content-box" id="eye_text">
-        <h2>6. Eye & Paw Injuries</h2>
-        <button class="voice-btn" onclick="speak('eye_text')">LISTEN TO INSTRUCTIONS</button>
-        <p>For eye injuries, flush gently with saline or clean water. Do not allow the dog to rub the eye. For paw injuries, check for glass or thorns. Apply a pressure wrap to control bleeding, but ensure it is not so tight that it cuts off blood flow to the rest of the limb.</p>
-    </div>
-
-    <h1>Emergency Vet Contact</h1>
+    <!-- DOT LEGEND -->
     <div class="content-box">
-        <table class="vet-table">
-            <tr><th>Location</th><th>Facility</th><th>Phone</th></tr>
-            <tr><td>Lynchburg/Amherst</td><td>Animal ER</td><td>(434) 846-1504</td></tr>
-            <tr><td>Campbell</td><td>Peaks View</td><td>(434) 525-4122</td></tr>
-            <tr><td>Appomattox</td><td>Appomattox Vet</td><td>(434) 352-7104</td></tr>
-            <tr><td>Nelson</td><td>Wintergreen Animal</td><td>(434) 361-2400</td></tr>
-        </table>
+        <h2>Asset Identification Legend</h2>
+        <div class="legend">
+            <div><span class="dot" style="background:#0000ff;"></span> Law Enforcement</div>
+            <div><span class="dot" style="background:#ff0000;"></span> Search & Rescue</div>
+            <div><span class="dot" style="background:#00ff00;"></span> Civilians</div>
+            <div><span class="dot" style="background:#a020f0;"></span> Suspect / Subject</div>
+            <div><span class="dot" style="background:#ffff00; clip-path: polygon(50% 0%, 0% 100%, 100% 100%);"></span> Property Flag</div>
+        </div>
     </div>
+
+    <!-- 1. LIVE REAL-TIME POSITIONING -->
+    <div class="content-box" id="gps_live">
+        <h2>1. Live Asset Placement & Safety</h2>
+        <button class="voice-btn" onclick="speak('gps_live')">ACTIVATE VOICE ASSISTANT</button>
+        <p>This system allows the Command Post to place and remove assets in the search area with a single tap. For the first time, every officer on the perimeter and every handler in the woods can see the live movement of their brothers and sisters in real-time. This eliminates "unknown movement" in the brush, ensuring that if you see a Blue Dot, you know it is a friendly officer, and if you see movement without a dot, you are looking at a potential threat or subject.</p>
+        <p>The distance calculator constantly monitors the gap between searching units. If units drift too far apart—creating a gap in the search line—the system will provide a haptic alert. This ensures a thorough, scientific saturation of the area, leaving no stone unturned in the pursuit of a suspect or the recovery of a missing person.</p>
+    </div>
+
+    <!-- 2. COMMAND POST & PERIMETER VISUALS -->
+    <div class="content-box" id="gps_perimeter">
+        <h2>2. Perimeter Lockdown & Command Control</h2>
+        <button class="voice-btn" onclick="speak('gps_perimeter')">ACTIVATE VOICE ASSISTANT</button>
+        <p>The Command Post view provides a high-level visual of the entire perimeter lockdown. Incident Commanders can draw a "Tactical Circle" around the last known point (LKP). This digital perimeter is visible to all units, providing a clear boundary for the search. Units can be added to the map at specific ingress points and removed once they have cleared their assigned sector, keeping the screen clean and focused on active threats.</p>
+    </div>
+
+    <!-- 3. EVIDENCE & PROPERTY MARKING -->
+    <div class="content-box" id="gps_property">
+        <h2>3. Evidence & Found Property Flagging</h2>
+        <button class="voice-btn" onclick="speak('gps_property')">ACTIVATE VOICE ASSISTANT</button>
+        <p>When an officer locates an item of interest—such as a discarded jacket, a weapon, or a footprint—they can drop a "Property Flag" (Yellow Triangle) at their exact GPS coordinate. This flag is instantly visible to the entire search team. This allows the K9 handler to redirect the dog to the specific scent article without the officer having to shout or break radio silence, preserving the integrity of the crime scene and the scent cone.</p>
+    </div>
+
+    <!-- 4. WIND & ENVIRONMENTAL DATA -->
+    <div class="content-box" id="gps_wind">
+        <h2>4. Environmental Scent Cone Analysis</h2>
+        <button class="voice-btn" onclick="speak('gps_wind')">ACTIVATE VOICE ASSISTANT</button>
+        <p>A floating wind meter and direction arrow move with the officer's position on the screen. For a K9 handler, wind direction is life. This tool allows the handler to see exactly how the wind is cutting across the terrain, indicating where a "scent cone" is likely to be blowing. By staying downwind of the Purple Dot (Subject), the handler ensures the K9 has the best opportunity for a high-intensity alert before the subject realizes they have been located.</p>
+    </div>
+
 </div>
 
 <script>
-    function openFirstAid() {
-        document.getElementById('firstAidOverlay').classList.add('active');
-    }
-
-    function closeOverlay() {
-        document.getElementById('firstAidOverlay').classList.remove('active');
-        window.speechSynthesis.cancel(); // Stop talking when closing
+    function toggleNightVision() {
+        document.getElementById('gpsMain').classList.toggle('night-vision');
     }
 
     function speak(id) {
-        window.speechSynthesis.cancel(); // Stop any current talking
-        var text = document.getElementById(id).innerText;
-        // Clean up the text so it doesn't read the button label
-        var cleanText = text.replace("LISTEN TO INSTRUCTIONS", "");
-        
-        var msg = new SpeechSynthesisUtterance(cleanText);
-        msg.rate = 0.85; // Professional, clear pace
+        window.speechSynthesis.cancel();
+        var text = document.getElementById(id).innerText.replace("ACTIVATE VOICE ASSISTANT", "");
+        var msg = new SpeechSynthesisUtterance(text);
+        msg.rate = 0.85;
         window.speechSynthesis.speak(msg);
     }
 </script>
