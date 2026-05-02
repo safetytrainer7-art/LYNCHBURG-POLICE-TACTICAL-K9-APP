@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND HUB</title>
+    <title>ACSD COMMAND HUB V163</title>
     <style>
         :root { --gold: #c5a059; --bg: #001a00; }
         body, html { margin: 0; padding: 0; height: 100vh; width: 100vw; background: #000; overflow: hidden; font-family: 'Georgia', serif; }
@@ -16,11 +15,9 @@
             background: radial-gradient(circle, #002200 0%, #000 100%);
         }
 
-        /* Column Styles */
         .side-col { display: flex; flex-direction: column; justify-content: space-around; padding: 20px; }
         .center-col { display: flex; flex-direction: column; justify-content: center; align-items: center; border-left: 1px solid var(--gold); border-right: 1px solid var(--gold); }
 
-        /* Professional Buttons */
         .nav-btn {
             background: rgba(0,0,0,0.6);
             border: 2px solid var(--gold);
@@ -31,22 +28,17 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             cursor: pointer;
-            box-shadow: 0 0 15px rgba(197, 160, 89, 0.2);
         }
         .nav-btn:active { background: var(--gold); color: #000; }
 
-        /* The Professional Badge Center */
-        .badge-logo {
-            width: 60%;
-            max-width: 300px;
-            filter: drop-shadow(0 0 20px rgba(197, 160, 89, 0.4));
-        }
+        .badge-logo { width: 65%; max-width: 320px; filter: drop-shadow(0 0 20px rgba(197, 160, 89, 0.4)); }
 
-        /* Full Screen Modules */
+        /* Module Overlays */
         .module { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 500; color: #fff; flex-direction: column; }
         .mod-header { background: #000; padding: 20px; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; }
         .back-btn { background: var(--gold); color: #000; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; }
         .content { padding: 40px; font-size: 22px; line-height: 1.6; overflow-y: auto; }
+        h2 { color: var(--gold); border-bottom: 1px solid var(--gold); padding-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -55,36 +47,47 @@
     <div class="side-col">
         <div class="nav-btn" onclick="openMod('med-mod')">K9 SOS</div>
         <div class="nav-btn" onclick="openMod('law-mod')">Legal Bible</div>
-        <div class="nav-btn">Narcotics</div>
+        <div class="nav-btn" onclick="openMod('narc-mod')">Narcotics</div>
     </div>
-
     <div class="center-col">
         <img src="homepage.jpg" class="badge-logo" alt="ACSD Logo">
-        <div style="color:var(--gold); margin-top:20px; font-weight:bold; letter-spacing:2px;">AMHERST COUNTY SHERIFF</div>
+        <div style="color:var(--gold); margin-top:20px; font-weight:bold; letter-spacing:2px; text-align:center;">AMHERST COUNTY SHERIFF</div>
     </div>
-
     <div class="side-col">
-        <div class="nav-btn">Tactical Map</div>
-        <div class="nav-btn">Training Logs</div>
-        <div class="nav-btn">VA Code</div>
+        <div class="nav-btn" onclick="openMod('map-mod')">Tactical Map</div>
+        <div class="nav-btn" onclick="openMod('log-mod')">Training Logs</div>
+        <div class="nav-btn" onclick="openMod('va-mod')">VA Code</div>
     </div>
 </div>
 
 <div id="med-mod" class="module">
     <div class="mod-header"><span>K9 EMERGENCY SOS</span><button class="back-btn" onclick="closeMod('med-mod')">BACK</button></div>
-    <div class="content">
-        <h2 style="color:var(--gold)">FIELD TRIAGE PROTOCOLS</h2>
-        <p><strong>HEAT STROKE:</strong> Shade immediately. Cool water on paws/groin.</p>
-        <p><strong>BLOAT:</strong> Dry heaving/distended belly. Transport immediately.</p>
-    </div>
+    <div class="content"><h2>FIELD TRAUMA</h2><p>Immediate steps for heat stress and trauma protocols.</p></div>
 </div>
 
 <div id="law-mod" class="module">
     <div class="mod-header"><span>LEGAL SHIELD BIBLE</span><button class="back-btn" onclick="closeMod('law-mod')">BACK</button></div>
-    <div class="content">
-        <h2 style="color:var(--gold)">GRAHAM V. CONNOR</h2>
-        <p>Use of force must be judged from the perspective of a reasonable officer on the scene, rather than with 20/20 hindsight.</p>
-    </div>
+    <div class="content"><h2>GRAHAM V. CONNOR</h2><p>Objective reasonableness standard for use of force.</p></div>
+</div>
+
+<div id="narc-mod" class="module">
+    <div class="mod-header"><span>NARCOTICS AIDS</span><button class="back-btn" onclick="closeMod('narc-mod')">BACK</button></div>
+    <div class="content"><h2>DETECTION STANDARDS</h2><p>Current certification requirements and alert behavior logs.</p></div>
+</div>
+
+<div id="map-mod" class="module">
+    <div class="mod-header"><span>TACTICAL MAP</span><button class="back-btn" onclick="closeMod('map-mod')">BACK</button></div>
+    <div class="content"><h2>GPS OPERATIONS</h2><p>Real-time perimeter tracking and search grids.</p></div>
+</div>
+
+<div id="log-mod" class="module">
+    <div class="mod-header"><span>TRAINING LOGS</span><button class="back-btn" onclick="closeMod('log-mod')">BACK</button></div>
+    <div class="content"><h2>OFFICER RECORDS</h2><p>Access to K9 proficiency and maintenance training hours.</p></div>
+</div>
+
+<div id="va-mod" class="module">
+    <div class="mod-header"><span>VA CRIMINAL CODE</span><button class="back-btn" onclick="closeMod('va-mod')">BACK</button></div>
+    <div class="content"><h2>TITLE 18.2</h2><p>Search and reference for Virginia Criminal Law statutes.</p></div>
 </div>
 
 <script>
