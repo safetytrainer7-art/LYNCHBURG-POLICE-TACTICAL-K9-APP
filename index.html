@@ -6,57 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>K9 Command - ACSO</title>
     <style>
-        /* LOCKS THE SCREEN - NO SCROLLING */
-        body, html { 
-            margin: 0; padding: 0; width: 100%; height: 100%; 
-            background-color: #000; overflow: hidden; position: fixed;
-            font-family: 'Times New Roman', serif;
-        }
-        
-        /* THE BACKGROUND: Pushed UP to 5% from top to clear room for the name at the bottom */
-        .app-screen { 
-            width: 100vw; height: 100vh; 
-            background: url('homepage.jpg') no-repeat center 5%; 
-            background-size: contain; 
-            position: absolute; top: 0; left: 0; z-index: 1;
-        }
-
-        /* THE GRID: Shifted up to stay on the icons now that the image moved up */
-        .button-grid { 
-            position: absolute; 
-            bottom: 22%; /* Lifted significantly to match the new image height */
-            left: 50%;
-            transform: translateX(-50%);
-            width: 320px; 
-            height: 220px; 
-            display: grid; 
-            grid-template-columns: 1fr 1fr 1fr; 
-            grid-template-rows: 1fr 1fr; 
-            z-index: 50; 
-        }
-        
-        /* TOUCH ZONES: Faint tint for one last check */
-        .btn { 
-            cursor: pointer; 
-            background: rgba(255, 0, 0, 0.05); 
-            border: 1px solid rgba(255, 255, 255, 0.05); 
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        /* POP-UP WINDOWS */
-        .overlay { 
-            display: none; position: fixed; top: 0; left: 0; 
-            width: 100%; height: 100%; background: #001a11; 
-            z-index: 100; padding: 35px; box-sizing: border-box; 
-            border: 6px solid #d4af37; overflow-y: auto;
-        }
-        
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; overflow: hidden; position: fixed; font-family: 'Times New Roman', serif; }
+        .app-screen { width: 100vw; height: 100vh; background: url('homepage.jpg') no-repeat center 5%; background-size: contain; position: absolute; top: 0; left: 0; z-index: 1; }
+        .button-grid { position: absolute; bottom: 22%; left: 50%; transform: translateX(-50%); width: 320px; height: 220px; display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr; z-index: 50; }
+        .btn { cursor: pointer; background: rgba(255, 255, 255, 0.01); -webkit-tap-highlight-color: transparent; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #001a11; z-index: 100; padding: 35px; box-sizing: border-box; border: 6px solid #d4af37; overflow-y: auto; color: #fff; }
         .active { display: block !important; }
-        .close-btn { background: #d4af37; color: black; padding: 15px 25px; font-weight: bold; cursor: pointer; display: inline-block; margin-bottom: 25px; border-radius: 5px; text-transform: uppercase; }
-        
-        h1 { color: #d4af37; text-transform: uppercase; border-bottom: 3px solid #d4af37; padding-bottom: 10px; font-size: 1.6em; }
-        h2 { color: #d4af37; font-size: 1.3em; margin-top: 25px; border-left: 5px solid #d4af37; padding-left: 10px; }
-        .content-box { background: rgba(255,255,255,0.1); padding: 25px; margin-bottom: 25px; line-height: 1.8; color: #fff; border-radius: 5px; }
+        .close-btn { background: #d4af37; color: black; padding: 12px 20px; font-weight: bold; cursor: pointer; display: inline-block; margin-bottom: 20px; border-radius: 4px; text-transform: uppercase; font-size: 0.9em; }
+        h1 { color: #d4af37; text-transform: uppercase; border-bottom: 2px solid #d4af37; padding-bottom: 10px; font-size: 1.4em; margin-top: 0; }
+        h2 { color: #d4af37; font-size: 1.1em; margin-top: 20px; border-left: 4px solid #d4af37; padding-left: 10px; text-transform: uppercase; }
+        .content-box { background: rgba(255,255,255,0.08); padding: 20px; margin-bottom: 20px; line-height: 1.6; border-radius: 4px; font-size: 1.05em; border: 1px solid rgba(212,175,55,0.2); }
+        b { color: #d4af37; }
     </style>
 </head>
 <body>
@@ -72,64 +32,93 @@
     </div>
 </div>
 
-<!-- POP-UP CONTENT (FULL TWO-PARAGRAPH DEPTH) -->
+<!-- 1. EMERGENCY SOS -->
 <div id="emergencySection" class="overlay">
-    <div class="close-btn" onclick="closeSections()">← BACK TO HOME</div>
+    <div class="close-btn" onclick="closeSections()">← RETURN TO COMMAND</div>
     <h1>K9 TACTICAL MEDIC & CPR</h1>
     <div class="content-box">
-        <h2>K9 CPR: Life-Saving Baseline</h2>
-        <p>If a K9 is non-responsive and pulseless, begin CPR immediately. Lay the K9 on their right side. For most working breeds, compressions should be delivered at the widest part of the chest at 100-120 BPM. Secure the muzzle and deliver 2 quick breaths through the nose for every 30 compressions until professional veterinary care is reached.</p>
-        <p><b>VERBAL COMMANDS:</b> Maintain scene command by shouting clearly: "OFFICER DOWN—CODE 3 VETERINARY EMERGENCY!" and "ALL UNITS STAND BY—K9 MEDICAL EMERGENCY IN PROGRESS!"</p>
+        <h2>Critical Life Support (CPR)</h2>
+        <p>In the event of cardiopulmonary arrest, place the K9 on their <b>right side</b>. For deep-chested breeds (Shepherds/Malinois), compressions must be at the widest part of the chest. Maintain a rate of <b>100–120 compressions per minute</b>. Use a 30:2 ratio (30 compressions to 2 breaths). Ensure the muzzle is held shut while breathing into the nostrils.</p>
+    </div>
+    <div class="content-box">
+        <h2>Massive Hemorrhage Control</h2>
+        <p>Apply direct pressure with hemostatic agents (QuikClot) for arterial bleeds. For extremity wounds where pressure fails, utilize a dedicated <b>K9 Tourniquet</b> proximal to the wound. In cases of chest trauma (sucking chest wounds), apply an occlusive dressing immediately to prevent tension pneumothorax.</p>
+        <p><b>TACTICAL VERBAL:</b> "OFFICER DOWN—REQUESTING CODE-3 VET ETA!"</p>
     </div>
 </div>
 
+<!-- 2. GPS COMMAND -->
 <div id="gpsSection" class="overlay">
     <div class="close-btn" onclick="closeSections()">← BACK</div>
-    <h1>GPS SEARCH COMMAND</h1>
+    <h1>LIVE GPS SEARCH COMMAND</h1>
     <div class="content-box">
-        <h2>Search Operations</h2>
-        <p>Track K9 teams, SAR volunteers, and drone assets simultaneously. The breadcrumb system ensures complete perimeter coverage and provides a permanent record of search saturation for legal or tactical review.</p>
-        <p><b>VERBAL COMMANDS:</b> "REPORT SEARCH COORDINATES!" and "ESTABLISH PERIMETER!"</p>
+        <h2>SAR Asset Management</h2>
+        <p>This module provides real-time situational awareness by overlaying K9 tracks (Green), SAR Ground Teams (Blue), and Aerial Drone Assets (Yellow). This ensures the <b>Incident Commander</b> can identify "gaps" in the search perimeter and verify 100% saturation of the target area.</p>
+    </div>
+    <div class="content-box">
+        <h2>Evidence Preservation</h2>
+        <p>Digital breadcrumbs serve as <b>Exculpatory Evidence</b> in court, proving that a specific area was cleared by a certified K9 team. All GPS data is logged with timestamps to correlate with the K9's alerts and changes in behavior.</p>
+        <p><b>TACTICAL VERBAL:</b> "ESTABLISH PERIMETER—TRANSMITTING PING NOW!"</p>
     </div>
 </div>
 
+<!-- 3. NARCOTICS AIDS -->
 <div id="narcSection" class="overlay">
     <div class="close-btn" onclick="closeSections()">← BACK</div>
-    <h1>NARCOTICS AIDS</h1>
+    <h1>NARCOTICS INTERDICTION</h1>
     <div class="content-box">
-        <h2>Scent Cones & Alerts</h2>
-        <p>Identify "Scent Pools" around vehicle seams. Watch for "Head Snaps" and changes in respiration. A final alert—typically a sit or down—provides the probable cause required for a search under the Automobile Exception.</p>
-        <p><b>VERBAL COMMANDS:</b> "AMHERST COUNTY K9—REMAIN IN THE VEHICLE!" and "K9 ALERT—PROBABLE CAUSE!"</p>
+        <h2>Scent Cone Identification</h2>
+        <p>Handlers must recognize the <b>"Scent Cone"</b> as it exits vehicle seams or luggage. Note the K9’s Change of Behavior (COB): respiratory changes, tail flagging, and "detailing" of the odor source. A final alert (Passive or Active) must be independent of handler influence to maintain <b>Search Integrity</b>.</p>
+    </div>
+    <div class="content-box">
+        <h2>The Automobile Exception</h2>
+        <p>Under the <i>Carroll Doctrine</i>, a K9 alert provides the <b>Probable Cause</b> necessary to conduct a warrantless search of a vehicle. Ensure the dog sniffs only the exterior "air space" unless independent suspicion allows for an interior sniff.</p>
+        <p><b>TACTICAL VERBAL:</b> "K9 ALERT—PROBABLE CAUSE ESTABLISHED!"</p>
     </div>
 </div>
 
+<!-- 4. LEGAL SHIELD -->
 <div id="legalSection" class="overlay">
     <div class="close-btn" onclick="closeSections()">← BACK</div>
-    <h1>LEGAL SHIELD</h1>
+    <h1>LEGAL SHIELD: CASE LAW</h1>
     <div class="content-box">
-        <h2>Rodriguez v. United States</h2>
-        <p>Under Federal Case Law, a traffic stop cannot be unconstitutionally prolonged for a K9 sniff without independent reasonable suspicion. Documentation must show the sniff occurred during the time required to complete the mission of the stop.</p>
-        <p><b>VERBAL COMMANDS:</b> "TRAFFIC MISSION CONTINUING!" and "DEPLOYING K9!"</p>
+        <h2>Rodriguez v. United States (2015)</h2>
+        <p>The U.S. Supreme Court ruled that a police stop may not be prolonged beyond the time reasonably required to complete the mission of the stop. If the "mission" (ticket writing/license check) is finished, you <b>cannot</b> wait for a K9 arrival without independent Reasonable Suspicion.</p>
+    </div>
+    <div class="content-box">
+        <h2>Florida v. Harris (2013)</h2>
+        <p>This case established that a K9's reliability is based on their <b>training records</b>. If a K9 has been properly certified and has a consistent training history, their alert is sufficient for Probable Cause, even if no drugs are found (the "Ghost Scent" defense).</p>
+        <p><b>TACTICAL VERBAL:</b> "MISSION CONTINUING—DEPLOYING K9!"</p>
     </div>
 </div>
 
+<!-- 5. TRAINING LOGS -->
 <div id="trainSection" class="overlay">
     <div class="close-btn" onclick="closeSections()">← BACK</div>
-    <h1>TRAINING LOGS</h1>
+    <h1>ADMINISTRATION & LOGS</h1>
     <div class="content-box">
         <h2>Reliability Documentation</h2>
-        <p>A handler's best defense in court is a consistent training log. Document every session to prove the K9's accuracy and reliability. These records demonstrate the team's professional standards to the Commonwealth Attorney and the court.</p>
-        <p><b>VERBAL COMMANDS:</b> "TRAINING SESSION START!" and "SESSION COMPLETE—REWARD GIVEN!"</p>
+        <p>In accordance with <b>SWGDOG standards</b>, all training must be documented. Logs must include: Type of Hide, Environmental Distractions, Weather Conditions, and Accuracy Rate. These logs are the primary target of discovery during <b>Suppression Hearings</b>.</p>
+    </div>
+    <div class="content-box">
+        <h2>Deployment Reports</h2>
+        <p>Every street deployment must be cross-referenced with training data. Discrepancies between training performance and street alerts must be addressed through remedial training and documented to prevent <b>Liability Claims</b> against the Department.</p>
+        <p><b>TACTICAL VERBAL:</b> "SESSION LOGGED—RELIABILITY VERIFIED."</p>
     </div>
 </div>
 
+<!-- 6. VA STATE CODE -->
 <div id="vaSection" class="overlay">
     <div class="close-btn" onclick="closeSections()">← BACK</div>
-    <h1>VA STATE CODE</h1>
+    <h1>VIRGINIA STATE CODE</h1>
     <div class="content-box">
-        <h2>Virginia Statutory Authority</h2>
-        <p>VA Code § 3.2-6500 governs the care and authority of working animals. Handlers should be familiar with the legal protections and the "Duty of Care" requirements defined under the Code of Virginia.</p>
-        <p><b>VERBAL COMMANDS:</b> "ACTING UNDER VIRGINIA CODE!" and "OFFICIAL DEPLOYMENT RECORDED!"</p>
+        <h2>VA Code § 3.2-6500</h2>
+        <p>Defines the <b>Duty of Care</b> for all working animals. It provides the legal framework for the protection of K9 assets and the penalties for interfering with or harming a law enforcement work dog during the performance of their duties.</p>
+    </div>
+    <div class="content-box">
+        <h2>VA Code § 18.2-144.1</h2>
+        <p>Prohibits the killing or injuring of a police animal. This is a <b>Class 5 Felony</b> in the Commonwealth. Handlers should use this code when documenting any assault on their K9 partner during an apprehension or search.</p>
+        <p><b>TACTICAL VERBAL:</b> "ACTING UNDER VIRGINIA STATUTORY AUTHORITY!"</p>
     </div>
 </div>
 
