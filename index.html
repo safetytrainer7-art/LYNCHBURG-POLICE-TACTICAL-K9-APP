@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSO K9 Command Center</title>
+    <title>ACSO Field Terminal</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
@@ -14,137 +14,119 @@
         .exit-btn { background: #900; color: #fff; border: 2px solid #fff; padding: 8px 12px; font-weight: bold; border-radius: 5px; cursor: pointer; }
         .content-scroll { padding: 15px; overflow-y: auto; height: calc(100% - 60px); box-sizing: border-box; }
 
-        /* --- HOMEPAGE --- */
+        /* HOMEPAGE GRID */
         #homepage { width: 100%; height: 100%; background: radial-gradient(circle, #001a11 0%, #000 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; position: absolute; z-index: 10; }
-        .app-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px; }
-        .app-icon { width: 115px; height: 115px; background: rgba(0,0,0,0.8); border: 2px solid #d4af37; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; }
-        .app-icon span { color: #d4af37; font-weight: bold; margin-top: 8px; font-size: 0.85em; }
+        .app-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; width: 90%; }
+        .app-icon { height: 100px; background: rgba(0,0,0,0.9); border: 2px solid #d4af37; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; text-align: center; font-weight: bold; color: #d4af37; font-size: 0.8em; }
 
-        /* --- GPS --- */
+        /* GPS HUD */
         #map { width: 100%; height: 50%; border-bottom: 2px solid #d4af37; }
-        .gps-controls { height: calc(50% - 60px); background: #001a11; padding: 8px; box-sizing: border-box; display: flex; flex-direction: column; }
-        .hud-bar { background: #000; border: 1px solid #00ff00; color: #00ff00; padding: 6px; font-family: monospace; font-size: 0.85em; margin-bottom: 5px; display: flex; justify-content: space-around; }
-        .btn-row { display: flex; gap: 4px; margin-bottom: 5px; }
-        .dot-btn { flex: 1; padding: 12px 2px; font-weight: bold; border-radius: 4px; border: 2px solid transparent; color: #fff; font-size: 0.65em; text-align: center; cursor: pointer; }
-        .active-dot { border-color: #fff; box-shadow: 0 0 8px #fff; }
+        .gps-overlay { position: absolute; top: 70px; right: 10px; z-index: 3000; background: rgba(0,0,0,0.7); padding: 10px; border: 1px solid #00ff00; border-radius: 50%; }
+        .wind-arrow { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 1.5em; color: #00ff00; }
 
-        /* --- MEDICAL / RADIO --- */
-        .card { background: #0a0a0a; border: 1px solid #d4af37; border-radius: 10px; padding: 15px; margin-bottom: 12px; }
-        .speak-btn { background: #d4af37; color: #000; border: none; width: 100%; padding: 12px; font-weight: bold; border-radius: 5px; margin-top: 8px; cursor: pointer; }
-
-        /* --- WIND --- */
-        .compass-ring { width: 200px; height: 200px; border: 4px solid #d4af37; border-radius: 50%; margin: 20px auto; position: relative; }
-        .wind-arrow { position: absolute; top: 50%; left: 50%; width: 4px; height: 80px; background: #00ff00; transform-origin: bottom; transform: translate(-50%, -100%) rotate(0deg); transition: 0.5s; }
+        /* LEGAL & REPORTS */
+        .law-section { background: #0a0a0a; border-left: 4px solid #d4af37; padding: 15px; margin-bottom: 15px; }
+        .report-form { background: #111; border: 1px solid #333; padding: 15px; border-radius: 8px; }
+        .report-input { width: 100%; padding: 10px; margin: 8px 0; background: #000; color: #fff; border: 1px solid #d4af37; box-sizing: border-box; }
+        .print-btn { background: #d4af37; color: #000; width: 100%; padding: 15px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div id="homepage">
-    <h1 style="color: #d4af37;">ACSO K9</h1>
+    <h1 style="color: #d4af37; margin-bottom: 20px;">ACSO K9 COMMAND</h1>
     <div class="app-grid">
-        <div class="app-icon" onclick="openModule('gps-module')">📡<span>GPS</span></div>
-        <div class="app-icon" onclick="openModule('med-module')">🐕<span>MEDICAL</span></div>
-        <div class="app-icon" onclick="openModule('log-module')">📝<span>LOGS</span></div>
-        <div class="app-icon" onclick="openModule('wind-module')">🌬️<span>WIND</span></div>
-        <div class="app-icon" onclick="openModule('radio-module')">📻<span>RADIO</span></div>
-        <div class="app-icon" onclick="openModule('settings-module')">⚙️<span>SETTINGS</span></div>
+        <div class="app-icon" onclick="openModule('gps-module')">📡<br>TACTICAL GPS</div>
+        <div class="app-icon" onclick="openModule('med-module')">🐕<br>MEDICAL</div>
+        <div class="app-icon" onclick="openModule('report-module')">📝<br>REPORTS / LOGS</div>
+        <div class="app-icon" onclick="openModule('law-module')">⚖️<br>VIRGINIA LAW</div>
+        <div class="app-icon" onclick="openModule('case-law-module')">📚<br>CASE LAW</div>
+        <div class="app-icon" onclick="openModule('forms-module')">📋<br>K9 FORMS</div>
     </div>
 </div>
 
-<!-- GPS -->
+<!-- TACTICAL GPS (Integrated Wind) -->
 <div id="gps-module" class="module-layer">
     <div class="nav-header"><button class="exit-btn" onclick="closeModule('gps-module')">EXIT</button><span style="color:#d4af37;">GPS</span></div>
     <div id="map"></div>
-    <div class="gps-controls">
-        <div class="hud-bar"><span>CP: <b id="cp-val">0</b> YD</span><span>GAP: <b id="gap-val">0</b> YD</span></div>
-        <div class="btn-row">
-            <div id="dot-blue" class="dot-btn active-dot" style="background:blue;" onclick="setMode('blue')">OFFICER</div>
-            <div id="dot-green" class="dot-btn" style="background:green;" onclick="setMode('green')">K9 UNIT</div>
-            <div id="dot-yellow" class="dot-btn" style="background:#d4af37; color:#000;" onclick="setMode('yellow')">PERIMETER</div>
+    <div class="gps-overlay"><div id="wind-arrow" class="wind-arrow">↑</div></div>
+    <div style="height: calc(50% - 60px); background: #001a11; padding: 10px;">
+        <div style="display:flex; gap:5px; margin-bottom:10px;">
+            <div onclick="setMode('blue')" style="flex:1; background:blue; padding:15px; text-align:center; border-radius:5px;">OFFICER</div>
+            <div onclick="setMode('green')" style="flex:1; background:green; padding:15px; text-align:center; border-radius:5px;">K9</div>
+            <div onclick="setMode('yellow')" style="flex:1; background:#d4af37; color:#000; padding:15px; text-align:center; border-radius:5px;">PERIMETER</div>
         </div>
-        <div class="btn-row">
-            <div id="dot-red" class="dot-btn" style="background:red;" onclick="setMode('red')">SAR</div>
-            <div id="dot-purple" class="dot-btn" style="background:purple;" onclick="setMode('purple')">SUBJECT</div>
+        <div style="display:flex; gap:5px;">
+            <div onclick="setMode('red')" style="flex:1; background:red; padding:15px; text-align:center; border-radius:5px;">SAR</div>
+            <div onclick="setMode('purple')" style="flex:1; background:purple; padding:15px; text-align:center; border-radius:5px;">SUBJECT</div>
         </div>
     </div>
 </div>
 
-<!-- MEDICAL -->
+<!-- REPORTS & LOGS (Merged) -->
+<div id="report-module" class="module-layer">
+    <div class="nav-header"><button class="exit-btn" onclick="closeModule('report-module')">EXIT</button><span style="color:#d4af37;">OFFICIAL REPORTS</span></div>
+    <div class="content-scroll">
+        <div class="report-form">
+            <select class="report-input"><option>Incident Report</option><option>Training Log</option><option>Bite/Deployment Report</option></select>
+            <input type="text" class="report-input" placeholder="Case Number / Sheriff ID">
+            <textarea class="report-input" style="height:150px;" placeholder="Full Narrative / Evidence / Deployment Details"></textarea>
+            <button class="print-btn" onclick="window.print()">AUTO-PRINT FOR COURT</button>
+        </div>
+    </div>
+</div>
+
+<!-- VIRGINIA LAW / CASE LAW (Placeholders for your specific text) -->
+<div id="law-module" class="module-layer">
+    <div class="nav-header"><button class="exit-btn" onclick="closeModule('law-module')">EXIT</button><span style="color:#d4af37;">VA CODE</span></div>
+    <div class="content-scroll">
+        <div class="law-section"><h3>Title 18.2: Crimes</h3><p>Searchable Virginia statutes...</p></div>
+    </div>
+</div>
+
+<!-- K9 MEDICAL (Expanded) -->
 <div id="med-module" class="module-layer">
     <div class="nav-header"><button class="exit-btn" onclick="closeModule('med-module')">EXIT</button><span style="color:#d4af37;">K9 FIRST AID</span></div>
     <div class="content-scroll">
-        <div class="card"><h2>CPR</h2><p>30:2 Cycle.</p><button class="speak-btn" onclick="shout('Start CPR.')">🔊 VOICE</button></div>
-        <div class="card"><h2>GUNSHOT</h2><p>Direct pressure.</p><button class="speak-btn" onclick="shout('Gunshot protocol.')">🔊 VOICE</button></div>
-        <div class="card"><h2>HEAT</h2><p>Cool water.</p><button class="speak-btn" onclick="shout('Heat protocol.')">🔊 VOICE</button></div>
-        <div class="card"><h2>SNAKE</h2><p>Below heart.</p><button class="speak-btn" onclick="shout('Snake bite protocol.')">🔊 VOICE</button></div>
+        <div class="law-section"><h2>CPR</h2><button class="print-btn" onclick="shout('Start CPR.')">VOICE GUIDE</button></div>
+        <div class="law-section"><h2>GUNSHOT</h2><button class="print-btn" onclick="shout('Gunshot/Trauma.')">VOICE GUIDE</button></div>
+        <div class="law-section"><h2>NARCAN K9</h2><button class="print-btn" onclick="shout('K9 Narcan protocol.')">VOICE GUIDE</button></div>
+        <div class="law-section"><h2>BLOAT</h2><button class="print-btn" onclick="shout('Gastric torsion protocol.')">VOICE GUIDE</button></div>
     </div>
 </div>
 
-<!-- LOGS -->
-<div id="log-module" class="module-layer">
-    <div class="nav-header"><button class="exit-btn" onclick="closeModule('log-module')">EXIT</button><span style="color:#d4af37;">SEARCH LOGS</span></div>
+<!-- CASE LAW MODULE -->
+<div id="case-law-module" class="module-layer">
+    <div class="nav-header"><button class="exit-btn" onclick="closeModule('case-law-module')">EXIT</button><span style="color:#d4af37;">FEDERAL/STATE CASE LAW</span></div>
     <div class="content-scroll">
-        <input type="text" id="log-loc" style="width:100%; padding:12px; background:#111; color:#fff; border:1px solid #d4af37;" placeholder="Location">
-        <textarea id="log-notes" style="width:100%; height:80px; margin-top:10px; background:#111; color:#fff; border:1px solid #d4af37;" placeholder="Findings"></textarea>
-        <button onclick="saveLog()" style="width:100%; padding:15px; background:#28a745; margin-top:10px; border:none; font-weight:bold;">SUBMIT</button>
-        <div id="log-display"></div>
+        <div class="law-section"><h3>Graham v. Connor</h3><p>Objective Reasonableness standard.</p></div>
+        <div class="law-section"><h3>US v. Place</h3><p>K9 Sniffs at public airports/areas.</p></div>
     </div>
 </div>
-
-<!-- WIND -->
-<div id="wind-module" class="module-layer">
-    <div class="nav-header"><button class="exit-btn" onclick="closeModule('wind-module')">EXIT</button><span style="color:#d4af37;">WIND</span></div>
-    <div class="content-scroll" style="text-align:center;">
-        <div class="compass-ring"><div id="w-arrow" class="wind-arrow"></div></div>
-        <h1 id="w-speed">-- MPH</h1>
-        <button class="speak-btn" onclick="updateWind()">REFRESH WIND</button>
-    </div>
-</div>
-
-<!-- RADIO / SETTINGS (RETAINED) -->
-<div id="radio-module" class="module-layer"><div class="nav-header"><button class="exit-btn" onclick="closeModule('radio-module')">EXIT</button><span>RADIO</span></div><div class="content-scroll"><div class="card" onclick="shout('10-33 Emergency.')">10-33: EMERGENCY</div></div></div>
-<div id="settings-module" class="module-layer"><div class="nav-header"><button class="exit-btn" onclick="closeModule('settings-module')">EXIT</button><span>SETTINGS</span></div><div class="content-scroll"><p>Unit ID: ACSO K9-1</p></div></div>
 
 <script>
-    var map, cpPos, lastMarkerPos, currentMode = 'blue';
+    var map, currentMode = 'blue';
 
     function openModule(id) {
         document.getElementById(id).style.display = 'block';
         if (id === 'gps-module' && !map) {
             map = L.map('map', { zoomControl: false }).setView([37.58, -79.05], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            map.on('click', function(e) { dropUnit(e.latlng, currentMode); });
+            map.on('click', function(e) { 
+                L.circleMarker(e.latlng, {radius: 12, fillColor: (currentMode==='yellow'?'#d4af37':currentMode), color: "#fff", weight: 2, fillOpacity: 0.9}).addTo(map);
+            });
         }
     }
 
     function closeModule(id) { document.getElementById(id).style.display = 'none'; window.speechSynthesis.cancel(); }
-
-    function setMode(m) {
-        currentMode = m;
-        document.querySelectorAll('.dot-btn').forEach(b => b.classList.remove('active-dot'));
-        document.getElementById('dot-'+m).classList.add('active-dot');
-    }
-
-    function dropUnit(ll, color) {
-        var marker = L.circleMarker(ll, {radius: 12, fillColor: (color==='yellow'?'#d4af37':color), color: "#fff", weight: 2, fillOpacity: 0.9}).addTo(map);
-        if(lastMarkerPos) document.getElementById('gap-val').innerText = Math.round(ll.distanceTo(lastMarkerPos) * 1.09361);
-        lastMarkerPos = ll;
-    }
-
-    function saveLog() {
-        var entry = document.createElement('div');
-        entry.style = "background:#0a0a0a; border-left:4px solid #d4af37; padding:10px; margin-top:10px;";
-        entry.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong><br>${document.getElementById('log-loc').value}<br>${document.getElementById('log-notes').value}`;
-        document.getElementById('log-display').prepend(entry);
-    }
-
-    function updateWind() {
+    function setMode(m) { currentMode = m; }
+    function shout(t) { window.speechSynthesis.cancel(); var u = new SpeechSynthesisUtterance(t); window.speechSynthesis.speak(u); }
+    
+    // Auto-Wind Rotation (Simulated)
+    setInterval(() => {
         let deg = Math.floor(Math.random() * 360);
-        document.getElementById('w-speed').innerText = Math.floor(Math.random() * 10 + 2) + " MPH";
-        document.getElementById('w-arrow').style.transform = `translate(-50%, -100%) rotate(${deg}deg)`;
-    }
-
-    function shout(text) { window.speechSynthesis.cancel(); var u = new SpeechSynthesisUtterance(text); window.speechSynthesis.speak(u); }
+        document.getElementById('wind-arrow').style.transform = `rotate(${deg}deg)`;
+    }, 5000);
 </script>
 
 </body>
