@@ -1,9 +1,97 @@
-<div class="med-block">
-            <h3>6. HEAT EXHAUSTION & BODY TEMP</h3>
-            <button class="voice-btn" onclick="speak('heat-txt')">🔊 LISTEN TO STEPS</button>
-            <div id="heat-txt">
-                <p>Immediately move the K9 to a shaded area or a patrol vehicle with the air conditioning on maximum. Douse the dog’s entire body with cool—not ice cold—water, focusing heavily on the paw pads, groin, and underarms where major blood vessels are closest to the skin. If possible, place the dog in front of a fan to facilitate evaporative cooling, which is the most effective method for lowering a dog's core temperature.</p>
-                <p>Monitor the dog's temperature every 5 minutes. Stop active cooling once the core temperature reaches 103°F (39.4°C) to prevent rebound hypothermia, which can be just as fatal. Watch for signs of "Heat Stroke," such as dark red or purple gums, thick ropey saliva, or neurological distress. Even if the K9 appears to recover, immediate veterinary evaluation is mandatory to check for delayed organ failure or blood-clotting issues.</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ACSD COMMAND V178</title>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100vh; width: 100vw; background: #000; overflow: hidden; font-family: 'Georgia', serif; }
+        #container { width: 100vw; height: 100vh; background: radial-gradient(circle, #001a00 0%, #000000 100%); display: flex; justify-content: center; align-items: center; position: relative; }
+        #top-badge { position: absolute; top: 10px; width: 70px; height: 70px; background: url('badge.jpg') no-repeat center; background-size: contain; z-index: 100; }
+        #center-image { width: 98%; height: 90%; background: url('homepage.jpg') no-repeat center; background-size: contain; z-index: 5; margin-top: 20px; }
+        
+        .side-col { position: absolute; width: 20%; height: 70%; top: 18%; display: flex; flex-direction: column; justify-content: space-around; z-index: 50; }
+        .left { left: 1%; } .right { right: 1%; }
+        .btn { background: rgba(0, 30, 0, 0.85); border: 2px solid #c5a059; color: #c5a059; padding: 15px 2px; text-align: center; font-weight: bold; font-size: 12px; border-radius: 4px; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 8px #000; }
+
+        .page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000d00; z-index: 500; overflow-y: auto; color: #fff; padding-bottom: 80px; }
+        .header { background: #000; border-bottom: 2px solid #c5a059; padding: 15px; display: flex; align-items: center; position: sticky; top: 0; z-index: 600; }
+        .back-btn { background: #c5a059; color: #000; border: none; padding: 15px 25px; font-weight: bold; border-radius: 4px; margin-right: 15px; cursor: pointer; font-size: 16px; }
+        
+        .content { padding: 20px; }
+        .med-block { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #c5a059; }
+        .voice-btn { background: #c5a059; color: #000; border: none; padding: 12px; font-weight: bold; border-radius: 4px; margin-bottom: 10px; width: 100%; cursor: pointer; text-transform: uppercase; }
+        h3 { color: #c5a059; margin-top: 0; text-transform: uppercase; border-bottom: 1px solid #444; padding-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+<div id="container">
+    <div id="top-badge"></div>
+    <div id="center-image"></div>
+    <div class="side-col left">
+        <div class="btn" onclick="openPage('sos')">K9 SOS</div>
+        <div class="btn" onclick="openPage('law')">Legal Bible</div>
+        <div class="btn">Narcotics</div>
+    </div>
+    <div class="side-col right">
+        <div class="btn">Tactical Map</div>
+        <div class="btn">Training Logs</div>
+        <div class="btn">VA Code</div>
+    </div>
+</div>
+
+<div id="sos" class="page">
+    <div class="header">
+        <button class="back-btn" onclick="closePage('sos')">← BACK</button>
+        <h2 style="color:#c5a059; margin:0; font-size: 18px;">K9 FIRST AID</h2>
+    </div>
+    <div class="content">
+
+        <div class="med-block">
+            <h3>1. GUNSHOT WOUNDS</h3>
+            <button class="voice-btn" onclick="runAudio('gsw')">🔊 LISTEN</button>
+            <div id="gsw">
+                <p>Immediately identify entry and exit points. If the wound is in the chest cavity, it must be sealed immediately with an occlusive dressing (plastic or chest seal) to prevent air from entering the chest and collapsing the lungs. Do not probe the wound or attempt to remove fragments, as this can cause catastrophic secondary bleeding.</p>
+                <p>For wounds on limbs with arterial bleeding, apply a K9-specific tourniquet high and tight. Keep the dog warm to prevent shock and transport to a trauma vet immediately. Monitor breathing closely, as internal damage from a high-velocity round can cause rapid respiratory failure even if external bleeding is controlled.</p>
             </div>
-            
         </div>
+
+        <div class="med-block">
+            <h3>2. EXCESSIVE BLEEDING</h3>
+            <button class="voice-btn" onclick="runAudio('bleed')">🔊 LISTEN</button>
+            <div id="bleed">
+                <p>Apply firm, direct pressure to the source of the bleed using sterile gauze or a clean field dressing. If blood soaks through, do not remove the original dressing—simply add more layers on top and increase the pressure. Use a pressure bandage to lock the dressing in place, ensuring it is tight enough to stop the bleed but not so tight it cuts off all circulation unless a tourniquet is required.</p>
+                <p>For uncontrollable arterial bleeding on a limb or the tail, deploy a tourniquet above the wound. Monitor the K9's gum color; if they become pale or white, the dog is entering hypovolemic shock. Keep the dog calm and still to lower the heart rate and slow the rate of blood loss until you reach a medical facility.</p>
+            </div>
+        </div>
+
+        <div class="med-block">
+            <h3>3. HEAT EXHAUSTION</h3>
+            <button class="voice-btn" onclick="runAudio('heat')">🔊 LISTEN</button>
+            <div id="heat">
+                <p>Move the dog to shade or an air-conditioned unit immediately. Douse the dog with cool water, focusing on the paw pads, groin, and underarms. Use a fan if available to speed up the cooling process through evaporation. Do not use ice water, as it causes blood vessels to shrink and traps heat inside the core.</p>
+                <p>Check the temperature every 5 minutes and stop cooling once it hits 103 degrees. Veterinary follow-up is required to check for delayed organ damage or internal clotting issues common after heat stroke. Ensure the K9 does not drink excessive amounts of water at once, which could lead to bloat or vomiting.</p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function openPage(id) { document.getElementById(id).style.display = 'block'; }
+    function closePage(id) { 
+        window.speechSynthesis.cancel();
+        document.getElementById(id).style.display = 'none'; 
+    }
+    function runAudio(id) {
+        window.speechSynthesis.cancel();
+        let text = document.getElementById(id).innerText;
+        let speech = new SpeechSynthesisUtterance(text);
+        speech.rate = 0.95;
+        window.speechSynthesis.speak(speech);
+    }
+</script>
+
+</body>
+</html>
