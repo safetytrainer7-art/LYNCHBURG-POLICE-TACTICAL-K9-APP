@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND HUB V172</title>
+    <title>ACSD COMMAND HUB V173</title>
     <style>
         body, html { 
             margin: 0; padding: 0; height: 100vh; width: 100vw; 
@@ -18,7 +18,7 @@
             position: relative;
         }
 
-        /* 1. TOP BADGE */
+        /* OFFICIAL STAR - TOP CENTER */
         #top-badge {
             position: absolute;
             top: 10px;
@@ -30,36 +30,37 @@
             z-index: 100;
         }
 
-        /* 2. BIGGER CENTER IMAGE */
+        /* MAXIMUM ENLARGEMENT - Shows full name at bottom */
         #center-image {
-            width: 85%; height: 85%; /* Scaled up for better visibility */
+            width: 98%; height: 90%; 
             background-image: url('homepage.jpg');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
             z-index: 5;
+            margin-top: 20px; /* Nudges it down slightly from the badge */
         }
 
-        /* 3. SIDE BUTTONS */
+        /* SIDE BUTTONS - Slimmed slightly to make room for big center image */
         .side-col { 
-            position: absolute; width: 22%; height: 75%; top: 15%; 
+            position: absolute; width: 20%; height: 70%; top: 18%; 
             display: flex; flex-direction: column; justify-content: space-around; z-index: 50; 
         }
-        .left { left: 2%; }
-        .right { right: 2%; }
+        .left { left: 1%; }
+        .right { right: 1%; }
 
         .btn {
-            background: rgba(0, 30, 0, 0.9);
+            background: rgba(0, 30, 0, 0.85);
             border: 2px solid #c5a059;
             color: #c5a059;
-            padding: 18px 5px;
-            text-align: center; font-weight: bold; font-size: 13px;
-            border-radius: 6px; cursor: pointer;
+            padding: 15px 2px;
+            text-align: center; font-weight: bold; font-size: 12px;
+            border-radius: 4px; cursor: pointer;
             text-transform: uppercase;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.8);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.9);
         }
 
-        /* 4. CONTENT PAGES & FIXED LEFT BACK BUTTON */
+        /* CONTENT PAGES & FIXED LEFT BACK BUTTON */
         .page { 
             display: none; position: fixed; top: 0; left: 0; 
             width: 100%; height: 100%; 
@@ -72,10 +73,9 @@
             border-bottom: 2px solid #c5a059; 
             padding: 15px; 
             display: flex; 
-            align-items: center; /* Aligns button and title */
+            align-items: center; 
         }
 
-        /* The Fixed Back Button - Moved Left and padded */
         .back-btn { 
             background: #c5a059; 
             color: #000; 
@@ -83,12 +83,12 @@
             padding: 12px 20px; 
             font-weight: bold; 
             border-radius: 4px;
-            margin-right: 20px; /* Pushes the title away from the button */
+            margin-right: 20px;
             cursor: pointer;
         }
 
         .content { padding: 25px; font-size: 20px; line-height: 1.6; }
-        h2 { color: #c5a059; margin: 0; font-size: 22px; }
+        h2 { color: #c5a059; margin: 0; font-size: 20px; }
     </style>
 </head>
 <body>
@@ -100,13 +100,13 @@
     <div class="side-col left">
         <div class="btn" onclick="openP('sos')">K9 SOS</div>
         <div class="btn" onclick="openP('law')">Legal Bible</div>
-        <div class="btn" onclick="alert('Narcotics Section Ready')">Narcotics</div>
+        <div class="btn">Narcotics</div>
     </div>
 
     <div class="side-col right">
-        <div class="btn" onclick="alert('Map Section Ready')">Tactical Map</div>
-        <div class="btn" onclick="alert('Logs Section Ready')">Training Logs</div>
-        <div class="btn" onclick="alert('VA Code Section Ready')">VA Code</div>
+        <div class="btn">Tactical Map</div>
+        <div class="btn">Training Logs</div>
+        <div class="btn">VA Code</div>
     </div>
 </div>
 
@@ -116,7 +116,7 @@
         <h2>K9 EMERGENCY SOS</h2>
     </div>
     <div class="content">
-        <p><strong>HEAT STRESS:</strong> Shade, cool water on pads/ears. NO ICE.</p>
+        <p><strong>HEAT STRESS:</strong> Seek shade. Cool water on pads/ears. NO ICE.</p>
         <p><strong>BLOAT:</strong> Immediate emergency transport required.</p>
     </div>
 </div>
