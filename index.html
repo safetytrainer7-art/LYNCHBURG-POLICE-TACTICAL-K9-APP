@@ -6,114 +6,167 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>K9 Command - ACSO GPS</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; font-family: 'Times New Roman', serif; color: #fff; }
+        /* MAIN INTERFACE SETTINGS */
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; overflow-x: hidden; font-family: 'Times New Roman', serif; color: #fff; }
         
-        .overlay { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #001a11; border: 8px solid #d4af37; box-sizing: border-box; overflow-y: auto; padding: 30px;
+        .app-screen { 
+            width: 100vw; height: 100vh; 
+            background: url('homepage.jpg') no-repeat center 5%; 
+            background-size: contain; 
+            position: relative; z-index: 1;
         }
 
-        /* NIGHT VISION MODE TOGGLE */
-        .night-vision { background: #00ff00 !important; color: #000 !important; border: 8px solid #00ff00 !important; }
+        .button-grid { 
+            position: absolute; bottom: 22%; left: 50%; 
+            transform: translateX(-50%); width: 340px; height: 240px; 
+            display: grid; grid-template-columns: 1fr 1fr 1fr; 
+            grid-template-rows: 1fr 1fr; z-index: 50; 
+        }
+        
+        .btn { cursor: pointer; background: rgba(255, 255, 255, 0.01); -webkit-tap-highlight-color: transparent; }
+
+        /* GPS OVERLAY STYLE */
+        .overlay { 
+            display: none; 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #001a11; border: 8px solid #d4af37; box-sizing: border-box; 
+            z-index: 2000; overflow-y: auto; padding: 30px;
+        }
+
+        .active { display: block !important; }
+
+        /* NIGHT VISION MODE */
+        .night-vision { background: #002200 !important; color: #00ff00 !important; border: 8px solid #00ff00 !important; }
         .night-vision .content-box { background: rgba(0, 255, 0, 0.1) !important; border: 1px solid #00ff00 !important; color: #00ff00 !important; }
-        .night-vision h1, .night-vision h2 { color: #00ff00 !important; border-color: #00ff00 !important; }
+        .night-vision h1, .night-vision h2, .night-vision .widget { color: #00ff00 !important; border-color: #00ff00 !important; }
+
+        .close-btn { 
+            background: #d4af37; color: black; padding: 15px 25px; 
+            font-weight: bold; cursor: pointer; display: inline-block; 
+            margin-bottom: 25px; border-radius: 5px; text-transform: uppercase;
+            font-size: 1.2em;
+        }
 
         h1 { color: #d4af37; text-transform: uppercase; border-bottom: 3px solid #d4af37; font-size: 1.8em; text-align: center; }
-        h2 { color: #d4af37; font-size: 1.4em; border-left: 6px solid #d4af37; padding-left: 15px; margin-top: 30px; }
+        h2 { color: #d4af37; font-size: 1.5em; border-left: 6px solid #d4af37; padding-left: 15px; margin-top: 40px; }
         
         .content-box { 
-            background: rgba(255,255,255,0.08); padding: 25px; margin-bottom: 20px; 
-            line-height: 1.7; border-radius: 5px; font-size: 1.25em; border: 1px solid rgba(212,175,55,0.3); 
+            background: rgba(255,255,255,0.08); padding: 30px; margin-bottom: 25px; 
+            line-height: 1.8; border-radius: 5px; font-size: 1.35em; 
+            border: 1px solid rgba(212,175,55,0.3); 
         }
 
         .voice-btn {
-            background: #ff0000; color: white; padding: 15px; width: 100%; 
-            font-weight: bold; text-transform: uppercase; border: none; border-radius: 5px; cursor: pointer; margin-bottom: 10px; font-size: 1.1em;
+            background: #ff0000; color: white; padding: 18px; width: 100%; 
+            font-weight: bold; text-transform: uppercase; border: none; border-radius: 5px; cursor: pointer; margin-bottom: 15px; font-size: 1.2em;
         }
 
-        /* TACTICAL WIDGETS */
-        .tactical-bar { display: flex; justify-content: space-between; background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid #d4af37; margin-bottom: 20px; }
-        .widget { text-align: center; font-weight: bold; color: #d4af37; }
-        .wind-arrow { font-size: 2em; display: inline-block; transform: rotate(45deg); }
+        /* TACTICAL TOOLS */
+        .search-box { width: 100%; padding: 20px; font-size: 1.3em; margin-bottom: 20px; background: #000; color: #d4af37; border: 2px solid #d4af37; box-sizing: border-box; }
+        
+        .tactical-bar { display: flex; justify-content: space-between; background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid #d4af37; margin-bottom: 25px; }
+        .widget { text-align: center; font-weight: bold; color: #d4af37; font-size: 1.1em; }
+        .wind-arrow { font-size: 2.2em; display: inline-block; transition: transform 0.5s; color: #ff0000; }
 
-        /* SEARCH INPUT */
-        .search-box { width: 100%; padding: 15px; font-size: 1.2em; margin-bottom: 20px; background: #000; color: #d4af37; border: 2px solid #d4af37; }
-
-        .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .dot { display: inline-block; width: 15px; height: 15px; border-radius: 50%; margin-right: 10px; }
+        .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        .dot { display: inline-block; width: 20px; height: 20px; border-radius: 50%; vertical-align: middle; margin-right: 10px; border: 1px solid #fff; }
     </style>
 </head>
 <body>
 
-<div id="gpsMain" class="overlay">
+<!-- HOME SCREEN -->
+<div class="app-screen">
+    <div class="button-grid">
+        <div class="btn" onclick="openOverlay('sosOverlay')"></div> <!-- SOS -->
+        <div class="btn" onclick="openOverlay('gpsOverlay')"></div> <!-- GPS -->
+        <div class="btn"></div> <!-- NARC -->
+        <div class="btn"></div> <!-- LEGAL -->
+        <div class="btn"></div> <!-- TRAIN -->
+        <div class="btn"></div> <!-- VA LAW -->
+    </div>
+</div>
+
+<!-- GPS TACTICAL COMMAND OVERLAY -->
+<div id="gpsOverlay" class="overlay">
+    <div class="close-btn" onclick="closeAll()">← EXIT GPS COMMAND</div>
+    
     <h1>Tactical GPS Command</h1>
 
-    <!-- ADDRESS SEARCH & NIGHT VISION -->
-    <input type="text" class="search-box" placeholder="ENTER SEARCH ADDRESS / COORDINATES...">
-    <button class="voice-btn" style="background:#0044cc;" onclick="toggleNightVision()">TOGGLE NIGHT VISION DESKTOP</button>
+    <input type="text" class="search-box" placeholder="ENTER SEARCH ADDRESS / LKP...">
+    
+    <button class="voice-btn" style="background:#0044cc; margin-bottom: 25px;" onclick="toggleNightVision()">TOGGLE NIGHT VISION MODE</button>
 
-    <!-- LIVE TACTICAL BAR -->
+    <!-- REAL TIME WIDGETS -->
     <div class="tactical-bar">
-        <div class="widget">COMPASS<br>045° NE</div>
-        <div class="widget">WIND METER<br><span class="wind-arrow">↑</span><br>8 MPH</div>
-        <div class="widget">DIST. TO NEAREST UNIT<br>42 YARDS</div>
+        <div class="widget">COMPASS<br>NW 315°</div>
+        <div class="widget">WIND<br><span id="windDir" class="wind-arrow">↑</span><br>12 MPH</div>
+        <div class="widget">UNIT SPACING<br>25 YDS</div>
     </div>
 
-    <!-- DOT LEGEND -->
+    <!-- ASSET LEGEND -->
     <div class="content-box">
-        <h2>Asset Identification Legend</h2>
+        <h2>Tactical Asset Placement</h2>
         <div class="legend">
             <div><span class="dot" style="background:#0000ff;"></span> Law Enforcement</div>
             <div><span class="dot" style="background:#ff0000;"></span> Search & Rescue</div>
-            <div><span class="dot" style="background:#00ff00;"></span> Civilians</div>
-            <div><span class="dot" style="background:#a020f0;"></span> Suspect / Subject</div>
-            <div><span class="dot" style="background:#ffff00; clip-path: polygon(50% 0%, 0% 100%, 100% 100%);"></span> Property Flag</div>
+            <div><span class="dot" style="background:#00ff00;"></span> Civilian Volunteer</div>
+            <div><span class="dot" style="background:#a020f0;"></span> Suspect/Subject</div>
         </div>
     </div>
 
-    <!-- 1. LIVE REAL-TIME POSITIONING -->
-    <div class="content-box" id="gps_live">
-        <h2>1. Live Asset Placement & Safety</h2>
-        <button class="voice-btn" onclick="speak('gps_live')">ACTIVATE VOICE ASSISTANT</button>
-        <p>This system allows the Command Post to place and remove assets in the search area with a single tap. For the first time, every officer on the perimeter and every handler in the woods can see the live movement of their brothers and sisters in real-time. This eliminates "unknown movement" in the brush, ensuring that if you see a Blue Dot, you know it is a friendly officer, and if you see movement without a dot, you are looking at a potential threat or subject.</p>
-        <p>The distance calculator constantly monitors the gap between searching units. If units drift too far apart—creating a gap in the search line—the system will provide a haptic alert. This ensures a thorough, scientific saturation of the area, leaving no stone unturned in the pursuit of a suspect or the recovery of a missing person.</p>
+    <!-- GPS CONTENT BOXES -->
+    <div class="content-box" id="gps_one">
+        <h2>1. Live Asset Synchronization</h2>
+        <button class="voice-btn" onclick="speak('gps_one')">ACTIVATE VOICE ASSISTANT</button>
+        <p>This "First in the Country" system provides a live, real-time visual of every asset in the search area. Law enforcement units (Blue), search and rescue (Red), and civilians (Green) are all tracked simultaneously to ensure total field awareness. By seeing every brother and sister on the screen, an officer can move with confidence, knowing exactly who is in the brush with them.</p>
+        <p>The Incident Commander has the authority to place or remove units from the map as the situation evolves. If a deputy moves to a new perimeter point, their dot follows them instantly. This real-time positioning is the ultimate tool for officer safety, eliminating the risk of accidental crossfire or units becoming lost in the deep terrain of the Blue Ridge.</p>
     </div>
 
-    <!-- 2. COMMAND POST & PERIMETER VISUALS -->
-    <div class="content-box" id="gps_perimeter">
-        <h2>2. Perimeter Lockdown & Command Control</h2>
-        <button class="voice-btn" onclick="speak('gps_perimeter')">ACTIVATE VOICE ASSISTANT</button>
-        <p>The Command Post view provides a high-level visual of the entire perimeter lockdown. Incident Commanders can draw a "Tactical Circle" around the last known point (LKP). This digital perimeter is visible to all units, providing a clear boundary for the search. Units can be added to the map at specific ingress points and removed once they have cleared their assigned sector, keeping the screen clean and focused on active threats.</p>
+    <div class="content-box" id="gps_two">
+        <h2>2. Evidence & Property Flags</h2>
+        <button class="voice-btn" onclick="speak('gps_two')">ACTIVATE VOICE ASSISTANT</button>
+        <p>When an officer locates a scent article or piece of evidence—such as a jacket, hat, or weapon—they can instantly drop a Property Flag at their current GPS coordinate. This flag is visible to every unit on the search, allowing K9 handlers to vector their dogs directly to the item without breaking radio silence or contaminating the area.</p>
+        <p>These markers create a digital evidence trail that can be used later in court to prove the suspect's path of travel. By correlating property flags with the K9's track and GPS timestamps, the department provides an airtight, scientific account of the pursuit, from the first discovery to the final apprehension.</p>
     </div>
 
-    <!-- 3. EVIDENCE & PROPERTY MARKING -->
-    <div class="content-box" id="gps_property">
-        <h2>3. Evidence & Found Property Flagging</h2>
-        <button class="voice-btn" onclick="speak('gps_property')">ACTIVATE VOICE ASSISTANT</button>
-        <p>When an officer locates an item of interest—such as a discarded jacket, a weapon, or a footprint—they can drop a "Property Flag" (Yellow Triangle) at their exact GPS coordinate. This flag is instantly visible to the entire search team. This allows the K9 handler to redirect the dog to the specific scent article without the officer having to shout or break radio silence, preserving the integrity of the crime scene and the scent cone.</p>
+    <div class="content-box" id="gps_three">
+        <h2>3. Scent Cone & Wind Integration</h2>
+        <button class="voice-btn" onclick="speak('gps_three')">ACTIVATE VOICE ASSISTANT</button>
+        <p>For the K9 handler, the wind is everything. This interface features a floating wind direction arrow that updates based on local weather data. By watching the red arrow, the handler can calculate the "Scent Cone" blowing off the suspect (Purple Dot). This allows the team to stay downwind, approaching with the element of surprise while maximizing the dog's ability to alert.</p>
+        <p>The system also calculates the live distance between searching officers. If units spread too far apart, a tactical alert sounds to close the gap. This ensures a thorough, 100% saturation search where nothing—and no one—can slip through the line unnoticed.</p>
     </div>
-
-    <!-- 4. WIND & ENVIRONMENTAL DATA -->
-    <div class="content-box" id="gps_wind">
-        <h2>4. Environmental Scent Cone Analysis</h2>
-        <button class="voice-btn" onclick="speak('gps_wind')">ACTIVATE VOICE ASSISTANT</button>
-        <p>A floating wind meter and direction arrow move with the officer's position on the screen. For a K9 handler, wind direction is life. This tool allows the handler to see exactly how the wind is cutting across the terrain, indicating where a "scent cone" is likely to be blowing. By staying downwind of the Purple Dot (Subject), the handler ensures the K9 has the best opportunity for a high-intensity alert before the subject realizes they have been located.</p>
-    </div>
-
 </div>
 
 <script>
+    function openOverlay(id) {
+        document.getElementById(id).classList.add('active');
+    }
+
+    function closeAll() {
+        document.querySelectorAll('.overlay').forEach(o => o.classList.remove('active'));
+        window.speechSynthesis.cancel();
+    }
+
     function toggleNightVision() {
-        document.getElementById('gpsMain').classList.toggle('night-vision');
+        document.getElementById('gpsOverlay').classList.toggle('night-vision');
     }
 
     function speak(id) {
         window.speechSynthesis.cancel();
         var text = document.getElementById(id).innerText.replace("ACTIVATE VOICE ASSISTANT", "");
         var msg = new SpeechSynthesisUtterance(text);
-        msg.rate = 0.85;
+        msg.rate = 0.85; 
         window.speechSynthesis.speak(msg);
     }
+    
+    // Simulating wind arrow movement
+    setInterval(function() {
+        var arrow = document.getElementById('windDir');
+        if(arrow) {
+            var rand = Math.floor(Math.random() * 20) - 10;
+            arrow.style.transform = "rotate(" + rand + "deg)";
+        }
+    }, 3000);
 </script>
 
 </body>
