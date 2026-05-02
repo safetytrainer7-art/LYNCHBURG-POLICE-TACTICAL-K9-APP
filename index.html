@@ -1,86 +1,141 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ACSD COMMAND V191</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root { --gold: #c5a059; --bg: #000; }
+        * { box-sizing: border-box; }
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: var(--bg); overflow: hidden; font-family: sans-serif; }
+        #container { width: 100%; height: 100%; position: relative; }
+        
+        /* Home Screen Layout */
+        .home-view { width: 100%; height: 100%; background: radial-gradient(circle, #001a00 0%, #000 100%); display: flex; justify-content: center; align-items: center; position: relative; }
+        .side-col { position: absolute; width: 22%; height: 60%; top: 20%; display: flex; flex-direction: column; justify-content: space-around; z-index: 100; }
+        .left { left: 2%; } .right { right: 2%; }
+        .main-btn { background: rgba(0, 20, 0, 0.9); border: 2px solid var(--gold); color: var(--gold); padding: 12px 2px; text-align: center; font-size: 11px; font-weight: bold; border-radius: 6px; text-transform: uppercase; }
+
+        /* Pages */
+        .page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 500; overflow: hidden; }
+        .header { background: #111; border-bottom: 2px solid var(--gold); padding: 10px; display: flex; align-items: center; }
+        .back-btn { background: var(--gold); color: #000; border: none; padding: 10px 15px; font-weight: bold; border-radius: 4px; }
+
+        #map-controls { background: #111; padding: 8px; width: 100%; }
+        #live-map { width: 100%; height: 40vh; background: #222; border-bottom: 1px solid var(--gold); }
+
+        /* Tactical Grid */
+        .tool-grid { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px; background: #000; }
+        .role-btn { flex: 1 1 18%; background: #222; color: #fff; border: 1px solid #444; padding: 12px 0; font-size: 11px; font-weight: bold; border-radius: 4px; }
+        .act-btn { flex: 1 1 30%; background: var(--gold); color: #000; border: none; padding: 18px 0; font-size: 11px; font-weight: bold; border-radius: 4px; text-transform: uppercase; margin-top: 5px; }
+        
+        .night-vision-map { filter: invert(100%) hue-rotate(180deg) brightness(0.6) contrast(1.2); }
+    </style>
+</head>
+<body>
+
+<div id="container">
+    <div class="home-view">
+        <img src="homepage.jpg" style="width:100%; height: auto; max-height: 100%; object-fit: contain;">
+        <div class="side-col left">
+            <div class="main-btn" onclick="openPage('sos')">K9 SOS</div>
+            <div class="main-btn">LEGAL</div>
+            <div class="main-btn">DRUGS</div>
+        </div>
+        <div class="side-col right">
+            <div class="main-btn" onclick="openPage('m-map')">TACTICAL MAP</div>
+            <div class="main-btn">LOGS</div>
+            <div class="main-btn">CODE</div>
+        </div>
+    </div>
+</div>
+
+<div id="m-map" class="page">
+    <div class="header">
+        <button class="back-btn" onclick="closePage('m-map')">← BACK</button>
+        <span style="color:var(--gold); margin-left:15px; font-weight:bold;">TACTICAL MAP</span>
+    </div>
+    <div id="map-controls">
+        <div style="display:flex; gap:4px; margin-bottom:8px;">
+            <input type="text" id="map-search" placeholder="ADDRESS..." style="flex:1; padding:12px; border-radius:4px; border:1px solid var(--gold); background:#000; color:#fff; font-size:16px;">
+            <button onclick="searchAddr()" style="background:var(--gold); border:none; padding:0 15px; border-radius:4px; font-weight:bold;">GO</button>
+        </div>
+        <button id="start-btn" onclick="startGps()" style="width:100%; background:#004400; color:#fff; border:1px solid #00ff00; padding:12px; font-weight:bold; border-radius:4px;">▶ START LIVE TRACKING</button>
+    </div>
+    <div id="live-map"></div>
+    <div class="tool-grid">
+        <button class="role-btn" style="border-top:4px solid blue;" onclick="setRole('blue')">LE</button>
+        <button class="role-btn" style="border-top:4px solid #00d4ff;" onclick="setRole('#00d4ff')">K9</button>
+        <button class="role-btn" style="border-top:4px solid red;" onclick="setRole('red')">SAR</button>
+        <button class="role-btn" style="border-top:4px solid purple;" onclick="setRole('purple')">SUB</button>
+        <button class="role-btn" style="border-top:4px solid green;" onclick="setRole('green')">CIV</button>
+        <button class="act-btn" style="background:#600; color:#fff;" onclick="togglePerimeter()">📍 PERIMETER</button>
+        <button class="act-btn" onclick="dropFlag()">🚩 FOUND PROP</button>
+        <button class="act-btn" onclick="toggleNight()">🌙 NIGHT</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     let map, userMarker, perimeterMode = false;
-    let activeColor = 'blue'; // Default starting color
+    let activeColor = 'blue';
 
-    // Function to set the role and color
-    function setRole(role) {
-        const colors = {
-            'le': 'blue',
-            'k9': '#00d4ff', // Light Blue
-            'sar': 'red',
-            'sub': 'purple',
-            'civ': 'green'
-        };
-        activeColor = colors[role];
-        
-        // Visual feedback for the officer
-        alert("ROLE SET: " + role.toUpperCase() + " (Dots will now be " + activeColor + ")");
-        
-        // If we already have a user marker, update its color to match the role
-        if (userMarker) {
-            userMarker.setStyle({color: activeColor, fillColor: activeColor});
+    function openPage(id) {
+        document.getElementById(id).style.display = 'block';
+        if(id === 'm-map') {
+            setTimeout(() => {
+                if(!map) {
+                    map = L.map('live-map', {zoomControl: false}).setView([37.525, -79.15], 13);
+                    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+                }
+                map.invalidateSize();
+            }, 300);
         }
     }
 
-    function togglePerimeter() {
-        perimeterMode = !perimeterMode;
-        if(perimeterMode) {
-            alert("PERIMETER ACTIVE: Tap map to drop RED DOTS.");
-            map.on('click', e => {
-                // Perimeter dots stay RED regardless of role
-                L.circleMarker(e.latlng, { 
-                    color: 'red', 
-                    radius: 8, 
-                    fillOpacity: 0.9,
-                    weight: 2 
-                }).addTo(map);
-            });
-        } else {
-            alert("PERIMETER OFF.");
-            map.off('click');
-        }
+    function closePage(id) { document.getElementById(id).style.display = 'none'; }
+    
+    function setRole(color) { 
+        activeColor = color; 
+        if(userMarker) userMarker.setStyle({color: activeColor, fillColor: activeColor});
     }
 
     function startGps() {
         if (navigator.geolocation) {
             navigator.geolocation.watchPosition(pos => {
                 const lat = pos.coords.latitude, lng = pos.coords.longitude;
-                
-                if (userMarker) { 
-                    userMarker.setLatLng([lat, lng]); 
-                } else {
-                    // Creates a solid, colored marker based on your selected role
-                    userMarker = L.circleMarker([lat, lng], { 
-                        color: activeColor, 
-                        radius: 10, 
-                        fillOpacity: 0.8,
-                        weight: 3
-                    }).addTo(map);
+                if (userMarker) { userMarker.setLatLng([lat, lng]); } 
+                else {
+                    userMarker = L.circleMarker([lat, lng], { color: activeColor, radius: 10, fillOpacity: 0.8 }).addTo(map);
                 }
                 map.panTo([lat, lng]);
             }, null, { enableHighAccuracy: true });
         }
     }
 
-    // UPDATED FLAG LOGIC
-    function dropFlag() { 
-        if(userMarker) {
-            // Drop a permanent Yellow marker for found evidence
-            L.circleMarker(userMarker.getLatLng(), {
-                color: 'yellow',
-                radius: 12,
-                fillOpacity: 1,
-                weight: 4
-            }).addTo(map).bindPopup("<b>PROPERTY FOUND</b>").openPopup();
-        } 
+    function togglePerimeter() {
+        perimeterMode = !perimeterMode;
+        if(perimeterMode) {
+            map.on('click', e => L.circleMarker(e.latlng, { color: 'red', radius: 8, fillOpacity: 0.9 }).addTo(map));
+            alert("PERIMETER ON (RED)");
+        } else { map.off('click'); alert("PERIMETER OFF"); }
+    }
+
+    function dropFlag() { if(userMarker) L.circleMarker(userMarker.getLatLng(), {color:'yellow', radius:12, fillOpacity:1}).addTo(map); }
+    function toggleNight() { document.getElementById('live-map').classList.toggle('night-vision-map'); }
+    
+    async function searchAddr() {
+        let addr = document.getElementById('map-search').value;
+        if(!addr) return;
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr)}`);
+        const data = await res.json();
+        if (data[0]) {
+            map.setView([data[0].lat, data[0].lon], 17);
+            L.marker([data[0].lat, data[0].lon]).addTo(map);
+        }
     }
 </script>
-
-<style>
-    /* Adjusting button colors to match the map dots */
-    .role-btn[onclick*="le"] { border-top: 5px solid blue !important; }
-    .role-btn[onclick*="k9"] { border-top: 5px solid #00d4ff !important; }
-    .role-btn[onclick*="sar"] { border-top: 5px solid red !important; }
-    .role-btn[onclick*="sub"] { border-top: 5px solid purple !important; }
-    .role-btn[onclick*="civ"] { border-top: 5px solid green !important; }
-</style>
+</body>
+</html>
