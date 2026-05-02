@@ -1,3 +1,4 @@
+
 <div id="m-map" class="page">
     <div class="header">
         <button class="back-btn" onclick="closePage('m-map')">← BACK</button>
@@ -6,40 +7,43 @@
 
     <div style="background: #000; padding: 10px; border-bottom: 2px solid #c5a059;">
         <div style="display: flex; gap: 5px; margin-bottom: 10px;">
-            <input type="text" id="map-search" placeholder="ADDRESS, CITY, VA..." 
-                   style="flex-grow: 1; padding: 12px; background: #111; color: #fff; border: 1px solid #c5a059; font-size: 16px;">
+            <input type="text" id="map-search" placeholder="ADDRESS, CITY..." 
+                   style="flex-grow: 1; padding: 12px; background: #111; color: #fff; border: 1px solid #c5a059;">
             <button onclick="searchAddr()" style="background: #c5a059; color: #000; border: none; padding: 10px 20px; font-weight: bold;">GO</button>
         </div>
 
-        <div style="display: flex; justify-content: space-around; margin-bottom: 10px;">
-            <button class="tool-btn" style="border-left: 4px solid blue;" onclick="setRole('le')">LE</button>
-            <button class="tool-btn" style="border-left: 4px solid lightblue;" onclick="setRole('k9')">K9</button>
-            <button class="tool-btn" style="border-left: 4px solid red;" onclick="setRole('sar')">SAR</button>
-            <button class="tool-btn" style="border-left: 4px solid purple;" onclick="setRole('sub')">SUB</button>
-        </div>
-
         <button id="start-btn" onclick="startGps()" 
-                style="width: 100%; background: #004400; color: #fff; border: 2px solid #00ff00; padding: 15px; font-weight: bold; text-transform: uppercase;">
+                style="width: 100%; background: #004400; color: #fff; border: 2px solid #00ff00; padding: 15px; font-weight: bold; margin-bottom:10px;">
             ▶ START LIVE GPS TRACKING
         </button>
+
+        <div style="display: flex; justify-content: space-around;">
+            <button class="tool-btn" onclick="setRole('le')">LE (BLUE)</button>
+            <button class="tool-btn" onclick="setRole('k9')">K9 (LT BLUE)</button>
+            <button class="tool-btn" onclick="setRole('sar')">SAR (RED)</button>
+            <button class="tool-btn" onclick="setRole('sub')">SUB (PURPLE)</button>
+        </div>
     </div>
 
-    <div id="live-map" style="width: 100%; height: 50vh; background: #222; border-bottom: 2px solid #c5a059;">
-        <p id="map-status" style="color: #c5a059; text-align: center; padding-top: 20vh;">INITIALIZING SATELLITE LINK...</p>
+    <div id="live-map" style="width: 100%; height: 50vh; background: #222; border-bottom: 2px solid #c5a059; position: relative;">
+        <div id="map-fallback" style="position:absolute; top:40%; width:100%; text-align:center; color:#c5a059;">
+            <p>SATELLITE LINK STANDBY</p>
+            <button onclick="initMap()" style="background:#c5a059; color:#000; padding:10px; border:none; font-weight:bold;">FORCE LOAD MAP</button>
+        </div>
     </div>
 
-    <div style="padding: 12px; background: #000; color: #c5a059; font-family: monospace; font-size: 13px;">
+    <div style="padding: 12px; background: #000; color: #c5a059; font-family: monospace; font-size: 13px; display: flex; justify-content: space-between;">
         <div id="wind-dir">🚩 WIND: NORTH 8MPH</div>
-        <div id="dist-check">OFFICER DIST: -- FT</div>
+        <div id="dist-check">DIST: -- FT</div>
     </div>
 </div>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
-    .tool-btn { flex: 1; background: #1a1a1a; color: #c5a059; border: 1px solid #c5a059; padding: 10px 2px; font-size: 11px; font-weight: bold; border-radius: 4px; margin: 0 2px; }
-    .pulse { width: 15px; height: 15px; background: #007bff; border: 3px solid white; border-radius: 50%; animation: pulse-blue 2s infinite; }
+    .tool-btn { flex: 1; background: #1a1a1a; color: #c5a059; border: 1px solid #c5a059; padding: 10px 2px; font-size: 10px; font-weight: bold; border-radius: 4px; margin: 0 2px; }
+    .pulse { width: 16px; height: 16px; background: #007bff; border: 3px solid white; border-radius: 50%; animation: pulse-blue 2s infinite; }
     @keyframes pulse-blue { 0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(0, 123, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); } }
 </style>
 
@@ -47,56 +51,52 @@
     let map;
     let userMarker;
 
-    // Load the map engine as soon as the window loads
-    window.onload = function() {
+    function initMap() {
         if (!map) {
-            map = L.map('live-map', { zoomControl: false }).setView([37.525, -79.15], 13); 
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19
-            }).on('tileload', function() {
-                document.getElementById('map-status').style.display = 'none';
-            }).addTo(map);
-            L.control.zoom({ position: 'bottomright' }).addTo(map);
+            // Force it to show Amherst County coordinates immediately
+            map = L.map('live-map').setView([37.525, -79.15], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            document.getElementById('map-fallback').style.display = 'none';
+        } else {
+            map.invalidateSize();
         }
-    };
+    }
 
     async function searchAddr() {
         let addr = document.getElementById('map-search').value;
         if(!addr) return;
+        initMap(); // Ensure map is live
         
         try {
-            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr)}`);
-            const data = await response.json();
-            
+            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr)}`);
+            const data = await res.json();
             if (data.length > 0) {
-                const lat = data[0].lat;
-                const lon = data[0].lon;
-                map.setView([lat, lon], 17);
-                L.marker([lat, lon]).addTo(map).bindPopup("<b>POINT OF INTEREST</b>").openPopup();
-            } else {
-                alert("Location not found. Try adding 'Virginia' to the end.");
+                map.setView([data[0].lat, data[0].lon], 17);
+                L.marker([data[0].lat, data[0].lon]).addTo(map).bindPopup("<b>SEARCH LOCATION</b>").openPopup();
             }
-        } catch (error) {
-            alert("Connection error. Ensure data is active.");
-        }
+        } catch (e) { console.log("Search blocked by browser firewall."); }
     }
 
     function startGps() {
+        initMap();
         if (navigator.geolocation) {
             navigator.geolocation.watchPosition(pos => {
                 const lat = pos.coords.latitude;
                 const lng = pos.coords.longitude;
                 if (userMarker) { userMarker.setLatLng([lat, lng]); } 
                 else {
-                    const icon = L.divIcon({ className: 'pulse', iconSize: [15, 15] });
+                    const icon = L.divIcon({ className: 'pulse', iconSize: [16, 16] });
                     userMarker = L.marker([lat, lng], { icon: icon }).addTo(map);
                 }
                 map.panTo([lat, lng]);
-            }, err => alert("GPS Denied. Check Phone Permissions."), { enableHighAccuracy: true });
+            }, null, { enableHighAccuracy: true });
         }
     }
 
-    // Keep your original open/close functions operational
-    function openPage(id) { document.getElementById(id).style.display = 'block'; if(id==='m-map') map.invalidateSize(); }
+    // Connect to your main app buttons
+    function openPage(id) { 
+        document.getElementById(id).style.display = 'block'; 
+        if(id === 'm-map') setTimeout(initMap, 300); 
+    }
     function closePage(id) { document.getElementById(id).style.display = 'none'; }
 </script>
