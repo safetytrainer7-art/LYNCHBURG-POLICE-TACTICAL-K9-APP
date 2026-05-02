@@ -1,142 +1,70 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD MASTER COMMAND V179</title>
-    <style>
-        body, html { margin: 0; padding: 0; height: 100vh; width: 100vw; background: #000; overflow: hidden; font-family: 'Georgia', serif; }
-        #container { width: 100vw; height: 100vh; background: radial-gradient(circle, #001a00 0%, #000000 100%); display: flex; justify-content: center; align-items: center; position: relative; }
-        #top-badge { position: absolute; top: 10px; width: 70px; height: 70px; background: url('badge.jpg') no-repeat center; background-size: contain; z-index: 100; }
-        #center-image { width: 98%; height: 90%; background: url('homepage.jpg') no-repeat center; background-size: contain; z-index: 5; margin-top: 20px; }
-        
-        .side-col { position: absolute; width: 20%; height: 70%; top: 18%; display: flex; flex-direction: column; justify-content: space-around; z-index: 50; }
-        .left { left: 1%; } .right { right: 1%; }
-        .btn { background: rgba(0, 30, 0, 0.85); border: 2px solid #c5a059; color: #c5a059; padding: 15px 2px; text-align: center; font-weight: bold; font-size: 12px; border-radius: 4px; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 8px #000; }
 
-        .page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000d00; z-index: 500; overflow-y: auto; color: #fff; padding-bottom: 80px; }
-        .header { background: #000; border-bottom: 2px solid #c5a059; padding: 15px; display: flex; align-items: center; position: sticky; top: 0; z-index: 600; }
-        .back-btn { background: #c5a059; color: #000; border: none; padding: 15px 25px; font-weight: bold; border-radius: 4px; margin-right: 15px; cursor: pointer; font-size: 16px; }
-        
-        .content { padding: 20px; }
-        .med-block { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #c5a059; }
-        .voice-btn { background: #c5a059; color: #000; border: none; padding: 12px; font-weight: bold; border-radius: 4px; margin-bottom: 10px; width: 100%; cursor: pointer; text-transform: uppercase; }
-        h3 { color: #c5a059; margin-top: 0; text-transform: uppercase; border-bottom: 1px solid #444; padding-bottom: 5px; }
-    </style>
-</head>
-<body>
-
-<div id="container">
-    <div id="top-badge"></div>
-    <div id="center-image"></div>
-    <div class="side-col left">
-        <div class="btn" onclick="openPage('sos')">K9 SOS</div>
-        <div class="btn" onclick="openPage('law')">Legal Bible</div>
-        <div class="btn">Narcotics</div>
-    </div>
-    <div class="side-col right">
-        <div class="btn">Tactical Map</div>
-        <div class="btn">Training Logs</div>
-        <div class="btn">VA Code</div>
-    </div>
-</div>
-
-<div id="sos" class="page">
+<div id="m-map" class="page">
     <div class="header">
-        <button class="back-btn" onclick="closePage('sos')">← BACK</button>
-        <h2 style="color:#c5a059; margin:0; font-size: 18px;">K9 FIRST AID</h2>
+        <button class="back-btn" onclick="closePage('m-map')">← BACK</button>
+        <h2 style="color:#c5a059; margin:0;">TACTICAL PERIMETER HUB</h2>
     </div>
-    <div class="content">
-
-        <div class="med-block">
-            <h3>1. K9 CPR</h3>
-            <button class="voice-btn" onclick="runAudio('cpr')">🔊 LISTEN</button>
-            <div id="cpr">
-                <p>Lay the dog on their right side on a firm surface. Place your hands over the widest part of the chest for most dogs (or directly over the heart for barrel-chested breeds). Compress the chest 1/3 to 1/2 of its width at a rate of 100-120 beats per minute, ensuring you allow the chest to fully recoil between each compression.</p>
-                <p>After every 30 compressions, deliver 2 rescue breaths by holding the dog's mouth tightly shut and breathing directly into the nose until you see the chest rise. Continue this cycle without stopping until the dog regains consciousness or you reach a veterinary hospital. Do not stop compressions for more than a few seconds.</p>
-            </div>
+    
+    <div id="map-toolbar">
+        <input type="text" id="addr-search" placeholder="ENTER ADDRESS...">
+        <div class="tool-row">
+            <button class="tool-btn" onclick="setMode('le')">BLUE (LE)</button>
+            <button class="tool-btn" onclick="setMode('k9')">LT BLUE (K9)</button>
+            <button class="tool-btn" onclick="setMode('sar')">RED (SAR)</button>
+            <button class="tool-btn" onclick="setMode('sus')">PURPLE (SUB)</button>
         </div>
-
-        <div class="med-block">
-            <h3>2. GUNSHOT WOUNDS</h3>
-            <button class="voice-btn" onclick="runAudio('gsw')">🔊 LISTEN</button>
-            <div id="gsw">
-                <p>Immediately locate entry and exit wounds. If the wound is in the chest cavity, it is a "sucking chest wound" and must be sealed immediately with an airtight dressing like plastic or a chest seal to prevent lung collapse. Never probe the wound or try to remove bullet fragments in the field, as this can cause massive internal bleeding.</p>
-                <p>For arterial bleeding on limbs, apply a K9 tourniquet high and tight above the injury. Keep the dog warm to prevent shock and transport to a trauma vet immediately. High-velocity rounds cause internal shockwaves, so even if a wound looks small, treat it as a life-threatening emergency.</p>
-            </div>
+        <div class="tool-row">
+            <button class="tool-btn action" onclick="togglePerimeter()">PERIMETER</button>
+            <button class="tool-btn action" onclick="dropFlag()">FOUND PROP</button>
+            <button class="tool-btn action" onclick="toggleNight()">NIGHT VISION</button>
+            <button class="tool-btn alert" onclick="resetMap()">RESET ALL</button>
         </div>
+    </div>
 
-        <div class="med-block">
-            <h3>3. EXCESSIVE BLEEDING</h3>
-            <button class="voice-btn" onclick="runAudio('bleed')">🔊 LISTEN</button>
-            <div id="bleed">
-                <p>Apply firm, direct pressure to the source of the bleed using sterile gauze. If blood soaks through the dressing, do not remove it, as you will pull off any clots that have started to form. Add more layers of gauze on top and increase the pressure. Use a pressure bandage to secure the site.</p>
-                <p>For uncontrollable bleeding on a limb, use a K9 tourniquet. Watch for signs of shock: pale gums, rapid heart rate, and cool extremities. Keep the dog calm and still to keep their blood pressure from spiking, which would worsen the rate of blood loss.</p>
-            </div>
-        </div>
-
-        <div class="med-block">
-            <h3>4. HEAT EXHAUSTION</h3>
-            <button class="voice-btn" onclick="runAudio('heat')">🔊 LISTEN</button>
-            <div id="heat">
-                <p>Move the dog to shade or an AC unit immediately. Douse the body with cool water, focusing on the paw pads, groin, and underarms. Use a fan for evaporative cooling. Do not use ice water, as it causes blood vessels to constrict and traps the heat inside the dog's core organs.</p>
-                <p>Stop cooling once the temperature hits 103°F. Even if the dog looks better, they need a vet checkup immediately to screen for organ damage or blood clotting issues that can appear hours after the initial heat stroke.</p>
-            </div>
-        </div>
-
-        <div class="med-block">
-            <h3>5. SNAKE BITES</h3>
-            <button class="voice-btn" onclick="runAudio('snake')">🔊 LISTEN</button>
-            <div id="snake">
-                <p>Keep the dog as calm and still as possible to slow the spread of venom through the system. Keep the bite area at or below the level of the heart. Do not use a tourniquet, do not apply ice, and never try to suck out the venom, as these actions increase tissue death.</p>
-                <p>Remove any collars or harnesses immediately because swelling will be rapid and can cut off the dog's airway. Note the snake's appearance if safe, and get to a vet with antivenin immediately. Swelling and pain are usually immediate and severe.</p>
-            </div>
-        </div>
-
-        <div class="med-block">
-            <h3>6. EYE INJURIES</h3>
-            <button class="voice-btn" onclick="runAudio('eye')">🔊 LISTEN</button>
-            <div id="eye">
-                <p>Prevent the dog from rubbing or pawing at the eye, which can turn a scratch into a permanent rupture. If an object is in the eye, flush it gently with saline toward the corner of the eye. Do not use tweezers to pull objects out of the eyeball itself.</p>
-                <p>If the eyeball is displaced from the socket, keep it moist with saline and a clean cloth—do not try to push it back in. This is a surgical emergency. Transport the dog in a dark environment to keep them calm and prevent the eye from straining.</p>
-            </div>
-        </div>
-
-        <div class="med-block">
-            <h3>7. POISON / TOXIN</h3>
-            <button class="voice-btn" onclick="runAudio('poison')">🔊 LISTEN</button>
-            <div id="poison">
-                <p>Identify the substance. If it was a skin-contact toxin, flush the area for 20 minutes with lukewarm water. Do not induce vomiting if the dog swallowed something caustic (like bleach) or petroleum-based, as it will burn the throat a second time.</p>
-                <p>If the dog is seizing, ensure the airway is clear and do not put anything in their mouth. Bring the container or a sample of the toxin to the vet. Rapid identification is the key to saving the dog's life.</p>
-            </div>
-        </div>
-
-        <div class="med-block">
-            <h3>8. BROKEN BONES</h3>
-            <button class="voice-btn" onclick="runAudio('bone')">🔊 LISTEN</button>
-            <div id="bone">
-                <p>Do not attempt to set the bone in the field. Cover any open wounds with sterile gauze. Muzzle the dog before handling the injury, as even the most loyal K9 will bite when in extreme pain. Minimize all movement of the limb to prevent nerve damage.</p>
-                <p>Splint the leg only if transport is delayed for hours. Use a sling (like a towel under the belly) to help the dog walk or to carry them into the vehicle without putting weight on the fracture. Transport to a vet for X-rays and stabilization.</p>
-            </div>
-        </div>
-
+    <div id="map-display"></div>
+    
+    <div id="tactical-data">
+        <div id="wind-flag">🚩 WIND: NW 12MPH</div>
+        <div id="dist-calc">DIST TO NEAREST: 0.00 FT</div>
     </div>
 </div>
+
+<style>
+    #map-toolbar { background: #000; padding: 10px; border-bottom: 1px solid var(--gold); }
+    #addr-search { width: 95%; padding: 10px; background: #111; color: #fff; border: 1px solid var(--gold); margin-bottom: 5px; }
+    #map-display { width: 100%; height: 60vh; background: #222; }
+    .tool-row { display: flex; justify-content: space-around; margin-top: 5px; }
+    .tool-btn { background: #1a1a1a; color: var(--gold); border: 1px solid var(--gold); padding: 8px 2px; font-size: 10px; width: 23%; border-radius: 4px; }
+    .tool-btn.action { background: var(--gold); color: #000; font-weight: bold; }
+    .tool-btn.alert { background: #600; color: #fff; border: none; }
+    
+    #tactical-data { display: flex; justify-content: space-between; padding: 10px; background: #000; font-family: monospace; color: var(--gold); font-size: 12px; }
+    
+    /* NIGHT VISION OVERLAY */
+    .night-mode { filter: invert(100%) hue-rotate(180deg) brightness(0.7) contrast(1.2); }
+</style>
 
 <script>
-    function openPage(id) { document.getElementById(id).style.display = 'block'; }
-    function closePage(id) { 
-        window.speechSynthesis.cancel();
-        document.getElementById(id).style.display = 'none'; 
+    // Note: To make this "Live" for all phones, you will eventually link this to a 
+    // service like Firebase or Ably so the dots move on everyone's screen.
+    
+    let mapMode = 'le'; 
+    
+    function setMode(type) {
+        mapMode = type;
+        console.log("Active Mode: " + type);
     }
-    function runAudio(id) {
-        window.speechSynthesis.cancel();
-        let text = document.getElementById(id).innerText;
-        let speech = new SpeechSynthesisUtterance(text);
-        speech.rate = 0.95;
-        window.speechSynthesis.speak(speech);
-    }
-</script>
 
-</body>
-</html>
+    function toggleNight() {
+        document.getElementById('map-display').classList.toggle('night-mode');
+    }
+
+    function resetMap() {
+        if(confirm("SHUT DOWN SEARCH? This clears all flags and perimeters.")) {
+            location.reload(); 
+        }
+    }
+
+    // Logic for placing/removing markers would go here
+    // Distance calculation logic: Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2))
+</script>
