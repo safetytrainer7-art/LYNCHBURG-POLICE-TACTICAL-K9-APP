@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,8 +13,8 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            /* This searches for the file you renamed to homepage.png */
-            background-image: url('homepage.png'), url('IMG_2908.png'), url('image_a47b1c.png');
+            /* This searches specifically for your homepage.jpg file */
+            background-image: url('homepage.jpg');
             background-repeat: no-repeat;
             background-position: center center;
             background-size: contain;
@@ -23,13 +24,13 @@
         /* INVISIBLE TACTICAL HOTSPOTS (Mapped to your gold icons) */
         .hotspot { position: absolute; cursor: pointer; z-index: 5001; }
         
-        /* Positioning based on the photo layout you provided */
+        /* Positioning based on your landscape photo layout */
         #spot-map  { top: 15%; right: 10%; width: 20%; height: 30%; }
         #spot-med  { top: 15%; left: 10%; width: 20%; height: 30%; }
         #spot-law  { top: 45%; left: 10%; width: 20%; height: 30%; }
         #spot-logs { top: 45%; right: 10%; width: 20%; height: 30%; }
 
-        .module { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #002200; z-index: 9000; color: #ffd700; padding: 20px; }
+        #debug-msg { position: absolute; bottom: 5px; width: 100%; text-align: center; color: #333; font-size: 10px; z-index: 9999; }
     </style>
 </head>
 <body>
@@ -41,16 +42,7 @@
     <div id="spot-logs" class="hotspot" onclick="alert('Training Logs Opening')"></div>
 </div>
 
-<script>
-    // This script ensures that if the image fails, you get a message instead of just black
-    window.onload = function() {
-        var bg = document.getElementById('home-screen');
-        if (window.getComputedStyle(bg).backgroundImage === 'none') {
-            console.log("Image not found. Ensure homepage.png is in this folder.");
-        }
-    };
-</script>
+<div id="debug-msg">ACSD SYSTEM ACTIVE - SEARCHING FOR HOMEPAGE.JPG</div>
 
 </body>
 </html>
-
