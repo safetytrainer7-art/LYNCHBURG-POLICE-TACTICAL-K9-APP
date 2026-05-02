@@ -25,40 +25,28 @@
         .app-icon span { color: #d4af37; font-weight: bold; margin-top: 8px; font-size: 0.85em; }
 
         /* --- MODULE LAYERS --- */
-        .module-layer {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 2000; display: none;
-        }
-        .nav-header { 
-            height: 60px; background: #000; display: flex; align-items: center; 
-            justify-content: space-between; padding: 0 15px; border-bottom: 2px solid #d4af37;
-        }
+        .module-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; }
+        .nav-header { height: 60px; background: #000; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 2px solid #d4af37; }
         .exit-btn { background: #900; color: #fff; border: 2px solid #fff; padding: 8px 12px; font-weight: bold; border-radius: 5px; cursor: pointer; }
-
         .content-scroll { padding: 15px; overflow-y: auto; height: calc(100% - 60px); box-sizing: border-box; }
 
-        /* --- MEDICAL --- */
-        .med-card { background: #0a0a0a; border: 1px solid #d4af37; border-radius: 10px; padding: 20px; margin-bottom: 15px; }
-        .med-card h2 { color: #d4af37; margin: 0 0 10px 0; border-bottom: 1px solid #333; }
-        .speak-btn { background: #d4af37; color: #000; border: none; width: 100%; padding: 15px; font-weight: bold; border-radius: 5px; margin-top: 10px; cursor: pointer; }
-
-        /* --- LOGS --- */
-        .log-input { width: 100%; padding: 12px; background: #111; border: 1px solid #d4af37; color: #fff; margin-bottom: 10px; border-radius: 5px; box-sizing: border-box; }
-        .save-btn { width: 100%; padding: 15px; background: #28a745; color: #fff; border: none; font-weight: bold; border-radius: 5px; cursor: pointer; }
-        .log-entry { background: #0a0a0a; border-left: 4px solid #d4af37; padding: 10px; margin-top: 15px; font-family: monospace; font-size: 0.85em; }
-
         /* --- GPS --- */
-        #map { width: 100%; height: 55%; border-bottom: 2px solid #d4af37; }
-        .gps-controls { height: calc(45% - 60px); background: #001a11; padding: 10px; box-sizing: border-box; display: flex; flex-direction: column; }
-        .hud-bar { background: #000; border: 1px solid #00ff00; color: #00ff00; padding: 8px; font-family: monospace; font-size: 0.9em; margin-bottom: 8px; display: flex; justify-content: space-around; }
-        .btn-row { display: flex; gap: 5px; margin-bottom: 8px; }
-        .dot-btn { flex: 1; padding: 15px 5px; font-weight: bold; border-radius: 4px; border: 2px solid transparent; color: #fff; font-size: 0.7em; text-align: center; cursor: pointer; }
+        #map { width: 100%; height: 50%; border-bottom: 2px solid #d4af37; }
+        .gps-controls { height: calc(50% - 60px); background: #001a11; padding: 8px; box-sizing: border-box; display: flex; flex-direction: column; }
+        .hud-bar { background: #000; border: 1px solid #00ff00; color: #00ff00; padding: 6px; font-family: monospace; font-size: 0.85em; margin-bottom: 5px; display: flex; justify-content: space-around; }
+        .btn-row { display: flex; gap: 4px; margin-bottom: 5px; }
+        .dot-btn { flex: 1; padding: 12px 2px; font-weight: bold; border-radius: 4px; border: 2px solid transparent; color: #fff; font-size: 0.65em; text-align: center; cursor: pointer; }
         .active-dot { border-color: #fff; box-shadow: 0 0 8px #fff; }
+
+        /* --- MEDICAL / LOGS --- */
+        .med-card { background: #0a0a0a; border: 1px solid #d4af37; border-radius: 10px; padding: 15px; margin-bottom: 12px; }
+        .speak-btn { background: #d4af37; color: #000; border: none; width: 100%; padding: 12px; font-weight: bold; border-radius: 5px; margin-top: 8px; cursor: pointer; }
+        .log-input { width: 100%; padding: 10px; background: #111; border: 1px solid #d4af37; color: #fff; margin-bottom: 8px; border-radius: 5px; box-sizing: border-box; }
+        .save-btn { width: 100%; padding: 12px; background: #28a745; color: #fff; border: none; font-weight: bold; border-radius: 5px; }
     </style>
 </head>
 <body>
 
-<!-- 1. HOMEPAGE -->
 <div id="homepage">
     <div style="text-align:center; margin-bottom: 20px;">
         <h1 style="color: #d4af37; margin: 0; letter-spacing: 3px;">ACSO</h1>
@@ -68,63 +56,55 @@
         <div class="app-icon" onclick="openModule('gps-module')"><div>📡</div><span>TACTICAL GPS</span></div>
         <div class="app-icon" onclick="openModule('med-module')"><div>🐕</div><span>K9 MEDICAL</span></div>
         <div class="app-icon" onclick="openModule('log-module')"><div>📝</div><span>SEARCH LOGS</span></div>
-        <div class="app-icon" onclick="alert('Module Locked')"><div>🌬️</div><span>WIND/WX</span></div>
-        <div class="app-icon" onclick="alert('Module Locked')"><div>📻</div><span>RADIO CODES</span></div>
-        <div class="app-icon" onclick="alert('Settings Locked')"><div>⚙️</div><span>SETTINGS</span></div>
+        <div class="app-icon" onclick="alert('Locked')"><div>🌬️</div><span>WIND/WX</span></div>
+        <div class="app-icon" onclick="alert('Locked')"><div>📻</div><span>RADIO CODES</span></div>
+        <div class="app-icon" onclick="alert('Locked')"><div>⚙️</div><span>SETTINGS</span></div>
     </div>
 </div>
 
-<!-- 2. SEARCH LOGS -->
-<div id="log-module" class="module-layer">
-    <div class="nav-header">
-        <button class="exit-btn" onclick="closeModule('log-module')">EXIT</button>
-        <span style="color: #d4af37; font-weight: bold;">SEARCH LOGS</span>
+<!-- GPS MODULE -->
+<div id="gps-module" class="module-layer">
+    <div class="nav-header"><button class="exit-btn" onclick="closeModule('gps-module')">EXIT</button><span style="color:#d4af37;">FIELD GPS</span></div>
+    <div id="map"></div>
+    <div class="gps-controls">
+        <div class="hud-bar"><span>CP: <b id="cp-val">0</b> YD</span><span>GAP: <b id="gap-val">0</b> YD</span></div>
+        <div class="btn-row">
+            <input type="text" id="cp-input" style="flex:2; padding:8px;" placeholder="CP Address">
+            <button onclick="initCP()" style="flex:1; background:#28a745; color:#fff; border:none; font-weight:bold;">SET CP</button>
+        </div>
+        <div class="btn-row">
+            <div id="dot-blue" class="dot-btn active-dot" style="background:blue;" onclick="setMode('blue')">OFFICER</div>
+            <div id="dot-green" class="dot-btn" style="background:green;" onclick="setMode('green')">K9 UNIT</div>
+            <div id="dot-yellow" class="dot-btn" style="background:#d4af37; color:#000;" onclick="setMode('yellow')">PERIMETER</div>
+        </div>
+        <div class="btn-row">
+            <div id="dot-red" class="dot-btn" style="background:red;" onclick="setMode('red')">SAR</div>
+            <div id="dot-purple" class="dot-btn" style="background:purple;" onclick="setMode('purple')">SUBJECT</div>
+        </div>
     </div>
+</div>
+
+<!-- MEDICAL MODULE -->
+<div id="med-module" class="module-layer">
+    <div class="nav-header"><button class="exit-btn" onclick="closeModule('med-module')">EXIT</button><span style="color:#d4af37;">K9 FIRST AID</span></div>
+    <div class="content-scroll">
+        <div class="med-card"><h2 style="color:#d4af37; margin:0;">CPR</h2><p>30:2 Cycle. 100/min.</p><button class="speak-btn" onclick="shout('K9 CPR Protocol.')">🔊 VOICE GUIDE</button></div>
+        <div class="med-card"><h2 style="color:#d4af37; margin:0;">GUNSHOT/TRAUMA</h2><p>Direct pressure. Gauze.</p><button class="speak-btn" onclick="shout('Gunshot and Trauma protocol.')">🔊 VOICE GUIDE</button></div>
+        <div class="med-card"><h2 style="color:#d4af37; margin:0;">HEAT</h2><p>Cool water. Shade.</p><button class="speak-btn" onclick="shout('Heat exhaustion protocol.')">🔊 VOICE GUIDE</button></div>
+        <div class="med-card"><h2 style="color:#d4af37; margin:0;">SNAKE BITE</h2><p>Below heart. Immobilize.</p><button class="speak-btn" onclick="shout('Snake bite protocol.')">🔊 VOICE GUIDE</button></div>
+        <div class="med-card"><h2 style="color:#d4af37; margin:0;">POISONING</h2><p>ID toxin. Call Vet.</p><button class="speak-btn" onclick="shout('Poisoning protocol.')">🔊 VOICE GUIDE</button></div>
+        <div class="med-card"><h2 style="color:#d4af37; margin:0;">FRACTURE</h2><p>Support limb.</p><button class="speak-btn" onclick="shout('Fracture protocol.')">🔊 VOICE GUIDE</button></div>
+    </div>
+</div>
+
+<!-- LOG MODULE -->
+<div id="log-module" class="module-layer">
+    <div class="nav-header"><button class="exit-btn" onclick="closeModule('log-module')">EXIT</button><span style="color:#d4af37;">SEARCH LOGS</span></div>
     <div class="content-scroll">
         <input type="text" id="log-loc" class="log-input" placeholder="Location / Case #">
         <textarea id="log-notes" class="log-input" style="height: 80px;" placeholder="Activity findings..."></textarea>
         <button class="save-btn" onclick="saveLog()">SUBMIT ENTRY</button>
         <div id="log-display"></div>
-    </div>
-</div>
-
-<!-- 3. K9 MEDICAL (FULL RESTORED) -->
-<div id="med-module" class="module-layer">
-    <div class="nav-header">
-        <button class="exit-btn" onclick="closeModule('med-module')">EXIT</button>
-        <span style="color: #d4af37; font-weight: bold;">K9 FIRST AID</span>
-    </div>
-    <div class="content-scroll">
-        <div class="med-card"><h2>CPR</h2><p>30:2 Cycle. 100/min.</p><button class="speak-btn" onclick="shout('K9 CPR Protocol.')">🔊 VOICE GUIDE</button></div>
-        <div class="med-card"><h2>GUNSHOT / TRAUMA</h2><p>Direct pressure. Gauze.</p><button class="speak-btn" onclick="shout('Gunshot and Trauma protocol.')">🔊 VOICE GUIDE</button></div>
-        <div class="med-card"><h2>HEAT EXHAUSTION</h2><p>Cool water. Shade.</p><button class="speak-btn" onclick="shout('Heat exhaustion protocol.')">🔊 VOICE GUIDE</button></div>
-        <div class="med-card"><h2>SNAKE BITE</h2><p>Below heart. Immobilize.</p><button class="speak-btn" onclick="shout('Snake bite protocol.')">🔊 VOICE GUIDE</button></div>
-        <div class="med-card"><h2>POISONING</h2><p>Identify toxin. Call Vet.</p><button class="speak-btn" onclick="shout('Poisoning protocol.')">🔊 VOICE GUIDE</button></div>
-        <div class="med-card"><h2>FRACTURE</h2><p>Support limb. Stretcher.</p><button class="speak-btn" onclick="shout('Fracture protocol.')">🔊 VOICE GUIDE</button></div>
-    </div>
-</div>
-
-<!-- 4. TACTICAL GPS (FULL RESTORED) -->
-<div id="gps-module" class="module-layer">
-    <div class="nav-header">
-        <button class="exit-btn" onclick="closeModule('gps-module')">EXIT</button>
-        <span style="color: #d4af37; font-weight: bold;">FIELD GPS</span>
-    </div>
-    <div id="map"></div>
-    <div class="gps-controls">
-        <div class="hud-bar">
-            <span>CP: <b id="cp-val">0</b> YD</span>
-            <span>GAP: <b id="gap-val">0</b> YD</span>
-        </div>
-        <div class="btn-row">
-            <input type="text" id="cp-input" style="flex:2; padding:10px; background:#000; color:#d4af37; border:1px solid #d4af37;" placeholder="CP Address">
-            <button onclick="initCP()" style="flex:1; background:#28a745; color:#fff; border:none; font-weight:bold;">SET CP</button>
-        </div>
-        <div class="btn-row">
-            <div id="dot-blue" class="dot-btn active-dot" style="background:blue;" onclick="setMode('blue')">OFFICER</div>
-            <div id="dot-red" class="dot-btn" style="background:red;" onclick="setMode('red')">SAR</div>
-            <div id="dot-purple" class="dot-btn" style="background:purple;" onclick="setMode('purple')">SUBJECT</div>
-        </div>
     </div>
 </div>
 
@@ -142,17 +122,6 @@
 
     function closeModule(id) { document.getElementById(id).style.display = 'none'; window.speechSynthesis.cancel(); }
 
-    function saveLog() {
-        var loc = document.getElementById('log-loc').value;
-        var notes = document.getElementById('log-notes').value;
-        if(!loc || !notes) return;
-        var entry = document.createElement('div');
-        entry.className = 'log-entry';
-        entry.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong><br>LOC: ${loc}<br>${notes}`;
-        document.getElementById('log-display').prepend(entry);
-        document.getElementById('log-loc').value = ""; document.getElementById('log-notes').value = "";
-    }
-
     function setMode(m) {
         currentMode = m;
         document.querySelectorAll('.dot-btn').forEach(b => b.classList.remove('active-dot'));
@@ -160,11 +129,9 @@
     }
 
     function dropUnit(ll, color) {
-        var marker = L.circleMarker(ll, {radius: 12, fillColor: color, color: "#fff", weight: 2, fillOpacity: 0.9}).addTo(map);
-        let cpDist = cpPos ? Math.round(ll.distanceTo(cpPos) * 1.09361) : 0;
-        let gapDist = lastMarkerPos ? Math.round(ll.distanceTo(lastMarkerPos) * 1.09361) : 0;
-        document.getElementById('cp-val').innerText = cpDist;
-        document.getElementById('gap-val').innerText = gapDist;
+        var marker = L.circleMarker(ll, {radius: 12, fillColor: (color==='yellow'?'#d4af37':color), color: "#fff", weight: 2, fillOpacity: 0.9}).addTo(map);
+        if(cpPos) document.getElementById('cp-val').innerText = Math.round(ll.distanceTo(cpPos) * 1.09361);
+        if(lastMarkerPos) document.getElementById('gap-val').innerText = Math.round(ll.distanceTo(lastMarkerPos) * 1.09361);
         lastMarkerPos = ll;
         marker.on('click', function(ev) { L.DomEvent.stopPropagation(ev); map.removeLayer(marker); });
     }
@@ -178,6 +145,18 @@
             map.setView(cpPos, 16);
             L.marker(cpPos, {icon: L.divIcon({html: '<div style="background:white; padding:2px; border:2px solid #000; font-weight:bold;">CP</div>'})}).addTo(map);
         }
+    }
+
+    function saveLog() {
+        var loc = document.getElementById('log-loc').value;
+        var notes = document.getElementById('log-notes').value;
+        if(!loc || !notes) return;
+        var entry = document.createElement('div');
+        entry.className = 'log-entry';
+        entry.style = "background:#0a0a0a; border-left:4px solid #d4af37; padding:10px; margin-top:10px; font-family:monospace; font-size:0.8em;";
+        entry.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong><br>LOC: ${loc}<br>${notes}`;
+        document.getElementById('log-display').prepend(entry);
+        document.getElementById('log-loc').value = ""; document.getElementById('log-notes').value = "";
     }
 
     function shout(text) { window.speechSynthesis.cancel(); var u = new SpeechSynthesisUtterance(text); u.rate = 0.85; window.speechSynthesis.speak(u); }
