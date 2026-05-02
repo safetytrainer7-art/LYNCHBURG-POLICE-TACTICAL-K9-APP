@@ -4,119 +4,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND HUB</title>
+    <title>ACSD COMMAND HUB V169</title>
     <style>
         :root {
-            --gold-main: #c5a059;
-            --gold-dim: rgba(197, 160, 89, 0.5);
-            /* Tactical brushed texture background */
-            --tactical-bg: radial-gradient(circle, #012001 0%, #000000 100%), 
-                           url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEUAAAAsKywzMzMzMzM7OzszMzM0NDQ0NDQ4ODg0NDQ0NDQ0NDQ0NDQ4ODg0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ4ODg0NDQ0NDQ0NDQ0NDQ0NDR/dE4WAAAAGXRSTlMAAwUGBwgJCgsMDQ4PEBESExQVFhcYGRoaGyD91P4AAAChSURBVDjL7ZJbDsMgDAQ7CSG0vf+V7X7VTZpI5UuJ7Z8ABy45OIn9B3Xv06M7zT5j1zF4A4XfE4P3HjV6H7H7mD1C/H4U+D0S9b5Zp5R0WkqnpXRaSqeVdFpKp5V0WkqnpXRaSqeVdFpKp5V0WkqnpXRaSqeVdFpKp5V0WkqnpXRaSqeXdLqK5X9AEvsP6t6nR3eafU6H7jV7H7E6P7T7I8YvVvU+PbqzGvUee4fYL8TvE4O3H8X+AXN/WqY8/S6NAAAAAElFTkSuQmCC');
+            --gold: #c5a059;
+            --deep-green: #001a00;
         }
 
-        body, html { margin: 0; padding: 0; height: 100vh; width: 100vw; background: #000; overflow: hidden; font-family: 'Georgia', serif; }
+        body, html { 
+            margin: 0; padding: 0; height: 100vh; width: 100vw; 
+            background: #000; overflow: hidden; 
+            font-family: 'Georgia', serif;
+        }
 
-        /* Tactical Command Container */
+        /* Tactical Container */
         #container {
             width: 100vw; height: 100vh;
-            background: var(--tactical-bg);
-            background-blend-mode: color-burn, overlay;
+            background: radial-gradient(circle, #002200 0%, #000000 100%);
             display: flex; flex-direction: column; align-items: center;
         }
 
-        /* --- THE ANCHORED OFFICIAL STAR --- */
-        #official-star {
+        /* --- THE ANCHORED OFFICIAL STAR (1" x 1") --- */
+        #official-badge {
             position: absolute;
-            top: 2%; /* Absolute distance from the top */
-            width: 50px; height: 50px; /* Approximately 1 inch x 1 inch on most mobile screens */
-            background-image: url('badge.png'), url('badge.jpg'), url('badge.gif'); /* Looks for your specific file */
+            top: 20px;
+            width: 80px; height: 80px; /* Sized for high-visibility on mobile */
+            background-image: url('badge.jpg');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            z-index: 100; /* Stays on top of everything */
-            filter: drop-shadow(0 0 10px rgba(197, 160, 89, 0.8)); /* Official Gold Glow */
+            z-index: 100;
+            filter: drop-shadow(0 0 10px rgba(197, 160, 89, 0.5));
         }
 
-        /* The background "Watermark" Star (The original image you provided) */
-        .watermark-star {
+        /* Background Watermark */
+        #watermark {
             position: absolute;
             top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 50%; max-width: 450px;
-            background-image: url('homepage.jpg'); /* The first K9 picture you sent */
+            width: 60%; height: 60%;
+            background-image: url('homepage.jpg');
             background-size: contain; background-repeat: no-repeat; background-position: center;
-            opacity: 0.1; /* Very faint background watermark */
-            z-index: 1;
+            opacity: 0.15; z-index: 1;
         }
 
-        /* The 6 Tool Blocks (Now organized around the anchored top star) */
-        .tool-col { position: absolute; width: 25%; height: 80%; top: 12%; display: flex; flex-direction: column; justify-content: space-around; z-index: 10; }
+        /* Tactical Column Layout */
+        .side-col { 
+            position: absolute; width: 26%; height: 75%; top: 15%; 
+            display: flex; flex-direction: column; justify-content: space-around; z-index: 10; 
+        }
         .left { left: 3%; }
         .right { right: 3%; }
 
-        /* Tactical Tool Styling */
-        .tactical-btn {
-            background: rgba(0, 15, 0, 0.9);
-            border: 2px solid var(--gold-main);
-            color: var(--gold-main);
-            padding: 20px;
+        /* Glass Tile Buttons */
+        .tile {
+            background: rgba(0, 20, 0, 0.85);
+            border: 2px solid var(--gold);
+            color: var(--gold);
+            padding: 20px 10px;
             text-align: center;
             font-weight: bold;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.7);
             text-transform: uppercase;
-            letter-spacing: 1px;
             font-size: 14px;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
         }
-        .tactical-btn:active { background: var(--gold-main); color: #000; transform: scale(0.98); }
+        .tile:active { background: var(--gold); color: #000; }
 
-        /* Modules */
-        .module { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #001200; z-index: 1000; color: #eee; flex-direction: column; overflow-y: auto; }
-        .mod-header { background: #000; padding: 25px; border-bottom: 2px solid var(--gold-main); display: flex; justify-content: space-between; align-items: center; }
-        .back { background: var(--gold-main); color: #000; border: none; padding: 10px 25px; font-weight: bold; border-radius: 4px; }
-        .content { padding: 40px; font-size: 20px; line-height: 1.6; }
-        h2 { color: var(--gold-main); border-bottom: 1px solid var(--gold-main); padding-bottom: 10px; }
+        /* Content Overlay */
+        .overlay { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #000d00; z-index: 1000; overflow-y: auto; color: #fff;
+        }
+        .header { background: #000; padding: 20px; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; }
+        .content { padding: 30px; font-size: 19px; line-height: 1.6; }
+        .back-btn { background: var(--gold); color: #000; padding: 10px 25px; border: none; font-weight: bold; border-radius: 4px; }
+        h2 { color: var(--gold); border-bottom: 1px solid var(--gold); padding-bottom: 10px; margin-top: 0; }
+        .law-section { margin-bottom: 30px; border-left: 3px solid var(--gold); padding-left: 15px; }
     </style>
 </head>
 <body>
 
 <div id="container">
-    <div id="official-star"></div>
+    <div id="official-badge"></div>
+    <div id="watermark"></div>
 
-    <div class="watermark-star"></div>
-
-    <div class="tool-col left">
-        <div class="tactical-btn" onclick="openMod('m-sos')">K9 SOS</div>
-        <div class="tactical-btn" onclick="openMod('m-law')">Legal Bible</div>
-        <div class="tactical-btn">Narcotics</div>
+    <div class="side-col left">
+        <div class="tile" onclick="openMod('m-sos')">K9 SOS</div>
+        <div class="tile" onclick="openMod('m-law')">Legal Bible</div>
+        <div class="tile" onclick="openMod('m-narc')">Narcotics</div>
     </div>
 
-    <div class="tool-col right">
-        <div class="tactical-btn">Tactical Map</div>
-        <div class="tactical-btn">Training Logs</div>
-        <div class="tactical-btn">VA Code</div>
+    <div class="side-col right">
+        <div class="tile" onclick="openMod('m-map')">Tactical Map</div>
+        <div class="tile" onclick="openMod('m-logs')">Training Logs</div>
+        <div class="tile" onclick="openMod('m-code')">VA Code</div>
     </div>
 </div>
 
-<div id="m-law" class="module">
-    <div class="mod-header"><span>LEGAL SHIELD BIBLE</span><button class="back" onclick="closeMod('m-law')">HUB</button></div>
+<div id="m-law" class="overlay">
+    <div class="header"><span>LEGAL SHIELD BIBLE</span><button class="back-btn" onclick="closeMod('m-law')">BACK</button></div>
     <div class="content">
-        <h2>FOURTH AMENDMENT / K9 LAW</h2>
-        <p><strong>Graham v. Connor (1989):</strong> Standard of objective reasonableness.</p>
-        <p><strong>Rodriguez v. US (2015):</strong> Extension of traffic stop.</p>
+        <h2>FEDERAL CASE LAW</h2>
+        <div class="law-section">
+            <strong>Rodriguez v. United States (2015)</strong>
+            <p>Officers cannot prolong a traffic stop to conduct a K9 sniff without independent reasonable suspicion. The 'mission' of the stop is completed when the citation is issued or should have been issued.</p>
+        </div>
+        <div class="law-section">
+            <strong>Florida v. Jardines (2013)</strong>
+            <p>The curtilage (porch/immediate yard) of a home is a protected area. A K9 sniff at the front door requires a warrant.</p>
+        </div>
+        <div class="law-section">
+            <strong>Graham v. Connor (1989)</strong>
+            <p>Use of force must be 'objectively reasonable' from the perspective of an officer on the scene, not with 20/20 hindsight.</p>
+        </div>
+        
+        <h2>VIRGINIA STATUTES</h2>
+        <div class="law-section">
+            <strong>VA Code § 18.2-144.1</strong>
+            <p>Felony to maliciously wound or kill a law enforcement animal. Protects working dogs during the line of duty.</p>
+        </div>
     </div>
 </div>
 
-<div id="m-sos" class="module">
-    <div class="mod-header"><span>K9 EMERGENCY SOS</span><button class="back" onclick="closeMod('m-sos')">HUB</button></div>
+<div id="m-sos" class="overlay">
+    <div class="header"><span>K9 EMERGENCY SOS</span><button class="back-btn" onclick="closeMod('m-sos')">BACK</button></div>
     <div class="content">
-        <h2>FIELD TRAUMA</h2>
-        <p>Immediate steps for heat stress and trauma protocols.</p>
+        <h2>FIELD TRAUMA TRIAGE</h2>
+        <p><strong>HEAT STRESS:</strong> Seek shade. Cool water on pads, ears, and groin. Monitor for heavy panting or collapse.</p>
+        <p><strong>BLOAT (GDV):</strong> Dry heaving, distended abdomen, restlessness. Transport immediately—this is a life-threatening emergency.</p>
+        <p><strong>BLEEDING:</strong> Apply steady, direct pressure with field gauze. Do not remove dressing if it soaks through; add more on top.</p>
     </div>
 </div>
+
+<div id="m-narc" class="overlay"><div class="header"><span>NARCOTICS</span><button class="back-btn" onclick="closeMod('m-narc')">BACK</button></div><div class="content"><h2>Detection SOPs</h2></div></div>
+<div id="m-map" class="overlay"><div class="header"><span>TACTICAL MAP</span><button class="back-btn" onclick="closeMod('m-map')">BACK</button></div><div class="content"><h2>GPS Search Grids</h2></div></div>
+<div id="m-logs" class="overlay"><div class="header"><span>TRAINING LOGS</span><button class="back-btn" onclick="closeMod('m-logs')">BACK</button></div><div class="content"><h2>Officer Records</h2></div></div>
+<div id="m-code" class="overlay"><div class="header"><span>VA CODE</span><button class="back-btn" onclick="closeMod('m-code')">BACK</button></div><div class="content"><h2>Title 18.2 Reference</h2></div></div>
 
 <script>
-    function openMod(id) { document.getElementById(id).style.display = 'flex'; }
+    function openMod(id) { document.getElementById(id).style.display = 'block'; }
     function closeMod(id) { document.getElementById(id).style.display = 'none'; }
 </script>
 
