@@ -6,211 +6,139 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>K9 Command - ACSO</title>
     <style>
-        /* BASE ARCHITECTURE */
-        body, html { 
-            margin: 0; padding: 0; width: 100%; height: 100%; 
-            background-color: #000; overflow: hidden; position: fixed;
-            font-family: 'Times New Roman', serif;
-        }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; color: #fff; font-family: 'Times New Roman', serif; }
+        .overlay { padding: 40px 20px; background: #001a11; border: 8px solid #d4af37; min-height: 100vh; box-sizing: border-box; }
         
-        .app-screen { 
-            width: 100vw; height: 100vh; 
-            background: url('homepage.jpg') no-repeat center 5%; 
-            background-size: contain; 
-            position: absolute; top: 0; left: 0; z-index: 1;
-        }
-
-        /* NAVIGATION GRID */
-        .button-grid { 
-            position: absolute; bottom: 22%; left: 50%; 
-            transform: translateX(-50%); width: 340px; height: 240px; 
-            display: grid; grid-template-columns: 1fr 1fr 1fr; 
-            grid-template-rows: 1fr 1fr; z-index: 50; 
-        }
-        
-        .btn { cursor: pointer; background: rgba(255, 255, 255, 0.01); -webkit-tap-highlight-color: transparent; }
-
-        /* OVERLAY - LARGE PRINT & SPACING */
-        .overlay { 
-            display: none; position: fixed; top: 0; left: 0; 
-            width: 100%; height: 100%; background: #001a11; 
-            z-index: 100; padding: 40px 25px; box-sizing: border-box; 
-            border: 8px solid #d4af37; overflow-y: auto; color: #fff;
-        }
-        
-        .active { display: block !important; }
-        
-        .close-btn { 
-            background: #d4af37; color: black; padding: 15px 25px; 
-            font-weight: bold; cursor: pointer; display: inline-block; 
-            margin-bottom: 25px; border-radius: 5px; text-transform: uppercase;
-            font-size: 1.1em;
-        }
-        
-        /* TYPOGRAPHY - HIGH VISIBILITY */
-        h1 { color: #d4af37; text-transform: uppercase; border-bottom: 3px solid #d4af37; padding-bottom: 10px; font-size: 1.8em; margin-top: 0; }
-        h2 { color: #d4af37; font-size: 1.4em; margin-top: 30px; border-left: 6px solid #d4af37; padding-left: 15px; text-transform: uppercase; }
+        h1 { color: #d4af37; text-transform: uppercase; border-bottom: 3px solid #d4af37; font-size: 2em; text-align: center; }
+        h2 { color: #d4af37; font-size: 1.5em; border-left: 6px solid #d4af37; padding-left: 15px; margin-top: 40px; text-transform: uppercase; }
         
         .content-box { 
-            background: rgba(255,255,255,0.08); padding: 25px; 
-            margin-bottom: 30px; line-height: 1.7; border-radius: 5px; 
-            font-size: 1.25em; /* LARGER PRINT FOR FIELD READABILITY */
-            border: 1px solid rgba(212,175,55,0.3);
+            background: rgba(255,255,255,0.08); padding: 30px; margin-bottom: 25px; 
+            line-height: 1.8; border-radius: 5px; font-size: 1.3em; border: 1px solid rgba(212,175,55,0.3); 
         }
 
-        /* VERBAL STEP-BY-STEP SYSTEM */
-        .verbal-step-box { 
-            border: 3px solid #ff0000; background: rgba(0,0,0,0.6); 
-            padding: 20px; margin: 20px 0; color: #ffcccc;
+        /* VOICE ASSISTANT BUTTON */
+        .voice-btn {
+            background: #ff0000; color: white; padding: 15px; width: 100%; 
+            font-weight: bold; text-transform: uppercase; border: none; 
+            border-radius: 5px; cursor: pointer; margin-bottom: 10px; font-size: 1.1em;
         }
-        .step-label { color: #ff0000; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px; font-size: 1.1em; }
-        
-        b { color: #d4af37; }
+        .voice-btn:active { background: #b30000; }
+
+        .vet-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 1.1em; }
+        .vet-table th, .vet-table td { border: 1px solid #d4af37; padding: 12px; text-align: left; }
+        .vet-table th { background: rgba(212,175,55,0.2); color: #d4af37; }
     </style>
 </head>
 <body>
 
-<div class="app-screen">
-    <div class="button-grid">
-        <div class="btn" onclick="openSection('k9Medical')"></div> 
-        <div class="btn" onclick="openSection('gpsTactical')"></div>       
-        <div class="btn" onclick="openSection('narcInterdiction')"></div>      
-        <div class="btn" onclick="openSection('caseLaw')"></div>     
-        <div class="btn" onclick="openSection('adminTraining')"></div>     
-        <div class="btn" onclick="openSection('virginiaStatute')"></div>        
-    </div>
-</div>
+<div class="overlay">
+    <h1>K9 Tactical First Aid</h1>
 
-<!-- 1. K9 MEDICAL - PURE CLINICAL & EMERGENCY -->
-<div id="k9Medical" class="overlay">
-    <div class="close-btn" onclick="closeSections()">← RETURN TO COMMAND</div>
-    <h1>K9 EMERGENCY TACTICAL MEDICINE</h1>
-    
-    <div class="content-box">
-        <h2>Advanced Cardiopulmonary Resuscitation</h2>
-        <p>Confirm state of arrest by palpating the femoral artery and observing for chest rise. If non-responsive, the K9 must be placed on their <b>Right Side</b> to allow for maximum heart compression. For the average working Malinois or Shepherd, compressions are delivered at the point where the elbow touches the chest when pulled back. Maintain a strict cadence of 100-120 beats per minute.</p>
-        <p>Oxygenation is achieved through mouth-to-snout ventilation. Secure the K9's muzzle with both hands to prevent air leakage, and deliver two full breaths into the nostrils every 30 compressions. This cycle must be continuous until a pulse is regained or advanced veterinary life support is reached.</p>
-        
-        <div class="verbal-step-box">
-            <span class="step-label">TACTICAL VERBAL - CPR STEP-BY-STEP:</span>
-            1. "POSITION K9 ON RIGHT SIDE."<br>
-            2. "LOCATE COMPRESSION POINT AT ELBOW LINE."<br>
-            3. "ENGAGE COMPRESSIONS: 100 PER MINUTE."<br>
-            4. "SECURE MUZZLE—DELIVER TWO BREATHS PER 30."<br>
-            5. "DISPATCH: CODE-3 MEDICAL ESCORT REQUIRED."
-        </div>
+    <!-- 1. K9 CPR -->
+    <div class="content-box" id="cpr_text">
+        <h2>1. K9 CPR (Cardiopulmonary Resuscitation)</h2>
+        <button class="voice-btn" onclick="speakSection('cpr_text')">▶ Activate Voice Assistant</button>
+        <p><b>Step 1: Check for Pulse.</b> Feel for the femoral artery on the inner thigh. If no pulse is detected, lay the K9 on their right side on a firm surface.</p>
+        <p><b>Step 2: Compressions.</b> Place your hands over the widest part of the rib cage. Depress the chest 1.5 to 2 inches for 100 to 120 beats per minute. Ensure full chest recoil between compressions.</p>
+        <p><b>Step 3: Rescue Breaths.</b> Close the K9's mouth tightly with both hands. Deliver 2 breaths into the nostrils every 30 compressions. Continue until the K9 breathes on their own or you reach a vet.</p>
     </div>
 
-    <div class="content-box">
-        <h2>Massive Hemorrhage & Trauma Management</h2>
-        <p>Assess for "Life-Threatening Bleeding." In Law Enforcement K9 operations, extremity wounds from fence snags or suspect resistance are common. Apply a dedicated K9 tourniquet immediately—High and Tight. If the bleed is in a junctional area (armpit or groin), use Hemostatic gauze to "pack the wound" to the bone, followed by five minutes of direct, heavy manual pressure.</p>
-        <p>Secondary assessment must include a check for Sucking Chest Wounds. If bubbling or air movement is noted at a torso wound, apply an occlusive dressing (chest seal) immediately. This prevents the development of a tension pneumothorax, which will cause a K9's lung to collapse and lead to rapid fatality if not addressed before transport.</p>
+    <!-- 2. SNAKEBITES -->
+    <div class="content-box" id="snake_text">
+        <h2>2. Snakebites (Pit Vipers/Copperheads)</h2>
+        <button class="voice-btn" onclick="speakSection('snake_text')">▶ Activate Voice Assistant</button>
+        <p>Immediately immobilize the K9 to slow venom circulation. Do not apply a tourniquet, do not cut the wound, and do not apply ice. Keep the bite site at or below heart level. Identify the snake species if possible from a safe distance and transport immediately for antivenin treatment.</p>
     </div>
 
-    <div class="content-box">
-        <h2>Heat Stroke & Environmental Critical Care</h2>
-        <p>Hyperthermia is the leading non-tactical cause of K9 death. If the K9 displays "Brick Red" gums, excessive thick drool, or a rectal temperature above 104°F, cooling must begin instantly. Prioritize "Evaporative Cooling" by applying room-temperature water—not ice water—to the paws, ears, and groin areas where large blood vessels are near the skin.</p>
-    </div>
-</div>
-
-<!-- 2. GPS TACTICAL - PURE SEARCH & OPERATIONS -->
-<div id="gpsTactical" class="overlay">
-    <div class="close-btn" onclick="closeSections()">← BACK</div>
-    <h1>GPS SEARCH & ASSET COORDINATION</h1>
-    <div class="content-box">
-        <h2>Multi-Layered Asset Synchronization</h2>
-        <p>The GPS Command Center provides a unified operational picture. K9 teams are tracked via Green breadcrumbs, Sworn Officers via Blue, and SAR volunteers via Yellow. This tri-color system prevents "friendly fire" incidents and ensures the Incident Commander can identify gaps in the search perimeter in real-time.</p>
-        <p>Each unit's location is updated every three seconds. This high-frequency polling allows for the detection of "track deviations" which often indicate when a K9 has picked up a scent cone but the handler has not yet recognized the Change of Behavior. Coordination between assets ensures that perimeters remain sealed during high-risk tracks.</p>
-        
-        <div class="verbal-step-box">
-            <span class="step-label">TACTICAL VERBAL - SEARCH COORDINATION:</span>
-            1. "UNIT 1: BROADCASTING CURRENT GPS COORDINATES."<br>
-            2. "ESTABLISH PERIMETER SEAL AT NORTH-EAST QUADRANT."<br>
-            3. "DRONE 1: PROVIDE OVERWATCH ON K9 TRACK PATH."<br>
-            4. "REPORT SEARCH SATURATION PERCENTAGE TO COMMAND."
-        </div>
+    <!-- 3. EYE INJURIES -->
+    <div class="content-box" id="eye_text">
+        <h2>3. Eye Injuries (Brush/Debris)</h2>
+        <button class="voice-btn" onclick="speakSection('eye_text')">▶ Activate Voice Assistant</button>
+        <p>Flush the eye gently with sterile saline solution or clean water to remove debris. Do not allow the K9 to rub their face on the ground or with their paws. If an object is impaled in the eye, do not remove it; stabilize it with a protective cup or bandage and transport immediately.</p>
     </div>
 
-    <div class="content-box">
-        <h2>Evidence Preservation & Proof of Search</h2>
-        <p>Digital breadcrumbs serve as the ultimate legal defense. By logging every footstep of the K9 team, the department can provide "Proof of Search" in missing person cases or suspect pursuits. This documentation proves to the court and the public that a professional, scientific search was conducted, mitigating claims of negligence or "failure to locate."</p>
+    <!-- 4. PAW INJURIES -->
+    <div class="content-box" id="paw_text">
+        <h2>4. Paw Injuries (Lacerations/Tears)</h2>
+        <button class="voice-btn" onclick="speakSection('paw_text')">▶ Activate Voice Assistant</button>
+        <p>Examine pads for glass, thorns, or debris. Clean the area with antiseptic. Apply a pressure bandage to control bleeding. In the rugged terrain of Amherst or Nelson, ensure the bandage is secure but not cutting off circulation. Use a boot or wrap to keep the wound clean during extraction.</p>
     </div>
-</div>
 
-<!-- 3. NARCOTICS INTERDICTION - PURE SEARCH TACTICS -->
-<div id="narcInterdiction" class="overlay">
-    <div class="close-btn" onclick="closeSections()">← BACK</div>
-    <h1>NARCOTICS INTERDICTION TACTICS</h1>
-    <div class="content-box">
-        <h2>Scent Cone & Air Pattern Strategy</h2>
-        <p>Interdiction begins with wind analysis. The handler must deploy the K9 from the down-wind side of the target vehicle to intercept the scent cone as it exits seams, door handles, or trunks. This "threading" of the air ensures the K9 captures the maximum odor concentration without being cuing by the handler's forward movement.</p>
-        <p>Once the K9 enters the cone, the handler must "give line" and allow the dog to work the odor to the source. Any "nagging" or pulling by the handler during this phase can be argued in court as "handler-induced cuing," which can jeopardize the validity of the entire search and any subsequent seizure of contraband.</p>
-        
-        <div class="verbal-step-box">
-            <span class="step-label">TACTICAL VERBAL - INTERDICTION STEP-BY-STEP:</span>
-            1. "ANNOUNCE: ACSO K9 DEPLOYMENT IN PROGRESS."<br>
-            2. "SECURE SUBJECTS: HANDS VISIBLE, STAY BACK."<br>
-            3. "DEPLOY K9 FROM DOWN-WIND PERIMETER."<br>
-            4. "RECOGNIZE CHANGE OF BEHAVIOR: TAIL FLAG/RESPIRATION."<br>
-            5. "MARK FINAL ALERT—PROBABLE CAUSE ESTABLISHED."
-        </div>
+    <!-- 5. HEAT EXHAUSTION -->
+    <div class="content-box" id="exhaust_text">
+        <h2>5. Heat Exhaustion</h2>
+        <button class="voice-btn" onclick="speakSection('exhaust_text')">▶ Activate Voice Assistant</button>
+        <p>Watch for heavy panting and "spatulate" tongue (tongue flattened out). Move the K9 to a shaded, air-conditioned area. Offer small amounts of water. Wipe down the belly and inner thighs with room-temperature water. Monitor closely to ensure it does not progress to heat stroke.</p>
     </div>
-</div>
 
-<!-- 4. CASE LAW - PURE LEGAL REFERENCE -->
-<div id="caseLaw" class="overlay">
-    <div class="close-btn" onclick="closeSections()">← BACK</div>
-    <h1>LEGAL SHIELD: FEDERAL CASE LAW</h1>
-    <div class="content-box">
-        <h2>Rodriguez v. United States (2015)</h2>
-        <p>The Fourth Amendment does not permit the extension of a traffic stop to conduct a K9 sniff without independent reasonable suspicion. The "mission" of the stop is defined by the traffic violation and the time required to address it. To stay within the law, handlers must document observations of criminal activity that justify any detention beyond the issuance of a summons.</p>
-        <p>This case is the primary focus of defense attorneys. Every ACSO deputy must be able to articulate why the detention continued. Observations of extreme nervousness, conflicting travel plans, or the presence of masking agents must be recorded in the official report to satisfy the <i>Rodriguez</i> standard.</p>
+    <!-- 6. HEAT STROKE -->
+    <div class="content-box" id="stroke_text">
+        <h2>6. Heat Stroke (Critical)</h2>
+        <button class="voice-btn" onclick="speakSection('stroke_text')">▶ Activate Voice Assistant</button>
+        <p>Signs include brick-red gums, seizures, or collapse. Rectal temperature over 104 degrees is a crisis. Apply cool water to the paws, groin, and neck. Use a fan for evaporative cooling. Stop cooling once the temperature reaches 103 degrees to prevent hypothermia. Emergency vet transport is mandatory.</p>
     </div>
-    
-    <div class="content-box">
-        <h2>Florida v. Harris (2013)</h2>
-        <p>This Supreme Court decision established that a K9’s reliability is based on the "totality of the circumstances," with a heavy emphasis on training and certification records. If a K9 has been certified by a reputable organization and has maintained consistent training logs, their alert provides the Probable Cause necessary for a search, regardless of whether contraband is recovered.</p>
-    </div>
-</div>
 
-<!-- 5. ADMIN & TRAINING - PURE RECORDS & STANDARDS -->
-<div id="adminTraining" class="overlay">
-    <div class="close-btn" onclick="closeSections()">← BACK</div>
-    <h1>ADMINISTRATION & LOGS</h1>
-    <div class="content-box">
-        <h2>SWGDOG Training Standards</h2>
-        <p>The Scientific Working Group on Dog and Orthogonal Detector Guidelines (SWGDOG) represents the gold standard for K9 operations. All training must be conducted under "Double-Blind" conditions where neither the trainer nor the handler knows the location of the hide. This prevents subconscious cuing and ensures the K9 is a truly objective tool.</p>
+    <!-- 7. BROKEN BONES -->
+    <div class="content-box" id="bone_text">
+        <h2>7. Broken Bones (Fractures)</h2>
+        <button class="voice-btn" onclick="speakSection('bone_text')">▶ Activate Voice Assistant</button>
+        <p>Minimize movement. Do not attempt to "set" the bone. If the fracture is open (bone showing), cover with sterile gauze. Splint the limb only if transport will be prolonged, ensuring the splint extends above and below the break. Use a muzzle if the K9 is in extreme pain to prevent accidental bites.</p>
     </div>
-    
-    <div class="content-box">
-        <h2>Liability Mitigation & Record Keeping</h2>
-        <p>Accurate logs are the only defense against "Custom and Policy" lawsuits. Logs must track not only successful alerts but also "False Positives" and environmental proofing. Every minute of training must be correlated to the team's street performance to ensure that the Sheriff’s Department is protected from federal liability claims.</p>
-    </div>
-</div>
 
-<!-- 6. VIRGINIA STATUTES - PURE STATE LAW -->
-<div id="virginiaStatute" class="overlay">
-    <div class="close-btn" onclick="closeSections()">← BACK</div>
-    <h1>VIRGINIA STATE CODE</h1>
-    <div class="content-box">
-        <h2>VA Code § 18.2-144.1: Assault on Police Animal</h2>
-        <p>Any person who intentionally kills or causes serious bodily injury to a police animal is guilty of a Class 5 Felony. This recognizes the K9 not as property, but as a sworn protector of the Commonwealth. Deputies must ensure this charge is applied in any instance where a suspect resists a K9 during an apprehension.</p>
+    <!-- 8. EXCESSIVE BLEEDING -->
+    <div class="content-box" id="bleed_text">
+        <h2>8. Excessive Bleeding (Hemorrhage)</h2>
+        <button class="voice-btn" onclick="speakSection('bleed_text')">▶ Activate Voice Assistant</button>
+        <p>Apply direct pressure with clean gauze. If bleeding through, add more gauze without removing the first layer. For life-threatening limb bleeds, apply a K9 tourniquet high and tight. Document the time of application. For torso wounds, pack the wound with hemostatic gauze and maintain pressure.</p>
     </div>
-    
+
+    <!-- 9. GUNSHOT WOUNDS -->
+    <div class="content-box" id="gun_text">
+        <h2>9. Gunshot Wounds</h2>
+        <button class="voice-btn" onclick="speakSection('gun_text')">▶ Activate Voice Assistant</button>
+        <p>Treat for hemorrhage first. If the wound is in the chest and you hear a "sucking" sound, seal it immediately with plastic wrap or a chest seal to prevent lung collapse. Keep the K9 warm to prevent shock and transport to a trauma center immediately. Monitor for labored breathing.</p>
+    </div>
+
+    <!-- 10. BITES & STINGS -->
+    <div class="content-box" id="sting_text">
+        <h2>10. Bites & Stings (Insects/Animals)</h2>
+        <button class="voice-btn" onclick="speakSection('sting_text')">▶ Activate Voice Assistant</button>
+        <p>Remove stingers by scraping with a card—do not use tweezers which may squeeze more venom. Monitor for allergic reactions (facial swelling, hives). If the K9 has difficulty breathing, it is an anaphylactic emergency. For animal bites, flush with water and bandage loosely; watch for infection.</p>
+    </div>
+
+    <!-- EMERGENCY VETS -->
+    <h1>Local Emergency Vets</h1>
     <div class="content-box">
-        <h2>VA Code § 19.2-81: Fresh Pursuit Authority</h2>
-        <p>Virginia law grants deputies the authority to make arrests without a warrant when in "Fresh Pursuit" of a suspect. This is the legal engine behind K9 tracking operations. When a K9 finds a suspect at the end of a hot track, the deputy has the statutory authority to make the arrest based on the continuous nature of the pursuit.</p>
+        <table class="vet-table">
+            <tr><th>County</th><th>Clinic Name</th><th>Phone</th></tr>
+            <tr><td>Amherst/Lynchburg</td><td>Animal ER of Lynchburg</td><td>(434) 846-1504</td></tr>
+            <tr><td>Campbell</td><td>Peaks View Animal Hospital</td><td>(434) 525-4122</td></tr>
+            <tr><td>Appomattox</td><td>Appomattox Veterinary Clinic</td><td>(434) 352-7104</td></tr>
+            <tr><td>Nelson</td><td>Wintergreen Animal Hospital</td><td>(434) 361-2400</td></tr>
+        </table>
     </div>
 </div>
 
 <script>
-    function openSection(id) { 
-        closeSections(); 
-        var section = document.getElementById(id);
-        if(section) { section.classList.add('active'); }
-    }
-    function closeSections() { 
-        document.querySelectorAll('.overlay').forEach(o => o.classList.remove('active')); 
+    function speakSection(containerId) {
+        // Stop any current speech
+        window.speechSynthesis.cancel();
+        
+        // Get the text from the specific box, excluding the button text
+        var div = document.getElementById(containerId);
+        var text = div.innerText.replace("▶ Activate Voice Assistant", "");
+        
+        var msg = new SpeechSynthesisUtterance();
+        msg.text = text;
+        msg.rate = 0.9; // Slightly slower for clarity
+        msg.pitch = 1;
+        
+        // Set to a professional-sounding voice if available
+        var voices = window.speechSynthesis.getVoices();
+        msg.voice = voices.find(v => v.name.includes("Google US English")) || voices[0];
+        
+        window.speechSynthesis.speak(msg);
     }
 </script>
 
