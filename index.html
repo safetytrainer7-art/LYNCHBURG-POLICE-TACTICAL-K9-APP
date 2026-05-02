@@ -1,137 +1,89 @@
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND V195</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
-    <style>
-        :root { --gold: #c5a059; --bg: #000; }
-        * { box-sizing: border-box; }
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
+<div id="training" class="page">
+    <div class="header">
+        <button class="back-btn" onclick="goHome()">← BACK</button>
+        <span style="color:var(--gold); margin-left:15px; font-weight:bold;">K9 DAILY TRAINING LOG</span>
+    </div>
+    <div style="padding: 15px; background: #000; color: #fff; padding-bottom: 100px;">
         
-        #main-wrapper { width: 100%; height: 100%; position: relative; }
-        .page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-        
-        /* Home Screen */
-        #home { display: block; width: 100%; height: 100%; background: radial-gradient(circle, #001a00 0%, #000 100%); position: relative; }
-        .side-col { position: absolute; width: 22%; height: 60%; top: 20%; display: flex; flex-direction: column; justify-content: space-around; z-index: 100; }
-        .left { left: 2%; } .right { right: 2%; }
-        .main-btn { background: rgba(0, 20, 0, 0.9); border: 2px solid var(--gold); color: var(--gold); padding: 12px 2px; text-align: center; font-size: 11px; font-weight: bold; border-radius: 6px; text-transform: uppercase; }
+        <div style="border: 2px solid #00ffcc; padding: 15px; border-radius: 8px; background: #001a1a;">
+            <h3 style="color: #00ffcc; margin-top: 0;">TRAINING RECORD</h3>
+            
+            <label>DATE/TIME:</label>
+            <input type="datetime-local" id="t-date" class="f-input">
+            
+            <div style="display:flex; gap:5px;">
+                <div style="flex:1;"><label>TEMP:</label><input type="text" id="t-temp" placeholder="72°F" class="f-input"></div>
+                <div style="flex:1;"><label>WIND:</label><input type="text" id="t-wind" placeholder="NW 5mph" class="f-input"></div>
+            </div>
 
-        /* Navigation Header */
-        .header { background: #111; border-bottom: 2px solid var(--gold); padding: 12px; display: flex; align-items: center; position: sticky; top: 0; z-index: 1100; }
-        .back-btn { background: var(--gold); color: #000; border: none; padding: 12px 20px; font-weight: bold; border-radius: 4px; font-size: 14px; }
+            <label>LOCATION/WEATHER:</label>
+            <input type="text" id="t-loc" placeholder="Amherst Warehouse / Clear" class="f-input">
 
-        /* Module Boxes */
-        .legal-box { border: 2px solid #0055ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; background: #00051a; color: #fff; }
-        .va-box { border: 2px solid #ffaa00; padding: 15px; border-radius: 8px; margin-bottom: 20px; background: #1a1100; color: #fff; }
-        .drug-box { border: 2px solid #39ff14; padding: 15px; border-radius: 8px; margin-bottom: 20px; background: #051a00; color: #fff; }
-        .haz-box { border: 2px solid #ff4500; padding: 15px; border-radius: 8px; margin-bottom: 20px; background: #1a0500; color: #fff; }
-        
-        h2 { margin-top: 0; text-transform: uppercase; font-size: 18px; }
-        p { line-height: 1.5; font-size: 15px; margin-bottom: 10px; }
-    </style>
-</head>
-<body>
+            <label>SEARCH TYPE:</label>
+            <select id="t-type" class="f-input">
+                <option>VEHICLE INTERIOR/EXTERIOR</option>
+                <option>WAREHOUSE / LARGE AREA</option>
+                <option>RESIDENTIAL / BUILDING</option>
+                <option>TRACKING / APPREHENSION</option>
+                <option>AGITATION / PATROL</option>
+            </select>
 
-<div id="main-wrapper">
+            <label>TRAINING AID / SCENT CONE:</label>
+            <input type="text" id="t-aid" placeholder="Heroin 5g / High Hide / Left Cone" class="f-input">
 
-    <div id="home">
-        <img src="homepage.jpg" style="width:100%; height: auto; max-height: 100%; object-fit: contain;">
-        <div class="side-col left">
-            <div class="main-btn" onclick="show('sos')">K9 SOS</div>
-            <div class="main-btn" onclick="show('legal')">LEGAL</div>
-            <div class="main-btn" onclick="show('drugs')">DRUGS</div>
-        </div>
-        <div class="side-col right">
-            <div class="main-btn" onclick="show('m-map')">TACTICAL MAP</div>
-            <div class="main-btn">LOGS</div>
-            <div class="main-btn">CODE</div>
+            <label>PERFORMANCE NOTES:</label>
+            <textarea id="t-notes" class="f-input" style="height:80px;" placeholder="Final response noted, scratch/sit alert..."></textarea>
+
+            <button onclick="genPDF('TRAINING')" style="width:100%; background:#00ffcc; color:#000; padding:15px; font-weight:bold; border:none; border-radius:4px; margin-top:10px;">💾 GENERATE PDF REPORT</button>
         </div>
     </div>
-
-    <div id="drugs" class="page">
-        <div class="header">
-            <button class="back-btn" onclick="goHome()">← BACK</button>
-            <span style="color:var(--gold); margin-left:15px; font-weight:bold;">NARCOTICS & SAFETY</span>
-        </div>
-        <div style="padding: 15px; padding-bottom: 80px;">
-            <div class="drug-box">
-                <h2 style="color: #39ff14;">SECTION I: IDENTIFICATION</h2>
-                <p>Field identification requires a "Detect, then Inspect" approach. Common drugs in VA range from "Ice" methamphetamine to "Grey Death" fentanyl mixtures. Look for tell-tale packaging like "baggies" or wax paper "stamps," which indicate high-potency synthetics.</p>
-                <p>Synthetic opioids like Fentanyl are now frequently pressed into blue "M30" pills. These are often inconsistent in color and chalky. Handlers must assume every pressed pill contains a lethal dose and use nitrile gloves immediately.</p>
-                <p>Distribution (PWID) hinges on scales, cash, and "corner-cut" baggies. In Virginia, multiple individual units are primary evidence for distribution, even with low total weight. Document paraphernalia separately to build the full case.</p>
-            </div>
-            <div class="haz-box">
-                <h2 style="color: #ff4500;">SECTION II: HAZMAT & EXPOSURE</h2>
-                <p>The "Blue-Line" Protocol is the standard for Fentanyl exposure. Move K-9s upwind immediately and clear residue with a wet cloth—never use air blowers. Do not field test loose powders; double-bag and transport to a lab.</p>
-                <p>Symptoms include respiratory depression and pinpoint pupils. Administer Narcan immediately; high-potency synthetics may require 4-5 doses. If you feel "heavy" or "off," notify dispatch for EMS immediately.</p>
-                <p>Decontaminate equipment with soap and water. Avoid bleach or alcohol cleaners on fentanyl, as they can increase skin absorption. Document exposure in the "Officer Safety" log, noting time and PPE worn.</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="legal" class="page">
-        <div class="header">
-            <button class="back-btn" onclick="goHome()">← BACK</button>
-            <span style="color:var(--gold); margin-left:15px; font-weight:bold;">K9 LEGAL BIBLE</span>
-        </div>
-        <div style="padding: 15px; padding-bottom: 80px;">
-            <div class="legal-box">
-                <h2 style="color: #0088ff;">Section I: Federal Standards</h2>
-                <p>The <b>Fourth Amendment</b> establishes that a K-9 sniff in a public place is not a "search." Rulings like <b>US v. Place</b> clarify that dogs are "sui generis" because they only disclose contraband presence.</p>
-                <p>The "Clock" is critical per <b>Rodriguez v. US</b>. A stop cannot be extended beyond the initial traffic mission without independent Reasonable Suspicion to hold the vehicle.</p>
-                <p><b>Florida v. Harris</b> held that if a dog is certified by a reputable organization, its alert provides Probable Cause. Handlers must maintain training logs to show the dog is "well-trained."</p>
-            </div>
-            <div class="va-box">
-                <h2 style="color: #ffaa00;">Section II: Virginia Specifics</h2>
-                <p>Virginia follows the "Plain Sniff" doctrine. A K-9 alert is sufficient for a warrantless vehicle search under the <b>Automobile Exception</b>. Once a dog alerts, you have immediate Probable Cause.</p>
-                <p>The <b>Curtilage Rule</b> is strictly enforced. Bringing a dog onto a porch without a warrant or consent is a trespass. Handlers must stay in public areas to avoid evidence being suppressed.</p>
-                <p><b>Brown v. Commonwealth</b> reinforces officer testimony. If the handler can articulate the dog's body posture and final alert, Virginia courts typically uphold the search.</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="m-map" class="page">
-        <div class="header">
-            <button class="back-btn" onclick="goHome()">← BACK</button>
-            <span style="color:var(--gold); margin-left:15px; font-weight:bold;">TACTICAL MAP</span>
-        </div>
-        <div id="live-map" style="height: 60vh; background: #222;"></div>
-        <div style="padding:20px; color:#fff; text-align:center;">MAP ENGINE ACTIVE</div>
-    </div>
-
 </div>
 
+<div id="incidents" class="page">
+    <div class="header">
+        <button class="back-btn" onclick="goHome()">← BACK</button>
+        <span style="color:var(--gold); margin-left:15px; font-weight:bold;">K9 INCIDENT REPORT</span>
+    </div>
+    <div style="padding: 15px; background: #000; color: #fff; padding-bottom: 100px;">
+        <div style="border: 2px solid #ff0055; padding: 15px; border-radius: 8px; background: #1a0005;">
+            <h3 style="color: #ff0055; margin-top: 0;">CALL FOR SERVICE</h3>
+            
+            <label>OFFICER / DEPT:</label>
+            <input type="text" id="i-off" placeholder="Deputy Jones / ACSO" class="f-input">
+
+            <label>DISPOSITION / ARRESTS:</label>
+            <input type="text" id="i-disp" placeholder="Arrest Made / Evidence Seized" class="f-input">
+
+            <label>INJURIES / DIAGRAM NOTES:</label>
+            <textarea id="i-notes" class="f-input" style="height:80px;" placeholder="Suspect bit left calf / Tactical deployment..."></textarea>
+
+            <button onclick="genPDF('INCIDENT')" style="width:100%; background:#ff0055; color:#fff; padding:15px; font-weight:bold; border:none; border-radius:4px; margin-top:10px;">💾 GENERATE INCIDENT PDF</button>
+        </div>
+    </div>
+</div>
+
+<div id="vets" class="page">
+    <div class="header">
+        <button class="back-btn" onclick="goHome()">← BACK</button>
+        <span style="color:#ff3333; margin-left:15px; font-weight:bold;">EMERGENCY VETS</span>
+    </div>
+    <div style="padding: 15px; background: #000;">
+        <div class="vet-card"><b>LYNCHBURG:</b> Animal Emergency & Critical Care <br><a href="tel:4348461504" style="color:#00ff00;">(434) 846-1504</a></div>
+        <div class="vet-card"><b>CAMPBELL:</b> Peaks View Animal Hospital <br><a href="tel:4345254996" style="color:#00ff00;">(434) 525-4996</a></div>
+        <div class="vet-card"><b>NELSON/AMHERST:</b> Blue Ridge Animal Clinic <br><a href="tel:5404633774" style="color:#00ff00;">(540) 463-3774</a></div>
+    </div>
+</div>
+
+<style>
+    .f-input { width: 100%; padding: 12px; margin: 8px 0 15px 0; background: #111; border: 1px solid #444; color: #fff; border-radius: 4px; font-size: 14px; }
+    label { color: #aaa; font-size: 12px; font-weight: bold; text-transform: uppercase; }
+    .vet-card { background: #111; border: 1px solid #ff3333; padding: 15px; margin-bottom: 10px; border-radius: 4px; color: #fff; }
+</style>
+
 <script>
-    // MASTER NAVIGATION SCRIPT
-    function show(id) {
-        // 1. Hide all pages
-        const pages = document.querySelectorAll('.page');
-        pages.forEach(p => p.style.display = 'none');
-        
-        // 2. Hide home screen
-        document.getElementById('home').style.display = 'none';
-        
-        // 3. Show target page
-        const target = document.getElementById(id);
-        if(target) {
-            target.style.display = 'block';
-            window.scrollTo(0,0); // Reset scroll to top
-        }
+    function genPDF(type) {
+        alert("CREATING " + type + " REPORT...\n\nIn a full build, this would trigger a Print-to-PDF. For now, all data is captured and ready for the Sheriff!");
     }
-
-    function goHome() {
-        // 1. Hide all pages
-        const pages = document.querySelectorAll('.page');
-        pages.forEach(p => p.style.display = 'none');
-        
-        // 2. Re-show home screen
-        document.getElementById('home').style.display = 'block';
-    }
+    
+    // Add show('training'), show('incidents'), and show('vets') to your nav logic.
 </script>
-
-</body>
-</html>
