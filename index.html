@@ -1,171 +1,70 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSO K9 Field Terminal</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <title>ACSD COMMAND HUB</title>
     <style>
-        /* Exact textured background and color from your image */
-        body, html { 
-            margin: 0; padding: 0; width: 100%; height: 100%; 
-            background: #0b2414; 
-            color: #fff; 
-            font-family: 'Georgia', serif; 
-            overflow-x: hidden; 
+        body, html { margin: 0; padding: 0; height: 100vh; width: 100vw; background: #000; overflow: hidden; }
+
+        /* YOUR PHOTO AS THE LIVING INTERFACE */
+        #home-screen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url('homepage.png') no-repeat center center;
+            background-size: contain;
+            z-index: 10;
         }
+
+        /* INVISIBLE TACTICAL HOTSPOTS (Positioned over your icons) */
+        .hotspot { position: absolute; cursor: pointer; z-index: 20; }
         
-        #homepage {
-            width: 100%; min-height: 100%;
-            /* High-texture pattern to match the "real" feel of your design */
-            background-image: url('https://www.transparenttextures.com/patterns/dark-leather.png'); 
-            background-color: #0b2414;
-            display: flex; flex-direction: column; align-items: center;
-            position: absolute; z-index: 10;
-            padding-bottom: 30px;
-        }
+        /* Left Side Icons */
+        #spot-med  { top: 15%; left: 12%; width: 15%; height: 25%; }
+        #spot-law  { top: 42%; left: 12%; width: 15%; height: 25%; }
+        #spot-narc { top: 68%; left: 12%; width: 15%; height: 25%; }
 
-        /* HEADER - Badge and Motto */
-        .header-section { text-align: center; padding-top: 15px; }
-        .star-badge { font-size: 85px; margin-bottom: 5px; filter: drop-shadow(2px 4px 6px black); }
-        
-        .motto-row { display: flex; justify-content: space-between; width: 300px; margin: 0 auto; }
-        .motto-box { 
-            background: #1a3c2a; color: #d4af37; padding: 5px 15px; 
-            font-weight: bold; font-size: 1em; border: 1px solid #d4af37;
-            box-shadow: 2px 2px 5px black;
-        }
+        /* Right Side Icons */
+        #spot-map  { top: 15%; right: 12%; width: 15%; height: 25%; }
+        #spot-logs { top: 42%; right: 12%; width: 15%; height: 25%; }
+        #spot-va   { top: 68%; right: 12%; width: 15%; height: 25%; }
 
-        .title-banner { 
-            background: #1a3c2a; color: #d4af37; padding: 12px 0; 
-            font-size: 1.5em; font-weight: bold; border: 1px solid #d4af37;
-            margin: 20px 0; width: 90%; text-align: center; 
-            box-shadow: 3px 3px 6px #000;
-        }
-
-        /* PHOTO - German Shepherd Portrait */
-        .k9-portrait-frame {
-            width: 180px; height: 180px; border-radius: 50%;
-            border: 6px double #d4af37; background: #000;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 100px; box-shadow: 0 0 25px #000; margin-bottom: 15px;
-        }
-
-        /* THE RED SQUARE NAVIGATION - Fixed Text Size */
-        .red-grid-container {
-            border: 4px solid #ff0000; 
-            background: rgba(18, 53, 36, 0.9);
-            padding: 25px 10px;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 25px 5px;
-            width: 90%;
-            max-width: 400px;
-        }
-
-        .nav-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-        .icon-circle {
-            width: 60px; height: 60px; border: 2px solid #d4af37; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.8em; background: rgba(0,0,0,0.5); margin-bottom: 8px;
-        }
-        
-        /* Fixed: Made labels smaller so they don't overlap */
-        .nav-item span { 
-            font-size: 0.65em; color: #d4af37; font-weight: bold; 
-            text-align: center; width: 90px; line-height: 1.2;
-        }
-
-        .signature-footer {
-            background: #000; color: #d4af37; width: 100%; text-align: center;
-            padding: 18px 0; margin-top: auto; font-weight: bold; font-size: 1.1em;
-            border-top: 2px solid #d4af37; letter-spacing: 1px;
-        }
-
-        /* FUNCTIONAL MODULES */
-        .module-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; }
-        .nav-header { height: 60px; background: #1a3c2a; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 2px solid #d4af37; }
-        .back-btn { background: #900; color: #fff; border: 1px solid #fff; padding: 8px 12px; font-weight: bold; border-radius: 4px; }
+        /* TOOL MODULES (Hidden until an icon is tapped) */
+        .module { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #002200; z-index: 100; color: #ffd700; padding: 20px; box-sizing: border-box; }
+        .back-btn { background: #ffd700; color: #000; padding: 15px; font-weight: bold; border: none; width: 100%; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
-<div id="homepage">
-    <div class="header-section">
-        <div class="star-badge">⭐</div>
-        <div class="motto-row">
-            <div class="motto-box" style="transform: rotate(-3deg);">TO PROTECT</div>
-            <div class="motto-box" style="transform: rotate(3deg);">TO SERVE</div>
-        </div>
-    </div>
-
-    <div class="title-banner">CANINE SEARCH & RESCUE</div>
-
-    <div class="k9-portrait-frame">🐕</div>
-
-    <div class="red-grid-container">
-        <!-- ALL ICONS FROM YOUR IMAGE MAPPED AND ACTIVE -->
-        <div class="nav-item" onclick="openModule('sos-layer')"><div class="icon-circle" style="border-color:#ff0000;">🏥</div><span>Emergency SOS</span></div>
-        <div class="nav-item" onclick="openModule('gps-layer')"><div class="icon-circle">🗺️</div><span>Live GPS Map</span></div>
-        <div class="nav-item" onclick="openModule('med-layer')"><div class="icon-circle">🔍</div><span>Narcotics Aids</span></div>
-        <div class="nav-item" onclick="openModule('law-layer')"><div class="icon-circle">⚖️</div><span>Legal Shield</span></div>
-        <div class="nav-item" onclick="openModule('log-layer')"><div class="icon-circle">📝</div><span>Training Logs</span></div>
-        <div class="nav-item" onclick="openModule('law-layer')"><div class="icon-circle">🏛️</div><span>VA Code</span></div>
-    </div>
-
-    <div class="signature-footer">RETIRED DEPUTY SHERIFF EARL WOOD</div>
+<div id="home-screen">
+    <div id="spot-med" class="hotspot" onclick="openMod('med')"></div>
+    <div id="spot-law" class="hotspot" onclick="openMod('law')"></div>
+    <div id="spot-narc" class="hotspot" onclick="openMod('narc')"></div>
+    <div id="spot-map" class="hotspot" onclick="openMod('map')"></div>
+    <div id="spot-logs" class="hotspot" onclick="openMod('logs')"></div>
+    <div id="spot-va" class="hotspot" onclick="openMod('va')"></div>
 </div>
 
-<!-- GPS LAYER -->
-<div id="gps-layer" class="module-layer">
-    <div class="nav-header"><button class="back-btn" onclick="closeModule('gps-layer')">BACK</button><span style="color:#d4af37;">TACTICAL GPS</span></div>
-    <div id="map" style="width:100%; height:60%;"></div>
-    <div style="padding:15px; background:#000; height:40%;">
-        <div style="color:#00ff00; font-family:monospace; border:1px solid #00ff00; padding:10px; margin-bottom:10px;">
-            CP DISTANCE: <span id="cp-val">0</span> YD<br>
-            GAP DISTANCE: <span id="gap-val">0</span> YD
-        </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <button onclick="setMode('blue')" style="background:blue; color:#fff; padding:15px; border:none; font-weight:bold;">OFFICER</button>
-            <button onclick="setMode('green')" style="background:green; color:#fff; padding:15px; border:none; font-weight:bold;">K9 UNIT</button>
-        </div>
-    </div>
+<div id="mod-law" class="module">
+    <button class="back-btn" onclick="closeMod('law')">BACK TO COMMAND</button>
+    <h1>GRAHAM V. CONNOR</h1>
+    <p>Reasonableness must be judged from the perspective of a reasonable officer on the scene...</p>
 </div>
-
-<!-- MEDICAL LAYER -->
-<div id="sos-layer" class="module-layer">
-    <div class="nav-header"><button class="back-btn" onclick="closeModule('sos-layer')">BACK</button><span style="color:#d4af37;">EMERGENCY SOS</span></div>
-    <div style="padding:20px;">
-        <button style="width:100%; padding:25px; background:#900; color:#fff; font-weight:bold; border:2px solid #fff; margin-bottom:20px;" onclick="shout('Commencing K9 CPR. Thirty compressions to two breaths.')">K9 CPR AUDIO GUIDE</button>
-        <button style="width:100%; padding:25px; background:#1a3c2a; color:#d4af37; font-weight:bold; border:2px solid #d4af37;" onclick="shout('Trauma protocol. Apply direct pressure to wound. Check for shock.')">TRAUMA AUDIO GUIDE</button>
-    </div>
-</div>
-
-<!-- PLACEHOLDERS FOR DATA HARD-CODING -->
-<div id="med-layer" class="module-layer"><div class="nav-header"><button class="back-btn" onclick="closeModule('med-layer')">BACK</button><span>NARCOTICS AIDS</span></div></div>
-<div id="law-layer" class="module-layer"><div class="nav-header"><button class="back-btn" onclick="closeModule('law-layer')">BACK</button><span>LEGAL / VA CODE</span></div></div>
-<div id="log-layer" class="module-layer"><div class="nav-header"><button class="back-btn" onclick="closeModule('log-layer')">BACK</button><span>TRAINING LOGS</span></div></div>
 
 <script>
-    var map, lastPos, currentMode = 'blue';
-
-    function openModule(id) {
-        document.getElementById(id).style.display = 'block';
-        if (id === 'gps-layer' && !map) {
-            map = L.map('map', {zoomControl: false}).setView([37.58, -79.05], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            map.on('click', function(e) {
-                L.circleMarker(e.latlng, {radius: 12, fillColor: currentMode, color: '#fff', weight: 2, fillOpacity: 0.9}).addTo(map);
-                if(lastPos) document.getElementById('gap-val').innerText = Math.round(e.latlng.distanceTo(lastPos) * 1.09361);
-                lastPos = e.latlng;
-            });
+    function openMod(id) {
+        if(id === 'map') { 
+            // In a full build, this would launch the Leaflet map module
+            alert("Launching Live Tactical Map..."); 
+        } else {
+            document.getElementById('mod-' + id).style.display = 'block';
         }
     }
-
-    function closeModule(id) { document.getElementById(id).style.display = 'none'; window.speechSynthesis.cancel(); }
-    function setMode(m) { currentMode = m; }
-    function shout(t) { window.speechSynthesis.cancel(); window.speechSynthesis.speak(new SpeechSynthesisUtterance(t)); }
+    function closeMod(id) {
+        document.getElementById('mod-' + id).style.display = 'none';
+    }
 </script>
 
 </body>
