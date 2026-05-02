@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND V199</title>
+    <title>ACSD COMMAND V201</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --gold: #c5a059; --bg: #000; }
@@ -13,16 +12,17 @@
         #main-wrapper { width: 100%; height: 100%; position: relative; }
         .page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         
-        /* Home Screen */
-        #home { display: block; width: 100%; height: 100%; background: radial-gradient(circle, #001a00 0%, #000 100%); position: relative; }
+        /* HOME SCREEN */
+        #home { display: block; width: 100%; height: 100%; background: radial-gradient(circle, #001a00 0%, #000 100%); }
         .side-col { position: absolute; width: 24%; height: 75%; top: 15%; display: flex; flex-direction: column; justify-content: space-around; z-index: 100; }
         .left { left: 2%; } .right { right: 2%; }
-        .main-btn { background: rgba(0, 20, 0, 0.95); border: 2px solid var(--gold); color: var(--gold); padding: 14px 2px; text-align: center; font-size: 11px; font-weight: bold; border-radius: 6px; text-transform: uppercase; box-shadow: 0 0 10px #000; }
+        .main-btn { background: rgba(0, 20, 0, 0.95); border: 2px solid var(--gold); color: var(--gold); padding: 12px 2px; text-align: center; font-size: 10px; font-weight: bold; border-radius: 6px; text-transform: uppercase; }
 
+        /* HEADER & BOXES */
         .header { background: #111; border-bottom: 2px solid var(--gold); padding: 12px; display: flex; align-items: center; position: sticky; top: 0; z-index: 1100; }
-        .back-btn { background: var(--gold); color: #000; border: none; padding: 12px 20px; font-weight: bold; border-radius: 4px; }
-        .f-input { width: 100%; padding: 12px; margin: 8px 0 15px 0; background: #111; border: 1px solid #444; color: #fff; border-radius: 4px; font-size: 16px; }
+        .back-btn { background: var(--gold); color: #000; border: none; padding: 12px 18px; font-weight: bold; border-radius: 4px; }
         .box { padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #fff; line-height: 1.5; border: 2px solid #444; }
+        .f-input { width: 100%; padding: 10px; margin: 5px 0 10px 0; background: #111; border: 1px solid #444; color: #fff; border-radius: 4px; font-size: 16px; }
     </style>
 </head>
 <body>
@@ -31,67 +31,131 @@
     <div id="home">
         <img src="homepage.jpg" style="width:100%; height: auto; max-height: 100%; object-fit: contain;">
         <div class="side-col left">
-            <div class="main-btn" onclick="show('sos')">K9 SOS / VETS</div>
+            <div class="main-btn" onclick="show('sos')">K9 SOS/VETS</div>
             <div class="main-btn" onclick="show('aid')">K9 FIRST AID</div>
             <div class="main-btn" onclick="show('legal')">LEGAL BIBLE</div>
-            <div class="main-btn" onclick="show('drugs')">DRUGS / SAFETY</div>
+            <div class="main-btn" onclick="show('drugs')">DRUGS/SAFETY</div>
         </div>
         <div class="side-col right">
             <div class="main-btn" onclick="show('m-map')">TACTICAL GPS</div>
-            <div class="main-btn" onclick="show('incidents')">INCIDENT RPT</div>
             <div class="main-btn" onclick="show('training')">K9 TRAINING</div>
+            <div class="main-btn" onclick="show('incidents')">INCIDENT RPT</div>
+            <div class="main-btn" onclick="alert('Module Pending')">SEARCH LOG</div>
+        </div>
+    </div>
+
+    <div id="sos" class="page">
+        <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:red; margin-left:15px; font-weight:bold;">EMERGENCY VETS</span></div>
+        <div style="padding:15px;">
+            <div style="border: 1px solid red; padding: 15px; margin-bottom: 10px; border-radius: 4px; color:#fff;"><b>LYNCHBURG:</b> Animal Emergency & Critical Care <br><a href="tel:4348461504" style="color:#0ff;">(434) 846-1504</a></div>
+            <div style="border: 1px solid red; padding: 15px; margin-bottom: 10px; border-radius: 4px; color:#fff;"><b>CAMPBELL:</b> Peaks View Animal Hospital <br><a href="tel:4345254996" style="color:#0ff;">(434) 525-4996</a></div>
+            <div style="border: 1px solid red; padding: 15px; margin-bottom: 10px; border-radius: 4px; color:#fff;"><b>AMHERST:</b> Blue Ridge Animal Clinic <br><a href="tel:5404633774" style="color:#0ff;">(540) 463-3774</a></div>
         </div>
     </div>
 
     <div id="aid" class="page">
         <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:#ff3333; margin-left:15px; font-weight:bold;">K9 FIRST AID</span></div>
-        <div style="padding:15px; padding-bottom:80px;">
+        <div style="padding:15px;">
             <div class="box" style="border-color:#ff3333; background:#1a0000;">
-                <h3 style="color:#ff3333; margin:0 0 10px 0;">HEAT EXHAUSTION / BLOAT</h3>
-                <p><b>Heatstroke:</b> If the dog's temp exceeds 104°F, apply cool water to the belly, paws, and ears. 100% vital: Do NOT use ice water, as it causes blood vessels to constrict and traps heat inside the core.</p>
-                <p><b>Bloat (GDV):</b> Watch for unproductive retching, a "tight" drum-like stomach, and restlessness. This is a 10/10 emergency. In a tactical environment, keep the dog sternal (on chest) and transport at high priority to a vet with surgical capabilities.</p>
-                <p><b>Narcan:</b> For suspected opioid exposure, use nasal Narcan (4mg). A large K-9 may require multiple doses. Ensure the dog's airway is clear and use a muzzle only if they are conscious and aggressive.</p>
+                <h3 style="color:#ff3333;">HEAT & BLOAT</h3>
+                <p><b>Heatstroke:</b> If temp >104°F, use cool water on belly/paws. Do NOT use ice water as it traps heat.</p>
+                <p><b>Bloat:</b> Watch for retching and tight stomach. 10/10 emergency, transport immediately.</p>
+                <p><b>Narcan:</b> 4mg nasal for opioid exposure. Use multiple doses for large dogs if needed.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="legal" class="page">
+        <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:var(--gold); margin-left:15px; font-weight:bold;">LEGAL BIBLE</span></div>
+        <div style="padding:15px;">
+            <div class="box" style="border-color:#0055ff; background:#00051a;">
+                <h3 style="color:#0088ff;">FEDERAL STANDARDS</h3>
+                <p><b>Fourth Amendment:</b> Sniffing a car in public is NOT a search (US v. Place). It only reveals contraband.</p>
+                <p><b>Rodriguez v. US:</b> You cannot extend a traffic stop by 1 minute for a dog without independent suspicion.</p>
+                <p><b>Florida v. Harris:</b> Certification by a reputable group = Probable Cause. Keep your training logs tight.</p>
+            </div>
+            <div class="box" style="border-color:var(--gold); background:#1a1100;">
+                <h3 style="color:var(--gold);">VIRGINIA SPECIFICS</h3>
+                <p><b>Automobile Exception:</b> A K9 alert gives you PC to search the whole vehicle immediately.</p>
+                <p><b>Curtilage:</b> No dogs on porches without a warrant (Jardines). Stay in public walkways.</p>
+                <p><b>Testimony:</b> Articulate the change in body posture and the final alert. VA judges focus on objective facts.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="drugs" class="page">
+        <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:#39ff14; margin-left:15px; font-weight:bold;">DRUGS & SAFETY</span></div>
+        <div style="padding:15px;">
+            <div class="box" style="border-color:#39ff14; background:#051a00;">
+                <h3 style="color:#39ff14;">ID & HAZMAT</h3>
+                <p><b>Fentanyl:</b> Assume blue "M30" pills are lethal. Use Nitrile gloves. Never field test powders.</p>
+                <p><b>Exposure:</b> Symptoms: pinpoint pupils/slow breathing. Use Narcan immediately. Notify dispatch for EMS.</p>
+                <p><b>VA Weights:</b> 10g Meth or 5g Crack = mandatory minimums. Document scales and cash for PWID.</p>
             </div>
         </div>
     </div>
 
     <div id="m-map" class="page">
-        <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:#00ff00; margin-left:15px; font-weight:bold;">TACTICAL GPS</span></div>
-        <div id="live-map" style="height:65vh; background:#222;"></div>
-        <div style="padding:15px; background:#111; text-align:center;">
-            <button style="width:100%; background:#004400; color:#fff; padding:15px; border:1px solid #00ff00; border-radius:4px; font-weight:bold;">START TRACKING</button>
-        </div>
+        <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:#0ff; margin-left:15px; font-weight:bold;">TACTICAL GPS</span></div>
+        <div id="live-map" style="height:70vh; background:#222;"></div>
+        <div style="padding:10px;"><button onclick="startGps()" style="width:100%; background:#004400; color:#fff; padding:15px; border:1px solid #0f0; font-weight:bold;">START LIVE TRACKING</button></div>
     </div>
 
-    <div id="sos" class="page">
-        <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:#ff3333; margin-left:15px; font-weight:bold;">SOS / VETS</span></div>
-        <div style="padding:15px; padding-bottom:80px;">
-            <h3 style="color:red; text-align:center;">24/7 EMERGENCY VETS</h3>
-            <div style="background:#111; border:1px solid red; padding:15px; margin-bottom:10px; border-radius:4px; color:#fff;">
-                <b>LYNCHBURG:</b> Animal Emergency & Critical Care <br><a href="tel:4348461504" style="color:#00ff00;">(434) 846-1504</a>
-            </div>
-            <div style="background:#111; border:1px solid red; padding:15px; margin-bottom:10px; border-radius:4px; color:#fff;">
-                <b>CAMPBELL:</b> Peaks View Animal Hospital <br><a href="tel:4345254996" style="color:#00ff00;">(434) 525-4996</a>
-            </div>
-            <div style="background:#111; border:1px solid red; padding:15px; margin-bottom:10px; border-radius:4px; color:#fff;">
-                <b>AMHERST:</b> Blue Ridge Animal Clinic <br><a href="tel:5404633774" style="color:#00ff00;">(540) 463-3774</a>
+    <div id="training" class="page">
+        <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:#0fc; margin-left:15px; font-weight:bold;">TRAINING LOG</span></div>
+        <div style="padding:15px;">
+            <div class="box" style="border-color:#0fc; background:#001a1a;">
+                <label>Date/Time/Location:</label><input type="text" class="f-input">
+                <label>Scent & Height:</label><input type="text" class="f-input">
+                <label>Weather & Wind:</label><input type="text" class="f-input">
+                <label>Notes/Performance:</label><textarea class="f-input" style="height:80px;"></textarea>
+                <button onclick="alert('Saved')" style="width:100%; background:#0fc; color:#000; padding:12px; font-weight:bold; border:none;">SAVE TRAINING LOG</button>
             </div>
         </div>
     </div>
 
+    <div id="incidents" class="page">
+        <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:#f05; margin-left:15px; font-weight:bold;">INCIDENT REPORT</span></div>
+        <div style="padding:15px;">
+            <div class="box" style="border-color:#f05; background:#1a0005;">
+                <label>Officer/Dept/Case #:</label><input type="text" class="f-input">
+                <label>Classification/Disposition:</label><input type="text" class="f-input">
+                <label>Injuries/Diagram Notes:</label><textarea class="f-input" style="height:80px;"></textarea>
+                <button onclick="alert('Incident Logged')" style="width:100%; background:#f05; color:#fff; padding:12px; font-weight:bold; border:none;">LOG INCIDENT</button>
+            </div>
+        </div>
     </div>
+</div>
 
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    const pageList = ['sos', 'aid', 'legal', 'drugs', 'm-map', 'incidents', 'training'];
+    const pages = ['sos', 'aid', 'legal', 'drugs', 'm-map', 'training', 'incidents'];
+    let map;
+
     function show(id) {
-        pageList.forEach(p => { if(document.getElementById(p)) document.getElementById(p).style.display = 'none'; });
+        pages.forEach(p => { const el = document.getElementById(p); if(el) el.style.display = 'none'; });
         document.getElementById('home').style.display = 'none';
-        const target = document.getElementById(id);
-        if(target) target.style.display = 'block';
+        document.getElementById(id).style.display = 'block';
+        if(id === 'm-map' && !map) {
+            setTimeout(() => {
+                map = L.map('live-map').setView([37.5, -79.1], 13);
+                L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            }, 500);
+        }
     }
+
     function goHome() {
-        pageList.forEach(p => { if(document.getElementById(p)) document.getElementById(p).style.display = 'none'; });
+        pages.forEach(p => { const el = document.getElementById(p); if(el) el.style.display = 'none'; });
         document.getElementById('home').style.display = 'block';
+    }
+
+    function startGps() {
+        if(navigator.geolocation) {
+            navigator.geolocation.watchPosition(pos => {
+                L.circleMarker([pos.coords.latitude, pos.coords.longitude], {color:'blue', radius:10}).addTo(map);
+                map.panTo([pos.coords.latitude, pos.coords.longitude]);
+            });
+        }
     }
 </script>
 </body>
