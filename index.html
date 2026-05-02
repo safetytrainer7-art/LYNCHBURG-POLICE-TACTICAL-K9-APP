@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,20 +36,20 @@
         }
         .exit-btn { background: #900; color: #fff; border: 2px solid #fff; padding: 8px 12px; font-weight: bold; border-radius: 5px; cursor: pointer; }
 
-        /* --- MEDICAL CONTENT --- */
-        .med-scroll { padding: 15px; overflow-y: auto; height: calc(100% - 60px); padding-bottom: 50px; box-sizing: border-box; }
-        .med-card { 
-            background: #0a0a0a; border: 1px solid #d4af37; border-radius: 10px; 
-            padding: 20px; margin-bottom: 15px;
-        }
-        .med-card h2 { color: #d4af37; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 5px; }
-        .med-card p { color: #00ff00; font-family: monospace; font-size: 1em; line-height: 1.4; }
-        .speak-btn { 
-            background: #d4af37; color: #000; border: none; width: 100%; 
-            padding: 15px; font-weight: bold; border-radius: 5px; margin-top: 10px; font-size: 1em; cursor: pointer;
-        }
+        /* --- CONTENT AREAS --- */
+        .content-scroll { padding: 15px; overflow-y: auto; height: calc(100% - 60px); padding-bottom: 50px; box-sizing: border-box; }
+        
+        /* --- LOG STYLING --- */
+        .log-input { width: 100%; padding: 12px; background: #111; border: 1px solid #d4af37; color: #fff; margin-bottom: 10px; border-radius: 5px; box-sizing: border-box; }
+        .save-btn { width: 100%; padding: 15px; background: #28a745; color: #fff; border: none; font-weight: bold; border-radius: 5px; cursor: pointer; }
+        .log-entry { background: #0a0a0a; border-left: 4px solid #d4af37; padding: 10px; margin-top: 15px; font-family: monospace; font-size: 0.8em; }
 
-        /* --- GPS CONTENT --- */
+        /* --- MEDICAL STYLING --- */
+        .med-card { background: #0a0a0a; border: 1px solid #d4af37; border-radius: 10px; padding: 20px; margin-bottom: 15px; }
+        .med-card h2 { color: #d4af37; margin: 0 0 10px 0; border-bottom: 1px solid #333; }
+        .speak-btn { background: #d4af37; color: #000; border: none; width: 100%; padding: 15px; font-weight: bold; border-radius: 5px; margin-top: 10px; cursor: pointer; }
+
+        /* --- GPS STYLING --- */
         #map { width: 100%; height: 50%; border-bottom: 2px solid #d4af37; }
         .gps-controls { height: calc(50% - 60px); background: #001a11; padding: 10px; box-sizing: border-box; overflow-y: auto; }
         .hud-bar { background: #000; border: 1px solid #00ff00; color: #00ff00; padding: 8px; font-family: monospace; font-size: 0.8em; margin-bottom: 8px; display: flex; justify-content: space-around; }
@@ -72,7 +73,7 @@
         <div class="app-icon" onclick="openModule('med-module')">
             <div style="font-size: 2.5em;">🐕</div><span>K9 MEDICAL</span>
         </div>
-        <div class="app-icon" onclick="alert('Module Locked')">
+        <div class="app-icon" onclick="openModule('log-module')">
             <div style="font-size: 2.5em;">📝</div><span>SEARCH LOGS</span>
         </div>
         <div class="app-icon" onclick="alert('Module Locked')">
@@ -87,23 +88,44 @@
     </div>
 </div>
 
-<!-- 2. K9 MEDICAL MODULE (ALL CATEGORIES RESTORED) -->
+<!-- 2. SEARCH LOGS MODULE -->
+<div id="log-module" class="module-layer">
+    <div class="nav-header">
+        <button class="exit-btn" onclick="closeModule('log-module')">EXIT TO HOME</button>
+        <span style="color: #d4af37; font-weight: bold;">SEARCH LOGS</span>
+    </div>
+    <div class="content-scroll">
+        <div style="background: #111; padding: 15px; border-radius: 10px; border: 1px solid #333;">
+            <label style="color: #d4af37; font-size: 0.8em;">DATE / TIME</label>
+            <input type="text" id="log-time" class="log-input" placeholder="05/02/2026 - 10:00AM">
+            
+            <label style="color: #d4af37; font-size: 0.8em;">LOCATION / CASE #</label>
+            <input type="text" id="log-loc" class="log-input" placeholder="Amherst - Rt 29 North">
+            
+            <label style="color: #d4af37; font-size: 0.8em;">ACTIVITY / FINDINGS</label>
+            <textarea id="log-notes" class="log-input" style="height: 80px;" placeholder="K9 Track started at CP..."></textarea>
+            
+            <button class="save-btn" onclick="saveLog()">SUBMIT ENTRY</button>
+        </div>
+        
+        <h3 style="color: #d4af37; border-bottom: 1px solid #d4af37; margin-top: 25px;">HISTORICAL LOGS</h3>
+        <div id="log-display"></div>
+    </div>
+</div>
+
+<!-- 3. K9 MEDICAL MODULE -->
 <div id="med-module" class="module-layer">
     <div class="nav-header">
         <button class="exit-btn" onclick="closeModule('med-module')">EXIT TO HOME</button>
         <span style="color: #d4af37; font-weight: bold;">K9 FIRST AID</span>
     </div>
-    <div class="med-scroll">
-        <div class="med-card"><h2>K9 CPR</h2><p>100-120 compressions/min. 30:2 cycle.</p><button class="speak-btn" onclick="shout('K9 CPR Protocol. 100 to 120 compressions per minute.')">🔊 VOICE GUIDE</button></div>
-        <div class="med-card"><h2>GUNSHOT / BLEED</h2><p>Apply pressure. Use hemostatic gauze.</p><button class="speak-btn" onclick="shout('Gunshot wound protocol. Apply direct pressure.')">🔊 VOICE GUIDE</button></div>
-        <div class="med-card"><h2>HEAT EXHAUSTION</h2><p>Cool water on paws/belly. Move to shade.</p><button class="speak-btn" onclick="shout('Heat exhaustion protocol. Move to shade. Use cool water.')">🔊 VOICE GUIDE</button></div>
-        <div class="med-card"><h2>SNAKE BITE</h2><p>Keep bite below heart. Immobilize.</p><button class="speak-btn" onclick="shout('Snake bite protocol. Keep the site below the heart.')">🔊 VOICE GUIDE</button></div>
-        <div class="med-card"><h2>POISONING</h2><p>Identify toxin. Do not induce vomiting.</p><button class="speak-btn" onclick="shout('Poisoning protocol. Identify the substance immediately.')">🔊 VOICE GUIDE</button></div>
-        <div class="med-card"><h2>FRACTURE</h2><p>Support limb. Use blanket stretcher.</p><button class="speak-btn" onclick="shout('Fracture protocol. Support the limb. Use a stretcher.')">🔊 VOICE GUIDE</button></div>
+    <div class="content-scroll">
+        <div class="med-card"><h2>K9 CPR</h2><p>100-120 compressions/min. 30:2 cycle.</p><button class="speak-btn" onclick="shout('K9 CPR Protocol active.')">🔊 VOICE GUIDE</button></div>
+        <div class="med-card"><h2>TRAUMA</h2><p>Apply pressure. Use hemostatic gauze.</p><button class="speak-btn" onclick="shout('Trauma protocol active.')">🔊 VOICE GUIDE</button></div>
     </div>
 </div>
 
-<!-- 3. TACTICAL GPS MODULE (RESTORED ICONS) -->
+<!-- 4. GPS MODULE -->
 <div id="gps-module" class="module-layer">
     <div class="nav-header">
         <button class="exit-btn" onclick="closeModule('gps-module')">SHUT DOWN GPS</button>
@@ -120,10 +142,6 @@
             <button onclick="initCP()" style="flex:1; background:#28a745; color:#fff; border:none; font-weight:bold;">SET CP</button>
         </div>
         <div class="btn-row">
-            <button onclick="setMode('perimeter')" style="flex:1; background:#ff8c00; border:none; padding:10px; color:white; font-weight:bold;">PERIMETER</button>
-            <button onclick="findMe()" style="flex:1; background:#007bff; border:none; padding:10px; color:white; font-weight:bold;">MY GPS</button>
-        </div>
-        <div class="btn-row">
             <div id="dot-blue" class="dot-btn" style="background:blue;" onclick="setMode('blue')">OFFICER</div>
             <div id="dot-red" class="dot-btn" style="background:red;" onclick="setMode('red')">SAR</div>
             <div id="dot-purple" class="dot-btn" style="background:purple;" onclick="setMode('purple')">SUBJECT</div>
@@ -133,27 +151,43 @@
 
 <script>
     var map, cpPos, lastMarkerPos, currentMode = 'blue';
-    var perimeterPoints = [];
-    var perimeterPoly = null;
 
     function openModule(id) {
         document.getElementById(id).style.display = 'block';
         if (id === 'gps-module' && !map) {
             map = L.map('map', { zoomControl: false }).setView([37.58, -79.05], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            map.on('click', function(e) {
-                if(currentMode === 'perimeter') { addBoundary(e.latlng); }
-                else { dropUnit(e.latlng, currentMode); }
-            });
+            map.on('click', function(e) { dropUnit(e.latlng, currentMode); });
         }
     }
 
     function closeModule(id) { document.getElementById(id).style.display = 'none'; window.speechSynthesis.cancel(); }
 
+    // --- LOG LOGIC ---
+    function saveLog() {
+        var time = document.getElementById('log-time').value;
+        var loc = document.getElementById('log-loc').value;
+        var notes = document.getElementById('log-notes').value;
+        
+        if(!loc || !notes) { alert("Please enter Location and Activity"); return; }
+        
+        var entry = document.createElement('div');
+        entry.className = 'log-entry';
+        entry.innerHTML = `<strong>${time || 'CURRENT'}</strong><br>LOC: ${loc}<br>ACT: ${notes}`;
+        
+        document.getElementById('log-display').prepend(entry);
+        
+        // Clear inputs
+        document.getElementById('log-loc').value = "";
+        document.getElementById('log-notes').value = "";
+        alert("Log Saved to Terminal");
+    }
+
+    // --- GPS LOGIC ---
     function setMode(m) {
         currentMode = m;
         document.querySelectorAll('.dot-btn').forEach(b => b.classList.remove('active-dot'));
-        if(m !== 'perimeter') document.getElementById('dot-'+m).classList.add('active-dot');
+        document.getElementById('dot-'+m).classList.add('active-dot');
     }
 
     function dropUnit(ll, color) {
@@ -163,7 +197,6 @@
         document.getElementById('cp-val').innerText = cpDist;
         document.getElementById('gap-val').innerText = gapDist;
         lastMarkerPos = ll;
-        marker.on('click', function(ev) { L.DomEvent.stopPropagation(ev); if(confirm("Remove unit?")) { map.removeLayer(marker); } });
     }
 
     async function initCP() {
@@ -177,13 +210,6 @@
         }
     }
 
-    function findMe() { map.locate({setView: true, maxZoom: 16}); }
-    function addBoundary(ll) {
-        perimeterPoints.push([ll.lat, ll.lng]);
-        if(perimeterPoly) map.removeLayer(perimeterPoly);
-        if(perimeterPoints.length >= 3) { perimeterPoly = L.polygon(perimeterPoints, {color: '#ff8c00', fillOpacity: 0.1}).addTo(map); }
-        L.circleMarker(ll, {radius: 4, color: '#ff8c00'}).addTo(map);
-    }
     function shout(text) { window.speechSynthesis.cancel(); var u = new SpeechSynthesisUtterance(text); u.rate = 0.85; window.speechSynthesis.speak(u); }
 </script>
 
