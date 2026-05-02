@@ -1,70 +1,110 @@
-
 <div id="m-map" class="page">
     <div class="header">
         <button class="back-btn" onclick="closePage('m-map')">← BACK</button>
-        <h2 style="color:#c5a059; margin:0;">TACTICAL PERIMETER HUB</h2>
-    </div>
-    
-    <div id="map-toolbar">
-        <input type="text" id="addr-search" placeholder="ENTER ADDRESS...">
-        <div class="tool-row">
-            <button class="tool-btn" onclick="setMode('le')">BLUE (LE)</button>
-            <button class="tool-btn" onclick="setMode('k9')">LT BLUE (K9)</button>
-            <button class="tool-btn" onclick="setMode('sar')">RED (SAR)</button>
-            <button class="tool-btn" onclick="setMode('sus')">PURPLE (SUB)</button>
-        </div>
-        <div class="tool-row">
-            <button class="tool-btn action" onclick="togglePerimeter()">PERIMETER</button>
-            <button class="tool-btn action" onclick="dropFlag()">FOUND PROP</button>
-            <button class="tool-btn action" onclick="toggleNight()">NIGHT VISION</button>
-            <button class="tool-btn alert" onclick="resetMap()">RESET ALL</button>
-        </div>
+        <h2 style="color:#c5a059; margin:0;">TACTICAL MAP HUB</h2>
     </div>
 
-    <div id="map-display"></div>
+    <div style="background: #000; padding: 10px; border-bottom: 2px solid #c5a059;">
+        <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+            <input type="text" id="map-search" placeholder="ENTER SEARCH ADDRESS..." 
+                   style="flex-grow: 1; padding: 12px; background: #111; color: #fff; border: 1px solid #c5a059; font-weight: bold;">
+            <button onclick="searchAddr()" style="background: #c5a059; color: #000; border: none; padding: 10px; font-weight: bold;">GO</button>
+        </div>
+
+        <div style="display: flex; justify-content: space-around; margin-bottom: 10px;">
+            <button class="tool-btn" onclick="setRole('le')">BLUE (LE)</button>
+            <button class="tool-btn" onclick="setRole('k9')">LT BLUE (K9)</button>
+            <button class="tool-btn" onclick="setRole('sar')">RED (SAR)</button>
+            <button class="tool-btn" onclick="setRole('sub')">PURPLE (SUB)</button>
+        </div>
+
+        <button id="start-btn" onclick="startGps()" 
+                style="width: 100%; background: #004400; color: #fff; border: 2px solid #00ff00; padding: 15px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;">
+            ▶ START LIVE TRACKING
+        </button>
+    </div>
+
+    <div id="live-map" style="width: 100%; height: 50vh; background: #111; border-bottom: 2px solid #c5a059;"></div>
+
+    <div style="display: flex; justify-content: space-between; padding: 15px; background: #000; color: #c5a059; font-family: monospace;">
+        <div id="wind-dir">🚩 WIND: NORTH 8MPH</div>
+        <div id="dist-check">DIST TO NEAREST: -- FT</div>
+    </div>
     
-    <div id="tactical-data">
-        <div id="wind-flag">🚩 WIND: NW 12MPH</div>
-        <div id="dist-calc">DIST TO NEAREST: 0.00 FT</div>
+    <div style="padding: 10px; display: flex; gap: 10px;">
+        <button class="tool-btn" style="background: #444;" onclick="toggleNight()">NIGHT VISION</button>
+        <button class="tool-btn" style="background: #600; color: white;" onclick="resetPerimeter()">RESET PERIMETER</button>
     </div>
 </div>
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <style>
-    #map-toolbar { background: #000; padding: 10px; border-bottom: 1px solid var(--gold); }
-    #addr-search { width: 95%; padding: 10px; background: #111; color: #fff; border: 1px solid var(--gold); margin-bottom: 5px; }
-    #map-display { width: 100%; height: 60vh; background: #222; }
-    .tool-row { display: flex; justify-content: space-around; margin-top: 5px; }
-    .tool-btn { background: #1a1a1a; color: var(--gold); border: 1px solid var(--gold); padding: 8px 2px; font-size: 10px; width: 23%; border-radius: 4px; }
-    .tool-btn.action { background: var(--gold); color: #000; font-weight: bold; }
-    .tool-btn.alert { background: #600; color: #fff; border: none; }
-    
-    #tactical-data { display: flex; justify-content: space-between; padding: 10px; background: #000; font-family: monospace; color: var(--gold); font-size: 12px; }
-    
-    /* NIGHT VISION OVERLAY */
-    .night-mode { filter: invert(100%) hue-rotate(180deg) brightness(0.7) contrast(1.2); }
+    .tool-btn { flex: 1; background: #1a1a1a; color: #c5a059; border: 1px solid #c5a059; padding: 10px 2px; font-size: 11px; font-weight: bold; border-radius: 4px; }
+    .night-vision-map { filter: invert(100%) hue-rotate(180deg) brightness(0.6) contrast(1.2); }
 </style>
 
 <script>
-    // Note: To make this "Live" for all phones, you will eventually link this to a 
-    // service like Firebase or Ably so the dots move on everyone's screen.
+    let map;
+    let userMarker;
     
-    let mapMode = 'le'; 
-    
-    function setMode(type) {
-        mapMode = type;
-        console.log("Active Mode: " + type);
-    }
-
-    function toggleNight() {
-        document.getElementById('map-display').classList.toggle('night-mode');
-    }
-
-    function resetMap() {
-        if(confirm("SHUT DOWN SEARCH? This clears all flags and perimeters.")) {
-            location.reload(); 
+    // Initialize the map when the page opens
+    function initMap() {
+        if (!map) {
+            map = L.map('live-map').setView([37.525, -79.15], 13); // Centered near Amherst
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
         }
     }
 
-    // Logic for placing/removing markers would go here
-    // Distance calculation logic: Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2))
+    // Override the openPage function to load the map
+    const oldOpen = openPage;
+    openPage = function(id) {
+        oldOpen(id);
+        if(id === 'm-map') {
+            setTimeout(initMap, 300); // Give it a second to show the page first
+        }
+    }
+
+    function startGps() {
+        const btn = document.getElementById('start-btn');
+        btn.innerHTML = "📡 TRACKING ACTIVE";
+        btn.style.background = "#440000"; // Glow red when hot
+        
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition(pos => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                
+                if (userMarker) {
+                    userMarker.setLatLng([lat, lng]);
+                } else {
+                    userMarker = L.circleMarker([lat, lng], { color: 'blue', radius: 10, fillOpacity: 0.8 }).addTo(map);
+                }
+                map.setView([lat, lng], 16);
+            });
+        }
+    }
+
+    function searchAddr() {
+        let addr = document.getElementById('map-search').value;
+        if(addr) {
+            // Simple logic: In the real world, this calls a geocoder. 
+            // For now, it alerts the team.
+            alert("SEARCHING FOR: " + addr);
+        }
+    }
+
+    function toggleNight() {
+        document.getElementById('live-map').classList.toggle('night-vision-map');
+    }
+    
+    function resetPerimeter() {
+        if(confirm("CLEAR ALL TRACKING DATA?")) {
+            location.reload();
+        }
+    }
 </script>
