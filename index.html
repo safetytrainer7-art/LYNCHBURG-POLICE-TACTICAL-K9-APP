@@ -1,31 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ACSD COMMAND HUB</title>
+    <style>
+        /* Forces the background to be black so there is no white screen */
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            height: 100vh; 
+            width: 100vw; 
+            background-color: #000000 !important; 
+            overflow: hidden; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+        }
 
-    /* THE CONTAINER KEEPS EVERYTHING ATTACHED TO THE PHOTO */
-    #app-container {
-        position: relative;
-        width: 100%;
-        max-width: 1000px; /* Adjust based on your screen size */
-        aspect-ratio: 16 / 9; /* Matches your landscape design */
-        background-image: url('homepage.jpg'), url('homepage.png'), url('IMG_2908.png');
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
-    }
+        #app-container {
+            position: relative;
+            width: 100vw;
+            height: 56.25vw; /* This forces the 16:9 landscape ratio */
+            max-height: 100vh;
+            max-width: 177.78vh; /* Prevents stretching too wide */
+            background-image: url('homepage.png.png'), url('homepage.png'), url('homepage.jpg'), url('IMG_2908.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: #000;
+        }
 
-    /* TACTICAL HOTSPOTS - RED BORDERS FOR ALIGNMENT */
-    .hotspot { position: absolute; cursor: pointer; border: 2px solid red; z-index: 50; }
-    
-    /* LEFT COLUMN (SOS, Legal, Narc) */
-    #spot-med  { top: 18%; left: 12%; width: 10%; height: 20%; }
-    #spot-law  { top: 45%; left: 12%; width: 10%; height: 20%; }
-    #spot-narc { top: 72%; left: 12%; width: 10%; height: 15%; }
-    
-    /* RIGHT COLUMN (Map, Logs, VA Code) */
-    #spot-map  { top: 18%; right: 12%; width: 10%; height: 20%; }
-    #spot-logs { top: 45%; right: 12%; width: 10%; height: 20%; }
-    #spot-va   { top: 72%; right: 12%; width: 10%; height: 15%; }
+        /* TACTICAL HOTSPOTS - RED BOXES FOR CALIBRATION */
+        .hotspot { 
+            position: absolute; 
+            cursor: pointer; 
+            border: 2px solid red; 
+            z-index: 50; 
+            box-sizing: border-box;
+        }
+        
+        /* Adjusted based on your official layout */
+        #spot-med  { top: 15%; left: 11%; width: 12%; height: 22%; } /* SOS */
+        #spot-law  { top: 43%; left: 11%; width: 12%; height: 22%; } /* LEGAL */
+        #spot-narc { top: 70%; left: 11%; width: 12%; height: 18%; } /* NARC */
+        
+        #spot-map  { top: 15%; right: 11%; width: 12%; height: 22%; } /* MAP */
+        #spot-logs { top: 43%; right: 11%; width: 12%; height: 22%; } /* LOGS */
+        #spot-va   { top: 70%; right: 11%; width: 12%; height: 18%; } /* VA CODE */
 
-    .module { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #001a00; z-index: 100; color: var(--gold); flex-direction: column; }
-    .mod-header { background: #000; padding: 15px; border-bottom: 2px solid var(--gold); display: flex; gap: 10px; font-weight: bold; }
-    .back-btn { background: var(--gold); color: #000; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; border-radius: 5px; }
-    .content { padding: 20px; overflow-y: auto; font-size: 18px; line-height: 1.6; color: #fff; }
-</style>
+        .module { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: #001a00; 
+            z-index: 100; 
+            color: #c5a059; 
+            flex-direction: column; 
+        }
+        .mod-header { background: #000; padding: 15px; border-bottom: 2px solid #c5a059; display: flex; gap: 10px; }
+        .back-btn { background: #c5a059; color: #000; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    <div id="spot-med" class="hotspot" onclick="openMod('med-mod')"></div>
+    <div id="spot-law" class="hotspot" onclick="openMod('law-mod')"></div>
+    <div id="spot-narc" class="hotspot" onclick="alert('Narcotics Protocols Loaded')"></div>
+    <div id="spot-map" class="hotspot" onclick="alert('Tactical Map Loading...')"></div>
+    <div id="spot-logs" class="hotspot" onclick="alert('Training Logs Loading...')"></div>
+    <div id="spot-va" class="hotspot" onclick="alert('Virginia Code Loaded')"></div>
+</div>
+
+<div id="med-mod" class="module">
+    <div class="mod-header"><button class="back-btn" onclick="closeMod('med-mod')">BACK</button><span>K9 EMERGENCY SOS</span></div>
+    <div style="padding:20px; color:#fff;">
+        <h2>K9 FIELD TRAUMA</h2>
+        <p>Immediate action steps for field emergencies.</p>
+    </div>
+</div>
+
+<div id="law-mod" class="module">
+    <div class="mod-header"><button class="back-btn" onclick="closeMod('law-mod')">BACK</button><span>LEGAL BIBLE</span></div>
+    <div style="padding:20px; color:#fff;">
+        <h2>Graham v. Connor</h2>
+        <p>Standard for objective reasonableness.</p>
+    </div>
+</div>
+
+<script>
+    function openMod(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeMod(id) { document.getElementById(id).style.display = 'none'; }
+</script>
+
+</body>
+</html>
