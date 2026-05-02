@@ -1,93 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND HUB</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <style>
-        :root { --gold: #c5a059; --dark-green: #003314; }
-        body, html { margin: 0; padding: 0; height: 100vh; width: 100vw; background: #000; overflow: hidden; font-family: 'Georgia', serif; }
 
-        #home-screen {
-            position: absolute; width: 100%; height: 100%;
-            background-image: url('homepage.jpg'), url('homepage.png'), url('IMG_2908.png');
-            background-repeat: no-repeat; background-position: center center; background-size: contain;
-            z-index: 10;
-        }
-
-        .hotspot { position: absolute; cursor: pointer; z-index: 20; }
-        #spot-med  { top: 15%; left: 8%; width: 18%; height: 28%; }
-        #spot-law  { top: 45%; left: 8%; width: 18%; height: 28%; }
-        #spot-narc { top: 72%; left: 8%; width: 18%; height: 20%; }
-        #spot-map  { top: 15%; right: 8%; width: 18%; height: 28%; }
-        #spot-logs { top: 45%; right: 8%; width: 18%; height: 28%; }
-        #spot-va   { top: 72%; right: 8%; width: 18%; height: 20%; }
-
-        .module { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #001a00; z-index: 100; color: var(--gold); flex-direction: column; }
-        .mod-header { background: #000; padding: 15px; border-bottom: 2px solid var(--gold); display: flex; gap: 10px; font-weight: bold; }
-        .back-btn { background: var(--gold); color: #000; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; border-radius: 5px; }
-        .content { padding: 20px; overflow-y: auto; font-size: 18px; line-height: 1.6; color: #fff; }
-        #map { flex-grow: 1; width: 100%; }
-    </style>
-</head>
-<body>
-
-<div id="home-screen">
-    <div id="spot-med" class="hotspot" onclick="openMod('med-mod')"></div>
-    <div id="spot-law" class="hotspot" onclick="openMod('law-mod')"></div>
-    <div id="spot-narc" class="hotspot" onclick="openMod('narc-mod')"></div>
-    <div id="spot-map" class="hotspot" onclick="openMod('map-mod')"></div>
-    <div id="spot-logs" class="hotspot" onclick="alert('Training Logs: Ready for Entry')"></div>
-    <div id="spot-va" class="hotspot" onclick="openMod('va-mod')"></div>
-</div>
-
-<div id="med-mod" class="module">
-    <div class="mod-header"><button class="back-btn" onclick="closeMod('med-mod')">BACK</button><span>K9 EMERGENCY PROTOCOLS</span></div>
-    <div class="content">
-        <h2 style="color:var(--gold)">K9 FIELD TRAUMA - INTRO</h2>
-        <p><em>Immediate action steps for K9 field emergencies prior to transport.</em></p>
-        <ul>
-            <li><strong>Heat Stress:</strong> Cool water on foot pads, inner thighs, and neck.</li>
-            <li><strong>Trauma / Bleeding:</strong> Apply direct pressure with sterile gauze.</li>
-            <li><strong>Poison / Ingestion:</strong> Identify suspect substance and contact vet immediately.</li>
-        </ul>
-    </div>
-</div>
-
-<div id="narc-mod" class="module">
-    <div class="mod-header"><button class="back-btn" onclick="closeMod('narc-mod')">BACK</button><span>NARCOTICS & ORDNANCE</span></div>
-    <div class="content">
-        <h2 style="color:var(--gold)">DETECTION STANDARDS</h2>
-        <p>Amherst County field verification protocols.</p>
-    </div>
-</div>
-
-<div id="law-mod" class="module">
-    <div class="mod-header"><button class="back-btn" onclick="closeMod('law-mod')">BACK</button><span>LEGAL BIBLE</span></div>
-    <div class="content">
-        <h2 style="color:var(--gold)">Graham v. Connor</h2>
-        <p>Judged from the perspective of a reasonable officer on the scene.</p>
-    </div>
-</div>
-
-<div id="map-mod" class="module">
-    <div class="mod-header"><button class="back-btn" onclick="closeMod('map-mod')">BACK</button><span>TACTICAL MISSION MAP</span></div>
-    <div id="map"></div>
-</div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-    var map;
-    function openMod(id) {
-        document.getElementById(id).style.display = 'flex';
-        if(id === 'map-mod' && !map) {
-            map = L.map('map').setView([37.584, -79.052], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        }
+    /* THE CONTAINER KEEPS EVERYTHING ATTACHED TO THE PHOTO */
+    #app-container {
+        position: relative;
+        width: 100%;
+        max-width: 1000px; /* Adjust based on your screen size */
+        aspect-ratio: 16 / 9; /* Matches your landscape design */
+        background-image: url('homepage.jpg'), url('homepage.png'), url('IMG_2908.png');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
     }
-    function closeMod(id) { document.getElementById(id).style.display = 'none'; }
-</script>
 
-</body>
-</html>
+    /* TACTICAL HOTSPOTS - RED BORDERS FOR ALIGNMENT */
+    .hotspot { position: absolute; cursor: pointer; border: 2px solid red; z-index: 50; }
+    
+    /* LEFT COLUMN (SOS, Legal, Narc) */
+    #spot-med  { top: 18%; left: 12%; width: 10%; height: 20%; }
+    #spot-law  { top: 45%; left: 12%; width: 10%; height: 20%; }
+    #spot-narc { top: 72%; left: 12%; width: 10%; height: 15%; }
+    
+    /* RIGHT COLUMN (Map, Logs, VA Code) */
+    #spot-map  { top: 18%; right: 12%; width: 10%; height: 20%; }
+    #spot-logs { top: 45%; right: 12%; width: 10%; height: 20%; }
+    #spot-va   { top: 72%; right: 12%; width: 10%; height: 15%; }
+
+    .module { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #001a00; z-index: 100; color: var(--gold); flex-direction: column; }
+    .mod-header { background: #000; padding: 15px; border-bottom: 2px solid var(--gold); display: flex; gap: 10px; font-weight: bold; }
+    .back-btn { background: var(--gold); color: #000; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; border-radius: 5px; }
+    .content { padding: 20px; overflow-y: auto; font-size: 18px; line-height: 1.6; color: #fff; }
+</style>
