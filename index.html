@@ -1,141 +1,61 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND V191</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
-    <style>
-        :root { --gold: #c5a059; --bg: #000; }
-        * { box-sizing: border-box; }
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: var(--bg); overflow: hidden; font-family: sans-serif; }
-        #container { width: 100%; height: 100%; position: relative; }
-        
-        /* Home Screen Layout */
-        .home-view { width: 100%; height: 100%; background: radial-gradient(circle, #001a00 0%, #000 100%); display: flex; justify-content: center; align-items: center; position: relative; }
-        .side-col { position: absolute; width: 22%; height: 60%; top: 20%; display: flex; flex-direction: column; justify-content: space-around; z-index: 100; }
-        .left { left: 2%; } .right { right: 2%; }
-        .main-btn { background: rgba(0, 20, 0, 0.9); border: 2px solid var(--gold); color: var(--gold); padding: 12px 2px; text-align: center; font-size: 11px; font-weight: bold; border-radius: 6px; text-transform: uppercase; }
-
-        /* Pages */
-        .page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 500; overflow: hidden; }
-        .header { background: #111; border-bottom: 2px solid var(--gold); padding: 10px; display: flex; align-items: center; }
-        .back-btn { background: var(--gold); color: #000; border: none; padding: 10px 15px; font-weight: bold; border-radius: 4px; }
-
-        #map-controls { background: #111; padding: 8px; width: 100%; }
-        #live-map { width: 100%; height: 40vh; background: #222; border-bottom: 1px solid var(--gold); }
-
-        /* Tactical Grid */
-        .tool-grid { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px; background: #000; }
-        .role-btn { flex: 1 1 18%; background: #222; color: #fff; border: 1px solid #444; padding: 12px 0; font-size: 11px; font-weight: bold; border-radius: 4px; }
-        .act-btn { flex: 1 1 30%; background: var(--gold); color: #000; border: none; padding: 18px 0; font-size: 11px; font-weight: bold; border-radius: 4px; text-transform: uppercase; margin-top: 5px; }
-        
-        .night-vision-map { filter: invert(100%) hue-rotate(180deg) brightness(0.6) contrast(1.2); }
-    </style>
-</head>
-<body>
-
-<div id="container">
-    <div class="home-view">
-        <img src="homepage.jpg" style="width:100%; height: auto; max-height: 100%; object-fit: contain;">
-        <div class="side-col left">
-            <div class="main-btn" onclick="openPage('sos')">K9 SOS</div>
-            <div class="main-btn">LEGAL</div>
-            <div class="main-btn">DRUGS</div>
-        </div>
-        <div class="side-col right">
-            <div class="main-btn" onclick="openPage('m-map')">TACTICAL MAP</div>
-            <div class="main-btn">LOGS</div>
-            <div class="main-btn">CODE</div>
-        </div>
-    </div>
-</div>
-
-<div id="m-map" class="page">
+<div id="legal" class="page" style="overflow-y: auto; background: #000;">
     <div class="header">
-        <button class="back-btn" onclick="closePage('m-map')">← BACK</button>
-        <span style="color:var(--gold); margin-left:15px; font-weight:bold;">TACTICAL MAP</span>
+        <button class="back-btn" onclick="closePage('legal')">← BACK</button>
+        <span style="color:var(--gold); margin-left:15px; font-weight:bold;">K-9 LEGAL BIBLE</span>
     </div>
-    <div id="map-controls">
-        <div style="display:flex; gap:4px; margin-bottom:8px;">
-            <input type="text" id="map-search" placeholder="ADDRESS..." style="flex:1; padding:12px; border-radius:4px; border:1px solid var(--gold); background:#000; color:#fff; font-size:16px;">
-            <button onclick="searchAddr()" style="background:var(--gold); border:none; padding:0 15px; border-radius:4px; font-weight:bold;">GO</button>
+
+    <div style="padding: 15px; padding-bottom: 80px;">
+        
+        <div style="border: 2px solid #0055ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; background: #00051a;">
+            <h2 style="color: #0088ff; margin-top: 0; text-transform: uppercase;">Section I: Federal Standards</h2>
+            
+            <p style="color: #fff; line-height: 1.5;">
+                Federal law regarding working dogs is anchored in the **Fourth Amendment**, establishing that a K-9 sniff of a vehicle in a public place is not a "search" under the Constitution. Key rulings like **US v. Place (1983)** and **City of Indianapolis v. Edmond (2000)** clarify that dogs are unique "sui generis" tools because they only disclose the presence of contraband. This means deputies don't need a warrant or even reasonable suspicion just to walk a dog around a car during a lawful traffic stop.
+            </p>
+            
+            <p style="color: #fff; line-height: 1.5;">
+                The "Clock" is the most critical factor for a K-9 handler following **Rodriguez v. US (2015)**. The Supreme Court ruled that a stop cannot be extended a single minute beyond the time needed to handle the initial traffic mission (checking license, registration, and writing the ticket). To stay legal, you must either have the dog on-scene during the stop or have independent **Reasonable Suspicion** to hold the vehicle after the ticket is handed over.
+            </p>
+            
+            <p style="color: #fff; line-height: 1.5;">
+                Reliability is established by **Florida v. Harris (2013)**, which rejected "strict checklists" for dog performance. The Court held that if a dog is properly certified by a reputable organization, its alert provides **Probable Cause** for a search. Handlers must maintain training logs to show the dog is "well-trained," but the "totality of circumstances" remains the standard for a legal alert in the eyes of the Federal courts.
+            </p>
+            
+            <div style="background: #111; padding: 10px; border-left: 4px solid #0088ff; font-size: 13px; color: #aaa;">
+                <b>FEDERAL LIST:</b> US v. Place • Illinois v. Caballes • Florida v. Harris • Rodriguez v. US • Florida v. Jardines • US v. Sharpe • City of Indianapolis v. Edmond • US v. Place • US v. Jacobsen • US v. Thomas • US v. Ludwig • US v. Garcia • US v. Morales-Zamora • US v. Lingenfelter • US v. Seals • US v. Boxley • US v. Hunnicutt • US v. Sukiz-Grado • US v. Kitchell.
+            </div>
         </div>
-        <button id="start-btn" onclick="startGps()" style="width:100%; background:#004400; color:#fff; border:1px solid #00ff00; padding:12px; font-weight:bold; border-radius:4px;">▶ START LIVE TRACKING</button>
-    </div>
-    <div id="live-map"></div>
-    <div class="tool-grid">
-        <button class="role-btn" style="border-top:4px solid blue;" onclick="setRole('blue')">LE</button>
-        <button class="role-btn" style="border-top:4px solid #00d4ff;" onclick="setRole('#00d4ff')">K9</button>
-        <button class="role-btn" style="border-top:4px solid red;" onclick="setRole('red')">SAR</button>
-        <button class="role-btn" style="border-top:4px solid purple;" onclick="setRole('purple')">SUB</button>
-        <button class="role-btn" style="border-top:4px solid green;" onclick="setRole('green')">CIV</button>
-        <button class="act-btn" style="background:#600; color:#fff;" onclick="togglePerimeter()">📍 PERIMETER</button>
-        <button class="act-btn" onclick="dropFlag()">🚩 FOUND PROP</button>
-        <button class="act-btn" onclick="toggleNight()">🌙 NIGHT</button>
+
+        <div style="border: 2px solid #ffaa00; padding: 15px; border-radius: 8px; margin-bottom: 20px; background: #1a1100;">
+            <h2 style="color: #ffaa00; margin-top: 0; text-transform: uppercase;">Section II: Virginia Specifics</h2>
+            
+            <p style="color: #fff; line-height: 1.5;">
+                Virginia courts have traditionally followed the "Plain Sniff" doctrine but offer specific protections regarding private property. In the Commonwealth, a K-9 alert is widely recognized as a sufficient basis for a warrantless search of a vehicle under the **Automobile Exception**. Rulings emphasize that once a certified dog gives a final response, the deputy has immediate Probable Cause to search every part of the vehicle where the target odor could be hidden.
+            </p>
+            
+            <p style="color: #fff; line-height: 1.5;">
+                The **Curtilage Rule** in Virginia is strictly enforced following the spirit of *Jardines*. Bringing a dog onto a suspect’s porch to sniff the front door without a warrant or consent is considered a trespass and an illegal search. Virginia handlers must be careful when working residential "perimeters" to stay in public areas or on common pathways; otherwise, the "physical intrusion" will get the evidence tossed by a Commonwealth judge.
+            </p>
+            
+            <p style="color: #fff; line-height: 1.5;">
+                Case law such as **Brown v. Commonwealth** and **Whitehead v. Commonwealth** reinforces the importance of the handler's testimony. In Virginia, the "subjective intent" of the officer doesn't matter as much as the "objective facts" of the dog's behavior. If the handler can articulate the specific change in body posture and the final alert, Virginia courts typically uphold the search, provided the initial stop was not unconstitutionally prolonged.
+            </p>
+
+            <div style="background: #111; padding: 10px; border-left: 4px solid #ffaa00; font-size: 13px; color: #aaa;">
+                <b>VIRGINIA LIST:</b> Brown v. Commonwealth • Whitehead v. Commonwealth • Ewell v. Commonwealth • Alvarez v. Commonwealth • Harris v. Commonwealth • Jones v. Commonwealth • Mohr v. Commonwealth • Great v. Commonwealth • Matheson v. Commonwealth • Hill v. Commonwealth.
+            </div>
+        </div>
+
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    let map, userMarker, perimeterMode = false;
-    let activeColor = 'blue';
-
+    // Add this to your existing openPage logic
     function openPage(id) {
         document.getElementById(id).style.display = 'block';
         if(id === 'm-map') {
-            setTimeout(() => {
-                if(!map) {
-                    map = L.map('live-map', {zoomControl: false}).setView([37.525, -79.15], 13);
-                    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-                }
-                map.invalidateSize();
-            }, 300);
-        }
-    }
-
-    function closePage(id) { document.getElementById(id).style.display = 'none'; }
-    
-    function setRole(color) { 
-        activeColor = color; 
-        if(userMarker) userMarker.setStyle({color: activeColor, fillColor: activeColor});
-    }
-
-    function startGps() {
-        if (navigator.geolocation) {
-            navigator.geolocation.watchPosition(pos => {
-                const lat = pos.coords.latitude, lng = pos.coords.longitude;
-                if (userMarker) { userMarker.setLatLng([lat, lng]); } 
-                else {
-                    userMarker = L.circleMarker([lat, lng], { color: activeColor, radius: 10, fillOpacity: 0.8 }).addTo(map);
-                }
-                map.panTo([lat, lng]);
-            }, null, { enableHighAccuracy: true });
-        }
-    }
-
-    function togglePerimeter() {
-        perimeterMode = !perimeterMode;
-        if(perimeterMode) {
-            map.on('click', e => L.circleMarker(e.latlng, { color: 'red', radius: 8, fillOpacity: 0.9 }).addTo(map));
-            alert("PERIMETER ON (RED)");
-        } else { map.off('click'); alert("PERIMETER OFF"); }
-    }
-
-    function dropFlag() { if(userMarker) L.circleMarker(userMarker.getLatLng(), {color:'yellow', radius:12, fillOpacity:1}).addTo(map); }
-    function toggleNight() { document.getElementById('live-map').classList.toggle('night-vision-map'); }
-    
-    async function searchAddr() {
-        let addr = document.getElementById('map-search').value;
-        if(!addr) return;
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr)}`);
-        const data = await res.json();
-        if (data[0]) {
-            map.setView([data[0].lat, data[0].lon], 17);
-            L.marker([data[0].lat, data[0].lon]).addTo(map);
+            // ... (map logic)
         }
     }
 </script>
-</body>
-</html>
