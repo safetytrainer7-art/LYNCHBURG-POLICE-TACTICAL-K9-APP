@@ -1,55 +1,137 @@
 
-<div id="drugs" class="page" style="overflow-y: auto; background: #000;">
-    <div class="header">
-        <button class="back-btn" onclick="goHome()">← BACK</button>
-        <span style="color:var(--gold); margin-left:15px; font-weight:bold;">NARCOTICS ID & SAFETY</span>
-    </div>
-
-    <div style="padding: 15px; padding-bottom: 80px;">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ACSD COMMAND V195</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root { --gold: #c5a059; --bg: #000; }
+        * { box-sizing: border-box; }
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
         
-        <div style="border: 2px solid #39ff14; padding: 15px; border-radius: 8px; margin-bottom: 20px; background: #051a00;">
-            <h2 style="color: #39ff14; margin-top: 0;">SECTION I: IDENTIFICATION</h2>
-            <p style="color: #fff; line-height: 1.5;">
-                Field identification of narcotics requires a "Detect, then Inspect" approach, prioritizing the safety of the K-9 and the handler. Common street drugs in Virginia range from "Ice" methamphetamine (appearing as clear, jagged crystals) to "Grey Death" heroin/fentanyl mixtures (appearing like concrete powder). Deputies should look for tell-tale packaging like small "baggies," burnt foil, or wax paper "stamps," which often indicate high-potency synthetics that require immediate caution.
-            </p>
-            <p style="color: #fff; line-height: 1.5;">
-                Synthetic opioids like Fentanyl are now frequently pressed into counterfeit pills made to look like legitimate 30mg Oxycodone (blue "M30" stamps) or Xanax bars. These "pressies" are often inconsistent in color and have "chalky" textures compared to pharmaceutical-grade medication. If a K-9 alerts on a vehicle and these pills are found, handlers must assume every pill contains a lethal dose of fentanyl and handle the evidence with non-porous nitrile gloves immediately.
-            </p>
-            <p style="color: #fff; line-height: 1.5;">
-                The distinction between "Personal Use" and "Distribution" (PWID) often hinges on the presence of digital scales, large amounts of cash, and "corner-cut" baggies. In Virginia, finding narcotics packaged in multiple individual units is primary evidence for a distribution charge, even if the total weight is relatively low. Always document the presence of "paraphernalia" like pipes or needles separately from the substances to build a complete case for the Commonwealth’s Attorney.
-            </p>
-        </div>
+        #main-wrapper { width: 100%; height: 100%; position: relative; }
+        .page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        
+        /* Home Screen */
+        #home { display: block; width: 100%; height: 100%; background: radial-gradient(circle, #001a00 0%, #000 100%); position: relative; }
+        .side-col { position: absolute; width: 22%; height: 60%; top: 20%; display: flex; flex-direction: column; justify-content: space-around; z-index: 100; }
+        .left { left: 2%; } .right { right: 2%; }
+        .main-btn { background: rgba(0, 20, 0, 0.9); border: 2px solid var(--gold); color: var(--gold); padding: 12px 2px; text-align: center; font-size: 11px; font-weight: bold; border-radius: 6px; text-transform: uppercase; }
 
-        <div style="border: 2px solid #ff4500; padding: 15px; border-radius: 8px; margin-bottom: 20px; background: #1a0500;">
-            <h2 style="color: #ff4500; margin-top: 0;">SECTION II: HAZMAT & EXPOSURE</h2>
-            <p style="color: #fff; line-height: 1.5;">
-                The "Blue-Line" Safety Protocol is the standard for suspected Fentanyl or Carfentanil exposure during a search. If powder is visible, K-9 units should be moved upwind immediately and "cleared" of any residue on their fur or paws using a wet cloth—never use air blowers which can aerosolize the drug. Handlers should never perform "field tests" on loose powders; instead, double-bag the evidence and transport it directly to a controlled lab environment for testing.
-            </p>
-            <p style="color: #fff; line-height: 1.5;">
-                Symptoms of officer exposure include respiratory depression, pinpoint pupils, and extreme drowsiness. If exposure is suspected, Narcan (Naloxone) should be administered nasally immediately; keep in mind that high-potency synthetics may require four or five doses to reverse the effects. Do not wait for symptoms to worsen; if you feel "off" or "heavy" after a search, notify dispatch for an EMS roll-out to your GPS coordinates immediately.
-            </p>
-            <p style="color: #fff; line-height: 1.5;">
-                Decontamination of the patrol vehicle and equipment is the final step in the safety chain. Use a mixture of water and dish soap to wipe down surfaces; avoid using bleach or alcohol-based cleaners on fentanyl residue, as some studies suggest these can actually increase the rate of skin absorption. Document the exposure in the "Officer Safety" log, including the time of search and the specific PPE (Personal Protective Equipment) that was being worn at the time of the incident.
-            </p>
-        </div>
+        /* Navigation Header */
+        .header { background: #111; border-bottom: 2px solid var(--gold); padding: 12px; display: flex; align-items: center; position: sticky; top: 0; z-index: 1100; }
+        .back-btn { background: var(--gold); color: #000; border: none; padding: 12px 20px; font-weight: bold; border-radius: 4px; font-size: 14px; }
 
-        <div style="border: 2px solid #gold; padding: 15px; border-radius: 8px; background: #111;">
-            <h2 style="color: var(--gold); margin-top: 0;">SECTION III: VA WEIGHTS & MEASURES</h2>
-            <p style="color: #fff; line-height: 1.5;">
-                Virginia Code differentiates between "Schedule I/II" substances and others, with the most severe penalties reserved for the manufacturing or distribution of Cocaine, Heroin, and Methamphetamine. Under VA Law, 10 grams of Methamphetamine or 5 grams of Cocaine Base (Crack) can trigger enhanced mandatory minimums. Handlers should use a calibrated field scale for "approximate" weight but always defer to the "State Lab Certified Weight" for the final warrant.
-            </p>
-            <p style="color: #fff; line-height: 1.5;">
-                Marijuana laws in Virginia have shifted significantly, but "Personal Use" remains limited to one ounce for adults in a private residence. Driving with more than a pound of Marijuana is still a felony, and "Open Container" laws apply to cannabis in a vehicle just like alcohol. If a K-9 is "cross-trained" for marijuana, handlers must clearly articulate other factors of probable cause (scales, baggies, criminal history) to justify a search in the current legal climate.
-            </p>
-            <p style="color: #fff; line-height: 1.5;">
-                The "Kingpin" statutes in the Commonwealth target those transporting large quantities across state lines. Specifically, transporting more than 5 pounds of Marijuana or 100 grams of a Schedule I/II substance into Virginia with the intent to distribute carries a mandatory minimum of 20 years. Documenting the suspect's travel route, out-of-state tags, and "hidden compartments" in the vehicle is essential for making these high-level charges stick in court.
-            </p>
-        </div>
+        /* Module Boxes */
+        .legal-box { border: 2px solid #0055ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; background: #00051a; color: #fff; }
+        .va-box { border: 2px solid #ffaa00; padding: 15px; border-radius: 8px; margin-bottom: 20px; background: #1a1100; color: #fff; }
+        .drug-box { border: 2px solid #39ff14; padding: 15px; border-radius: 8px; margin-bottom: 20px; background: #051a00; color: #fff; }
+        .haz-box { border: 2px solid #ff4500; padding: 15px; border-radius: 8px; margin-bottom: 20px; background: #1a0500; color: #fff; }
+        
+        h2 { margin-top: 0; text-transform: uppercase; font-size: 18px; }
+        p { line-height: 1.5; font-size: 15px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
 
+<div id="main-wrapper">
+
+    <div id="home">
+        <img src="homepage.jpg" style="width:100%; height: auto; max-height: 100%; object-fit: contain;">
+        <div class="side-col left">
+            <div class="main-btn" onclick="show('sos')">K9 SOS</div>
+            <div class="main-btn" onclick="show('legal')">LEGAL</div>
+            <div class="main-btn" onclick="show('drugs')">DRUGS</div>
+        </div>
+        <div class="side-col right">
+            <div class="main-btn" onclick="show('m-map')">TACTICAL MAP</div>
+            <div class="main-btn">LOGS</div>
+            <div class="main-btn">CODE</div>
+        </div>
     </div>
+
+    <div id="drugs" class="page">
+        <div class="header">
+            <button class="back-btn" onclick="goHome()">← BACK</button>
+            <span style="color:var(--gold); margin-left:15px; font-weight:bold;">NARCOTICS & SAFETY</span>
+        </div>
+        <div style="padding: 15px; padding-bottom: 80px;">
+            <div class="drug-box">
+                <h2 style="color: #39ff14;">SECTION I: IDENTIFICATION</h2>
+                <p>Field identification requires a "Detect, then Inspect" approach. Common drugs in VA range from "Ice" methamphetamine to "Grey Death" fentanyl mixtures. Look for tell-tale packaging like "baggies" or wax paper "stamps," which indicate high-potency synthetics.</p>
+                <p>Synthetic opioids like Fentanyl are now frequently pressed into blue "M30" pills. These are often inconsistent in color and chalky. Handlers must assume every pressed pill contains a lethal dose and use nitrile gloves immediately.</p>
+                <p>Distribution (PWID) hinges on scales, cash, and "corner-cut" baggies. In Virginia, multiple individual units are primary evidence for distribution, even with low total weight. Document paraphernalia separately to build the full case.</p>
+            </div>
+            <div class="haz-box">
+                <h2 style="color: #ff4500;">SECTION II: HAZMAT & EXPOSURE</h2>
+                <p>The "Blue-Line" Protocol is the standard for Fentanyl exposure. Move K-9s upwind immediately and clear residue with a wet cloth—never use air blowers. Do not field test loose powders; double-bag and transport to a lab.</p>
+                <p>Symptoms include respiratory depression and pinpoint pupils. Administer Narcan immediately; high-potency synthetics may require 4-5 doses. If you feel "heavy" or "off," notify dispatch for EMS immediately.</p>
+                <p>Decontaminate equipment with soap and water. Avoid bleach or alcohol cleaners on fentanyl, as they can increase skin absorption. Document exposure in the "Officer Safety" log, noting time and PPE worn.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="legal" class="page">
+        <div class="header">
+            <button class="back-btn" onclick="goHome()">← BACK</button>
+            <span style="color:var(--gold); margin-left:15px; font-weight:bold;">K9 LEGAL BIBLE</span>
+        </div>
+        <div style="padding: 15px; padding-bottom: 80px;">
+            <div class="legal-box">
+                <h2 style="color: #0088ff;">Section I: Federal Standards</h2>
+                <p>The <b>Fourth Amendment</b> establishes that a K-9 sniff in a public place is not a "search." Rulings like <b>US v. Place</b> clarify that dogs are "sui generis" because they only disclose contraband presence.</p>
+                <p>The "Clock" is critical per <b>Rodriguez v. US</b>. A stop cannot be extended beyond the initial traffic mission without independent Reasonable Suspicion to hold the vehicle.</p>
+                <p><b>Florida v. Harris</b> held that if a dog is certified by a reputable organization, its alert provides Probable Cause. Handlers must maintain training logs to show the dog is "well-trained."</p>
+            </div>
+            <div class="va-box">
+                <h2 style="color: #ffaa00;">Section II: Virginia Specifics</h2>
+                <p>Virginia follows the "Plain Sniff" doctrine. A K-9 alert is sufficient for a warrantless vehicle search under the <b>Automobile Exception</b>. Once a dog alerts, you have immediate Probable Cause.</p>
+                <p>The <b>Curtilage Rule</b> is strictly enforced. Bringing a dog onto a porch without a warrant or consent is a trespass. Handlers must stay in public areas to avoid evidence being suppressed.</p>
+                <p><b>Brown v. Commonwealth</b> reinforces officer testimony. If the handler can articulate the dog's body posture and final alert, Virginia courts typically uphold the search.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="m-map" class="page">
+        <div class="header">
+            <button class="back-btn" onclick="goHome()">← BACK</button>
+            <span style="color:var(--gold); margin-left:15px; font-weight:bold;">TACTICAL MAP</span>
+        </div>
+        <div id="live-map" style="height: 60vh; background: #222;"></div>
+        <div style="padding:20px; color:#fff; text-align:center;">MAP ENGINE ACTIVE</div>
+    </div>
+
 </div>
 
 <script>
-    // Just add 'drugs' to your existing show logic
-    // (Ensure the 'DRUGS' button on the home screen calls show('drugs'))
+    // MASTER NAVIGATION SCRIPT
+    function show(id) {
+        // 1. Hide all pages
+        const pages = document.querySelectorAll('.page');
+        pages.forEach(p => p.style.display = 'none');
+        
+        // 2. Hide home screen
+        document.getElementById('home').style.display = 'none';
+        
+        // 3. Show target page
+        const target = document.getElementById(id);
+        if(target) {
+            target.style.display = 'block';
+            window.scrollTo(0,0); // Reset scroll to top
+        }
+    }
+
+    function goHome() {
+        // 1. Hide all pages
+        const pages = document.querySelectorAll('.page');
+        pages.forEach(p => p.style.display = 'none');
+        
+        // 2. Re-show home screen
+        document.getElementById('home').style.display = 'block';
+    }
 </script>
+
+</body>
+</html>
