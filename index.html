@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -73,31 +72,34 @@
         <div class="app-icon" onclick="openModule('med-module')">
             <div style="font-size: 2.5em;">🐕</div><span>K9 MEDICAL</span>
         </div>
-        <div class="app-icon" onclick="alert('Logs coming soon')">
+        <div class="app-icon" onclick="alert('Module Locked')">
             <div style="font-size: 2.5em;">📝</div><span>SEARCH LOGS</span>
         </div>
-        <div class="app-icon" onclick="alert('Wind/Weather coming soon')">
+        <div class="app-icon" onclick="alert('Module Locked')">
             <div style="font-size: 2.5em;">🌬️</div><span>WIND/WX</span>
         </div>
-        <div class="app-icon" onclick="alert('Radio Codes coming soon')">
+        <div class="app-icon" onclick="alert('Module Locked')">
             <div style="font-size: 2.5em;">📻</div><span>RADIO CODES</span>
         </div>
-        <div class="app-icon" onclick="alert('Settings locked')">
+        <div class="app-icon" onclick="alert('Settings Locked')">
             <div style="font-size: 2.5em;">⚙️</div><span>SETTINGS</span>
         </div>
     </div>
 </div>
 
-<!-- 2. K9 MEDICAL MODULE -->
+<!-- 2. K9 MEDICAL MODULE (ALL CATEGORIES RESTORED) -->
 <div id="med-module" class="module-layer">
     <div class="nav-header">
         <button class="exit-btn" onclick="closeModule('med-module')">EXIT TO HOME</button>
         <span style="color: #d4af37; font-weight: bold;">K9 FIRST AID</span>
     </div>
     <div class="med-scroll">
-        <div class="med-card"><h2>K9 CPR</h2><p>30 compressions : 2 breaths.</p><button class="speak-btn" onclick="shout('K9 CPR Protocol active.')">🔊 VOICE GUIDE</button></div>
-        <div class="med-card"><h2>GUNSHOT / BLEED</h2><p>Apply direct pressure. Pack wound.</p><button class="speak-btn" onclick="shout('Trauma protocol active.')">🔊 VOICE GUIDE</button></div>
-        <div class="med-card"><h2>SNAKE BITE</h2><p>Keep below heart level. Immobilize.</p><button class="speak-btn" onclick="shout('Snake bite protocol active.')">🔊 VOICE GUIDE</button></div>
+        <div class="med-card"><h2>K9 CPR</h2><p>100-120 compressions/min. 30:2 cycle.</p><button class="speak-btn" onclick="shout('K9 CPR Protocol. 100 to 120 compressions per minute.')">🔊 VOICE GUIDE</button></div>
+        <div class="med-card"><h2>GUNSHOT / BLEED</h2><p>Apply pressure. Use hemostatic gauze.</p><button class="speak-btn" onclick="shout('Gunshot wound protocol. Apply direct pressure.')">🔊 VOICE GUIDE</button></div>
+        <div class="med-card"><h2>HEAT EXHAUSTION</h2><p>Cool water on paws/belly. Move to shade.</p><button class="speak-btn" onclick="shout('Heat exhaustion protocol. Move to shade. Use cool water.')">🔊 VOICE GUIDE</button></div>
+        <div class="med-card"><h2>SNAKE BITE</h2><p>Keep bite below heart. Immobilize.</p><button class="speak-btn" onclick="shout('Snake bite protocol. Keep the site below the heart.')">🔊 VOICE GUIDE</button></div>
+        <div class="med-card"><h2>POISONING</h2><p>Identify toxin. Do not induce vomiting.</p><button class="speak-btn" onclick="shout('Poisoning protocol. Identify the substance immediately.')">🔊 VOICE GUIDE</button></div>
+        <div class="med-card"><h2>FRACTURE</h2><p>Support limb. Use blanket stretcher.</p><button class="speak-btn" onclick="shout('Fracture protocol. Support the limb. Use a stretcher.')">🔊 VOICE GUIDE</button></div>
     </div>
 </div>
 
@@ -121,7 +123,6 @@
             <button onclick="setMode('perimeter')" style="flex:1; background:#ff8c00; border:none; padding:10px; color:white; font-weight:bold;">PERIMETER</button>
             <button onclick="findMe()" style="flex:1; background:#007bff; border:none; padding:10px; color:white; font-weight:bold;">MY GPS</button>
         </div>
-        <!-- THE RESTORED ICON ROW -->
         <div class="btn-row">
             <div id="dot-blue" class="dot-btn" style="background:blue;" onclick="setMode('blue')">OFFICER</div>
             <div id="dot-red" class="dot-btn" style="background:red;" onclick="setMode('red')">SAR</div>
