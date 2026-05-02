@@ -1,198 +1,164 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>K9 Command - ACSO FINAL TACTICAL</title>
+    <title>K9 Command - Desktop & GPS</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; color: #fff; font-family: 'Times New Roman', serif; overflow: hidden; }
-        
-        #map { width: 100%; height: 55%; border-bottom: 4px solid #d4af37; background: #111; z-index: 1; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; font-family: 'Times New Roman', serif; overflow: hidden; }
 
-        /* THE LIVE GPS "BLUE PULSE" */
-        .gps-pulse {
-            width: 15px; height: 15px; background: #007bff; border: 3px solid #fff;
-            border-radius: 50%; box-shadow: 0 0 0 rgba(0, 123, 255, 0.4);
-            animation: pulse 2s infinite;
+        /* LAYER 1: THE MAIN DESKTOP */
+        #desktop-home {
+            width: 100%; height: 100%;
+            background: linear-gradient(to bottom, #001a11, #000);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: absolute; z-index: 1;
         }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(0, 123, 255, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+        .desktop-icon {
+            width: 120px; height: 120px; background: #000; border: 3px solid #d4af37;
+            border-radius: 15px; display: flex; flex-direction: column; align-items: center;
+            justify-content: center; cursor: pointer; color: #d4af37; font-weight: bold;
         }
+        .desktop-icon:active { transform: scale(0.9); }
+
+        /* LAYER 2: THE GPS OVERLAY (HIDDEN BY DEFAULT) */
+        #gps-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 2000; display: none; /* Invisible until icon is pressed */
+        }
+
+        #map { width: 100%; height: 50%; border-bottom: 3px solid #d4af37; }
 
         .nav-header { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 60px; 
-            background: #000; z-index: 2000; display: flex; align-items: center; padding: 0 15px;
-            border-bottom: 2px solid #d4af37;
+            width: 100%; height: 50px; background: #000; display: flex; 
+            align-items: center; justify-content: space-between; padding: 0 10px; box-sizing: border-box;
+            border-bottom: 1px solid #d4af37;
         }
+        .exit-btn { background: #ff0000; color: #fff; padding: 8px 15px; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; }
+
+        .command-panel { width: 100%; height: 50%; background: #001a11; padding: 10px; box-sizing: border-box; overflow-y: auto; }
         
-        /* FIXED EXIT BUTTON */
-        .exit-btn { 
-            background: #ff0000; color: #fff; padding: 10px 20px; border-radius: 5px;
-            font-weight: bold; border: 2px solid #fff; cursor: pointer;
-        }
+        .hud-bar { background: #000; color: #00ff00; padding: 8px; text-align: center; border: 1px solid #333; font-family: monospace; font-size: 0.9em; margin-bottom: 5px; }
 
-        .hud { 
-            position: absolute; top: 70px; right: 10px; z-index: 1000; 
-            background: rgba(0,26,17,0.9); border: 1px solid #00ff00; padding: 10px; border-radius: 5px;
-            text-align: center; color: #00ff00; font-weight: bold;
-        }
-
-        .command-panel { 
-            width: 100%; height: 45%; background: #001a11; padding: 15px; 
-            box-sizing: border-box; overflow-y: auto; z-index: 5;
-        }
-
-        .btn-row { display: flex; gap: 8px; margin-bottom: 10px; }
-        .go-btn { flex: 2; background: #28a745; color: white; padding: 12px; font-weight: bold; border: none; border-radius: 4px; }
-        
-        .asset-selector { display: flex; justify-content: space-around; background: rgba(0,0,0,0.5); padding: 10px; border: 1px solid #d4af37; margin-top: 10px;}
-        .mode-btn { padding: 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.75em; border: 2px solid transparent; text-align: center; color: #fff;}
-        .active-mode { border-color: #fff; box-shadow: 0 0 10px #fff; }
-
-        .distance-display { background: #000; color: #00ff00; padding: 5px; text-align: center; font-family: monospace; border: 1px solid #333; margin-top: 5px; }
+        .asset-row { display: flex; justify-content: space-around; margin-top: 10px; }
+        .dot-choice { width: 22%; padding: 10px 0; text-align: center; color: white; font-weight: bold; font-size: 0.7em; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div class="nav-header">
-    <button class="exit-btn" onclick="exitToHome()">EXIT GPS SYSTEM</button>
-    <div style="margin-left: 20px; font-weight: bold; color: #d4af37; font-size: 1.2em;">ACSO TACTICAL</div>
+<!-- DESKTOP LAYER -->
+<div id="desktop-home">
+    <h1 style="color: #d4af37; margin-bottom: 40px;">K9 COMMAND DESKTOP</h1>
+    <div class="desktop-icon" onclick="launchGPS()">
+        <span style="font-size: 3em;">🌐</span>
+        <span>GPS MAP</span>
+    </div>
+    <p style="color: #666; margin-top: 20px;">ACSO - AMHERST COUNTY</p>
 </div>
 
-<div class="hud">
-    <div style="font-size: 1.5em;" id="wind-icon">↑</div>
-    <small>WIND / NW 315°</small>
-</div>
-
-<div id="map"></div>
-<div class="distance-display" id="dist-hud">SELECT ASSETS TO MEASURE DISTANCE</div>
-
-<div class="command-panel">
-    <div class="btn-row">
-        <input type="text" id="targetAddr" style="flex:3; padding:12px; background:#000; color:#d4af37; border:2px solid #d4af37;" placeholder="Enter Search Area...">
-        <button class="go-btn" onclick="executeSearch()">INITIALIZE CP</button>
+<!-- GPS LAYER -->
+<div id="gps-overlay">
+    <div class="nav-header">
+        <button class="exit-btn" onclick="shutdownGPS()">SHUT DOWN GPS</button>
+        <span style="color:#d4af37; font-weight:bold;">TACTICAL UNIT</span>
     </div>
 
-    <div class="btn-row">
-        <button onclick="setMode('perimeter')" style="flex:1; background:#ff8c00; color:white; border:none; padding:12px; font-weight:bold; border-radius:4px;">DRAW PERIMETER</button>
-        <button onclick="useLiveGPS()" style="flex:1; background:#007bff; color:white; border:none; padding:12px; font-weight:bold; border-radius:4px;">LOCATE ME (LIVE)</button>
-    </div>
+    <div id="map"></div>
+    <div class="hud-bar" id="dist-reader">DISTANCE CALCULATOR STANDBY</div>
 
-    <div class="asset-selector">
-        <div id="btn-blue" class="mode-btn" style="background:blue;" onclick="setMode('blue')">OFFICER</div>
-        <div id="btn-red" class="mode-btn" style="background:red;" onclick="setMode('red')">SAR</div>
-        <div id="btn-green" class="mode-btn" style="background:green;" onclick="setMode('green')">CIVILIAN</div>
-        <div id="btn-purple" class="mode-btn" style="background:purple;" onclick="setMode('purple')">SUBJECT</div>
+    <div class="command-panel">
+        <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+            <input type="text" id="addr" style="flex:3; padding:10px; background:#000; border:1px solid #d4af37; color:#d4af37;" placeholder="Search Address...">
+            <button onclick="initCP()" style="flex:1; background:#28a745; color:white; border:none; font-weight:bold;">INIT CP</button>
+        </div>
+
+        <div style="display: flex; gap: 5px;">
+            <button onclick="setMode('perimeter')" style="flex:1; background:#ff8c00; color:white; border:none; padding:10px; font-weight:bold;">PERIMETER</button>
+            <button onclick="findMe()" style="flex:1; background:#007bff; color:white; border:none; padding:10px; font-weight:bold;">MY LOCATION</button>
+        </div>
+
+        <div class="asset-row">
+            <div class="dot-choice" style="background:blue;" onclick="setMode('blue')">OFFICER</div>
+            <div class="dot-choice" style="background:red;" onclick="setMode('red')">SAR</div>
+            <div class="dot-choice" style="background:green;" onclick="setMode('green')">CIV</div>
+            <div class="dot-choice" style="background:purple;" onclick="setMode('purple')">SUB</div>
+        </div>
+        <p style="color:#ff0000; text-align:center; font-size:0.8em; margin-top:10px;">TAP DOT ON MAP TO REMOVE SEARCHER</p>
     </div>
 </div>
 
 <script>
-    // Initialize Map
-    var map = L.map('map', { zoomControl: false, tap: false }).setView([37.58, -79.05], 14);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-    var currentMode = 'blue';
+    var map, cpPos, currentMode = 'blue';
     var perimeterPoints = [];
-    var perimeterPolygon = null;
-    var liveMarker = null;
-    var commandPostPos = null;
+    var perimeterPoly = null;
 
-    // EXIT FUNCTION
-    function exitToHome() {
-        if(confirm("Exit Tactical GPS? Current search data will be cleared.")) {
-            location.reload(); 
+    // NAVIGATION LOGIC
+    function launchGPS() {
+        document.getElementById('gps-overlay').style.display = 'block';
+        if (!map) {
+            map = L.map('map', { zoomControl: false }).setView([37.58, -79.05], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            
+            map.on('click', function(e) {
+                if(currentMode === 'perimeter') {
+                    perimeterPoints.push([e.latlng.lat, e.latlng.lng]);
+                    if(perimeterPoly) map.removeLayer(perimeterPoly);
+                    if(perimeterPoints.length >= 3) {
+                        perimeterPoly = L.polygon(perimeterPoints, {color: '#ff8c00', fillOpacity: 0.2, interactive: false}).addTo(map);
+                    }
+                    L.circleMarker(e.latlng, {radius: 4, color: '#ff8c00'}).addTo(map);
+                } else {
+                    dropAsset(e.latlng, currentMode);
+                }
+            });
         }
     }
 
-    function setMode(mode) {
-        currentMode = mode;
-        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active-mode'));
-        if(mode !== 'perimeter') {
-            document.getElementById('btn-' + mode).classList.add('active-mode');
+    function shutdownGPS() {
+        if(confirm("Terminate GPS Session and return to Desktop?")) {
+            document.getElementById('gps-overlay').style.display = 'none';
         }
     }
 
-    // LIVE GPS (THE BLUE FLASHING DOT)
-    function useLiveGPS() {
-        map.locate({setView: true, watch: true, maxZoom: 16});
-    }
+    function setMode(m) { currentMode = m; }
 
-    map.on('locationfound', function(e) {
-        if (liveMarker) map.removeLayer(liveMarker);
-        var pulseIcon = L.divIcon({
-            className: 'gps-pulse-container',
-            html: '<div class="gps-pulse"></div>',
-            iconSize: [20, 20]
-        });
-        liveMarker = L.marker(e.latlng, {icon: pulseIcon}).addTo(map);
-    });
-
-    // MAP CLICK LOGIC
-    map.on('click', function(e) {
-        if (currentMode === 'perimeter') {
-            addPerimeterPoint(e.latlng);
-        } else {
-            dropMarker(e.latlng, currentMode);
+    function dropAsset(ll, color) {
+        var marker = L.circleMarker(ll, {radius: 12, fillColor: color, color: "#fff", weight: 2, fillOpacity: 0.9}).addTo(map);
+        
+        // DISTANCE LOGIC
+        if(cpPos) {
+            var yards = Math.round(ll.distanceTo(cpPos) * 1.09361);
+            document.getElementById('dist-reader').innerText = `UNIT DISTANCE TO CP: ${yards} YARDS`;
         }
-    });
 
-    function dropMarker(latlng, color) {
-        var marker = L.circleMarker(latlng, {
-            radius: 14, fillColor: color, color: "#fff", weight: 3, fillOpacity: 0.9, interactive: true
-        }).addTo(map);
-
-        // DISTANCE CALCULATION
-        if(commandPostPos) {
-            var distMeters = latlng.distanceTo(commandPostPos);
-            var distYards = Math.round(distMeters * 1.09361);
-            document.getElementById('dist-hud').innerText = `LAST ASSET DISTANCE TO CP: ${distYards} YARDS`;
-            marker.bindPopup(`<b>${color.toUpperCase()} UNIT</b><br>${distYards} YDS FROM CP<br><br><button onclick="removeThis(this)" style="background:red; color:white; border:none; padding:5px; width:100%; font-weight:bold;">REMOVE UNIT</button>`);
-        } else {
-            marker.bindPopup(`<b>${color.toUpperCase()} UNIT</b><br><br><button onclick="removeThis(this)" style="background:red; color:white; border:none; padding:5px; width:100%; font-weight:bold;">REMOVE UNIT</button>`);
-        }
-    }
-
-    // THE FIX: Explicit removal function
-    function removeThis(btn) {
-        // Find the marker by closing the popup and identifying the layer
-        map.eachLayer(function(layer) {
-            if (layer instanceof L.CircleMarker && layer.getPopup() && layer.getPopup().getContent().includes(btn.outerHTML)) {
-                map.removeLayer(layer);
+        // REMOVAL LOGIC
+        marker.on('click', function(e) {
+            L.DomEvent.stopPropagation(e);
+            if(confirm("Remove this unit from the field?")) {
+                map.removeLayer(marker);
             }
         });
-        map.closePopup();
     }
 
-    function addPerimeterPoint(latlng) {
-        perimeterPoints.push([latlng.lat, latlng.lng]);
-        if (perimeterPolygon) map.removeLayer(perimeterPolygon);
-        if (perimeterPoints.length >= 3) {
-            perimeterPolygon = L.polygon(perimeterPoints, {
-                color: '#ff8c00', weight: 3, fillOpacity: 0.2, interactive: false
-            }).addTo(map);
-        }
-        L.circleMarker(latlng, {radius: 5, color: '#ff8c00', interactive: false}).addTo(map);
-    }
-
-    async function executeSearch() {
-        var val = document.getElementById('targetAddr').value;
-        if(!val) return;
-        const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${val}`);
-        const data = await resp.json();
+    async function initCP() {
+        var val = document.getElementById('addr').value;
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${val}`);
+        const data = await res.json();
         if(data.length > 0) {
-            commandPostPos = L.latLng(data[0].lat, data[0].lon);
-            map.setView(commandPostPos, 16);
-            L.marker(commandPostPos, {icon: L.divIcon({className: 'cp-icon', html: '<div style="background:white; color:black; padding:5px; border:2px solid black; font-weight:bold;">CP</div>'})}).addTo(map);
-            document.getElementById('dist-hud').innerText = "COMMAND POST INITIALIZED. DISTANCE CALCULATOR READY.";
+            cpPos = L.latLng(data[0].lat, data[0].lon);
+            map.setView(cpPos, 16);
+            L.marker(cpPos, {icon: L.divIcon({html: '<div style="background:white; padding:2px; border:2px solid #000; font-weight:bold;">CP</div>'})}).addTo(map);
+            document.getElementById('dist-reader').innerText = "CP INITIALIZED. DISTANCE READY.";
         }
     }
 
-    setMode('blue');
+    function findMe() { map.locate({setView: true, maxZoom: 16}); }
+    
+    map.on('locationfound', function(e) {
+        L.circleMarker(e.latlng, {radius: 8, fillColor: '#007bff', color: '#fff', weight: 3}).addTo(map).bindPopup("MY POSITION").openPopup();
+    });
 </script>
 
 </body>
