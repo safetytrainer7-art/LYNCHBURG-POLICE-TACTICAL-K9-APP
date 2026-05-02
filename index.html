@@ -51,14 +51,18 @@
 
         /* --- GPS CONTENT --- */
         #map { width: 100%; height: 50%; border-bottom: 2px solid #d4af37; }
-        .gps-controls { height: calc(50% - 60px); background: #001a11; padding: 15px; box-sizing: border-box; }
+        .gps-controls { height: calc(50% - 60px); background: #001a11; padding: 10px; box-sizing: border-box; overflow-y: auto; }
+        .hud-bar { background: #000; border: 1px solid #00ff00; color: #00ff00; padding: 8px; font-family: monospace; font-size: 0.8em; margin-bottom: 8px; display: flex; justify-content: space-around; }
+        .btn-row { display: flex; gap: 5px; margin-bottom: 8px; }
+        .dot-btn { flex: 1; padding: 10px; font-weight: bold; border-radius: 4px; border: 2px solid transparent; color: #fff; font-size: 0.7em; text-align: center; }
+        .active-dot { border-color: #fff; box-shadow: 0 0 8px #fff; }
     </style>
 </head>
 <body>
 
-<!-- HOMEPAGE -->
+<!-- 1. HOMEPAGE -->
 <div id="homepage">
-    <div style="text-align:center; margin-bottom: 30px;">
+    <div style="text-align:center; margin-bottom: 20px;">
         <h1 style="color: #d4af37; margin: 0; letter-spacing: 3px;">ACSO</h1>
         <p style="color: #666; margin: 5px 0;">K9 COMMAND INTERFACE</p>
     </div>
@@ -69,67 +73,35 @@
         <div class="app-icon" onclick="openModule('med-module')">
             <div style="font-size: 2.5em;">🐕</div><span>K9 MEDICAL</span>
         </div>
-        <div class="app-icon" onclick="alert('Search Logs Module coming soon')">
+        <div class="app-icon" onclick="alert('Logs coming soon')">
             <div style="font-size: 2.5em;">📝</div><span>SEARCH LOGS</span>
         </div>
-        <div class="app-icon" onclick="alert('Weather/Wind Module coming soon')">
+        <div class="app-icon" onclick="alert('Wind/Weather coming soon')">
             <div style="font-size: 2.5em;">🌬️</div><span>WIND/WX</span>
         </div>
         <div class="app-icon" onclick="alert('Radio Codes coming soon')">
             <div style="font-size: 2.5em;">📻</div><span>RADIO CODES</span>
         </div>
-        <div class="app-icon" onclick="alert('System Settings locked')">
+        <div class="app-icon" onclick="alert('Settings locked')">
             <div style="font-size: 2.5em;">⚙️</div><span>SETTINGS</span>
         </div>
     </div>
 </div>
 
-<!-- K9 MEDICAL MODULE -->
+<!-- 2. K9 MEDICAL MODULE -->
 <div id="med-module" class="module-layer">
     <div class="nav-header">
-        <button class="exit-btn" onclick="closeModule('med-module')">SHUT DOWN MED</button>
+        <button class="exit-btn" onclick="closeModule('med-module')">EXIT TO HOME</button>
         <span style="color: #d4af37; font-weight: bold;">K9 FIRST AID</span>
     </div>
     <div class="med-scroll">
-        <div class="med-card">
-            <h2>K9 CPR</h2>
-            <p>1. Lay dog on right side.<br>2. 100-120 compressions per minute.<br>3. 30 compressions to 2 breaths.</p>
-            <button class="speak-btn" onclick="shout('K9 CPR Protocol. Lay the dog on its right side. Perform 100 to 120 compressions per minute. Cycle 30 compressions to 2 breaths.')">🔊 START VOICE GUIDE</button>
-        </div>
-        
-        <div class="med-card">
-            <h2>GUNSHOT / BLEED</h2>
-            <p>1. Apply direct pressure.<br>2. Use hemostatic gauze.<br>3. Pack wound; do not remove bandages.</p>
-            <button class="speak-btn" onclick="shout('Trauma Bleeding Protocol. Apply immediate direct pressure. Use hemostatic gauze. Pack the wound. Do not remove bandages.')">🔊 START VOICE GUIDE</button>
-        </div>
-
-        <div class="med-card">
-            <h2>HEAT EXHAUSTION</h2>
-            <p>1. Move to shade.<br>2. Wet ears, belly, and paws with cool water.<br>3. DO NOT use ice or ice water.</p>
-            <button class="speak-btn" onclick="shout('Heat Exhaustion Protocol. Move to shade immediately. Wet the ears, belly, and paws with cool water. Do not use ice as it can cause shock.')">🔊 START VOICE GUIDE</button>
-        </div>
-
-        <div class="med-card">
-            <h2>SNAKE BITE</h2>
-            <p>1. Immobilize the K9.<br>2. Keep bite below heart level.<br>3. Immediate transport to emergency vet.</p>
-            <button class="speak-btn" onclick="shout('Snake Bite Protocol. Keep the dog calm and still. Keep the bite site below heart level. Transport immediately.')">🔊 START VOICE GUIDE</button>
-        </div>
-
-        <div class="med-card">
-            <h2>POISONING / TOXIN</h2>
-            <p>1. Identify the substance.<br>2. Do not induce vomiting unless instructed.<br>3. Call Vet/Poison Control immediately.</p>
-            <button class="speak-btn" onclick="shout('Poisoning Protocol. Identify the toxin. Do not induce vomiting unless directed by a vet. Call emergency services immediately.')">🔊 START VOICE GUIDE</button>
-        </div>
-
-        <div class="med-card">
-            <h2>FRACTURE / STABILIZE</h2>
-            <p>1. Muzzle for safety if needed.<br>2. Support injured limb; do not set.<br>3. Use board or blanket as a stretcher.</p>
-            <button class="speak-btn" onclick="shout('Fracture Protocol. Muzzle for safety. Support the limb but do not attempt to set it. Use a board or blanket as a stretcher for transport.')">🔊 START VOICE GUIDE</button>
-        </div>
+        <div class="med-card"><h2>K9 CPR</h2><p>30 compressions : 2 breaths.</p><button class="speak-btn" onclick="shout('K9 CPR Protocol active.')">🔊 VOICE GUIDE</button></div>
+        <div class="med-card"><h2>GUNSHOT / BLEED</h2><p>Apply direct pressure. Pack wound.</p><button class="speak-btn" onclick="shout('Trauma protocol active.')">🔊 VOICE GUIDE</button></div>
+        <div class="med-card"><h2>SNAKE BITE</h2><p>Keep below heart level. Immobilize.</p><button class="speak-btn" onclick="shout('Snake bite protocol active.')">🔊 VOICE GUIDE</button></div>
     </div>
 </div>
 
-<!-- GPS MODULE -->
+<!-- 3. TACTICAL GPS MODULE (RESTORED ICONS) -->
 <div id="gps-module" class="module-layer">
     <div class="nav-header">
         <button class="exit-btn" onclick="closeModule('gps-module')">SHUT DOWN GPS</button>
@@ -137,33 +109,81 @@
     </div>
     <div id="map"></div>
     <div class="gps-controls">
-        <p style="text-align:center; color:#00ff00; font-family:monospace;">ENGINE STATUS: ACTIVE</p>
-        <p style="text-align:center; color:#777; font-size:0.8em;">Amherst County Tactical Overlay Loaded.</p>
+        <div class="hud-bar">
+            <span>CP: <b id="cp-val">0</b> YD</span>
+            <span>GAP: <b id="gap-val">0</b> YD</span>
+        </div>
+        <div class="btn-row">
+            <input type="text" id="cp-input" style="flex:2; padding:10px; background:#000; color:#d4af37; border:1px solid #d4af37;" placeholder="CP Address...">
+            <button onclick="initCP()" style="flex:1; background:#28a745; color:#fff; border:none; font-weight:bold;">SET CP</button>
+        </div>
+        <div class="btn-row">
+            <button onclick="setMode('perimeter')" style="flex:1; background:#ff8c00; border:none; padding:10px; color:white; font-weight:bold;">PERIMETER</button>
+            <button onclick="findMe()" style="flex:1; background:#007bff; border:none; padding:10px; color:white; font-weight:bold;">MY GPS</button>
+        </div>
+        <!-- THE RESTORED ICON ROW -->
+        <div class="btn-row">
+            <div id="dot-blue" class="dot-btn" style="background:blue;" onclick="setMode('blue')">OFFICER</div>
+            <div id="dot-red" class="dot-btn" style="background:red;" onclick="setMode('red')">SAR</div>
+            <div id="dot-purple" class="dot-btn" style="background:purple;" onclick="setMode('purple')">SUBJECT</div>
+        </div>
     </div>
 </div>
 
 <script>
-    var map;
+    var map, cpPos, lastMarkerPos, currentMode = 'blue';
+    var perimeterPoints = [];
+    var perimeterPoly = null;
 
     function openModule(id) {
         document.getElementById(id).style.display = 'block';
         if (id === 'gps-module' && !map) {
             map = L.map('map', { zoomControl: false }).setView([37.58, -79.05], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            map.on('click', function(e) {
+                if(currentMode === 'perimeter') { addBoundary(e.latlng); }
+                else { dropUnit(e.latlng, currentMode); }
+            });
         }
     }
 
-    function closeModule(id) {
-        document.getElementById(id).style.display = 'none';
-        window.speechSynthesis.cancel();
+    function closeModule(id) { document.getElementById(id).style.display = 'none'; window.speechSynthesis.cancel(); }
+
+    function setMode(m) {
+        currentMode = m;
+        document.querySelectorAll('.dot-btn').forEach(b => b.classList.remove('active-dot'));
+        if(m !== 'perimeter') document.getElementById('dot-'+m).classList.add('active-dot');
     }
 
-    function shout(text) {
-        window.speechSynthesis.cancel();
-        var utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 0.85; 
-        window.speechSynthesis.speak(utterance);
+    function dropUnit(ll, color) {
+        var marker = L.circleMarker(ll, {radius: 12, fillColor: color, color: "#fff", weight: 2, fillOpacity: 0.9}).addTo(map);
+        let cpDist = cpPos ? Math.round(ll.distanceTo(cpPos) * 1.09361) : 0;
+        let gapDist = lastMarkerPos ? Math.round(ll.distanceTo(lastMarkerPos) * 1.09361) : 0;
+        document.getElementById('cp-val').innerText = cpDist;
+        document.getElementById('gap-val').innerText = gapDist;
+        lastMarkerPos = ll;
+        marker.on('click', function(ev) { L.DomEvent.stopPropagation(ev); if(confirm("Remove unit?")) { map.removeLayer(marker); } });
     }
+
+    async function initCP() {
+        var val = document.getElementById('cp-input').value;
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${val}`);
+        const data = await res.json();
+        if(data.length > 0) {
+            cpPos = L.latLng(data[0].lat, data[0].lon);
+            map.setView(cpPos, 16);
+            L.marker(cpPos, {icon: L.divIcon({html: '<div style="background:white; padding:2px; border:2px solid #000; font-weight:bold;">CP</div>'})}).addTo(map);
+        }
+    }
+
+    function findMe() { map.locate({setView: true, maxZoom: 16}); }
+    function addBoundary(ll) {
+        perimeterPoints.push([ll.lat, ll.lng]);
+        if(perimeterPoly) map.removeLayer(perimeterPoly);
+        if(perimeterPoints.length >= 3) { perimeterPoly = L.polygon(perimeterPoints, {color: '#ff8c00', fillOpacity: 0.1}).addTo(map); }
+        L.circleMarker(ll, {radius: 4, color: '#ff8c00'}).addTo(map);
+    }
+    function shout(text) { window.speechSynthesis.cancel(); var u = new SpeechSynthesisUtterance(text); u.rate = 0.85; window.speechSynthesis.speak(u); }
 </script>
 
 </body>
