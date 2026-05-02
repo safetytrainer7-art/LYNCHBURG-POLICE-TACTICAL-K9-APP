@@ -1,45 +1,55 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND HUB</title>
+    <title>ACSD V155</title>
     <style>
+        /* Forces the background to stay pitch black */
         body, html { 
             margin: 0; padding: 0; height: 100vh; width: 100vw; 
-            background: #000000; overflow: hidden; 
+            background: #000000 !important; overflow: hidden; 
             display: flex; justify-content: center; align-items: center; 
         }
 
-        /* The frame is now locked to follow your phone's actual orientation */
+        /* Grouping all image possibilities to ensure your K9 photo loads */
         #app-frame {
             position: relative;
-            /* This ensures the image stays wide (Landscape) */
             width: 100vw;
             height: 56.25vw; 
             max-height: 100vh;
             max-width: 177.78vh;
-            background-image: url('homepage.png.png'), url('image_a47b1c.png'), url('homepage.png'), url('homepage.jpg');
+            background-image: url('image_a47b1c.png'), url('homepage.png.png'), url('homepage.png'), url('homepage.jpg');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
         }
 
-        /* RED CALIBRATION BOXES */
-        .hotspot { position: absolute; cursor: pointer; border: 2px solid red; z-index: 50; box-sizing: border-box; }
+        /* TACTICAL HOTSPOTS - RED CALIBRATION BOXES */
+        .hotspot { 
+            position: absolute; 
+            cursor: pointer; 
+            border: 2px solid red; 
+            z-index: 50; 
+            box-sizing: border-box; 
+        }
         
-        /* Pinned to your gold icon layout */
-        #spot-med  { top: 17%; left: 11%; width: 13%; height: 26%; } 
-        #spot-law  { top: 46%; left: 11%; width: 13%; height: 26%; } 
-        #spot-narc { top: 73%; left: 11%; width: 13%; height: 18%; } 
+        /* Left Column: SOS, Legal, Narc */
+        #spot-med  { top: 15%; left: 10%; width: 14%; height: 26%; } 
+        #spot-law  { top: 43%; left: 10%; width: 14%; height: 26%; } 
+        #spot-narc { top: 71%; left: 10%; width: 14%; height: 20%; } 
         
-        #spot-map  { top: 17%; right: 11%; width: 13%; height: 26%; } 
-        #spot-logs { top: 46%; right: 11%; width: 13%; height: 26%; } 
-        #spot-va   { top: 73%; right: 11%; width: 13%; height: 18%; } 
+        /* Right Column: Map, Logs, VA Code */
+        #spot-map  { top: 15%; right: 10%; width: 14%; height: 26%; } 
+        #spot-logs { top: 43%; right: 10%; width: 14%; height: 26%; } 
+        #spot-va   { top: 71%; right: 10%; width: 14%; height: 20%; } 
 
+        /* Module Overlays */
         .module { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #001a00; z-index: 100; color: #c5a059; flex-direction: column; }
-        .mod-header { background: #000; padding: 15px; border-bottom: 2px solid #c5a059; display: flex; gap: 10px; }
+        .mod-header { background: #000; padding: 15px; border-bottom: 2px solid #c5a059; display: flex; gap: 10px; font-weight: bold; }
         .back-btn { background: #c5a059; color: #000; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; border-radius: 5px; }
+        .content { padding: 20px; color: #fff; font-size: 18px; line-height: 1.6; }
     </style>
 </head>
 <body>
@@ -47,25 +57,25 @@
 <div id="app-frame">
     <div id="spot-med" class="hotspot" onclick="openMod('med-mod')"></div>
     <div id="spot-law" class="hotspot" onclick="openMod('law-mod')"></div>
-    <div id="spot-narc" class="hotspot" onclick="alert('Narcotics Aids Active')"></div>
-    <div id="spot-map" class="hotspot" onclick="alert('GPS Map Active')"></div>
-    <div id="spot-logs" class="hotspot" onclick="alert('Training Logs Active')"></div>
-    <div id="spot-va" class="hotspot" onclick="alert('VA Criminal Code Active')"></div>
+    <div id="spot-narc" class="hotspot" onclick="alert('Narcotics Protocols: Operational')"></div>
+    <div id="spot-map" class="hotspot" onclick="alert('GPS Mapping: Operational')"></div>
+    <div id="spot-logs" class="hotspot" onclick="alert('Training Logs: Operational')"></div>
+    <div id="spot-va" class="hotspot" onclick="alert('VA Criminal Code: Operational')"></div>
 </div>
 
 <div id="med-mod" class="module">
     <div class="mod-header"><button class="back-btn" onclick="closeMod('med-mod')">BACK</button><span>K9 EMERGENCY SOS</span></div>
-    <div style="padding:20px; color:#fff;">
-        <h2 style="color:#c5a059">K9 FIELD TRAUMA</h2>
-        <p>Immediate steps for heat stroke and trauma.</p>
+    <div class="content">
+        <h2 style="color:#c5a059">K9 FIELD TRAUMA - INTRO</h2>
+        <p>Immediate field steps for emergencies.</p>
     </div>
 </div>
 
 <div id="law-mod" class="module">
-    <div class="mod-header"><button class="back-btn" onclick="closeMod('law-mod')">BACK</button><span>LEGAL BIBLE</span></div>
-    <div style="padding:20px; color:#fff;">
-        <h2 style="color:#c5a059">Graham v. Connor</h2>
-        <p>Standard for objective reasonableness.</p>
+    <div class="mod-header"><button class="back-btn" onclick="closeMod('law-mod')">BACK</button><span>LEGAL SHIELD</span></div>
+    <div class="content">
+        <h2 style="color:#c5a059">GRAHAM V. CONNOR</h2>
+        <p>Standard for objective reasonableness in the field.</p>
     </div>
 </div>
 
@@ -76,4 +86,3 @@
 
 </body>
 </html>
-
