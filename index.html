@@ -3,95 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND V199</title>
+    <title>ACSD COMMAND V215</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --gold: #c5a059; --bg: #000; }
-        * { box-sizing: border-box; }
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
-        #main-wrapper { width: 100%; height: 100%; position: relative; }
-        .page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        :root { --gold: #c5a059; --le-blue: #0000FF; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; color: #fff; font-family: 'Arial', sans-serif; overflow: hidden; }
         
-        /* Home Screen */
-        #home { display: block; width: 100%; height: 100%; background: radial-gradient(circle, #001a00 0%, #000 100%); position: relative; }
-        .side-col { position: absolute; width: 24%; height: 75%; top: 15%; display: flex; flex-direction: column; justify-content: space-around; z-index: 100; }
-        .left { left: 2%; } .right { right: 2%; }
-        .main-btn { background: rgba(0, 20, 0, 0.95); border: 2px solid var(--gold); color: var(--gold); padding: 14px 2px; text-align: center; font-size: 11px; font-weight: bold; border-radius: 6px; text-transform: uppercase; box-shadow: 0 0 10px #000; }
+        /* NAVIGATION LAYERS */
+        #home { position: absolute; width: 100%; height: 100%; z-index: 1000; background: #000; display: block; }
+        #gps-page { position: absolute; width: 100%; height: 100%; z-index: 2000; background: #000; display: none; flex-direction: column; }
 
-        .header { background: #111; border-bottom: 2px solid var(--gold); padding: 12px; display: flex; align-items: center; position: sticky; top: 0; z-index: 1100; }
-        .back-btn { background: var(--gold); color: #000; border: none; padding: 12px 20px; font-weight: bold; border-radius: 4px; }
-        .f-input { width: 100%; padding: 12px; margin: 8px 0 15px 0; background: #111; border: 1px solid #444; color: #fff; border-radius: 4px; font-size: 16px; }
-        .box { padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #fff; line-height: 1.5; border: 2px solid #444; }
+        /* THE "THIS IS NOW" IMAGE BACKGROUND */
+        .background-frame {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url('homepage.jpg') no-repeat center center;
+            background-size: contain;
+            z-index: 1010;
+        }
+
+        /* SIDE BUTTON LANES (LEFT & RIGHT) */
+        .ui-overlay {
+            position: absolute;
+            width: 100%;
+            height: 80%;
+            top: 10%;
+            left: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 4%;
+            z-index: 1020;
+        }
+
+        .side-col {
+            width: 28%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+        }
+
+        /* BUTTON STYLING - PROFESSIONAL TACTICAL */
+        .nav-box {
+            background: rgba(0, 0, 0, 0.85);
+            border: 1.5px solid var(--gold);
+            border-radius: 8px;
+            padding: 15px 5px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px #000;
+            transition: transform 0.1s;
+        }
+        .nav-box:active { transform: scale(0.95); background: var(--gold); color: #000; }
+
+        .nav-box .icon { font-size: 20px; margin-bottom: 5px; display: block; }
+        .nav-box .label { font-size: 9px; font-weight: 900; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; text-shadow: 1px 1px 2px #000; }
+
+        /* GPS UI REBUILT FOR V215 */
+        .top-bar { background: #111; padding: 10px; border-bottom: 2px solid var(--gold); display: flex; gap: 8px; height: 70px; align-items: flex-end; }
+        .back-btn { background: var(--gold); color: #000; border: none; padding: 10px; font-weight: 900; border-radius: 4px; }
+        .addr-input { flex: 1; padding: 10px; background: #222; border: 1px solid var(--gold); color: #fff; border-radius: 4px; }
+        .go-btn { background: #fff; font-weight: 900; padding: 10px; border-radius: 4px; border: none; }
+        
+        #map { flex: 1; width: 100%; }
+
+        .cmd-panel { background: #111; border-top: 2px solid var(--gold); padding: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-bottom: 25px; }
+        .cmd-btn { padding: 18px 5px; font-weight: 900; border-radius: 6px; border: none; text-transform: uppercase; font-size: 12px; }
+
+        .k9-dot { width: 22px; height: 22px; background: #0000FF; border: 3px solid #FFFFFF; border-radius: 50%; box-shadow: 0 0 10px #0000FF; }
     </style>
 </head>
 <body>
 
-<div id="main-wrapper">
     <div id="home">
-        <img src="homepage.jpg" style="width:100%; height: auto; max-height: 100%; object-fit: contain;">
-        <div class="side-col left">
-            <div class="main-btn" onclick="show('sos')">K9 SOS / VETS</div>
-            <div class="main-btn" onclick="show('aid')">K9 FIRST AID</div>
-            <div class="main-btn" onclick="show('legal')">LEGAL BIBLE</div>
-            <div class="main-btn" onclick="show('drugs')">DRUGS / SAFETY</div>
-        </div>
-        <div class="side-col right">
-            <div class="main-btn" onclick="show('m-map')">TACTICAL GPS</div>
-            <div class="main-btn" onclick="show('incidents')">INCIDENT RPT</div>
-            <div class="main-btn" onclick="show('training')">K9 TRAINING</div>
-        </div>
-    </div>
+        <div class="background-frame"></div>
+        
+        <div class="ui-overlay">
+            <div class="side-col">
+                <div class="nav-box" onclick="openGPS()">
+                    <span class="icon">📍</span>
+                    <span class="label">TACTICAL GPS</span>
+                </div>
+                <div class="nav-box" onclick="alert('Opening First Aid...')">
+                    <span class="icon">🚑</span>
+                    <span class="label">K9 FIRST AID</span>
+                </div>
+                <div class="nav-box" onclick="alert('Opening Reports...')">
+                    <span class="icon">📝</span>
+                    <span class="label">INCIDENT RPT</span>
+                </div>
+            </div>
 
-    <div id="aid" class="page">
-        <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:#ff3333; margin-left:15px; font-weight:bold;">K9 FIRST AID</span></div>
-        <div style="padding:15px; padding-bottom:80px;">
-            <div class="box" style="border-color:#ff3333; background:#1a0000;">
-                <h3 style="color:#ff3333; margin:0 0 10px 0;">HEAT EXHAUSTION / BLOAT</h3>
-                <p><b>Heatstroke:</b> If the dog's temp exceeds 104°F, apply cool water to the belly, paws, and ears. 100% vital: Do NOT use ice water, as it causes blood vessels to constrict and traps heat inside the core.</p>
-                <p><b>Bloat (GDV):</b> Watch for unproductive retching, a "tight" drum-like stomach, and restlessness. This is a 10/10 emergency. In a tactical environment, keep the dog sternal (on chest) and transport at high priority to a vet with surgical capabilities.</p>
-                <p><b>Narcan:</b> For suspected opioid exposure, use nasal Narcan (4mg). A large K-9 may require multiple doses. Ensure the dog's airway is clear and use a muzzle only if they are conscious and aggressive.</p>
+            <div class="side-col">
+                <div class="nav-box" onclick="alert('Opening Legal Bible...')">
+                    <span class="icon">⚖️</span>
+                    <span class="label">LEGAL BIBLE</span>
+                </div>
+                <div class="nav-box" onclick="alert('Opening Training...')">
+                    <span class="icon">🐕</span>
+                    <span class="label">K9 TRAINING</span>
+                </div>
+                <div class="nav-box" onclick="alert('Opening Settings...')">
+                    <span class="icon">⚙️</span>
+                    <span class="label">SETTINGS</span>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="m-map" class="page">
-        <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:#00ff00; margin-left:15px; font-weight:bold;">TACTICAL GPS</span></div>
-        <div id="live-map" style="height:65vh; background:#222;"></div>
-        <div style="padding:15px; background:#111; text-align:center;">
-            <button style="width:100%; background:#004400; color:#fff; padding:15px; border:1px solid #00ff00; border-radius:4px; font-weight:bold;">START TRACKING</button>
+    <div id="gps-page">
+        <div class="top-bar">
+            <button class="back-btn" onclick="closeGPS()">MENU</button>
+            <input type="text" id="target" class="addr-input" placeholder="Search Address...">
+            <button class="go-btn" onclick="searchAddress()">GO</button>
+        </div>
+        <div id="map"></div>
+        <div class="cmd-panel">
+            <button class="cmd-btn" style="background:var(--le-blue); color:#fff;" onclick="findMe()">SHOW POSITION</button>
+            <button class="cmd-btn" style="background:#cc0000; color:#fff;" onclick="drawPerimeter()">SET PERIMETER</button>
+            <button class="cmd-btn" style="background:#333; color:var(--gold); grid-column: span 2;" onclick="resetMap()">RESET AMHERST</button>
         </div>
     </div>
 
-    <div id="sos" class="page">
-        <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:#ff3333; margin-left:15px; font-weight:bold;">SOS / VETS</span></div>
-        <div style="padding:15px; padding-bottom:80px;">
-            <h3 style="color:red; text-align:center;">24/7 EMERGENCY VETS</h3>
-            <div style="background:#111; border:1px solid red; padding:15px; margin-bottom:10px; border-radius:4px; color:#fff;">
-                <b>LYNCHBURG:</b> Animal Emergency & Critical Care <br><a href="tel:4348461504" style="color:#00ff00;">(434) 846-1504</a>
-            </div>
-            <div style="background:#111; border:1px solid red; padding:15px; margin-bottom:10px; border-radius:4px; color:#fff;">
-                <b>CAMPBELL:</b> Peaks View Animal Hospital <br><a href="tel:4345254996" style="color:#00ff00;">(434) 525-4996</a>
-            </div>
-            <div style="background:#111; border:1px solid red; padding:15px; margin-bottom:10px; border-radius:4px; color:#fff;">
-                <b>AMHERST:</b> Blue Ridge Animal Clinic <br><a href="tel:5404633774" style="color:#00ff00;">(540) 463-3774</a>
-            </div>
-        </div>
-    </div>
-
-    </div>
-
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    const pageList = ['sos', 'aid', 'legal', 'drugs', 'm-map', 'incidents', 'training'];
-    function show(id) {
-        pageList.forEach(p => { if(document.getElementById(p)) document.getElementById(p).style.display = 'none'; });
+    let map, userMarker, perimeter;
+
+    function openGPS() {
         document.getElementById('home').style.display = 'none';
-        const target = document.getElementById(id);
-        if(target) target.style.display = 'block';
+        document.getElementById('gps-page').style.display = 'flex';
+        if(!map) { setTimeout(initMap, 300); }
     }
-    function goHome() {
-        pageList.forEach(p => { if(document.getElementById(p)) document.getElementById(p).style.display = 'none'; });
+
+    function closeGPS() {
+        document.getElementById('gps-page').style.display = 'none';
         document.getElementById('home').style.display = 'block';
     }
+
+    function initMap() {
+        map = L.map('map', { zoomControl: false }).setView([37.5853, -79.0514], 14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    }
+
+    function findMe() {
+        navigator.geolocation.getCurrentPosition((pos) => {
+            const myLoc = [pos.coords.latitude, pos.coords.longitude];
+            const icon = L.divIcon({ html: '<div class="k9-dot"></div>', className: '', iconSize: [22, 22] });
+            if (userMarker) map.removeLayer(userMarker);
+            userMarker = L.marker(myLoc, { icon: icon }).addTo(map);
+            map.setView(myLoc, 17);
+        }, (err) => alert("GPS Lost"), { enableHighAccuracy: true });
+    }
+
+    async function searchAddress() {
+        const query = document.getElementById('target').value;
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        if (data.length > 0) {
+            const loc = [data[0].lat, data[0].lon];
+            L.marker(loc).addTo(map);
+            map.setView(loc, 17);
+        }
+    }
+
+    function drawPerimeter() {
+        if (perimeter) map.removeLayer(perimeter);
+        perimeter = L.circle(map.getCenter(), { color: '#FF0000', radius: 500, weight: 6 }).addTo(map);
+    }
+
+    function resetMap() { map.setView([37.5853, -79.0514], 14); }
 </script>
 </body>
 </html>
