@@ -4,95 +4,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND V213</title>
+    <title>ACSD COMMAND V214</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --gold: #c5a059; --le-blue: #0000FF; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; }
         
-        /* NAVIGATION */
+        /* NAVIGATION LAYERS */
         #home { position: absolute; width: 100%; height: 100%; z-index: 1000; background: #000; display: block; }
         #gps-page { position: absolute; width: 100%; height: 100%; z-index: 2000; background: #000; display: none; flex-direction: column; }
 
-        /* MASTER TOP BAR */
-        .top-bar { 
-            background: #111; 
-            padding: 10px; 
-            border-bottom: 2px solid var(--gold); 
-            display: flex; 
-            gap: 10px; 
+        /* HOMEPAGE LAYOUT (THE GOLD STAR) */
+        .home-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
             align-items: center;
-            height: 70px;
+            justify-content: center;
+            background: radial-gradient(circle, #001a00 0%, #000 100%);
         }
-        .back-btn { background: var(--gold); color: #000; border: none; padding: 12px 15px; font-weight: 900; border-radius: 6px; cursor: pointer; }
-        .addr-input { flex: 1; padding: 12px; background: #222; border: 1px solid var(--gold); color: #fff; border-radius: 6px; font-size: 16px; }
-        .go-btn { background: #fff; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 6px; }
+        
+        .main-star {
+            width: 85%;
+            max-width: 400px;
+            filter: drop-shadow(0 0 20px rgba(197, 160, 89, 0.4));
+        }
 
-        /* MAP AREA */
+        /* TACTICAL BUTTON GRID */
+        .button-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: repeat(3, 1fr);
+            padding: 15% 5%;
+            gap: 20px;
+        }
+
+        .nav-card {
+            background: rgba(0, 0, 0, 0.85);
+            border: 2px solid var(--gold);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold);
+            text-decoration: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.8);
+            cursor: pointer;
+        }
+
+        .nav-card span {
+            font-size: 11px;
+            font-weight: 900;
+            margin-top: 8px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        /* GPS UI */
+        .top-bar { background: #111; padding: 10px; border-bottom: 2px solid var(--gold); display: flex; gap: 10px; height: 75px; align-items: flex-end; }
+        .back-btn { background: var(--gold); color: #000; border: none; padding: 10px 15px; font-weight: 900; border-radius: 6px; }
+        .addr-input { flex: 1; padding: 12px; background: #222; border: 1px solid var(--gold); color: #fff; border-radius: 6px; }
+        .go-btn { background: #fff; border: none; padding: 12px 15px; font-weight: 900; border-radius: 6px; }
+        
         #map { flex: 1; width: 100%; background: #222; }
 
-        /* COMMAND PANEL */
-        .command-panel { 
-            background: #111; 
-            padding: 15px; 
-            border-top: 3px solid var(--gold); 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 10px;
-            padding-bottom: 30px;
-        }
-        .cmd-btn { 
-            padding: 20px 10px; 
-            font-weight: 900; 
-            border-radius: 10px; 
-            border: none; 
-            text-transform: uppercase; 
-            font-size: 14px;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.5);
-        }
-        .btn-blue { background: var(--le-blue); color: #fff; }
-        .btn-red { background: #cc0000; color: #fff; }
-        .btn-grey { background: #333; color: var(--gold); grid-column: span 2; }
+        .cmd-panel { background: #111; padding: 15px; border-top: 3px solid var(--gold); display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-bottom: 30px; }
+        .cmd-btn { padding: 20px 5px; font-weight: 900; border-radius: 10px; border: none; text-transform: uppercase; font-size: 13px; }
 
-        /* THE BLUE/WHITE DOT ICON */
-        .k9-dot {
-            width: 24px;
-            height: 24px;
-            background: #0000FF;
-            border: 3px solid #FFFFFF;
-            border-radius: 50%;
-            box-shadow: 0 0 10px #0000FF;
-        }
-
-        /* HOME SCREEN BUTTONS */
-        .home-grid { position: absolute; width: 100%; height: 100%; display: flex; justify-content: space-between; padding: 20% 5%; pointer-events: none; }
-        .home-btn { pointer-events: auto; width: 120px; height: 80px; background: rgba(0,0,0,0.85); border: 2px solid var(--gold); color: var(--gold); font-weight: 900; border-radius: 10px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 12px; }
+        .k9-dot { width: 22px; height: 22px; background: #0000FF; border: 3px solid #FFFFFF; border-radius: 50%; box-shadow: 0 0 10px #0000FF; }
     </style>
 </head>
 <body>
 
     <div id="home">
-        <img src="homepage.jpg" style="width:100%; height:100%; object-fit: contain;">
-        <div class="home-grid">
-            <div class="home-btn" onclick="openGPS()">TACTICAL GPS</div>
-            <div class="home-btn" onclick="alert('Module Loading...')">LEGAL BIBLE</div>
+        <div class="home-container">
+            <img src="homepage.jpg" class="main-star" alt="ACSD Star">
+            
+            <div class="button-overlay">
+                <div class="nav-card" onclick="openGPS()">
+                    <div style="font-size: 24px;">📍</div>
+                    <span>TACTICAL GPS</span>
+                </div>
+                <div class="nav-card" onclick="alert('Loading Legal Bible...')">
+                    <div style="font-size: 24px;">⚖️</div>
+                    <span>LEGAL BIBLE</span>
+                </div>
+                <div class="nav-card" onclick="alert('Loading First Aid...')">
+                    <div style="font-size: 24px;">🚑</div>
+                    <span>K9 FIRST AID</span>
+                </div>
+                <div class="nav-card" onclick="alert('Loading Training...')">
+                    <div style="font-size: 24px;">🐕</div>
+                    <span>K9 TRAINING</span>
+                </div>
+                <div class="nav-card" onclick="alert('Loading Reports...')">
+                    <div style="font-size: 24px;">📝</div>
+                    <span>INCIDENT RPT</span>
+                </div>
+                <div class="nav-card" onclick="alert('Loading Settings...')">
+                    <div style="font-size: 24px;">⚙️</div>
+                    <span>SETTINGS</span>
+                </div>
+            </div>
         </div>
     </div>
 
     <div id="gps-page">
         <div class="top-bar">
             <button class="back-btn" onclick="closeGPS()">MENU</button>
-            <input type="text" id="target" class="addr-input" placeholder="Enter Search Address...">
+            <input type="text" id="target" class="addr-input" placeholder="Search Address...">
             <button class="go-btn" onclick="searchAddress()">GO</button>
         </div>
-
         <div id="map"></div>
-
-        <div class="command-panel">
-            <button class="cmd-btn btn-blue" onclick="findMe()">1. SHOW MY POSITION</button>
-            <button class="cmd-btn btn-red" onclick="drawPerimeter()">2. SET PERIMETER</button>
-            <button class="cmd-btn btn-grey" onclick="resetMap()">RESET TO AMHERST</button>
+        <div class="cmd-panel">
+            <button class="cmd-btn" style="background:var(--le-blue); color:#fff;" onclick="findMe()">SHOW POSITION</button>
+            <button class="cmd-btn" style="background:#cc0000; color:#fff;" onclick="drawPerimeter()">SET PERIMETER</button>
+            <button class="cmd-btn" style="background:#333; color:var(--gold); grid-column: span 2;" onclick="resetMap()">RESET TO AMHERST</button>
         </div>
     </div>
 
@@ -103,9 +139,7 @@
     function openGPS() {
         document.getElementById('home').style.display = 'none';
         document.getElementById('gps-page').style.display = 'flex';
-        if(!map) {
-            setTimeout(initMap, 200);
-        }
+        if(!map) { setTimeout(initMap, 300); }
     }
 
     function closeGPS() {
@@ -118,69 +152,38 @@
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     }
 
-    // REAL TIME POSITION LOCK
     function findMe() {
-        if (!navigator.geolocation) {
-            alert("GPS not supported by this device.");
-            return;
-        }
-        
         navigator.geolocation.getCurrentPosition((pos) => {
-            const lat = pos.coords.latitude;
-            const lng = pos.coords.longitude;
-            const myLoc = [lat, lng];
-
-            // BLUE WITH WHITE BORDER DOT
+            const myLoc = [pos.coords.latitude, pos.coords.longitude];
             const blueWhiteIcon = L.divIcon({
                 className: 'k9-dot-container',
                 html: '<div class="k9-dot"></div>',
-                iconSize: [24, 24]
+                iconSize: [22, 22]
             });
-
             if (userMarker) map.removeLayer(userMarker);
             userMarker = L.marker(myLoc, { icon: blueWhiteIcon }).addTo(map);
             map.setView(myLoc, 17);
-        }, (err) => {
-            alert("GPS Error: Please enable location services in settings.");
-        }, { enableHighAccuracy: true });
+        }, (err) => alert("GPS Signal Lost"), { enableHighAccuracy: true });
     }
 
-    // LIVE ADDRESS SEARCH
     async function searchAddress() {
         const query = document.getElementById('target').value;
-        if(!query) return;
-        
         const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
         const data = await response.json();
-        
         if (data.length > 0) {
             const loc = [data[0].lat, data[0].lon];
-            L.marker(loc).addTo(map).bindPopup("TARGET LOCATION").openPopup();
+            L.marker(loc).addTo(map);
             map.setView(loc, 17);
-        } else {
-            alert("Address not found. Try adding 'Amherst, VA'.");
         }
     }
 
-    // PERIMETER LOCK
     function drawPerimeter() {
-        const center = map.getCenter();
         if (perimeter) map.removeLayer(perimeter);
-        
-        perimeter = L.circle(center, {
-            color: '#FF0000',
-            fillColor: '#FF0000',
-            fillOpacity: 0.2,
-            radius: 500, // 500 meters
-            weight: 5
-        }).addTo(map);
-        
-        alert("500m Perimeter Established.");
+        perimeter = L.circle(map.getCenter(), { color: '#FF0000', radius: 500, weight: 5 }).addTo(map);
+        alert("Perimeter Set.");
     }
 
-    function resetMap() {
-        map.setView([37.5853, -79.0514], 14);
-    }
+    function resetMap() { map.setView([37.5853, -79.0514], 14); }
 </script>
 </body>
 </html>
