@@ -1,153 +1,113 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND V218</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+    <title>ACSO K9 Command</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        :root { --gold: #c5a059; --blue: #0000FF; --red: #FF0000; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body, html { height: 100%; width: 100%; background: #000; overflow: hidden; font-family: 'Arial Black', sans-serif; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
 
-        /* THE FOUNDATION: BACKGROUND IMAGE */
-        #master-screen {
+        /* USING YOUR IMAGE AS THE ACTUAL BACKGROUND */
+        #homepage {
+            width: 100vw; height: 100vh;
+            background: url('https://files.oaiusercontent.com/file-K7m9XoH5BwA79NfJ3nB6Yp?se=2024-10-24T00%3A14%3A36Z&sp=r&sv=24.10.01&sr=b&rscc=max-age%3D604800%2C%20immutable%2C%20private&rscd=attachment%3B%20filename%3Dhomepage_2.jpg&sig=o3nLzN23G9GvNl9wZ0R9A1lE/pP9P6U%3D') no-repeat center center;
+            background-size: 100% 100%;
             position: relative;
-            width: 100vw;
-            height: 100vh;
-            background: url('homepage.jpg') no-repeat center center;
-            background-size: contain;
-            display: block;
         }
 
-        /* THE UI LANES: PURE CSS GRID FOR ALIGNMENT */
-        .tactical-grid {
+        /* PLACING ICONS OVER THE RED SQUARE AREA */
+        .icon-overlay {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 57%; /* Aligning with the red box in your image */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 82%;
             display: grid;
-            grid-template-columns: 30% 40% 30%;
-            grid-template-rows: 1fr 1fr 1fr;
-            padding: 10% 2%;
-            z-index: 50;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px 10px;
         }
 
-        /* BUTTON BOXES - PUSHED TO SIDES */
-        .btn-cell {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: auto;
+        .nav-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+        .icon-circle {
+            width: 55px; height: 55px; border: 2px solid #d4af37; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6em; background: rgba(0,0,0,0.6); margin-bottom: 5px;
+        }
+        .nav-item span { 
+            font-size: 0.62em; color: #d4af37; font-weight: bold; 
+            text-align: center; width: 85px; line-height: 1.1; 
         }
 
-        .action-box {
-            width: 95%;
-            background: rgba(0, 0, 0, 0.95);
-            border: 2px solid var(--gold);
-            border-radius: 12px;
-            padding: 20px 5px;
-            text-align: center;
-            cursor: pointer;
-            box-shadow: 0 0 15px #000;
-        }
-
-        .action-box:active { background: var(--gold); }
-        .action-box span { display: block; color: var(--gold); font-weight: 900; text-transform: uppercase; }
-        .label { font-size: 10px; margin-top: 5px; letter-spacing: 1px; }
-        .icon { font-size: 22px; }
-
-        /* GPS OVERLAY */
-        #gps-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
-            z-index: 1000;
-            display: none;
-            flex-direction: column;
-        }
-
-        .gps-header { background: #111; padding: 15px; border-bottom: 3px solid var(--gold); display: flex; gap: 10px; padding-top: 60px; }
-        .input-field { flex: 1; padding: 12px; background: #222; border: 1px solid var(--gold); color: #fff; border-radius: 5px; }
-        .go-btn { background: #fff; padding: 10px 20px; font-weight: 900; border-radius: 5px; border: none; }
-        .back-btn { position: absolute; top: 10px; left: 10px; background: var(--gold); padding: 10px; font-weight: 900; border-radius: 5px; z-index: 1100; }
-
-        #map-view { flex: 1; width: 100%; }
-
-        .gps-footer { background: #111; border-top: 3px solid var(--gold); padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-bottom: 40px; }
-        .footer-btn { padding: 20px; border-radius: 8px; font-weight: 900; border: none; color: #fff; text-transform: uppercase; }
-
-        /* THE TARGET DOT */
-        .k9-dot { width: 26px; height: 26px; background: var(--blue); border: 4px solid #fff; border-radius: 50%; box-shadow: 0 0 10px var(--blue); }
+        /* MODULE LAYERS */
+        .module-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; }
+        .nav-header { height: 60px; background: #0b2414; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 2px solid #d4af37; }
+        .exit-btn { background: #900; color: #fff; border: 1px solid #fff; padding: 8px 12px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="master-screen">
-        <div class="tactical-grid">
-            <div class="btn-cell"><div class="action-box" onclick="toggleGPS(true)"><span class="icon">📍</span><span class="label">GPS</span></div></div>
-            <div class="btn-cell"></div> <div class="btn-cell"><div class="action-box" onclick="alert('LEGAL')"><span class="icon">⚖️</span><span class="label">LEGAL</span></div></div>
+<div id="homepage">
+    <div class="icon-overlay">
+        <div class="nav-item" onclick="openModule('sos-layer')"><div class="icon-circle" style="border-color:#ff0000;">🏥</div><span>Emergency SOS</span></div>
+        <div class="nav-item" onclick="openModule('gps-layer')"><div class="icon-circle">🗺️</div><span>Live GPS Map</span></div>
+        <div class="nav-item" onclick="openModule('law-layer')"><div class="icon-circle">🔍</div><span>Narcotics Aids</span></div>
+        <div class="nav-item" onclick="openModule('law-layer')"><div class="icon-circle">⚖️</div><span>Legal Shield</span></div>
+        <div class="nav-item" onclick="openModule('log-layer')"><div class="icon-circle">📝</div><span>Training Logs</span></div>
+        <div class="nav-item" onclick="openModule('law-layer')"><div class="icon-circle">🏛️</div><span>VA Code</span></div>
+    </div>
+</div>
 
-            <div class="btn-cell"><div class="action-box" onclick="alert('AID')"><span class="icon">🚑</span><span class="label">AID</span></div></div>
-            <div class="btn-cell"></div> <div class="btn-cell"><div class="action-box" onclick="alert('TRAIN')"><span class="icon">🐕</span><span class="label">TRAIN</span></div></div>
-
-            <div class="btn-cell"><div class="action-box" onclick="alert('RPT')"><span class="icon">📝</span><span class="label">REPORT</span></div></div>
-            <div class="btn-cell"></div> <div class="btn-cell"><div class="action-box" onclick="alert('SET')"><span class="icon">⚙️</span><span class="label">SETTINGS</span></div></div>
+<!-- GPS MODULE -->
+<div id="gps-layer" class="module-layer">
+    <div class="nav-header"><button class="exit-btn" onclick="closeModule('gps-layer')">BACK</button><span style="color:#d4af37;">TACTICAL GPS</span></div>
+    <div id="map" style="width:100%; height:60%;"></div>
+    <div style="padding:15px; background:#000; height:40%;">
+        <div style="color:#00ff00; font-family:monospace; border:1px solid #00ff00; padding:10px; margin-bottom:10px;">
+            CP DISTANCE: <span id="cp-val">0</span> YD<br>
+            GAP DISTANCE: <span id="gap-val">0</span> YD
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <button onclick="setMode('blue')" style="background:blue; color:#fff; padding:15px; font-weight:bold; border:none;">OFFICER</button>
+            <button onclick="setMode('green')" style="background:green; color:#fff; padding:15px; font-weight:bold; border:none;">K9 UNIT</button>
         </div>
     </div>
+</div>
 
-    <div id="gps-overlay">
-        <button class="back-btn" onclick="toggleGPS(false)">MENU</button>
-        <div class="gps-header">
-            <input type="text" id="search-box" class="input-field" placeholder="Target Address...">
-            <button class="go-btn" onclick="runSearch()">GO</button>
-        </div>
-        <div id="map-view"></div>
-        <div class="gps-footer">
-            <button class="footer-btn" style="background:var(--blue);" onclick="trackMe()">MY POSITION</button>
-            <button class="footer-btn" style="background:var(--red);" onclick="setPerim()">PERIMETER</button>
-        </div>
+<!-- EMERGENCY SOS MODULE -->
+<div id="sos-layer" class="module-layer">
+    <div class="nav-header"><button class="exit-btn" onclick="closeModule('sos-layer')">BACK</button><span style="color:#d4af37;">DUTY MEDICAL</span></div>
+    <div style="padding:20px;">
+        <button style="width:100%; padding:25px; background:#900; color:#fff; font-weight:bold; border:2px solid #fff; margin-bottom:20px;" onclick="shout('Commencing K9 CPR. Thirty compressions to two breaths.')">K9 CPR AUDIO GUIDE</button>
+        <button style="width:100%; padding:25px; background:#1a3c2a; color:#d4af37; font-weight:bold; border:2px solid #d4af37;" onclick="shout('Trauma protocol. Apply pressure. Check for shock.')">TRAUMA AUDIO GUIDE</button>
     </div>
+</div>
 
-<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- DATA MODULES -->
+<div id="law-layer" class="module-layer"><div class="nav-header"><button class="exit-btn" onclick="closeModule('law-layer')">BACK</button><span>LEGAL VA CODE</span></div></div>
+<div id="log-layer" class="module-layer"><div class="nav-header"><button class="exit-btn" onclick="closeModule('log-layer')">BACK</button><span>TRAINING LOGS</span></div></div>
+
 <script>
-    let map, me, perim;
+    var map, lastPos, currentMode = 'blue';
 
-    function toggleGPS(show) {
-        document.getElementById('gps-overlay').style.display = show ? 'flex' : 'none';
-        if(show && !map) {
-            setTimeout(() => {
-                map = L.map('map-view', {zoomControl: false}).setView([37.5853, -79.0514], 14);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            }, 300);
+    function openModule(id) {
+        document.getElementById(id).style.display = 'block';
+        if (id === 'gps-layer' && !map) {
+            map = L.map('map', {zoomControl: false}).setView([37.58, -79.05], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            map.on('click', function(e) {
+                L.circleMarker(e.latlng, {radius: 12, fillColor: currentMode, color: '#fff', weight: 2, fillOpacity: 0.9}).addTo(map);
+                if(lastPos) document.getElementById('gap-val').innerText = Math.round(e.latlng.distanceTo(lastPos) * 1.09361);
+                lastPos = e.latlng;
+            });
         }
     }
 
-    function trackMe() {
-        navigator.geolocation.getCurrentPosition(p => {
-            const loc = [p.coords.latitude, p.coords.longitude];
-            const icon = L.divIcon({html:'<div class="k9-dot"></div>', className:'', iconSize:[26,26]});
-            if(me) map.removeLayer(me);
-            me = L.marker(loc, {icon: icon}).addTo(map);
-            map.setView(loc, 17);
-        }, () => alert("GPS ERROR"), {enableHighAccuracy:true});
-    }
-
-    async function runSearch() {
-        const q = document.getElementById('search-box').value;
-        const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`);
-        const d = await r.json();
-        if(d[0]) {
-            const loc = [d[0].lat, d[0].lon];
-            L.marker(loc).addTo(map);
-            map.setView(loc, 17);
-        }
-    }
-
-    function setPerim() {
-        if(perim) map.removeLayer(perim);
-        perim = L.circle(map.getCenter(), {color:'red', radius:500, weight:8, fillOpacity:0.1}).addTo(map);
-        alert("Perimeter Active");
-    }
+    function closeModule(id) { document.getElementById(id).style.display = 'none'; window.speechSynthesis.cancel(); }
+    function setMode(m) { currentMode = m; }
+    function shout(t) { window.speechSynthesis.cancel(); window.speechSynthesis.speak(new SpeechSynthesisUtterance(t)); }
 </script>
+
 </body>
 </html>
