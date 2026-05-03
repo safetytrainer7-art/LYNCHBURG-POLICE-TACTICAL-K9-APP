@@ -4,145 +4,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND V212</title>
+    <title>ACSD COMMAND V213</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --gold: #c5a059; --le: #0000FF; --sar: #FF0000; --civ: #00FF00; --sus: #800080; --k9: #ADD8E6; }
+        :root { --gold: #c5a059; --le-blue: #0000FF; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; }
         
         /* NAVIGATION */
-        .ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; z-index: 5000; background: #000; }
-        #home { display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000; }
+        #home { position: absolute; width: 100%; height: 100%; z-index: 1000; background: #000; display: block; }
+        #gps-page { position: absolute; width: 100%; height: 100%; z-index: 2000; background: #000; display: none; flex-direction: column; }
 
-        /* MASTER BACK */
-        .master-back { 
-            position: fixed; top: 10px; left: 10px; z-index: 9999; 
-            background: var(--gold); color: #000; border: 2px solid #fff; 
-            padding: 12px 20px; font-weight: 900; border-radius: 8px; display: none;
+        /* MASTER TOP BAR */
+        .top-bar { 
+            background: #111; 
+            padding: 10px; 
+            border-bottom: 2px solid var(--gold); 
+            display: flex; 
+            gap: 10px; 
+            align-items: center;
+            height: 70px;
+        }
+        .back-btn { background: var(--gold); color: #000; border: none; padding: 12px 15px; font-weight: 900; border-radius: 6px; cursor: pointer; }
+        .addr-input { flex: 1; padding: 12px; background: #222; border: 1px solid var(--gold); color: #fff; border-radius: 6px; font-size: 16px; }
+        .go-btn { background: #fff; color: #000; border: none; padding: 12px 20px; font-weight: 900; border-radius: 6px; }
+
+        /* MAP AREA */
+        #map { flex: 1; width: 100%; background: #222; }
+
+        /* COMMAND PANEL */
+        .command-panel { 
+            background: #111; 
+            padding: 15px; 
+            border-top: 3px solid var(--gold); 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 10px;
+            padding-bottom: 30px;
+        }
+        .cmd-btn { 
+            padding: 20px 10px; 
+            font-weight: 900; 
+            border-radius: 10px; 
+            border: none; 
+            text-transform: uppercase; 
+            font-size: 14px;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.5);
+        }
+        .btn-blue { background: var(--le-blue); color: #fff; }
+        .btn-red { background: #cc0000; color: #fff; }
+        .btn-grey { background: #333; color: var(--gold); grid-column: span 2; }
+
+        /* THE BLUE/WHITE DOT ICON */
+        .k9-dot {
+            width: 24px;
+            height: 24px;
+            background: #0000FF;
+            border: 3px solid #FFFFFF;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #0000FF;
         }
 
-        /* GPS BOX */
-        #gps-container { height: 100%; width: 100%; display: flex; flex-direction: column; }
-        .gps-search-header { padding: 70px 10px 10px 10px; background: #111; border-bottom: 2px solid var(--gold); display: flex; gap: 10px; }
-        .search-input { flex: 1; padding: 15px; background: #222; border: 2px solid var(--gold); color: #fff; border-radius: 8px; font-size: 16px; }
-        .search-go-btn { background: var(--gold); color: #000; border: none; padding: 0 20px; font-weight: 900; border-radius: 8px; }
-
-        #live-map { flex: 1; width: 100%; background: #222; }
-        
-        .map-controls { background: #111; padding: 15px; border-top: 3px solid var(--gold); min-height: 280px; }
-
-        /* LEGEND */
-        .legend { display: flex; justify-content: space-around; background: #1a1a1a; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #333; }
-        .leg-item { text-align: center; font-size: 10px; font-weight: bold; }
-        .dot { width: 14px; height: 14px; border-radius: 50%; margin: 0 auto 5px; border: 1px solid #fff; }
-
-        .row { display: flex; gap: 10px; margin-bottom: 10px; }
-        .act-btn { flex: 1; padding: 22px; font-weight: 900; border-radius: 8px; border: none; text-transform: uppercase; font-size: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        /* HOME SCREEN BUTTONS */
+        .home-grid { position: absolute; width: 100%; height: 100%; display: flex; justify-content: space-between; padding: 20% 5%; pointer-events: none; }
+        .home-btn { pointer-events: auto; width: 120px; height: 80px; background: rgba(0,0,0,0.85); border: 2px solid var(--gold); color: var(--gold); font-weight: 900; border-radius: 10px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 12px; }
     </style>
 </head>
 <body>
 
-    <button id="masterBack" class="master-back" onclick="forceGoHome()">← MENU</button>
-
     <div id="home">
-        <img src="homepage.jpg" style="width:100%; height: 100%; object-fit: contain;">
-        <div style="position:absolute; width:100%; height:100%; top:0; left:0; display:flex; justify-content:space-between; padding:10% 2%;">
-            <div style="width:30%; display:flex; flex-direction:column; justify-content:space-around;">
-                <div class="main-btn" style="background:rgba(0,20,0,0.9); border:2px solid var(--gold); color:var(--gold); padding:20px 5px; text-align:center; font-size:11px; font-weight:900; border-radius:10px;" onclick="openTool('gps')">TACTICAL GPS</div>
-                <div class="main-btn" style="background:rgba(0,20,0,0.9); border:2px solid var(--gold); color:var(--gold); padding:20px 5px; text-align:center; font-size:11px; font-weight:900; border-radius:10px;" onclick="openTool('legal')">LEGAL BIBLE</div>
-            </div>
-            <div style="width:30%; display:flex; flex-direction:column; justify-content:space-around;">
-                <div class="main-btn" style="background:rgba(0,20,0,0.9); border:2px solid var(--gold); color:var(--gold); padding:20px 5px; text-align:center; font-size:11px; font-weight:900; border-radius:10px;" onclick="openTool('aid')">K9 FIRST AID</div>
-                <div class="main-btn" style="background:rgba(0,20,0,0.9); border:2px solid var(--gold); color:var(--gold); padding:20px 5px; text-align:center; font-size:11px; font-weight:900; border-radius:10px;" onclick="openTool('rpt')">REPORTS</div>
-            </div>
+        <img src="homepage.jpg" style="width:100%; height:100%; object-fit: contain;">
+        <div class="home-grid">
+            <div class="home-btn" onclick="openGPS()">TACTICAL GPS</div>
+            <div class="home-btn" onclick="alert('Module Loading...')">LEGAL BIBLE</div>
         </div>
     </div>
 
-    <div id="gps" class="ui-layer">
-        <div id="gps-container">
-            <div class="gps-search-header">
-                <input type="text" id="targetAddr" class="search-input" placeholder="Address or Town...">
-                <button class="search-go-btn" onclick="liveSearch()">GO</button>
-            </div>
-            <div id="live-map"></div>
-            <div class="map-controls">
-                <div class="legend">
-                    <div class="leg-item"><div class="dot" style="background:var(--le);"></div>BLUE</div>
-                    <div class="leg-item"><div class="dot" style="background:var(--sar);"></div>RED</div>
-                    <div class="leg-item"><div class="dot" style="background:var(--civ);"></div>GRN</div>
-                    <div class="leg-item"><div class="dot" style="background:var(--sus);"></div>PURP</div>
-                </div>
-                <div class="row">
-                    <button onclick="deployK9Team()" class="act-btn" style="background:#004400; color:#fff;">1. DEPLOY K9</button>
-                    <button onclick="forcePerimeter()" class="act-btn" style="background:#cc0000; color:#fff; border: 2px solid white;">2. DRAW PERIMETER</button>
-                </div>
-                <button onclick="map.setView([37.5853, -79.0514], 13)" style="width:100%; padding:15px; background:#333; color:var(--gold); border:1px solid var(--gold); border-radius:8px; font-weight:bold;">RESET VIEW TO AMHERST</button>
-            </div>
+    <div id="gps-page">
+        <div class="top-bar">
+            <button class="back-btn" onclick="closeGPS()">MENU</button>
+            <input type="text" id="target" class="addr-input" placeholder="Enter Search Address...">
+            <button class="go-btn" onclick="searchAddress()">GO</button>
+        </div>
+
+        <div id="map"></div>
+
+        <div class="command-panel">
+            <button class="cmd-btn btn-blue" onclick="findMe()">1. SHOW MY POSITION</button>
+            <button class="cmd-btn btn-red" onclick="drawPerimeter()">2. SET PERIMETER</button>
+            <button class="cmd-btn btn-grey" onclick="resetMap()">RESET TO AMHERST</button>
         </div>
     </div>
-
-    <div id="aid" class="ui-layer"></div><div id="legal" class="ui-layer"></div><div id="rpt" class="ui-layer"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    let map, k9Marker, perim, targetMarker;
+    let map, userMarker, perimeter;
 
-    function openTool(id) {
+    function openGPS() {
         document.getElementById('home').style.display = 'none';
-        document.getElementById('masterBack').style.display = 'block';
-        document.getElementById(id).style.display = 'block';
-        if(id === 'gps' && !map) { setTimeout(initMap, 300); }
+        document.getElementById('gps-page').style.display = 'flex';
+        if(!map) {
+            setTimeout(initMap, 200);
+        }
     }
 
-    function forceGoHome() {
-        document.getElementById('masterBack').style.display = 'none';
-        document.querySelectorAll('.ui-layer').forEach(l => l.style.display = 'none');
+    function closeGPS() {
+        document.getElementById('gps-page').style.display = 'none';
         document.getElementById('home').style.display = 'block';
     }
 
     function initMap() {
-        map = L.map('live-map', { zoomControl: false }).setView([37.5853, -79.0514], 13);
+        map = L.map('map', { zoomControl: false }).setView([37.5853, -79.0514], 14);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     }
 
-    async function liveSearch() {
-        const query = document.getElementById('targetAddr').value;
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
-        const data = await res.json();
-        if(data[0]) {
+    // REAL TIME POSITION LOCK
+    function findMe() {
+        if (!navigator.geolocation) {
+            alert("GPS not supported by this device.");
+            return;
+        }
+        
+        navigator.geolocation.getCurrentPosition((pos) => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            const myLoc = [lat, lng];
+
+            // BLUE WITH WHITE BORDER DOT
+            const blueWhiteIcon = L.divIcon({
+                className: 'k9-dot-container',
+                html: '<div class="k9-dot"></div>',
+                iconSize: [24, 24]
+            });
+
+            if (userMarker) map.removeLayer(userMarker);
+            userMarker = L.marker(myLoc, { icon: blueWhiteIcon }).addTo(map);
+            map.setView(myLoc, 17);
+        }, (err) => {
+            alert("GPS Error: Please enable location services in settings.");
+        }, { enableHighAccuracy: true });
+    }
+
+    // LIVE ADDRESS SEARCH
+    async function searchAddress() {
+        const query = document.getElementById('target').value;
+        if(!query) return;
+        
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        
+        if (data.length > 0) {
             const loc = [data[0].lat, data[0].lon];
-            if(targetMarker) map.removeLayer(targetMarker);
-            targetMarker = L.circleMarker(loc, {color:'red', radius:10, fillOpacity:1}).addTo(map);
-            map.setView(loc, 16);
+            L.marker(loc).addTo(map).bindPopup("TARGET LOCATION").openPopup();
+            map.setView(loc, 17);
+        } else {
+            alert("Address not found. Try adding 'Amherst, VA'.");
         }
     }
 
-    function deployK9Team() {
+    // PERIMETER LOCK
+    function drawPerimeter() {
         const center = map.getCenter();
-        const k9Icon = L.divIcon({
-            className: 'k9-icon',
-            html: "<div style='display:flex; gap:2px; background:rgba(0,0,0,0.8); padding:4px; border:2px solid gold; border-radius:15px;'><div style='width:12px; height:12px; background:blue; border-radius:50%;'></div><div style='width:12px; height:12px; background:lightblue; border-radius:50%;'></div></div>",
-            iconSize: [45, 30]
-        });
-        if(k9Marker) map.removeLayer(k9Marker);
-        k9Marker = L.marker(center, {icon: k9Icon}).addTo(map);
-        alert("K9 Team Dropped at Center of Map");
+        if (perimeter) map.removeLayer(perimeter);
+        
+        perimeter = L.circle(center, {
+            color: '#FF0000',
+            fillColor: '#FF0000',
+            fillOpacity: 0.2,
+            radius: 500, // 500 meters
+            weight: 5
+        }).addTo(map);
+        
+        alert("500m Perimeter Established.");
     }
 
-    // --- EMERGENCY PERIMETER OVERRIDE ---
-    function forcePerimeter() {
-        const center = map.getCenter(); // Draws on current map view, no GPS required
-        if(perim) map.removeLayer(perim);
-        perim = L.circle(center, {
-            radius: 500, 
-            color: '#ff0000', 
-            weight: 8, 
-            fillColor: '#ff0000', 
-            fillOpacity: 0.2
-        }).addTo(map);
-        map.setZoom(14);
-        alert("PERIMETER ACTIVE: 500 Meters");
+    function resetMap() {
+        map.setView([37.5853, -79.0514], 14);
     }
 </script>
 </body>
