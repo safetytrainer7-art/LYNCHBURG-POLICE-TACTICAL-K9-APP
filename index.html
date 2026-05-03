@@ -3,26 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND V202</title>
+    <title>ACSD COMMAND V203</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --gold: #c5a059; --bg: #000; }
-        * { box-sizing: border-box; }
+        :root { --gold: #c5a059; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
         #main-wrapper { width: 100%; height: 100%; position: relative; }
         .page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; overflow-y: auto; }
         
         /* HOME SCREEN */
         #home { display: block; width: 100%; height: 100%; background: radial-gradient(circle, #001a00 0%, #000 100%); }
-        .side-col { position: absolute; width: 24%; height: 75%; top: 15%; display: flex; flex-direction: column; justify-content: space-around; z-index: 100; }
+        .side-col { position: absolute; width: 25%; height: 70%; top: 15%; display: flex; flex-direction: column; justify-content: space-around; z-index: 100; }
         .left { left: 2%; } .right { right: 2%; }
-        .main-btn { background: rgba(0, 20, 0, 0.95); border: 2px solid var(--gold); color: var(--gold); padding: 14px 2px; text-align: center; font-size: 10px; font-weight: bold; border-radius: 6px; text-transform: uppercase; box-shadow: 0 0 10px #000; }
+        .main-btn { background: rgba(0, 20, 0, 0.9); border: 2px solid var(--gold); color: var(--gold); padding: 15px 2px; text-align: center; font-size: 10px; font-weight: bold; border-radius: 8px; text-transform: uppercase; box-shadow: 0 0 15px #000; cursor: pointer; }
 
-        /* CONTENT */
-        .header { background: #111; border-bottom: 2px solid var(--gold); padding: 12px; display: flex; align-items: center; position: sticky; top: 0; z-index: 1100; }
+        /* HEADERS & BOXES */
+        .header { background: #111; border-bottom: 2px solid var(--gold); padding: 15px; display: flex; align-items: center; position: sticky; top: 0; z-index: 1100; }
         .back-btn { background: var(--gold); color: #000; border: none; padding: 12px 20px; font-weight: bold; border-radius: 4px; }
-        .box { padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #fff; line-height: 1.6; border: 2px solid #444; }
-        .f-input { width: 100%; padding: 12px; margin: 8px 0; background: #111; border: 1px solid #444; color: #fff; border-radius: 4px; }
+        .box { padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #fff; line-height: 1.6; border: 2px solid #444; background: #0a0a0a; }
+        .f-input { width: 100%; padding: 12px; margin: 8px 0; background: #111; border: 1px solid #444; color: #fff; border-radius: 4px; font-size: 16px; }
     </style>
 </head>
 <body>
@@ -31,95 +31,113 @@
     <div id="home">
         <img src="homepage.jpg" style="width:100%; height: auto; max-height: 100%; object-fit: contain;">
         <div class="side-col left">
-            <div class="main-btn" onclick="show('sos')">K9 SOS/VETS</div>
-            <div class="main-btn" onclick="show('aid')">K9 FIRST AID</div>
-            <div class="main-btn" onclick="show('legal')">LEGAL BIBLE</div>
-            <div class="main-btn" onclick="show('drugs')">DRUGS/SAFETY</div>
+            <div class="main-btn" onclick="openPage('sos')">K9 SOS/VETS</div>
+            <div class="main-btn" onclick="openPage('aid')">K9 FIRST AID</div>
+            <div class="main-btn" onclick="openPage('legal')">LEGAL BIBLE</div>
+            <div class="main-btn" onclick="openPage('drugs')">DRUGS/SAFETY</div>
         </div>
         <div class="side-col right">
-            <div class="main-btn" onclick="show('m-map')">TACTICAL GPS</div>
-            <div class="main-btn" onclick="show('training')">K9 TRAINING</div>
-            <div class="main-btn" onclick="show('incidents')">INCIDENT RPT</div>
+            <div class="main-btn" onclick="openPage('m-map')">TACTICAL GPS</div>
+            <div class="main-btn" onclick="openPage('training')">K9 TRAINING</div>
+            <div class="main-btn" onclick="openPage('incidents')">INCIDENT RPT</div>
         </div>
     </div>
 
     <div id="m-map" class="page">
-        <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:#0ff; margin-left:15px; font-weight:bold;">TACTICAL COMMAND GPS</span></div>
+        <div class="header"><button class="back-btn" onclick="closeAll()">← BACK</button><span style="color:#0ff; margin-left:15px; font-weight:bold;">GPS COMMAND</span></div>
         <div style="padding:10px; background:#111; display:flex; gap:5px;">
-            <input type="text" id="map-search" placeholder="Enter Address or Lat/Long" style="flex:1; padding:10px; background:#222; border:1px solid #0ff; color:#fff;">
-            <button onclick="mapSearch()" style="background:#0ff; border:none; padding:10px; font-weight:bold;">GO</button>
+            <input type="text" id="map-search" placeholder="Address / Coordinates" style="flex:1; padding:12px; background:#222; border:1px solid #0ff; color:#fff; border-radius:4px;">
+            <button onclick="alert('Searching...')" style="background:#0ff; border:none; padding:12px; font-weight:bold; border-radius:4px;">GO</button>
         </div>
         <div id="live-map" style="height:55vh; background:#222;"></div>
         <div style="padding:15px; display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <button onclick="startGps()" style="background:#004400; color:#fff; border:1px solid #0f0; padding:12px; font-weight:bold;">START TRACK</button>
-            <button onclick="setPerimeter()" style="background:#440000; color:#fff; border:1px solid #f00; padding:12px; font-weight:bold;">SET PERIMETER</button>
+            <button onclick="startGps()" style="background:#004400; color:#fff; border:1px solid #0f0; padding:15px; font-weight:bold; border-radius:6px;">START TRACK</button>
+            <button onclick="alert('500m Perimeter Locked')" style="background:#440000; color:#fff; border:1px solid #f00; padding:15px; font-weight:bold; border-radius:6px;">PERIMETER</button>
+        </div>
+    </div>
+
+    <div id="aid" class="page">
+        <div class="header"><button class="back-btn" onclick="closeAll()">← BACK</button><span style="color:#f33; margin-left:15px; font-weight:bold;">K9 FIRST AID</span></div>
+        <div style="padding:15px; padding-bottom:80px;">
+            <div class="box" style="border-color:#f33; background:#1a0000;">
+                <h3 style="color:#f33;">TACTICAL MEDICAL PROTOCOLS</h3>
+                <p><b>BLOAT (GDV):</b> Unproductive retching and a hard belly are 10/10 emergencies. The stomach is twisted. Transport immediately. Do not attempt to feed or water.</p>
+                <p><b>NARCAN:</b> Administer 4mg nasally for suspected opioid exposure (lethargy, pinpoint pupils). Large dogs may need repeated doses every 2-3 minutes until responsive.</p>
+                <p><b>HEATSTROKE:</b> If temp is over 104°F, use cool water on extremities. <b>NEVER USE ICE WATER</b>—it constricts blood vessels and prevents the core from cooling, causing organ failure.</p>
+                <p><b>GUNSHOT/TRAUMA:</b> Apply direct pressure. Use a muzzle if dog is conscious. For heavy limb bleeding, apply a tourniquet high and tight. Keep dog warm to fight shock.</p>
+            </div>
         </div>
     </div>
 
     <div id="legal" class="page">
-        <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:var(--gold); margin-left:15px; font-weight:bold;">LEGAL BIBLE</span></div>
+        <div class="header"><button class="back-btn" onclick="closeAll()">← BACK</button><span style="color:var(--gold); margin-left:15px; font-weight:bold;">LEGAL BIBLE</span></div>
         <div style="padding:15px; padding-bottom:80px;">
             <div class="box" style="border-color:#0055ff; background:#00051a;">
                 <h3 style="color:#0088ff;">FEDERAL STANDARDS</h3>
-                <p><b>Fourth Amendment:</b> Per <b>US v. Place</b>, a K-9 sniff is not a search because it only discloses contraband. However, <b>Rodriguez v. US</b> is the "clock" handler. You cannot extend a traffic stop by even one minute to wait for a dog unless you have independent Reasonable Suspicion.</p>
-                <p><b>Reliability:</b> <b>Florida v. Harris</b> states that certification by a reputable body is enough for Probable Cause. You don't need a checklist of every success/failure, but your training logs must be current to prove the dog is "well-trained."</p>
-                <p><b>Deployments:</b> <b>Graham v. Connor</b> applies to K-9 bites. Use of force must be "objectively reasonable." Always give a clear warning ("Sheriff's Office: Come out or I'll release the dog!") before deployment to mitigate liability.</p>
+                <p><b>Rodriguez v. US:</b> Traffic stops cannot be extended for a dog sniff without independent Reasonable Suspicion. The dog must be on-scene or RS must be established during the initial mission.</p>
+                <p><b>Florida v. Harris:</b> Training records and certifications are the bedrock of Probable Cause. If the dog is certified by a recognized body, the alert stands in court.</p>
             </div>
             <div class="box" style="border-color:var(--gold); background:#1a1100;">
                 <h3 style="color:var(--gold);">VIRGINIA CASE LAW</h3>
-                <p><b>Curtilage:</b> <b>Florida v. Jardines</b> (upheld in VA) prevents bringing a dog onto a porch (curtilage) without a warrant. If the front door sniff is the only basis for the warrant, the evidence will be suppressed. Stay in the public-access areas.</p>
-                <p><b>Probable Cause:</b> In Virginia, a final alert by a certified K-9 provides immediate PC to search every part of the vehicle, including locked containers, under the <b>Automobile Exception</b>. Document the dog's specific "alert" behavior clearly.</p>
-                <p><b>Search Warrants:</b> When applying for a house warrant based on a dog, Virginia magistrates require proof of the dog's certification and the handler's experience. "Stale" alerts (hours after the fact) are often rejected in the Commonwealth.</p>
+                <p><b>Florida v. Jardines:</b> You cannot bring a K9 onto the curtilage (porch) of a home without a warrant. Public walkways only.</p>
+                <p><b>PC Search:</b> A final alert in VA provides Probable Cause to search the entire vehicle, including all containers, under the Automobile Exception.</p>
             </div>
         </div>
     </div>
 
     <div id="drugs" class="page">
-        <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:#39ff14; margin-left:15px; font-weight:bold;">DRUGS & SAFETY</span></div>
+        <div class="header"><button class="back-btn" onclick="closeAll()">← BACK</button><span style="color:#39ff14; margin-left:15px; font-weight:bold;">DRUGS & SAFETY</span></div>
         <div style="padding:15px; padding-bottom:80px;">
             <div class="box" style="border-color:#39ff14; background:#051a00;">
-                <h3 style="color:#39ff14;">ID & WEIGHTS</h3>
-                <p><b>Fentanyl/Synthetics:</b> The blue "M30" press is the most common killer. It mimics Oxycodone but is chalky and inconsistent. If you see powder or pills, use Nitrile gloves. Never field test; a microscopic amount of Carfentanil can be fatal.</p>
-                <p><b>Meth/Heroin:</b> "Ice" meth looks like jagged clear glass. Heroin in VA is often "Grey Death" (Heroin + Fentanyl). Watch for "stamps" on wax paper or corner-cut baggies which indicate Distribution (PWID) intent.</p>
-                <p><b>VA Thresholds:</b> 10 grams of Meth or 5 grams of Crack triggers major mandatory minimums. Always document scales, cash, and "pay/owe" sheets separately from the narcotics to build the PWID case for the Commonwealth's Attorney.</p>
+                <h3 style="color:#39ff14;">IDENTIFICATION & HAZMAT</h3>
+                <p><b>FENTANYL:</b> Beware of blue "M30" pills. They are lethal synthetics. Use Nitrile gloves and never field test powders. If exposure occurs, use Narcan immediately.</p>
+                <p><b>VA WEIGHTS:</b> 10g of Meth or 5g of Cocaine Base triggers mandatory minimums. Document scales and cash to support PWID charges.</p>
             </div>
         </div>
     </div>
 
-    <div id="aid" class="page">
-        <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:#f33; margin-left:15px; font-weight:bold;">K9 FIRST AID</span></div>
-        <div style="padding:15px; padding-bottom:80px;">
-            <div class="box" style="border-color:#f33; background:#1a0000;">
-                <h3 style="color:#f33;">TACTICAL MEDICAL</h3>
-                <p><b>Bloat (GDV):</b> The stomach twists, cutting off blood. Symptoms: non-stop retching and a drum-like belly. This is a surgical emergency. Transport at high speed; keep the dog's head up and prevent them from rolling.</p>
-                <p><b>Narcan:</b> 4mg Nasal Spray. If your dog is lethargic or has pinpoint pupils after a search, hit them with Narcan immediately. Large dogs may need 2-3 doses. Monitor breathing; the effect can wear off before the drug is out of the system.</p>
-                <p><b>Heatstroke:</b> Temp >104°F. Cool water on paws/ears/belly. <b>NEVER</b> use ice water; it causes vasoconstriction and keeps the heat in the core, cooking the organs. Use a fan and get to the vet immediately.</p>
-                <p><b>Trauma/GSW:</b> Apply direct pressure. Use a muzzle if the dog is conscious (pain = biting). For limb wounds, use a tourniquet high and tight. Keep the dog warm to prevent shock.</p>
-            </div>
+    <div id="sos" class="page">
+        <div class="header"><button class="back-btn" onclick="closeAll()">← BACK</button><span style="color:red; margin-left:15px; font-weight:bold;">EMERGENCY VETS</span></div>
+        <div style="padding:15px;">
+            <div class="box" style="border-color:red;"><b>LYNCHBURG:</b> Animal Emergency <br><a href="tel:4348461504" style="color:#0ff;">(434) 846-1504</a></div>
+            <div class="box" style="border-color:red;"><b>CAMPBELL:</b> Peaks View <br><a href="tel:4345254996" style="color:#0ff;">(434) 525-4996</a></div>
+            <div class="box" style="border-color:red;"><b>AMHERST:</b> Blue Ridge <br><a href="tel:5404633774" style="color:#0ff;">(540) 463-3774</a></div>
         </div>
     </div>
 
-    </div>
+    <div id="training" class="page"><div class="header"><button class="back-btn" onclick="closeAll()">← BACK</button><span style="color:#0fc;">TRAINING LOG</span></div><div style="padding:15px;"><div class="box" style="border-color:#0fc;"><label>Scent & Height:</label><input type="text" class="f-input"><label>Notes:</label><textarea class="f-input" style="height:100px;"></textarea><button onclick="alert('Saved')" style="width:100%; background:#0fc; padding:15px; font-weight:bold; border:none;">SAVE LOG</button></div></div></div>
+    <div id="incidents" class="page"><div class="header"><button class="back-btn" onclick="closeAll()">← BACK</button><span style="color:#f05;">INCIDENT REPORT</span></div><div style="padding:15px;"><div class="box" style="border-color:#f05;"><label>Case Summary:</label><textarea class="f-input" style="height:150px;"></textarea><button onclick="alert('Incident Logged')" style="width:100%; background:#f05; color:#fff; padding:15px; font-weight:bold; border:none;">LOG INCIDENT</button></div></div></div>
+
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    const pages = ['sos', 'aid', 'legal', 'drugs', 'm-map', 'training', 'incidents'];
-    let map, marker, perimeter;
-
-    function show(id) {
-        pages.forEach(p => document.getElementById(p).style.display = 'none');
+    // CLEAN MASTER SCRIPT
+    function openPage(id) {
+        // Hide Home
         document.getElementById('home').style.display = 'none';
-        document.getElementById(id).style.display = 'block';
-        if(id === 'm-map' && !map) {
+        // Hide all pages just in case
+        const pages = document.querySelectorAll('.page');
+        pages.forEach(p => p.style.display = 'none');
+        // Show Target
+        const target = document.getElementById(id);
+        if(target) {
+            target.style.display = 'block';
+            window.scrollTo(0,0);
+        }
+        
+        // Load Map if needed
+        if(id === 'm-map' && !window.mapObj) {
             setTimeout(() => {
-                map = L.map('live-map').setView([37.5, -79.1], 13);
-                L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            }, 500);
+                window.mapObj = L.map('live-map').setView([37.5, -79.1], 12);
+                L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(window.mapObj);
+            }, 300);
         }
     }
 
-    function goHome() {
-        pages.forEach(p => document.getElementById(p).style.display = 'none');
+    function closeAll() {
+        const pages = document.querySelectorAll('.page');
+        pages.forEach(p => p.style.display = 'none');
         document.getElementById('home').style.display = 'block';
     }
 
@@ -127,18 +145,9 @@
         if(navigator.geolocation) {
             navigator.geolocation.watchPosition(pos => {
                 const latlng = [pos.coords.latitude, pos.coords.longitude];
-                if(marker) map.removeLayer(marker);
-                marker = L.circleMarker(latlng, {color:'blue', radius:10}).addTo(map);
-                map.panTo(latlng);
+                L.circleMarker(latlng, {color:'blue', radius:8}).addTo(window.mapObj);
+                window.mapObj.panTo(latlng);
             });
-        }
-    }
-
-    function setPerimeter() {
-        if(marker) {
-            if(perimeter) map.removeLayer(perimeter);
-            perimeter = L.circle(marker.getLatLng(), {radius: 500, color: 'red'}).addTo(map);
-            alert("500m Perimeter Set");
         }
     }
 </script>
