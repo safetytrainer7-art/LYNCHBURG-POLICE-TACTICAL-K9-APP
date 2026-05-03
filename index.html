@@ -1,17 +1,16 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND V219</title>
+    <title>ACSD COMMAND V220</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --gold: #c5a059; --le-blue: #0000FF; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #001a00; font-family: 'Times New Roman', serif; overflow: hidden; }
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; font-family: 'Arial', sans-serif; overflow: hidden; }
         
-        /* THE NEW OFFICIAL GREEN BACKGROUND */
+        /* 1. HOMEPAGE: THE BACKGROUND (THE NEW GREEN LEATHER) */
         #home { 
             display: block; 
             position: absolute; 
@@ -19,84 +18,96 @@
             width: 100%; height: 100%; 
             z-index: 1000; 
             background: url('homepage.jpg') no-repeat center center;
-            background-size: cover; /* Ensures the green leather fills the whole screen */
+            background-size: cover; /* Forces the green image to cover the screen */
         }
 
-        /* TACTICAL OVERLAY - BUTTONS MOVED TO SIDES TO CLEAR THE K9 */
-        .ui-lanes {
+        /* 2. THE UI OVERLAY: THE PURE GRID */
+        .ui-grid {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; justify-content: space-between;
-            padding: 10% 4%;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            padding: 15% 5%;
+            gap: 15px;
             z-index: 1100;
         }
 
-        .lane {
-            width: 30%;
-            height: 80%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-        }
+        /* THE GRID CONTAINERS: Pushing buttons to the left and right */
+        .grid-cell { display: flex; align-items: center; justify-content: center; }
 
-        /* BUTTONS: TACTICAL GLASS STYLE */
-        .nav-button {
-            background: rgba(0, 0, 0, 0.9);
+        /* THE TACTICAL PADS (BUTTONS) - GLASS BLACK AND GOLD */
+        .tactical-pad {
+            background: rgba(0, 0, 0, 0.95);
             border: 2px solid var(--gold);
-            border-radius: 10px;
-            padding: 18px 5px;
+            border-radius: 12px;
+            width: 100%;
+            padding: 20px 5px;
             text-align: center;
             cursor: pointer;
-            color: var(--gold);
             box-shadow: 0 5px 15px #000;
         }
-        .nav-button:active { background: var(--gold); color: #000; }
-        .nav-button .icon { font-size: 24px; display: block; margin-bottom: 5px; }
-        .nav-button .label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; text-shadow: 1px 1px 2px #000; }
+        .tactical-pad:active { background: var(--gold); color: #000; }
 
-        /* GPS ENGINE PAGE */
-        #gps-page { position: absolute; width: 100%; height: 100%; z-index: 2000; background: #000; display: none; flex-direction: column; }
-        .top-nav { background: #111; padding: 10px; border-bottom: 2px solid var(--gold); display: flex; gap: 8px; height: 75px; align-items: flex-end; }
+        /* Icon & Text Styling */
+        .tactical-pad span { display: block; color: var(--gold); }
+        .icon { font-size: 24px; margin-bottom: 5px; }
+        .label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; text-shadow: 1px 1px 2px #000; }
+
+        /* ---------------------------------- */
+        /* GPS SUB-PAGE - REBUILT AND SECURE */
+        /* ---------------------------------- */
+        #gps-page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000; background: #000; display: none; flex-direction: column; }
+        .top-nav { background: #111; padding: 10px; border-bottom: 2px solid var(--gold); display: flex; gap: 8px; height: 75px; align-items: flex-end; position: relative;}
         .menu-btn { background: var(--gold); color: #000; border: none; padding: 10px; font-weight: 900; border-radius: 4px; }
         .search-bar { flex: 1; padding: 12px; background: #222; border: 1px solid var(--gold); color: #fff; border-radius: 4px; font-size: 16px; }
         .go-btn { background: #fff; font-weight: 900; padding: 12px; border-radius: 4px; border: none; }
-        #map-canvas { flex: 1; width: 100%; }
+        #map { flex: 1; width: 100%; background: #222;}
         .map-footer { background: #111; border-top: 2px solid var(--gold); padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-bottom: 35px; }
         .foot-btn { padding: 20px; font-weight: 900; border-radius: 8px; border: none; text-transform: uppercase; }
 
-        /* BLUE/WHITE GPS DOT */
+        /* THE LIVE USER DOT - BLUE/WHITE TARGET */
         .user-dot { width: 24px; height: 24px; background: #0000FF; border: 3px solid #FFFFFF; border-radius: 50%; box-shadow: 0 0 10px #0000FF; }
     </style>
 </head>
 <body>
 
     <div id="home">
-        <div class="ui-lanes">
-            <div class="lane">
-                <div class="nav-button" onclick="openGPS()">
+        <div class="ui-grid">
+            <div class="grid-cell">
+                <div class="tactical-pad" onclick="openGPS()">
                     <span class="icon">📍</span>
-                    <span class="label">TACTICAL GPS</span>
+                    <span class="label">GPS</span>
                 </div>
-                <div class="nav-button" onclick="alert('LEGAL BIBLE LOADING...')">
+            </div>
+            <div class="grid-cell"></div> <div class="grid-cell">
+                <div class="tactical-pad" onclick="alert('LEGAL')">
                     <span class="icon">⚖️</span>
-                    <span class="label">LEGAL BIBLE</span>
-                </div>
-                <div class="nav-button" onclick="alert('K9 TRAINING LOADING...')">
-                    <span class="icon">🐕</span>
-                    <span class="label">K9 TRAINING</span>
+                    <span class="label">LEGAL</span>
                 </div>
             </div>
 
-            <div class="lane">
-                <div class="nav-button" onclick="alert('K9 FIRST AID LOADING...')">
+            <div class="grid-cell">
+                <div class="tactical-pad" onclick="alert('AID')">
                     <span class="icon">🚑</span>
-                    <span class="label">K9 FIRST AID</span>
+                    <span class="label">AID</span>
                 </div>
-                <div class="nav-button" onclick="alert('INCIDENT REPORTS LOADING...')">
+            </div>
+            <div class="grid-cell"></div> <div class="grid-cell">
+                <div class="tactical-pad" onclick="alert('TRAIN')">
+                    <span class="icon">🐕</span>
+                    <span class="label">TRAIN</span>
+                </div>
+            </div>
+
+            <div class="grid-cell">
+                <div class="tactical-pad" onclick="alert('REPORT')">
                     <span class="icon">📝</span>
-                    <span class="label">INCIDENT RPT</span>
+                    <span class="label">REPORT</span>
                 </div>
-                <div class="nav-button" onclick="alert('SETTINGS LOADING...')">
+            </div>
+            <div class="grid-cell"></div> <div class="grid-cell">
+                <div class="tactical-pad" onclick="alert('SET')">
                     <span class="icon">⚙️</span>
                     <span class="label">SETTINGS</span>
                 </div>
@@ -107,12 +118,12 @@
     <div id="gps-page">
         <div class="top-nav">
             <button class="menu-btn" onclick="closeGPS()">MENU</button>
-            <input type="text" id="targetAddr" class="search-bar" placeholder="Enter Target Address...">
+            <input type="text" id="targetAddr" class="search-bar" placeholder="Target Address...">
             <button class="go-btn" onclick="runSearch()">GO</button>
         </div>
-        <div id="map-canvas"></div>
+        <div id="map"></div>
         <div class="map-footer">
-            <button class="foot-btn" style="background:var(--le-blue); color:#fff;" onclick="locateUser()">MY POSITION</button>
+            <button class="foot-btn" style="background:#0000FF; color:#fff;" onclick="locateUser()">MY POSITION</button>
             <button class="foot-btn" style="background:#cc0000; color:#fff;" onclick="dropPerimeter()">SET PERIMETER</button>
         </div>
     </div>
@@ -121,10 +132,11 @@
 <script>
     let map, marker, perimeter;
 
+    // NAVIGATION
     function openGPS() {
         document.getElementById('home').style.display = 'none';
         document.getElementById('gps-page').style.display = 'flex';
-        if(!map) { setTimeout(initMap, 200); }
+        if(!map) { setTimeout(initMap, 300); } // Wait for layout
     }
 
     function closeGPS() {
@@ -132,8 +144,9 @@
         document.getElementById('home').style.display = 'block';
     }
 
+    // MAP FUNCTIONS
     function initMap() {
-        map = L.map('map-canvas', { zoomControl: false }).setView([37.5853, -79.0514], 14);
+        map = L.map('map', { zoomControl: false }).setView([37.5853, -79.0514], 14);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     }
 
@@ -144,7 +157,7 @@
             if(marker) map.removeLayer(marker);
             marker = L.marker(loc, {icon: icon}).addTo(map);
             map.setView(loc, 17);
-        }, () => alert("GPS Error: Enable Location Services"), {enableHighAccuracy: true});
+        }, () => alert("GPS Error: GPS disabled or signal lost."), {enableHighAccuracy: true});
     }
 
     async function runSearch() {
@@ -160,7 +173,8 @@
 
     function dropPerimeter() {
         if(perimeter) map.removeLayer(perimeter);
-        perimeter = L.circle(map.getCenter(), {color: 'red', radius: 500, weight: 6, fillOpacity: 0.15}).addTo(map);
+        perimeter = L.circle(map.getCenter(), {color: 'red', radius: 500, weight: 6, fillOpacity: 0.1}).addTo(map);
+        alert("Perimeter Set.");
     }
 </script>
 </body>
