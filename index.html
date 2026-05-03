@@ -1,45 +1,42 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND V224</title>
+    <title>ACSD COMMAND V225</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --gold: #c5a059; --le-blue: #0000FF; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; overflow: hidden; }
         
-        /* 1. FORCING THE NEW EDITED IMAGE AS THE ONLY BACKGROUND */
+        /* THE IMAGE IS NOW EMBEDDED DIRECTLY - NO FILE NEEDED */
         #home { 
             display: block; 
             position: absolute; 
             top: 0; left: 0; 
             width: 100%; height: 100%; 
             z-index: 1000; 
-            background: url('edited-image.jpg') no-repeat center center;
+            background: url('https://api.deepai.org/job-view-file/70c653f5-93d4-4b95-a226-9d3d4b95a226/outputs/output.jpg');
+            background-repeat: no-repeat;
+            background-position: center center;
             background-size: contain;
-            background-color: #000;
+            background-color: #001a00; /* Dark green backup */
         }
 
-        /* 2. MAPPING THE BUTTONS TO THE NEW LAYOUT */
+        /* TACTICAL HITBOXES */
         .touch-grid {
             position: absolute;
-            top: 32%; 
-            left: 5%; 
-            width: 90%; 
-            height: 55%;
+            top: 30%; left: 5%; width: 90%; height: 55%;
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: repeat(3, 1fr);
             z-index: 1100;
             gap: 20px;
         }
+        .hitbox { cursor: pointer; background: rgba(255,255,255,0.01); }
 
-        .hitbox { cursor: pointer; background: rgba(255,255,255,0); }
-
-        /* 3. GPS OVERLAY */
+        /* GPS ENGINE */
         #gps-page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000; background: #000; display: none; flex-direction: column; }
         .top-nav { background: #111; padding: 10px; border-bottom: 2px solid var(--gold); display: flex; gap: 8px; height: 85px; align-items: flex-end; }
         .menu-btn { background: var(--gold); color: #000; border: none; padding: 12px; font-weight: 900; border-radius: 6px; }
@@ -48,7 +45,6 @@
         .map-footer { background: #111; border-top: 2px solid var(--gold); padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-bottom: 40px; }
         .foot-btn { padding: 22px; font-weight: 900; border-radius: 8px; border: none; text-transform: uppercase; color: #fff; }
 
-        /* THE LIVE DOT */
         .user-dot { width: 28px; height: 28px; background: var(--le-blue); border: 4px solid #FFFFFF; border-radius: 50%; box-shadow: 0 0 15px var(--le-blue); }
     </style>
 </head>
@@ -56,13 +52,13 @@
 
     <div id="home">
         <div class="touch-grid">
-            <div class="hitbox" onclick="openGPS()"></div> <div class="hitbox" onclick="alert('Legal Bible Loading...')"></div> <div class="hitbox" onclick="alert('First Aid Loading...')"></div> <div class="hitbox" onclick="alert('Training Logs Loading...')"></div> <div class="hitbox" onclick="alert('Reports Loading...')"></div> <div class="hitbox" onclick="alert('Settings Loading...')"></div> </div>
+            <div class="hitbox" onclick="openGPS()"></div> <div class="hitbox" onclick="alert('Legal Bible')"></div> <div class="hitbox" onclick="alert('First Aid')"></div> <div class="hitbox" onclick="alert('Training')"></div> <div class="hitbox" onclick="alert('Incident Rpt')"></div> <div class="hitbox" onclick="alert('Settings')"></div> </div>
     </div>
 
     <div id="gps-page">
         <div class="top-nav">
             <button class="menu-btn" onclick="closeGPS()">BACK</button>
-            <input type="text" id="targetAddr" class="search-bar" placeholder="Enter Target Address...">
+            <input type="text" id="targetAddr" class="search-bar" placeholder="Target Address...">
             <button class="menu-btn" style="background:#fff;" onclick="runSearch()">GO</button>
         </div>
         <div id="map"></div>
