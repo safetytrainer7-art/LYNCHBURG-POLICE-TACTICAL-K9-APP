@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND V209</title>
+    <title>ACSD COMMAND V210</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --gold: #c5a059; --le: #0000FF; --sar: #FF0000; --civ: #00FF00; --sus: #800080; --k9: #ADD8E6; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; }
         
-        /* THE BLOCKER: This ensures the Home Screen and Pages never overlap */
+        /* NAVIGATION LAYERS */
         .ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; z-index: 5000; background: #000; }
         #home { display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000; }
 
@@ -20,7 +20,7 @@
         .left { left: 2%; } .right { right: 2%; }
         .main-btn { background: rgba(0, 20, 0, 0.9); border: 2px solid var(--gold); color: var(--gold); padding: 20px 5px; text-align: center; font-size: 11px; font-weight: 900; border-radius: 10px; text-transform: uppercase; cursor: pointer; }
 
-        /* MASTER BACK BUTTON: Floating above everything */
+        /* MASTER BACK BUTTON */
         .master-back { 
             position: fixed; 
             top: 10px; 
@@ -29,33 +29,60 @@
             background: var(--gold); 
             color: #000; 
             border: 2px solid #fff; 
-            padding: 15px 25px; 
+            padding: 12px 20px; 
             font-weight: 900; 
             border-radius: 8px; 
             box-shadow: 0 0 15px #000;
-            display: none; /* Only shows when a module is open */
+            display: none;
         }
 
-        /* GPS VIEWPORT */
+        /* GPS LAYOUT */
         #gps-container { height: 100%; width: 100%; display: flex; flex-direction: column; }
+        
+        /* SEARCH HEADER AREA */
+        .gps-search-header { 
+            padding: 70px 10px 10px 10px; /* Space for back button */
+            background: #111; 
+            border-bottom: 2px solid var(--gold);
+            display: flex;
+            gap: 10px;
+        }
+        .search-input { 
+            flex: 1; 
+            padding: 15px; 
+            background: #222; 
+            border: 2px solid var(--gold); 
+            color: #fff; 
+            border-radius: 8px; 
+            font-size: 16px; 
+        }
+        .search-go-btn { 
+            background: var(--gold); 
+            color: #000; 
+            border: none; 
+            padding: 0 20px; 
+            font-weight: 900; 
+            border-radius: 8px; 
+        }
+
         #live-map { flex: 1; width: 100%; background: #222; }
-        .map-controls { background: #111; padding: 15px; border-top: 3px solid var(--gold); height: 350px; }
+        
+        .map-controls { background: #111; padding: 15px; border-top: 3px solid var(--gold); height: 320px; }
 
         /* LEGEND */
-        .legend { display: flex; justify-content: space-around; background: #1a1a1a; padding: 12px; border-radius: 8px; margin: 10px 0; border: 1px solid #333; }
+        .legend { display: flex; justify-content: space-around; background: #1a1a1a; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #333; }
         .leg-item { text-align: center; font-size: 10px; font-weight: bold; }
-        .dot { width: 16px; height: 16px; border-radius: 50%; margin: 0 auto 5px; border: 1.5px solid #fff; }
-        .k9-team-dot { display: flex; gap: 2px; justify-content: center; border: 1.5px solid var(--gold); border-radius: 10px; padding: 2px; margin-bottom: 5px; background: #000; }
-        .k9-team-dot div { width: 10px; height: 10px; border-radius: 50%; }
+        .dot { width: 14px; height: 14px; border-radius: 50%; margin: 0 auto 5px; border: 1px solid #fff; }
+        .k9-team-dot { display: flex; gap: 2px; justify-content: center; border: 1px solid var(--gold); border-radius: 10px; padding: 2px; margin-bottom: 5px; background: #000; }
+        .k9-team-dot div { width: 9px; height: 9px; border-radius: 50%; }
 
-        /* ACTION BUTTONS */
-        .row { display: flex; gap: 10px; margin-top: 10px; }
-        .act-btn { flex: 1; padding: 20px; font-weight: bold; border-radius: 8px; border: none; text-transform: uppercase; }
+        .row { display: flex; gap: 10px; }
+        .act-btn { flex: 1; padding: 18px; font-weight: bold; border-radius: 8px; border: none; text-transform: uppercase; font-size: 14px; }
     </style>
 </head>
 <body>
 
-    <button id="masterBack" class="master-back" onclick="forceGoHome()">← BACK TO MENU</button>
+    <button id="masterBack" class="master-back" onclick="forceGoHome()">← MENU</button>
 
     <div id="home">
         <img src="homepage.jpg" style="width:100%; height: 100%; object-fit: contain;">
@@ -73,7 +100,13 @@
 
     <div id="gps" class="ui-layer">
         <div id="gps-container">
-            <div style="height: 60px; background: #111;"></div> <div id="live-map"></div>
+            <div class="gps-search-header">
+                <input type="text" id="targetAddr" class="search-input" placeholder="Enter Target Address...">
+                <button class="search-go-btn" onclick="alert('Searching...')">GO</button>
+            </div>
+
+            <div id="live-map"></div>
+
             <div class="map-controls">
                 <div class="legend">
                     <div class="leg-item"><div class="dot" style="background:var(--le);"></div>BLUE</div>
@@ -86,45 +119,36 @@
                     </div>
                 </div>
                 <div class="row">
-                    <button onclick="deployK9Team()" class="act-btn" style="background:#004400; color:#fff;">DEPLOY K9</button>
-                    <button onclick="setPerimeter()" class="act-btn" style="background:#440000; color:#fff;">PERIMETER</button>
+                    <button onclick="deployK9Team()" class="act-btn" style="background:#004400; color:#fff; border-bottom: 4px solid #002200;">DEPLOY K9</button>
+                    <button onclick="setPerimeter()" class="act-btn" style="background:#440000; color:#fff; border-bottom: 4px solid #220000;">PERIMETER</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="aid" class="ui-layer"><div style="padding:80px 20px;"><h2>FIRST AID MODULE</h2></div></div>
-    <div id="legal" class="ui-layer"><div style="padding:80px 20px;"><h2>LEGAL BIBLE</h2></div></div>
-    <div id="drugs" class="ui-layer"><div style="padding:80px 20px;"><h2>DRUGS & SAFETY</h2></div></div>
-    <div id="train" class="ui-layer"><div style="padding:80px 20px;"><h2>TRAINING LOGS</h2></div></div>
-    <div id="rpt" class="ui-layer"><div style="padding:80px 20px;"><h2>INCIDENT REPORTS</h2></div></div>
+    <div id="aid" class="ui-layer"><div style="padding:100px 20px;"><h2>K9 FIRST AID CONTENT</h2></div></div>
+    <div id="legal" class="ui-layer"><div style="padding:100px 20px;"><h2>LEGAL BIBLE CONTENT</h2></div></div>
+    <div id="drugs" class="ui-layer"><div style="padding:100px 20px;"><h2>DRUGS & SAFETY CONTENT</h2></div></div>
+    <div id="train" class="ui-layer"><div style="padding:100px 20px;"><h2>TRAINING CONTENT</h2></div></div>
+    <div id="rpt" class="ui-layer"><div style="padding:100px 20px;"><h2>INCIDENT CONTENT</h2></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     let map, k9Marker, perim;
 
-    // 1. OPEN TOOL FUNCTION
     function openTool(id) {
-        // Hide Home
         document.getElementById('home').style.display = 'none';
-        // Show Back Button
         document.getElementById('masterBack').style.display = 'block';
-        // Show requested page
         document.getElementById(id).style.display = 'block';
-
         if(id === 'gps' && !map) {
             setTimeout(initMap, 300);
         }
     }
 
-    // 2. FORCE HOME FUNCTION (THE FIX)
     function forceGoHome() {
-        // Hide the master back button
         document.getElementById('masterBack').style.display = 'none';
-        // Hide all pages (all divs with class ui-layer)
         const layers = document.querySelectorAll('.ui-layer');
         layers.forEach(l => l.style.display = 'none');
-        // Show Home
         document.getElementById('home').style.display = 'block';
     }
 
@@ -147,7 +171,7 @@
                 });
                 if(k9Marker) map.removeLayer(k9Marker);
                 k9Marker = L.marker(loc, {icon: k9Icon}).addTo(map);
-                map.setView(loc, 16);
+                map.setView(loc, 17);
             });
         }
     }
@@ -155,7 +179,7 @@
     function setPerimeter() {
         if(k9Marker) {
             if(perim) map.removeLayer(perim);
-            perim = L.circle(k9Marker.getLatLng(), {radius: 400, color: 'red', fillOpacity: 0.1}).addTo(map);
+            perim = L.circle(k9Marker.getLatLng(), {radius: 400, color: 'red', fillOpacity: 0.1, weight: 3}).addTo(map);
         }
     }
 </script>
