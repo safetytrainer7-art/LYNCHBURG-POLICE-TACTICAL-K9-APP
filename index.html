@@ -1,16 +1,17 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND V221</title>
+    <title>ACSD COMMAND V222</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --gold: #c5a059; --le-blue: #0000FF; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #001a00; overflow: hidden; }
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; overflow: hidden; }
         
-        /* THE NEW MASTER HOMEPAGE */
+        /* THE MASTER HOMEPAGE (REQUIRES THE NEW SAVED IMAGE) */
         #home { 
             display: block; 
             position: absolute; 
@@ -21,31 +22,34 @@
             background-size: contain;
         }
 
-        /* INVISIBLE HITBOXES OVER THE NEW BUTTONS */
+        /* INVISIBLE HITBOXES MAPPED TO THE GENERATED IMAGE */
         .touch-grid {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 25%; /* Clears the Badge/Title at the top */
+            left: 0; width: 100%; height: 70%;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            grid-template-rows: repeat(4, 1fr); /* Top/Badge, Row1, Row2, Row3 */
+            grid-template-rows: repeat(3, 1fr);
             z-index: 1100;
+            padding: 0 5%;
+            gap: 20px;
         }
 
-        .hitbox { cursor: pointer; }
+        .hitbox { cursor: pointer; border-radius: 10px; }
+        /* Temporary: Uncomment 'border' below to see hitboxes for alignment, then delete it */
+        /* .hitbox { border: 1px solid rgba(255,255,255,0.2); } */
 
-        /* TACTICAL GPS SUB-PAGE */
+        /* GPS SUB-PAGE */
         #gps-page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000; background: #000; display: none; flex-direction: column; }
         .top-nav { background: #111; padding: 10px; border-bottom: 2px solid var(--gold); display: flex; gap: 8px; height: 80px; align-items: flex-end; }
         .menu-btn { background: var(--gold); color: #000; border: none; padding: 12px; font-weight: 900; border-radius: 6px; }
         .search-bar { flex: 1; padding: 12px; background: #222; border: 1px solid var(--gold); color: #fff; border-radius: 6px; font-size: 16px; }
-        .go-btn { background: #fff; font-weight: 900; padding: 12px; border-radius: 6px; border: none; }
         
         #map { flex: 1; width: 100%; }
         
         .map-footer { background: #111; border-top: 2px solid var(--gold); padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-bottom: 35px; }
         .foot-btn { padding: 20px; font-weight: 900; border-radius: 8px; border: none; text-transform: uppercase; color: #fff; }
 
-        /* BLUE/WHITE GPS DOT */
         .user-dot { width: 26px; height: 26px; background: var(--le-blue); border: 4px solid #FFFFFF; border-radius: 50%; box-shadow: 0 0 12px var(--le-blue); }
     </style>
 </head>
@@ -53,24 +57,14 @@
 
     <div id="home">
         <div class="touch-grid">
-            <div class="hitbox"></div><div class="hitbox"></div>
-            
-            <div class="hitbox" onclick="openGPS()"></div>
-            <div class="hitbox" onclick="alert('Legal Bible Loading...')"></div>
-            
-            <div class="hitbox" onclick="alert('First Aid Loading...')"></div>
-            <div class="hitbox" onclick="alert('Training Logs Loading...')"></div>
-            
-            <div class="hitbox" onclick="alert('Incident Reports Loading...')"></div>
-            <div class="hitbox" onclick="alert('System Settings Loading...')"></div>
-        </div>
+            <div class="hitbox" onclick="openGPS()"></div> <div class="hitbox" onclick="alert('Legal Bible Loading...')"></div> <div class="hitbox" onclick="alert('First Aid Loading...')"></div> <div class="hitbox" onclick="alert('Training Logs Loading...')"></div> <div class="hitbox" onclick="alert('Reports Loading...')"></div> <div class="hitbox" onclick="alert('Settings Loading...')"></div> </div>
     </div>
 
     <div id="gps-page">
         <div class="top-nav">
             <button class="menu-btn" onclick="closeGPS()">BACK</button>
-            <input type="text" id="targetAddr" class="search-bar" placeholder="Enter Target Address...">
-            <button class="go-btn" onclick="runSearch()">GO</button>
+            <input type="text" id="targetAddr" class="search-bar" placeholder="Target Address...">
+            <button class="menu-btn" style="background:#fff;" onclick="runSearch()">GO</button>
         </div>
         <div id="map"></div>
         <div class="map-footer">
@@ -106,7 +100,7 @@
             if(marker) map.removeLayer(marker);
             marker = L.marker(loc, {icon: icon}).addTo(map);
             map.setView(loc, 17);
-        }, () => alert("GPS Signal Lost"), {enableHighAccuracy: true});
+        }, () => alert("GPS Lost"), {enableHighAccuracy: true});
     }
 
     async function runSearch() {
@@ -123,7 +117,6 @@
     function dropPerimeter() {
         if(perimeter) map.removeLayer(perimeter);
         perimeter = L.circle(map.getCenter(), {color: 'red', radius: 500, weight: 6, fillOpacity: 0.1}).addTo(map);
-        alert("500m Perimeter Locked.");
     }
 </script>
 </body>
