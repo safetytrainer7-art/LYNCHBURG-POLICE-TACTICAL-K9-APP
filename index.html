@@ -4,32 +4,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND V204</title>
+    <title>ACSD COMMAND V201</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --gold: #c5a059; --red: #ff3333; --blue: #0088ff; --green: #39ff14; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; }
+        :root { --gold: #c5a059; --bg: #000; }
+        * { box-sizing: border-box; }
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
+        #main-wrapper { width: 100%; height: 100%; position: relative; }
+        .page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         
-        /* NAVIGATION */
-        .page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; overflow-y: auto; }
+        /* HOME SCREEN */
         #home { display: block; width: 100%; height: 100%; background: radial-gradient(circle, #001a00 0%, #000 100%); }
-        .side-col { position: absolute; width: 26%; height: 80%; top: 10%; display: flex; flex-direction: column; justify-content: space-around; z-index: 100; }
+        .side-col { position: absolute; width: 24%; height: 75%; top: 15%; display: flex; flex-direction: column; justify-content: space-around; z-index: 100; }
         .left { left: 2%; } .right { right: 2%; }
-        .main-btn { background: rgba(0, 15, 0, 0.95); border: 2px solid var(--gold); color: var(--gold); padding: 18px 2px; text-align: center; font-size: 11px; font-weight: bold; border-radius: 8px; text-transform: uppercase; box-shadow: 0 4px 15px #000; cursor: pointer; }
+        .main-btn { background: rgba(0, 20, 0, 0.95); border: 2px solid var(--gold); color: var(--gold); padding: 12px 2px; text-align: center; font-size: 10px; font-weight: bold; border-radius: 6px; text-transform: uppercase; }
 
-        /* HEADERS */
-        .header { background: #111; border-bottom: 2px solid var(--gold); padding: 15px; display: flex; align-items: center; position: sticky; top: 0; z-index: 1100; }
-        .back-btn { background: var(--gold); color: #000; border: none; padding: 12px 20px; font-weight: bold; border-radius: 6px; }
-
-        /* CONTENT MODULES */
-        .box { padding: 18px; border-radius: 10px; margin-bottom: 25px; line-height: 1.6; border: 2px solid #444; background: #080808; }
-        .f-input { width: 100%; padding: 14px; margin: 10px 0; background: #111; border: 1px solid #555; color: #fff; border-radius: 6px; font-size: 16px; }
-        h3 { margin-top: 0; text-transform: uppercase; letter-spacing: 1px; }
-        
-        /* GPS SPECIALS */
-        #live-map { height: 50vh; width: 100%; background: #222; }
-        .map-bar { padding: 10px; background: #111; display: flex; gap: 8px; border-bottom: 1px solid #444; }
+        /* HEADER & BOXES */
+        .header { background: #111; border-bottom: 2px solid var(--gold); padding: 12px; display: flex; align-items: center; position: sticky; top: 0; z-index: 1100; }
+        .back-btn { background: var(--gold); color: #000; border: none; padding: 12px 18px; font-weight: bold; border-radius: 4px; }
+        .box { padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #fff; line-height: 1.5; border: 2px solid #444; }
+        .f-input { width: 100%; padding: 10px; margin: 5px 0 10px 0; background: #111; border: 1px solid #444; color: #fff; border-radius: 4px; font-size: 16px; }
     </style>
 </head>
 <body>
@@ -38,157 +32,130 @@
     <div id="home">
         <img src="homepage.jpg" style="width:100%; height: auto; max-height: 100%; object-fit: contain;">
         <div class="side-col left">
-            <div class="main-btn" onclick="nav('sos')">SOS / VETS</div>
-            <div class="main-btn" onclick="nav('aid')">K9 FIRST AID</div>
-            <div class="main-btn" onclick="nav('legal')">LEGAL BIBLE</div>
-            <div class="main-btn" onclick="nav('drugs')">DRUGS / SAFETY</div>
+            <div class="main-btn" onclick="show('sos')">K9 SOS/VETS</div>
+            <div class="main-btn" onclick="show('aid')">K9 FIRST AID</div>
+            <div class="main-btn" onclick="show('legal')">LEGAL BIBLE</div>
+            <div class="main-btn" onclick="show('drugs')">DRUGS/SAFETY</div>
         </div>
         <div class="side-col right">
-            <div class="main-btn" onclick="nav('m-map')">TACTICAL GPS</div>
-            <div class="main-btn" onclick="nav('training')">K9 TRAINING</div>
-            <div class="main-btn" onclick="nav('incidents')">INCIDENT RPT</div>
+            <div class="main-btn" onclick="show('m-map')">TACTICAL GPS</div>
+            <div class="main-btn" onclick="show('training')">K9 TRAINING</div>
+            <div class="main-btn" onclick="show('incidents')">INCIDENT RPT</div>
+            <div class="main-btn" onclick="alert('Module Pending')">SEARCH LOG</div>
+        </div>
+    </div>
+
+    <div id="sos" class="page">
+        <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:red; margin-left:15px; font-weight:bold;">EMERGENCY VETS</span></div>
+        <div style="padding:15px;">
+            <div style="border: 1px solid red; padding: 15px; margin-bottom: 10px; border-radius: 4px; color:#fff;"><b>LYNCHBURG:</b> Animal Emergency & Critical Care <br><a href="tel:4348461504" style="color:#0ff;">(434) 846-1504</a></div>
+            <div style="border: 1px solid red; padding: 15px; margin-bottom: 10px; border-radius: 4px; color:#fff;"><b>CAMPBELL:</b> Peaks View Animal Hospital <br><a href="tel:4345254996" style="color:#0ff;">(434) 525-4996</a></div>
+            <div style="border: 1px solid red; padding: 15px; margin-bottom: 10px; border-radius: 4px; color:#fff;"><b>AMHERST:</b> Blue Ridge Animal Clinic <br><a href="tel:5404633774" style="color:#0ff;">(540) 463-3774</a></div>
         </div>
     </div>
 
     <div id="aid" class="page">
-        <div class="header"><button class="back-btn" onclick="nav('home')">← BACK</button><span style="color:var(--red); margin-left:15px; font-weight:bold;">K9 FIRST AID & CPR</span></div>
-        <div style="padding:15px; padding-bottom:100px;">
-            <div class="box" style="border-color:var(--red);">
-                <h3 style="color:var(--red);">COMMAND CPR METRONOME</h3>
-                <p>Lay dog on right side. Place hands over ribs where elbow touches chest. Compress 1/3 to 1/2 the width of the chest.</p>
-                <button id="cprBtn" onclick="toggleCPR()" style="width:100%; background:var(--red); color:#fff; padding:20px; font-weight:bold; border:none; border-radius:8px;">START VOICE METRONOME (120 BPM)</button>
-            </div>
-            <div class="box" style="border-color:#ffa500;">
-                <h3 style="color:#ffa500;">CRITICAL CARE PROTOCOLS</h3>
-                <p><b>NARCAN:</b> 4mg nasal spray immediately for opioid exposure. Symptoms: slow breathing, pinpoint pupils. Repeat every 3 mins if no change.</p>
-                <p><b>BLOAT (GDV):</b> Emergency surgery required. Watch for unproductive vomiting and a hard, distended belly. Do not give water. Transport ASAP.</p>
-                <p><b>HEATSTROKE:</b> Temp over 104°F. Use running cool water (paws/groin). NEVER use ice water—it shuts down surface vessels and fries internal organs.</p>
-                <p><b>GSW/TRAUMA:</b> Direct pressure only. For limbs, apply tourniquet high and tight. Keep dog warm and quiet to prevent shock.</p>
+        <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:#ff3333; margin-left:15px; font-weight:bold;">K9 FIRST AID</span></div>
+        <div style="padding:15px;">
+            <div class="box" style="border-color:#ff3333; background:#1a0000;">
+                <h3 style="color:#ff3333;">HEAT & BLOAT</h3>
+                <p><b>Heatstroke:</b> If temp >104°F, use cool water on belly/paws. Do NOT use ice water as it traps heat.</p>
+                <p><b>Bloat:</b> Watch for retching and tight stomach. 10/10 emergency, transport immediately.</p>
+                <p><b>Narcan:</b> 4mg nasal for opioid exposure. Use multiple doses for large dogs if needed.</p>
             </div>
         </div>
     </div>
 
     <div id="legal" class="page">
-        <div class="header"><button class="back-btn" onclick="nav('home')">← BACK</button><span style="color:var(--blue); margin-left:15px; font-weight:bold;">LEGAL BIBLE</span></div>
-        <div style="padding:15px; padding-bottom:100px;">
-            <div class="box" style="border-color:var(--blue);">
-                <h3 style="color:var(--blue);">FEDERAL CASE LAW</h3>
-                <p><b>Rodriguez v. US:</b> The 4th Amendment prohibits extending a traffic stop for a K9 sniff without separate Reasonable Suspicion. The clock stops when the "mission" of the ticket is done.</p>
-                <p><b>Florida v. Harris:</b> Reliability is based on a dog's certification and training records. A final alert from a certified dog establishes Probable Cause for a search.</p>
-                <p><b>US v. Place:</b> A sniff of luggage/cars in a public area is not a "search" because it only detects illegal items. No warrant required for the sniff itself.</p>
+        <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:var(--gold); margin-left:15px; font-weight:bold;">LEGAL BIBLE</span></div>
+        <div style="padding:15px;">
+            <div class="box" style="border-color:#0055ff; background:#00051a;">
+                <h3 style="color:#0088ff;">FEDERAL STANDARDS</h3>
+                <p><b>Fourth Amendment:</b> Sniffing a car in public is NOT a search (US v. Place). It only reveals contraband.</p>
+                <p><b>Rodriguez v. US:</b> You cannot extend a traffic stop by 1 minute for a dog without independent suspicion.</p>
+                <p><b>Florida v. Harris:</b> Certification by a reputable group = Probable Cause. Keep your training logs tight.</p>
             </div>
-            <div class="box" style="border-color:var(--gold);">
-                <h3 style="color:var(--gold);">VIRGINIA STANDARDS</h3>
-                <p><b>Jardines Rule:</b> You cannot take a dog onto a front porch (curtilage) to sniff a door without a warrant. Evidence found via a porch-sniff is inadmissible in VA.</p>
-                <p><b>Automobile Exception:</b> In VA, a K9 alert gives you PC to search the entire vehicle and all containers within. Clearly articulate the "alert" vs. "interest" in your report.</p>
+            <div class="box" style="border-color:var(--gold); background:#1a1100;">
+                <h3 style="color:var(--gold);">VIRGINIA SPECIFICS</h3>
+                <p><b>Automobile Exception:</b> A K9 alert gives you PC to search the whole vehicle immediately.</p>
+                <p><b>Curtilage:</b> No dogs on porches without a warrant (Jardines). Stay in public walkways.</p>
+                <p><b>Testimony:</b> Articulate the change in body posture and the final alert. VA judges focus on objective facts.</p>
             </div>
         </div>
     </div>
 
     <div id="drugs" class="page">
-        <div class="header"><button class="back-btn" onclick="nav('home')">← BACK</button><span style="color:var(--green); margin-left:15px; font-weight:bold;">DRUGS & SAFETY</span></div>
-        <div style="padding:15px; padding-bottom:100px;">
-            <div class="box" style="border-color:var(--green);">
-                <h3 style="color:var(--green);">NARCOTIC IDENTIFICATION</h3>
-                <p><b>FENTANYL:</b> Assume all blue "M30" pills and white powders contain Fentanyl. 2mg is a lethal human dose. Use Nitrile gloves; never use air blowers near powders.</p>
-                <p><b>METHAMPHETAMINE:</b> Clear/cloudy crystals ("Ice"). Look for glass pipes and butane torches. In VA, 10g triggers mandatory minimums.</p>
-                <p><b>COCAINE/CRACK:</b> Off-white "rocks" or white powder. 5g of base (crack) triggers major penalties. Look for baking soda/scales as PWID evidence.</p>
-                <p><b>HEROIN:</b> VA "Grey Death" is common. Highly lethal. Look for wax stamps and burnt spoons.</p>
+        <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:#39ff14; margin-left:15px; font-weight:bold;">DRUGS & SAFETY</span></div>
+        <div style="padding:15px;">
+            <div class="box" style="border-color:#39ff14; background:#051a00;">
+                <h3 style="color:#39ff14;">ID & HAZMAT</h3>
+                <p><b>Fentanyl:</b> Assume blue "M30" pills are lethal. Use Nitrile gloves. Never field test powders.</p>
+                <p><b>Exposure:</b> Symptoms: pinpoint pupils/slow breathing. Use Narcan immediately. Notify dispatch for EMS.</p>
+                <p><b>VA Weights:</b> 10g Meth or 5g Crack = mandatory minimums. Document scales and cash for PWID.</p>
             </div>
         </div>
     </div>
 
     <div id="m-map" class="page">
-        <div class="header"><button class="back-btn" onclick="nav('home')">← BACK</button><span style="color:#0ff; margin-left:15px; font-weight:bold;">GPS COMMAND</span></div>
-        <div class="map-bar">
-            <input type="text" id="targetAddr" placeholder="Enter Search Address" style="flex:1; padding:12px; background:#222; border:1px solid #0ff; color:#fff; border-radius:4px;">
-            <button onclick="mapGo()" style="background:#0ff; color:#000; border:none; padding:12px; font-weight:bold; border-radius:4px;">GO</button>
-        </div>
-        <div id="live-map"></div>
-        <div style="padding:15px; display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-            <button onclick="locateMe()" style="background:#004400; color:#fff; border:1px solid #0f0; padding:18px; font-weight:bold; border-radius:8px;">LOCATE ME</button>
-            <button onclick="drawPerim()" style="background:#440000; color:#fff; border:1px solid #f00; padding:18px; font-weight:bold; border-radius:8px;">PERIMETER</button>
-        </div>
+        <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:#0ff; margin-left:15px; font-weight:bold;">TACTICAL GPS</span></div>
+        <div id="live-map" style="height:70vh; background:#222;"></div>
+        <div style="padding:10px;"><button onclick="startGps()" style="width:100%; background:#004400; color:#fff; padding:15px; border:1px solid #0f0; font-weight:bold;">START LIVE TRACKING</button></div>
     </div>
 
     <div id="training" class="page">
-        <div class="header"><button class="back-btn" onclick="nav('home')">← BACK</button><span style="color:#0fc; font-weight:bold;">K9 TRAINING FORM</span></div>
+        <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:#0fc; margin-left:15px; font-weight:bold;">TRAINING LOG</span></div>
         <div style="padding:15px;">
-            <label>Date/Time/Loc:</label><input type="text" class="f-input" placeholder="05/02/26 - Amherst Warehouse">
-            <label>Weather/Wind/Temp:</label><input type="text" class="f-input" placeholder="Sunny / NW 5mph / 72F">
-            <label>Dog/Search Type:</label><input type="text" class="f-input" placeholder="Narcotic / Building Search">
-            <label>Aid/Hide/Scent Cone:</label><input type="text" class="f-input" placeholder="Meth 5g / 4ft High / Left Cone">
-            <label>Performance Notes:</label><textarea class="f-input" style="height:100px;"></textarea>
-            <button onclick="alert('PDF Generated')" style="width:100%; background:#0fc; color:#000; padding:18px; font-weight:bold; border:none; border-radius:8px;">GENERATE COURT PDF</button>
+            <div class="box" style="border-color:#0fc; background:#001a1a;">
+                <label>Date/Time/Location:</label><input type="text" class="f-input">
+                <label>Scent & Height:</label><input type="text" class="f-input">
+                <label>Weather & Wind:</label><input type="text" class="f-input">
+                <label>Notes/Performance:</label><textarea class="f-input" style="height:80px;"></textarea>
+                <button onclick="alert('Saved')" style="width:100%; background:#0fc; color:#000; padding:12px; font-weight:bold; border:none;">SAVE TRAINING LOG</button>
+            </div>
         </div>
     </div>
 
     <div id="incidents" class="page">
-        <div class="header"><button class="back-btn" onclick="nav('home')">← BACK</button><span style="color:#f05; font-weight:bold;">INCIDENT REPORT</span></div>
+        <div class="header"><button class="back-btn" onclick="goHome()">← BACK</button><span style="color:#f05; margin-left:15px; font-weight:bold;">INCIDENT REPORT</span></div>
         <div style="padding:15px;">
-            <label>Officer/Dept/Case ID:</label><input type="text" class="f-input">
-            <label>Classification/Arrests:</label><input type="text" class="f-input">
-            <label>Injury/Deployment Notes:</label><textarea class="f-input" style="height:120px;"></textarea>
-            <button onclick="alert('Incident Logged')" style="width:100%; background:#f05; color:#fff; padding:18px; font-weight:bold; border:none; border-radius:8px;">SAVE REPORT</button>
+            <div class="box" style="border-color:#f05; background:#1a0005;">
+                <label>Officer/Dept/Case #:</label><input type="text" class="f-input">
+                <label>Classification/Disposition:</label><input type="text" class="f-input">
+                <label>Injuries/Diagram Notes:</label><textarea class="f-input" style="height:80px;"></textarea>
+                <button onclick="alert('Incident Logged')" style="width:100%; background:#f05; color:#fff; padding:12px; font-weight:bold; border:none;">LOG INCIDENT</button>
+            </div>
         </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    let map, userMarker, perimCircle, cprInterval;
-    const pages = ['home', 'sos', 'aid', 'legal', 'drugs', 'm-map', 'training', 'incidents'];
+    const pages = ['sos', 'aid', 'legal', 'drugs', 'm-map', 'training', 'incidents'];
+    let map;
 
-    function nav(id) {
-        pages.forEach(p => document.getElementById(p).style.display = 'none');
+    function show(id) {
+        pages.forEach(p => { const el = document.getElementById(p); if(el) el.style.display = 'none'; });
+        document.getElementById('home').style.display = 'none';
         document.getElementById(id).style.display = 'block';
-        if(id === 'm-map' && !map) initMap();
-    }
-
-    function initMap() {
-        setTimeout(() => {
-            map = L.map('live-map').setView([37.5, -79.1], 12);
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        }, 300);
-    }
-
-    function mapGo() { alert("Searching for: " + document.getElementById('targetAddr').value); }
-    
-    function locateMe() {
-        if(navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(pos => {
-                const ll = [pos.coords.latitude, pos.coords.longitude];
-                if(userMarker) map.removeLayer(userMarker);
-                userMarker = L.circleMarker(ll, {color:'blue', radius:10}).addTo(map);
-                map.setView(ll, 15);
-            });
-        }
-    }
-
-    function drawPerim() {
-        if(userMarker) {
-            if(perimCircle) map.removeLayer(perimCircle);
-            perimCircle = L.circle(userMarker.getLatLng(), {radius: 400, color: 'red'}).addTo(map);
-            alert("Perimeter set to 400m");
-        }
-    }
-
-    function toggleCPR() {
-        const btn = document.getElementById('cprBtn');
-        if(cprInterval) {
-            clearInterval(cprInterval);
-            cprInterval = null;
-            btn.innerHTML = "START VOICE METRONOME (120 BPM)";
-            btn.style.background = "var(--red)";
-        } else {
-            btn.innerHTML = "STOP METRONOME (PUSH NOW)";
-            btn.style.background = "#fff";
-            btn.style.color = "#000";
-            cprInterval = setInterval(() => {
-                const msg = new SpeechSynthesisUtterance("Push");
-                msg.rate = 2.0;
-                window.speechSynthesis.speak(msg);
+        if(id === 'm-map' && !map) {
+            setTimeout(() => {
+                map = L.map('live-map').setView([37.5, -79.1], 13);
+                L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
             }, 500);
+        }
+    }
+
+    function goHome() {
+        pages.forEach(p => { const el = document.getElementById(p); if(el) el.style.display = 'none'; });
+        document.getElementById('home').style.display = 'block';
+    }
+
+    function startGps() {
+        if(navigator.geolocation) {
+            navigator.geolocation.watchPosition(pos => {
+                L.circleMarker([pos.coords.latitude, pos.coords.longitude], {color:'blue', radius:10}).addTo(map);
+                map.panTo([pos.coords.latitude, pos.coords.longitude]);
+            });
         }
     }
 </script>
