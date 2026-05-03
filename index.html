@@ -1,113 +1,167 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSO K9 Command</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <title>ACSD COMMAND V219</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
-
-        /* USING YOUR IMAGE AS THE ACTUAL BACKGROUND */
-        #homepage {
-            width: 100vw; height: 100vh;
-            background: url('https://files.oaiusercontent.com/file-K7m9XoH5BwA79NfJ3nB6Yp?se=2024-10-24T00%3A14%3A36Z&sp=r&sv=24.10.01&sr=b&rscc=max-age%3D604800%2C%20immutable%2C%20private&rscd=attachment%3B%20filename%3Dhomepage_2.jpg&sig=o3nLzN23G9GvNl9wZ0R9A1lE/pP9P6U%3D') no-repeat center center;
-            background-size: 100% 100%;
-            position: relative;
+        :root { --gold: #c5a059; --le-blue: #0000FF; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #001a00; font-family: 'Times New Roman', serif; overflow: hidden; }
+        
+        /* THE NEW OFFICIAL GREEN BACKGROUND */
+        #home { 
+            display: block; 
+            position: absolute; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            z-index: 1000; 
+            background: url('homepage.jpg') no-repeat center center;
+            background-size: cover; /* Ensures the green leather fills the whole screen */
         }
 
-        /* PLACING ICONS OVER THE RED SQUARE AREA */
-        .icon-overlay {
+        /* TACTICAL OVERLAY - BUTTONS MOVED TO SIDES TO CLEAR THE K9 */
+        .ui-lanes {
             position: absolute;
-            top: 57%; /* Aligning with the red box in your image */
-            left: 50%;
-            transform: translateX(-50%);
-            width: 82%;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px 10px;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; justify-content: space-between;
+            padding: 10% 4%;
+            z-index: 1100;
         }
 
-        .nav-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-        .icon-circle {
-            width: 55px; height: 55px; border: 2px solid #d4af37; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.6em; background: rgba(0,0,0,0.6); margin-bottom: 5px;
-        }
-        .nav-item span { 
-            font-size: 0.62em; color: #d4af37; font-weight: bold; 
-            text-align: center; width: 85px; line-height: 1.1; 
+        .lane {
+            width: 30%;
+            height: 80%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
         }
 
-        /* MODULE LAYERS */
-        .module-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; }
-        .nav-header { height: 60px; background: #0b2414; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 2px solid #d4af37; }
-        .exit-btn { background: #900; color: #fff; border: 1px solid #fff; padding: 8px 12px; font-weight: bold; cursor: pointer; }
+        /* BUTTONS: TACTICAL GLASS STYLE */
+        .nav-button {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid var(--gold);
+            border-radius: 10px;
+            padding: 18px 5px;
+            text-align: center;
+            cursor: pointer;
+            color: var(--gold);
+            box-shadow: 0 5px 15px #000;
+        }
+        .nav-button:active { background: var(--gold); color: #000; }
+        .nav-button .icon { font-size: 24px; display: block; margin-bottom: 5px; }
+        .nav-button .label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; text-shadow: 1px 1px 2px #000; }
+
+        /* GPS ENGINE PAGE */
+        #gps-page { position: absolute; width: 100%; height: 100%; z-index: 2000; background: #000; display: none; flex-direction: column; }
+        .top-nav { background: #111; padding: 10px; border-bottom: 2px solid var(--gold); display: flex; gap: 8px; height: 75px; align-items: flex-end; }
+        .menu-btn { background: var(--gold); color: #000; border: none; padding: 10px; font-weight: 900; border-radius: 4px; }
+        .search-bar { flex: 1; padding: 12px; background: #222; border: 1px solid var(--gold); color: #fff; border-radius: 4px; font-size: 16px; }
+        .go-btn { background: #fff; font-weight: 900; padding: 12px; border-radius: 4px; border: none; }
+        #map-canvas { flex: 1; width: 100%; }
+        .map-footer { background: #111; border-top: 2px solid var(--gold); padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-bottom: 35px; }
+        .foot-btn { padding: 20px; font-weight: 900; border-radius: 8px; border: none; text-transform: uppercase; }
+
+        /* BLUE/WHITE GPS DOT */
+        .user-dot { width: 24px; height: 24px; background: #0000FF; border: 3px solid #FFFFFF; border-radius: 50%; box-shadow: 0 0 10px #0000FF; }
     </style>
 </head>
 <body>
 
-<div id="homepage">
-    <div class="icon-overlay">
-        <div class="nav-item" onclick="openModule('sos-layer')"><div class="icon-circle" style="border-color:#ff0000;">🏥</div><span>Emergency SOS</span></div>
-        <div class="nav-item" onclick="openModule('gps-layer')"><div class="icon-circle">🗺️</div><span>Live GPS Map</span></div>
-        <div class="nav-item" onclick="openModule('law-layer')"><div class="icon-circle">🔍</div><span>Narcotics Aids</span></div>
-        <div class="nav-item" onclick="openModule('law-layer')"><div class="icon-circle">⚖️</div><span>Legal Shield</span></div>
-        <div class="nav-item" onclick="openModule('log-layer')"><div class="icon-circle">📝</div><span>Training Logs</span></div>
-        <div class="nav-item" onclick="openModule('law-layer')"><div class="icon-circle">🏛️</div><span>VA Code</span></div>
-    </div>
-</div>
+    <div id="home">
+        <div class="ui-lanes">
+            <div class="lane">
+                <div class="nav-button" onclick="openGPS()">
+                    <span class="icon">📍</span>
+                    <span class="label">TACTICAL GPS</span>
+                </div>
+                <div class="nav-button" onclick="alert('LEGAL BIBLE LOADING...')">
+                    <span class="icon">⚖️</span>
+                    <span class="label">LEGAL BIBLE</span>
+                </div>
+                <div class="nav-button" onclick="alert('K9 TRAINING LOADING...')">
+                    <span class="icon">🐕</span>
+                    <span class="label">K9 TRAINING</span>
+                </div>
+            </div>
 
-<!-- GPS MODULE -->
-<div id="gps-layer" class="module-layer">
-    <div class="nav-header"><button class="exit-btn" onclick="closeModule('gps-layer')">BACK</button><span style="color:#d4af37;">TACTICAL GPS</span></div>
-    <div id="map" style="width:100%; height:60%;"></div>
-    <div style="padding:15px; background:#000; height:40%;">
-        <div style="color:#00ff00; font-family:monospace; border:1px solid #00ff00; padding:10px; margin-bottom:10px;">
-            CP DISTANCE: <span id="cp-val">0</span> YD<br>
-            GAP DISTANCE: <span id="gap-val">0</span> YD
+            <div class="lane">
+                <div class="nav-button" onclick="alert('K9 FIRST AID LOADING...')">
+                    <span class="icon">🚑</span>
+                    <span class="label">K9 FIRST AID</span>
+                </div>
+                <div class="nav-button" onclick="alert('INCIDENT REPORTS LOADING...')">
+                    <span class="icon">📝</span>
+                    <span class="label">INCIDENT RPT</span>
+                </div>
+                <div class="nav-button" onclick="alert('SETTINGS LOADING...')">
+                    <span class="icon">⚙️</span>
+                    <span class="label">SETTINGS</span>
+                </div>
+            </div>
         </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <button onclick="setMode('blue')" style="background:blue; color:#fff; padding:15px; font-weight:bold; border:none;">OFFICER</button>
-            <button onclick="setMode('green')" style="background:green; color:#fff; padding:15px; font-weight:bold; border:none;">K9 UNIT</button>
+    </div>
+
+    <div id="gps-page">
+        <div class="top-nav">
+            <button class="menu-btn" onclick="closeGPS()">MENU</button>
+            <input type="text" id="targetAddr" class="search-bar" placeholder="Enter Target Address...">
+            <button class="go-btn" onclick="runSearch()">GO</button>
+        </div>
+        <div id="map-canvas"></div>
+        <div class="map-footer">
+            <button class="foot-btn" style="background:var(--le-blue); color:#fff;" onclick="locateUser()">MY POSITION</button>
+            <button class="foot-btn" style="background:#cc0000; color:#fff;" onclick="dropPerimeter()">SET PERIMETER</button>
         </div>
     </div>
-</div>
 
-<!-- EMERGENCY SOS MODULE -->
-<div id="sos-layer" class="module-layer">
-    <div class="nav-header"><button class="exit-btn" onclick="closeModule('sos-layer')">BACK</button><span style="color:#d4af37;">DUTY MEDICAL</span></div>
-    <div style="padding:20px;">
-        <button style="width:100%; padding:25px; background:#900; color:#fff; font-weight:bold; border:2px solid #fff; margin-bottom:20px;" onclick="shout('Commencing K9 CPR. Thirty compressions to two breaths.')">K9 CPR AUDIO GUIDE</button>
-        <button style="width:100%; padding:25px; background:#1a3c2a; color:#d4af37; font-weight:bold; border:2px solid #d4af37;" onclick="shout('Trauma protocol. Apply pressure. Check for shock.')">TRAUMA AUDIO GUIDE</button>
-    </div>
-</div>
-
-<!-- DATA MODULES -->
-<div id="law-layer" class="module-layer"><div class="nav-header"><button class="exit-btn" onclick="closeModule('law-layer')">BACK</button><span>LEGAL VA CODE</span></div></div>
-<div id="log-layer" class="module-layer"><div class="nav-header"><button class="exit-btn" onclick="closeModule('log-layer')">BACK</button><span>TRAINING LOGS</span></div></div>
-
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    var map, lastPos, currentMode = 'blue';
+    let map, marker, perimeter;
 
-    function openModule(id) {
-        document.getElementById(id).style.display = 'block';
-        if (id === 'gps-layer' && !map) {
-            map = L.map('map', {zoomControl: false}).setView([37.58, -79.05], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            map.on('click', function(e) {
-                L.circleMarker(e.latlng, {radius: 12, fillColor: currentMode, color: '#fff', weight: 2, fillOpacity: 0.9}).addTo(map);
-                if(lastPos) document.getElementById('gap-val').innerText = Math.round(e.latlng.distanceTo(lastPos) * 1.09361);
-                lastPos = e.latlng;
-            });
+    function openGPS() {
+        document.getElementById('home').style.display = 'none';
+        document.getElementById('gps-page').style.display = 'flex';
+        if(!map) { setTimeout(initMap, 200); }
+    }
+
+    function closeGPS() {
+        document.getElementById('gps-page').style.display = 'none';
+        document.getElementById('home').style.display = 'block';
+    }
+
+    function initMap() {
+        map = L.map('map-canvas', { zoomControl: false }).setView([37.5853, -79.0514], 14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    }
+
+    function locateUser() {
+        navigator.geolocation.getCurrentPosition(p => {
+            const loc = [p.coords.latitude, p.coords.longitude];
+            const icon = L.divIcon({ html: '<div class="user-dot"></div>', className: '', iconSize: [24,24] });
+            if(marker) map.removeLayer(marker);
+            marker = L.marker(loc, {icon: icon}).addTo(map);
+            map.setView(loc, 17);
+        }, () => alert("GPS Error: Enable Location Services"), {enableHighAccuracy: true});
+    }
+
+    async function runSearch() {
+        const query = document.getElementById('targetAddr').value;
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        if(data[0]) {
+            const loc = [data[0].lat, data[0].lon];
+            L.marker(loc).addTo(map);
+            map.setView(loc, 17);
         }
     }
 
-    function closeModule(id) { document.getElementById(id).style.display = 'none'; window.speechSynthesis.cancel(); }
-    function setMode(m) { currentMode = m; }
-    function shout(t) { window.speechSynthesis.cancel(); window.speechSynthesis.speak(new SpeechSynthesisUtterance(t)); }
+    function dropPerimeter() {
+        if(perimeter) map.removeLayer(perimeter);
+        perimeter = L.circle(map.getCenter(), {color: 'red', radius: 500, weight: 6, fillOpacity: 0.15}).addTo(map);
+    }
 </script>
-
 </body>
 </html>
