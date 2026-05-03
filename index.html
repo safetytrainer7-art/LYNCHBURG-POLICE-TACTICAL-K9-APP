@@ -1,16 +1,17 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ACSD COMMAND V225</title>
+    <title>ACSD COMMAND V226</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --gold: #c5a059; --le-blue: #0000FF; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; overflow: hidden; }
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #001a00; overflow: hidden; }
         
-        /* THE IMAGE IS NOW EMBEDDED DIRECTLY - NO FILE NEEDED */
+        /* THE IMAGE IS NOW RAW TEXT INSIDE THE CODE - NO FILE REQUIRED */
         #home { 
             display: block; 
             position: absolute; 
@@ -21,22 +22,20 @@
             background-repeat: no-repeat;
             background-position: center center;
             background-size: contain;
-            background-color: #001a00; /* Dark green backup */
+            background-color: #001a00;
         }
 
-        /* TACTICAL HITBOXES */
         .touch-grid {
             position: absolute;
-            top: 30%; left: 5%; width: 90%; height: 55%;
+            top: 32%; left: 5%; width: 90%; height: 55%;
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: repeat(3, 1fr);
             z-index: 1100;
-            gap: 20px;
+            gap: 15px;
         }
         .hitbox { cursor: pointer; background: rgba(255,255,255,0.01); }
 
-        /* GPS ENGINE */
         #gps-page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000; background: #000; display: none; flex-direction: column; }
         .top-nav { background: #111; padding: 10px; border-bottom: 2px solid var(--gold); display: flex; gap: 8px; height: 85px; align-items: flex-end; }
         .menu-btn { background: var(--gold); color: #000; border: none; padding: 12px; font-weight: 900; border-radius: 6px; }
@@ -44,7 +43,6 @@
         #map { flex: 1; width: 100%; }
         .map-footer { background: #111; border-top: 2px solid var(--gold); padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-bottom: 40px; }
         .foot-btn { padding: 22px; font-weight: 900; border-radius: 8px; border: none; text-transform: uppercase; color: #fff; }
-
         .user-dot { width: 28px; height: 28px; background: var(--le-blue); border: 4px solid #FFFFFF; border-radius: 50%; box-shadow: 0 0 15px var(--le-blue); }
     </style>
 </head>
@@ -52,13 +50,19 @@
 
     <div id="home">
         <div class="touch-grid">
-            <div class="hitbox" onclick="openGPS()"></div> <div class="hitbox" onclick="alert('Legal Bible')"></div> <div class="hitbox" onclick="alert('First Aid')"></div> <div class="hitbox" onclick="alert('Training')"></div> <div class="hitbox" onclick="alert('Incident Rpt')"></div> <div class="hitbox" onclick="alert('Settings')"></div> </div>
+            <div class="hitbox" onclick="openGPS()"></div> 
+            <div class="hitbox" onclick="alert('Legal Bible')"></div> 
+            <div class="hitbox" onclick="alert('First Aid')"></div> 
+            <div class="hitbox" onclick="alert('Training')"></div> 
+            <div class="hitbox" onclick="alert('Incident Rpt')"></div> 
+            <div class="hitbox" onclick="alert('Settings')"></div> 
+        </div>
     </div>
 
     <div id="gps-page">
         <div class="top-nav">
             <button class="menu-btn" onclick="closeGPS()">BACK</button>
-            <input type="text" id="targetAddr" class="search-bar" placeholder="Target Address...">
+            <input type="text" id="targetAddr" class="search-bar" placeholder="Enter Target Address...">
             <button class="menu-btn" style="background:#fff;" onclick="runSearch()">GO</button>
         </div>
         <div id="map"></div>
@@ -71,48 +75,12 @@
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     let map, marker, perimeter;
-
-    function openGPS() {
-        document.getElementById('home').style.display = 'none';
-        document.getElementById('gps-page').style.display = 'flex';
-        if(!map) { setTimeout(initMap, 300); }
-    }
-
-    function closeGPS() {
-        document.getElementById('gps-page').style.display = 'none';
-        document.getElementById('home').style.display = 'block';
-    }
-
-    function initMap() {
-        map = L.map('map', { zoomControl: false }).setView([37.5853, -79.0514], 14);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    }
-
-    function locateUser() {
-        navigator.geolocation.getCurrentPosition(p => {
-            const loc = [p.coords.latitude, p.coords.longitude];
-            const icon = L.divIcon({ html: '<div class="user-dot"></div>', className: '', iconSize: [28,28] });
-            if(marker) map.removeLayer(marker);
-            marker = L.marker(loc, {icon: icon}).addTo(map);
-            map.setView(loc, 17);
-        }, () => alert("GPS Lost"), {enableHighAccuracy: true});
-    }
-
-    async function runSearch() {
-        const query = document.getElementById('targetAddr').value;
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
-        const data = await res.json();
-        if(data[0]) {
-            const loc = [data[0].lat, data[0].lon];
-            L.marker(loc).addTo(map);
-            map.setView(loc, 17);
-        }
-    }
-
-    function dropPerimeter() {
-        if(perimeter) map.removeLayer(perimeter);
-        perimeter = L.circle(map.getCenter(), {color: 'red', radius: 500, weight: 8, fillOpacity: 0.15}).addTo(map);
-    }
+    function openGPS() { document.getElementById('home').style.display = 'none'; document.getElementById('gps-page').style.display = 'flex'; if(!map) { setTimeout(initMap, 300); } }
+    function closeGPS() { document.getElementById('gps-page').style.display = 'none'; document.getElementById('home').style.display = 'block'; }
+    function initMap() { map = L.map('map', { zoomControl: false }).setView([37.5853, -79.0514], 14); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map); }
+    function locateUser() { navigator.geolocation.getCurrentPosition(p => { const loc = [p.coords.latitude, p.coords.longitude]; const icon = L.divIcon({ html: '<div class="user-dot"></div>', className: '', iconSize: [28,28] }); if(marker) map.removeLayer(marker); marker = L.marker(loc, {icon: icon}).addTo(map); map.setView(loc, 17); }, () => alert("GPS Signal Lost"), {enableHighAccuracy: true}); }
+    async function runSearch() { const query = document.getElementById('targetAddr').value; const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`); const data = await res.json(); if(data[0]) { const loc = [data[0].lat, data[0].lon]; L.marker(loc).addTo(map); map.setView(loc, 17); } }
+    function dropPerimeter() { if(perimeter) map.removeLayer(perimeter); perimeter = L.circle(map.getCenter(), {color: 'red', radius: 500, weight: 8, fillOpacity: 0.15}).addTo(map); }
 </script>
 </body>
 </html>
